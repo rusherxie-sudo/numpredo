@@ -34,6 +34,8 @@ if (trace) {
 const faq = [
   { q: '数独が解けないときはどうすればいい？', a: 'まず全空きマスに候補をメモしましょう。単数（候補が一つのマス）を確定し、それでも詰まったらペアや区画の絞り込みを使います。当てずっぽうは不要です。' },
   { q: '当てずっぽうは必要ですか？', a: 'numpredo の問題はすべて論理だけで解けるよう検証しています。必ず次の一手が論理で見つかるので、推測は要りません。' },
+  { q: '数独とナンプレは違うものですか？', a: '同じパズルの別名です。「ナンバープレース（ナンプレ）」と「数独」は呼び方が違うだけで、ルールも解き方も同じです。' },
+  { q: '数独の解き方のコツは何ですか？', a: 'まずヒントが多い行・列・ブロックから始め、候補メモを全マスに書きましょう。消去法で候補が一つに絞れるマスを探すのが基本のコツです。コツの詳細は<a href="/guide/tips/">解き方のコツまとめ</a>をどうぞ。' },
 ];
 const howToSchema = {
   '@context': 'https://schema.org',
@@ -51,12 +53,21 @@ const faqSchema = {
   '@type': 'FAQPage',
   mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
 };
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '解き方ガイド', item: url },
+  ],
+};
 ---
 
 <Base title={title} description={description} canonical={url}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>
 
   <nav class="crumb"><a href="/">ホーム</a> › 解き方</nav>
@@ -91,7 +102,16 @@ const faqSchema = {
     <li><a href="/guide/techniques/naked-pair/">ネイキッドペア（二国同盟）の解き方</a></li>
     <li><a href="/guide/techniques/pointing/">区画の絞り込み（ポインティング）の解き方</a></li>
     <li><a href="/guide/techniques/x-wing/">X-Wing（エックスウイング）の解き方</a></li>
+    <li><a href="/guide/techniques/hidden-pair/">隠れたペア（ヒドゥンペア）の解き方</a></li>
+    <li><a href="/guide/techniques/naked-triple/">三国同盟（ネイキッドトリプル）の解き方</a></li>
+    <li><a href="/guide/techniques/swordfish/">スワードフィッシュの解き方</a></li>
   </ul>
+
+  <h2>解き方のコツまとめ</h2>
+  <p>基本から中級まで、コツを段階的に学びたい方は<a href="/guide/tips/">解き方のコツまとめページ</a>へ。消去法・候補メモの書き方・ペアの見つけ方をわかりやすく解説しています。</p>
+
+  <h2>詰まったときの対処法</h2>
+  <p>どうしても解けないときのチェックリストは<a href="/guide/when-stuck/">行き詰まり解決ガイド</a>へ。候補メモの見直しから三国同盟・スワードフィッシュまで、次の一手を論理で見つける方法を解説しています。</p>
 
   <h2>難易度を選んで練習</h2>
   <ul>
