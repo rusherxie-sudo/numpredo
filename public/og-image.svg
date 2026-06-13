@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7f5f0"/>
+      <stop offset="100%" stop-color="#eadfc9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- decorative sudoku grid (right side) -->
+  <g opacity="0.08" transform="translate(750, 80)">
+    <rect width="360" height="360" fill="none" stroke="#1f1b16" stroke-width="3"/>
+    <!-- 3x3 inner lines -->
+    <line x1="120" y1="0" x2="120" y2="360" stroke="#1f1b16" stroke-width="1.5"/>
+    <line x1="240" y1="0" x2="240" y2="360" stroke="#1f1b16" stroke-width="1.5"/>
+    <line x1="0" y1="120" x2="360" y2="120" stroke="#1f1b16" stroke-width="1.5"/>
+    <line x1="0" y1="240" x2="360" y2="240" stroke="#1f1b16" stroke-width="1.5"/>
+    <!-- 9x9 thin lines -->
+    <line x1="40" y1="0" x2="40" y2="360" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="80" y1="0" x2="80" y2="360" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="160" y1="0" x2="160" y2="360" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="200" y1="0" x2="200" y2="360" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="280" y1="0" x2="280" y2="360" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="320" y1="0" x2="320" y2="360" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="0" y1="40" x2="360" y2="40" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="0" y1="80" x2="360" y2="80" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="0" y1="160" x2="360" y2="160" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="0" y1="200" x2="360" y2="200" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="0" y1="280" x2="360" y2="280" stroke="#1f1b16" stroke-width="0.5"/>
+    <line x1="0" y1="320" x2="360" y2="320" stroke="#1f1b16" stroke-width="0.5"/>
+    <!-- some numbers -->
+    <text x="16" y="32" font-size="28" font-family="serif" fill="#1f1b16" text-anchor="middle">5</text>
+    <text x="96" y="32" font-size="28" font-family="serif" fill="#1f1b16" text-anchor="middle">3</text>
+    <text x="136" y="72" font-size="28" font-family="serif" fill="#1f1b16" text-anchor="middle">7</text>
+    <text x="16" y="112" font-size="28" font-family="serif" fill="#1f1b16" text-anchor="middle">6</text>
+    <text x="56" y="152" font-size="28" font-family="serif" fill="#c8463c" text-anchor="middle">1</text>
+    <text x="136" y="192" font-size="28" font-family="serif" fill="#1f1b16" text-anchor="middle">8</text>
+    <text x="256" y="232" font-size="28" font-family="serif" fill="#1f1b16" text-anchor="middle">6</text>
+    <text x="296" y="272" font-size="28" font-family="serif" fill="#c8463c" text-anchor="middle">9</text>
+    <text x="336" y="352" font-size="28" font-family="serif" fill="#1f1b16" text-anchor="middle">2</text>
+  </g>
+
+  <!-- left accent bar -->
+  <rect x="80" y="120" width="6" height="300" fill="#c8463c" rx="3"/>
+
+  <!-- logo -->
+  <text x="112" y="185" font-size="52" font-family="'Noto Serif JP', serif" font-weight="600" fill="#1f1b16" letter-spacing="2">numpre<tspan fill="#c8463c">do</tspan></text>
+
+  <!-- main copy -->
+  <text x="112" y="265" font-size="58" font-family="'Noto Serif JP', serif" font-weight="700" fill="#1f1b16">数独・ナンプレ</text>
+  <text x="112" y="335" font-size="58" font-family="'Noto Serif JP', serif" font-weight="700" fill="#1f1b16">無料オンライン</text>
+
+  <!-- sub copy -->
+  <text x="114" y="395" font-size="26" font-family="'Noto Sans JP', sans-serif" fill="#6b6258">登録不要・広告なし・メモ/タイマー付き</text>
+
+  <!-- tags -->
+  <rect x="112" y="430" width="130" height="38" rx="4" fill="none" stroke="#c8463c" stroke-width="1.5"/>
+  <text x="177" y="454" font-size="18" font-family="'Noto Sans JP', sans-serif" fill="#c8463c" text-anchor="middle">初級〜超難問</text>
+
+  <rect x="258" y="430" width="130" height="38" rx="4" fill="none" stroke="#c8463c" stroke-width="1.5"/>
+  <text x="323" y="454" font-size="18" font-family="'Noto Sans JP', sans-serif" fill="#c8463c" text-anchor="middle">PDF印刷対応</text>
+
+  <rect x="404" y="430" width="130" height="38" rx="4" fill="none" stroke="#c8463c" stroke-width="1.5"/>
+  <text x="469" y="454" font-size="18" font-family="'Noto Sans JP', sans-serif" fill="#c8463c" text-anchor="middle">解き方ガイド</text>
+
+  <!-- URL -->
+  <text x="112" y="545" font-size="22" font-family="'Noto Sans JP', sans-serif" fill="#9c9388">numpredo.com</text>
+</svg>

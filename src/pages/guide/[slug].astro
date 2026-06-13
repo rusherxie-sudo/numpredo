@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ShareBar from '../../components/ShareBar.astro';
 import { GUIDES, type GuideArticle } from '../../data/guides.ts';
 
 export function getStaticPaths() {
@@ -44,6 +45,8 @@ const breadcrumbSchema = {
     <li><a href="/guide/how-to-solve/">解き方完全ガイド</a></li>
     <li><a href="/play/advanced/">上級をプレイして練習</a></li>
   </ul>
+
+  <ShareBar url={url} title={g.title} cta="この解説が役に立ったらシェア" />
 
   <h2>よくある質問</h2>
   <dl class="faq">{g.faq.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>

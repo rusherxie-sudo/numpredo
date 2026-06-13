@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ShareBar from '../../components/ShareBar.astro';
 import { LEVELS, type LevelMeta } from '../../data/levels.ts';
 import { renderBoardSvg, gridFromString, traceFirstElimination, LIGHT_THEME } from '../../engine/index.ts';
 
@@ -75,6 +76,8 @@ const breadcrumbSchema = {
   </div>
 
   <div data-sudoku data-level={meta.slug} data-set={setJson}></div>
+
+  <ShareBar url={url} title={title} cta="この問題をシェア・友達に挑戦状を送ろう" />
 
   <h2>{meta.ja}で必要なテクニック</h2>
   <p>{meta.technique}</p>

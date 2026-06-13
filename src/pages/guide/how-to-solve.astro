@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ShareBar from '../../components/ShareBar.astro';
 import advanced from '../../data/puzzles/advanced.json';
 import { renderBoardSvg, gridFromString, traceFirstElimination, LIGHT_THEME, type CandidateMark } from '../../engine/index.ts';
 
@@ -117,6 +118,8 @@ const breadcrumbSchema = {
   <ul>
     <li><a href="/play/beginner/">初級</a> / <a href="/play/intermediate/">中級</a> / <a href="/play/advanced/">上級</a> / <a href="/play/hard/">難問</a> / <a href="/play/extreme/">超難問</a></li>
   </ul>
+
+  <ShareBar url={url} title={title} cta="この解き方ガイドをシェア" />
 
   <h2>よくある質問</h2>
   <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>

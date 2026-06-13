@@ -1,0 +1,157 @@
+---
+interface Props {
+  url: string;
+  title: string;
+  cta?: string;
+}
+const { url, title, cta = 'この記事をシェア' } = Astro.props;
+const eu = encodeURIComponent(url);
+const et = encodeURIComponent(title);
+const xText = encodeURIComponent(`${title} #数独 #ナンプレ`);
+---
+
+<div class="share-bar">
+  <span class="share-label">{cta}</span>
+  <div class="share-btns">
+    <a
+      href={`https://b.hatena.ne.jp/add?mode=confirm&url=${eu}&title=${et}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="sbtn sbtn-hb"
+      aria-label="はてなブックマークに追加"
+    >
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+        <text x="0" y="13" font-size="13" font-weight="900" font-family="sans-serif" fill="currentColor">B!</text>
+      </svg>
+      はてブ
+    </a>
+    <a
+      href={`https://x.com/intent/tweet?url=${eu}&text=${xText}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="sbtn sbtn-x"
+      aria-label="X(Twitter)でシェア"
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.745l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+      </svg>
+      X
+    </a>
+    <a
+      href={`https://social-plugins.line.me/lineit/share?url=${eu}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="sbtn sbtn-line"
+      aria-label="LINEでシェア"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="M12 2C6.48 2 2 6.09 2 11.08c0 4.44 3.94 8.15 9.27 8.91l.55 2.01c.09.33.46.44.71.22l2.27-2.01c3.46-.45 6.2-2.89 6.2-9.13C21 6.09 17.52 2 12 2z"/>
+      </svg>
+      LINE
+    </a>
+    <button type="button" class="sbtn sbtn-copy" data-copy-url={url}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2"/>
+        <rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span class="copy-label">URLコピー</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.sbtn-copy[data-copy-url]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const copyUrl = btn.dataset.copyUrl ?? location.href;
+      try {
+        await navigator.clipboard.writeText(copyUrl);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = copyUrl;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      const label = btn.querySelector('.copy-label');
+      if (label) {
+        const orig = label.textContent;
+        label.textContent = 'コピー済み ✓';
+        btn.classList.add('copied');
+        setTimeout(() => { label.textContent = orig; btn.classList.remove('copied'); }, 2200);
+      }
+    });
+  });
+</script>
+
+<style>
+  .share-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin: 28px 0;
+    flex-wrap: wrap;
+  }
+  .share-label {
+    font-family: var(--min);
+    font-size: 13px;
+    color: var(--sub);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .share-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .sbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 13px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: var(--sans);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: opacity 0.15s, filter 0.15s;
+    line-height: 1;
+  }
+  .sbtn:hover { opacity: 0.82; }
+  .sbtn-hb {
+    background: #00a4de;
+    color: #fff;
+    border-color: #00a4de;
+  }
+  .sbtn-x {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+  }
+  @media (prefers-color-scheme: dark) {
+    .sbtn-x { background: #e7e7e7; color: #111; border-color: #e7e7e7; }
+  }
+  .sbtn-line {
+    background: #06c755;
+    color: #fff;
+    border-color: #06c755;
+  }
+  .sbtn-copy {
+    background: var(--washi);
+    color: var(--sub);
+    border-color: var(--line);
+  }
+  .sbtn-copy.copied {
+    background: var(--tofu);
+    color: var(--shu);
+    border-color: var(--shu);
+  }
+</style>
