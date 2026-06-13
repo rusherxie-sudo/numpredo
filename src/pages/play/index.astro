@@ -1,0 +1,49 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LEVELS } from '../../data/levels.ts';
+const title = '数独・ナンプレを無料でプレイ｜難易度一覧 - numpredo';
+const description = '初級から超難問まで、無料の数独（ナンプレ）を難易度別にプレイ。すべて唯一解・論理だけで解ける高品質問題。登録不要、スマホ対応。';
+---
+
+<Base title={title} description={description}>
+  <nav class="crumb"><a href="/">ホーム</a> › プレイ</nav>
+  <h1>数独・ナンプレを無料でプレイ</h1>
+  <p class="lead">難易度を選んでプレイ。すべて唯一解・論理だけで解ける高品質問題です。</p>
+
+  <div class="play-list">
+    {LEVELS.map((l) => (
+      <a href={`/play/${l.slug}/`} class="play-card">
+        <span class="pc-j">{l.ja}<span class="pc-e">（{l.en}）</span></span>
+        <span class="pc-d">{l.lead}</span>
+      </a>
+    ))}
+  </div>
+
+  <h2>バリエーション数独</h2>
+  <ul>
+    <li><a href="/variants/killer/">キラー数独</a> — ケージの合計から解く</li>
+    <li><a href="/variants/6x6/">6×6数独（ミニ数独）</a> — 1〜6だけの入門向け</li>
+    <li><a href="/variants/inequality/">不等号ナンプレ</a> — 大小関係で絞り込む</li>
+    <li><a href="/variants/diagonal/">対角線数独（X数独）</a> — 対角線にも1〜9</li>
+  </ul>
+
+  <h2>学ぶ・印刷する</h2>
+  <ul>
+    <li><a href="/guide/how-to-solve/">数独・ナンプレの解き方ガイド</a></li>
+    <li><a href="/print/">無料PDF問題集（印刷）</a></li>
+    <li><a href="/daily/">毎日の数独</a></li>
+  </ul>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; }
+    .crumb a { color: var(--sub); text-decoration: none; }
+    .lead { color: var(--sub); font-size: 14px; margin: 0 0 18px; }
+    main ul { line-height: 2; } main ul a { color: var(--ai); }
+    .play-list { display: flex; flex-direction: column; gap: 10px; }
+    .play-card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; text-decoration: none; color: var(--sumi); transition: border-color 0.12s; }
+    .play-card:hover { border-color: var(--shu); }
+    .pc-j { font-family: var(--min); font-size: 17px; font-weight: 600; }
+    .pc-e { font-size: 12px; color: var(--sub); font-weight: 400; }
+    .pc-d { display: block; font-size: 13px; color: var(--sub); margin-top: 4px; }
+  </style>
+</Base>

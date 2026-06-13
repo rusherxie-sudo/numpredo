@@ -1,0 +1,22 @@
+{
+  "name": "numpredo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "numpredo — 日语数独/ナンプレ 内容站（Astro + 框架无关数独引擎）",
+  "scripts": {
+    "demo": "node scripts/demo.ts",
+    "render-demo": "node scripts/render-demo.ts",
+    "gen:puzzles": "node scripts/build-puzzles.ts",
+    "dev": "astro dev",
+    "build": "node scripts/build-puzzles.ts && astro build",
+    "preview": "astro preview"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^5.13.0"
+  }
+}

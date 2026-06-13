@@ -1,0 +1,84 @@
+---
+import Base from '../layouts/Base.astro';
+const title = '無料の数独・ナンプレ｜唯一解・論理で解ける高品質パズル - numpredo';
+const description =
+  '数独（ナンプレ）を無料でオンラインプレイ。初級から上級まで、すべて唯一解・論理だけで解ける高品質問題。解き方ガイド・印刷問題集も無料、登録不要。';
+
+const diffs = [
+  ['初級', 'やさしい', '/play/beginner/'],
+  ['中級', 'ふつう', '/play/intermediate/'],
+  ['上級', 'むずかしい', '/play/advanced/'],
+  ['難問', '手強い', '/play/hard/'],
+  ['超難問', '最高峰', '/play/extreme/'],
+  ['毎日', '日替わり', '/daily/'],
+];
+const feats = [
+  ['解き方ガイド', '基本から上級テクニックまで、図解でわかりやすく。', '/guide/how-to-solve/'],
+  ['無料PDF問題集', '難易度・問題数を選んで印刷。脳トレに最適。', '/print/'],
+  ['毎日の数独', '毎日新しい一問。タイムを記録して挑戦。', '/daily/'],
+];
+---
+
+<Base title={title} description={description}>
+  <section class="hero">
+    <p class="mark">数 独 ・ ナ ン プ レ</p>
+    <h1 class="hero-h1">無料で楽しむ、<br />上質な数独。</h1>
+    <p class="hero-lead">
+      すべての問題は「解が一つだけ」「論理だけで解ける」ことを検証済み。当てずっぽうのない、本物の数独体験を。
+    </p>
+    <div class="vals">
+      <span>◦ 唯一解保証</span><span>◦ 論理で解ける</span><span>◦ 登録不要</span><span>◦ スマホ対応</span>
+    </div>
+  </section>
+
+  <h2>難易度を選んで遊ぶ</h2>
+  <div class="diff-grid">
+    {
+      diffs.map(([ja, en, href]) => (
+        <a href={href} class="diff-card">
+          <span class="j">{ja}</span>
+          <span class="e">{en}</span>
+        </a>
+      ))
+    }
+  </div>
+
+  <h2>学ぶ・印刷する</h2>
+  <div class="feat-grid">
+    {
+      feats.map(([h, p, href]) => (
+        <a href={href} class="feat-card">
+          <h3>{h}</h3>
+          <p>{p}</p>
+          <span class="arr">{h}へ →</span>
+        </a>
+      ))
+    }
+  </div>
+
+  <style is:global>
+    .hero { text-align: center; padding: 40px 0 30px; }
+    .mark { font-family: var(--min); font-size: 13px; color: var(--shu); letter-spacing: 0.3em; margin: 0 0 14px; }
+    .hero-h1 { font-family: var(--min); font-weight: 700; font-size: clamp(26px, 6vw, 34px); line-height: 1.35; margin: 0 0 14px; letter-spacing: 0.02em; }
+    .hero-lead { font-size: 14px; color: var(--sub); line-height: 1.9; max-width: 460px; margin: 0 auto; }
+    .vals { display: flex; gap: 16px; justify-content: center; margin-top: 18px; font-size: 12px; color: var(--sub); flex-wrap: wrap; }
+
+    .diff-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 9px; }
+    .diff-card { background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 16px 6px; text-align: center; text-decoration: none; color: var(--sumi); transition: border-color 0.12s, background 0.12s; }
+    .diff-card:hover { border-color: var(--shu); background: var(--tofu); }
+    .diff-card .j { display: block; font-family: var(--min); font-size: 17px; font-weight: 600; }
+    .diff-card .e { display: block; font-size: 10px; color: var(--sub); margin-top: 3px; }
+
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .feat-card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px 16px; text-decoration: none; color: var(--sumi); transition: border-color 0.12s; }
+    .feat-card:hover { border-color: var(--shu); }
+    .feat-card h3 { font-family: var(--min); font-size: 15px; margin: 0 0 6px; }
+    .feat-card p { font-size: 12px; color: var(--sub); line-height: 1.7; margin: 0; }
+    .feat-card .arr { display: block; color: var(--shu); font-size: 12px; margin-top: 8px; }
+
+    @media (max-width: 560px) {
+      .diff-grid { grid-template-columns: repeat(3, 1fr); }
+      .feat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</Base>

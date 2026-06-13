@@ -1,0 +1,164 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LEVELS, type LevelMeta } from '../../data/levels.ts';
+import { renderBoardSvg, gridFromString, traceFirstElimination, LIGHT_THEME } from '../../engine/index.ts';
+
+export function getStaticPaths() {
+  return LEVELS.map((meta) => ({ params: { level: meta.slug }, props: { meta } }));
+}
+
+interface Props {
+  meta: LevelMeta;
+}
+const { meta } = Astro.props;
+const setJson = JSON.stringify(meta.puzzles);
+
+const title = `${meta.ja}の数独・ナンプレを無料でプレイ｜numpredo`;
+const description = `${meta.ja}（${meta.en}）の数独（ナンプレ）を無料でオンラインプレイ。${meta.lead} メモ・自動チェック・タイマー付き、登録不要。`;
+const url = `https://numpredo.com/play/${meta.slug}/`;
+
+const others = LEVELS.filter((l) => l.slug !== meta.slug);
+
+// 构建期 SVG 图解（题面 + 引擎真实推理の消去）→ 内容丰富度 + image pack
+const sample = gridFromString(meta.puzzles[0].puzzle);
+const givenMask = sample.map((v) => v !== 0);
+const svgPuzzle = renderBoardSvg(sample, { given: givenMask, theme: LIGHT_THEME, cell: 36, title: `${meta.ja}の数独・ナンプレ問題例`, desc: `${meta.ja}の問題例` });
+const trace = traceFirstElimination(sample);
+let svgTech = '';
+if (trace) {
+  const marks = (trace.step.eliminations ?? []).map(([cell, digit]) => ({ cell, digit, type: 'eliminate' as const }));
+  const hl = [...new Set((trace.step.eliminations ?? []).map(([c]) => c))].map((cell) => ({ cell }));
+  svgTech = renderBoardSvg(trace.grid, { given: givenMask, candidates: trace.candidates, cellHighlights: hl, candidateMarks: marks, theme: LIGHT_THEME, cell: 36, title: `${meta.ja}のテクニック例`, desc: '候補消去の例' });
+}
+
+const webAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: `${meta.ja}ナンプレ（数独）`,
+  description,
+  url,
+  applicationCategory: 'GameApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'ja',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+};
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: meta.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: 'プレイ', item: 'https://numpredo.com/play/' },
+    { '@type': 'ListItem', position: 3, name: meta.ja, item: url },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={url}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › {meta.ja}</nav>
+
+  <h1>{meta.ja}の数独・ナンプレ</h1>
+  <p class="lead">{meta.lead}</p>
+
+  <div class="diff-badges">
+    {LEVELS.map((l) => <a href={`/play/${l.slug}/`} class={l.slug === meta.slug ? 'diff-bdg on' : 'diff-bdg'}>{l.ja}</a>)}
+  </div>
+
+  <div data-sudoku data-level={meta.slug} data-set={setJson}></div>
+
+  <h2>{meta.ja}で必要なテクニック</h2>
+  <p>{meta.technique}</p>
+  <div class="fig-row">
+    <figure class="guide-fig"><Fragment set:html={svgPuzzle} /><figcaption>{meta.ja}の問題例（太字がヒント）</figcaption></figure>
+    {svgTech && <figure class="guide-fig"><Fragment set:html={svgTech} /><figcaption>候補消去の例（赤い候補が消える）</figcaption></figure>}
+  </div>
+
+  <h2>{meta.ja}攻略のコツ</h2>
+  <ul>{meta.tips.map((t) => <li>{t}</li>)}</ul>
+
+  <h2>解き方をもっと学ぶ</h2>
+  <p>
+    テクニックの図解は<a href="/guide/how-to-solve/">数独・ナンプレの解き方ガイド</a>で詳しく解説しています。
+    ルールから確認したい方は<a href="/guide/rules/">ルール・遊び方</a>へ。
+  </p>
+
+  <h2>他の難易度で遊ぶ</h2>
+  <ul>{others.map((l) => <li><a href={`/play/${l.slug}/`}>{l.ja}（{l.en}）</a></li>)}</ul>
+
+  <h2>印刷して解く</h2>
+  <p>紙で解きたい方は<a href="/print/">無料の数独・ナンプレ問題集（PDF印刷）</a>へ。難易度・問題数を選んでダウンロードできます。</p>
+
+  <h2>よくある質問</h2>
+  <dl class="faq">{meta.faq.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+
+  <script>
+    import '../../client/sudoku-game.ts';
+  </script>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; }
+    .crumb a { color: var(--sub); text-decoration: none; }
+    .lead { color: var(--sub); font-size: 14px; margin: 0 0 16px; }
+    .faq dt { font-family: var(--min); font-weight: 600; margin-top: 16px; }
+    .faq dd { margin: 5px 0 0; color: var(--sub); }
+    main ul { line-height: 2; }
+    main ul a { color: var(--ai); }
+
+    .fig-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 14px 0; }
+    .guide-fig { flex: 1 1 240px; margin: 0; text-align: center; }
+    .guide-fig svg { width: 100%; max-width: 320px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+    .guide-fig figcaption { font-size: 12px; color: var(--sub); margin-top: 6px; }
+    .diff-badges { display: flex; gap: 7px; flex-wrap: wrap; margin: 0 0 18px; }
+    .diff-bdg { font-family: var(--min); font-size: 14px; padding: 4px 14px; border: 1px solid var(--shu); color: var(--shu); border-radius: 3px; text-decoration: none; }
+    .diff-bdg.on { background: var(--shu); color: var(--card); }
+
+    [data-sudoku] { margin: 6px 0 26px; }
+    .sk-layout { display: grid; grid-template-columns: 1fr 196px; gap: 22px; align-items: start; }
+    .sk-left { min-width: 0; }
+    .sk-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 440px; margin: 0 auto; border: 2px solid var(--thick); background: var(--card); }
+    .sk-cell { border: 0.5px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.4vw, 25px); cursor: pointer; padding: 0; position: relative; color: var(--ai); font-family: var(--sans); font-weight: 500; transition: background 0.12s; }
+    .sk-cell.sk-br { border-right: 1.5px solid var(--thick); }
+    .sk-cell.sk-bb { border-bottom: 1.5px solid var(--thick); }
+    .sk-given { color: var(--sumi); font-family: var(--min); font-weight: 600; }
+    .sk-peer { background: var(--tofu); }
+    .sk-same { background: var(--tofu2); }
+    .sk-sel { background: var(--shuw); box-shadow: inset 0 0 0 2px var(--shu); }
+    .sk-err { color: var(--err) !important; }
+    .sk-notes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; height: 100%; font-size: clamp(8px, 2vw, 11px); color: var(--note); line-height: 1; }
+    .sk-notes i { display: flex; align-items: center; justify-content: center; font-style: normal; }
+    .sk-side { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 14px; }
+    .sk-timer { text-align: center; font-family: var(--min); font-size: 26px; color: var(--sumi); }
+    .sk-rem { text-align: center; font-size: 12px; color: var(--sub); margin: 2px 0 6px; }
+    .sk-rem.sk-clear { color: var(--shu); font-family: var(--min); font-size: 15px; }
+    .sk-badge { display: none; text-align: center; font-family: var(--min); font-size: 11px; color: var(--shu); border: 1px solid var(--shu); border-radius: 3px; padding: 2px 0; margin: 0 auto 10px; }
+    .sk-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 10px; }
+    .sk-key { padding: 12px 0; font-size: 19px; border: 1px solid var(--line); border-radius: 5px; background: var(--washi); cursor: pointer; color: var(--sumi); font-family: var(--min); }
+    .sk-key:hover { background: var(--tofu); }
+    .sk-del { font-size: 13px; font-family: var(--sans); color: var(--sub); }
+    .sk-ctrl { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .sk-cbtn { padding: 9px 0; border: 1px solid var(--line); border-radius: 5px; background: var(--washi); cursor: pointer; font-size: 13px; color: var(--sumi); font-family: var(--sans); }
+    .sk-cbtn.on { background: var(--shu); color: var(--card); border-color: var(--shu); }
+
+    @media (max-width: 560px) {
+      .sk-layout { grid-template-columns: 1fr; }
+      .sk-board { max-width: 100%; }
+      .sk-side { border: none; background: transparent; padding: 8px 0 0; }
+      .sk-pad { grid-template-columns: repeat(5, 1fr); }
+      .sk-key { padding: 14px 0; }
+      .sk-ctrl { flex-direction: row; }
+      .sk-cbtn { flex: 1; }
+      .sk-timer { display: inline-block; }
+      .sk-rem { display: inline-block; margin-left: 10px; }
+    }
+  </style>
+</Base>

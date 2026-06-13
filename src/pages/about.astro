@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+const title = 'numpredo について｜免責事項・プライバシー - numpredo';
+const description = 'numpredo（ナンプレdo）は、無料・登録不要で遊べる高品質な数独・ナンプレのサイトです。サイト紹介、免責事項、プライバシーポリシー、お問い合わせについて。';
+---
+
+<Base title={title} description={description}>
+  <nav class="crumb"><a href="/">ホーム</a> › このサイトについて</nav>
+  <h1>numpredo について</h1>
+  <p>
+    numpredo（ナンプレ do）は、<strong>無料・登録不要</strong>で遊べる数独・ナンプレのサイトです。
+    すべての問題は「解が一つだけ」「論理だけで解ける」ことを機械的に検証した、当てずっぽうのない高品質パズルです。
+  </p>
+
+  <h2>サイトの特徴</h2>
+  <ul>
+    <li>唯一解を保証（多解の欠陥問題なし）</li>
+    <li>論理だけで解ける（当てずっぽう不要）</li>
+    <li>難易度を技術ベースで判定（初級〜超難問）</li>
+    <li>登録不要・無料・スマホ対応</li>
+  </ul>
+
+  <h2>免責事項</h2>
+  <p class="sub">当サイトのコンテンツは正確性に努めていますが、利用により生じた損害について責任を負いかねます。</p>
+
+  <h2>プライバシーポリシー</h2>
+  <p class="sub">タイムや記録はお使いの端末（ブラウザ）に保存され、サーバーには送信されません。アクセス解析を利用する場合があります。</p>
+
+  <h2>お問い合わせ</h2>
+  <p class="sub">ご意見・ご要望はお問い合わせフォーム（順次公開予定）よりお寄せください。</p>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
+    main ul { line-height: 2; } .sub { color: var(--sub); font-size: 14px; }
+  </style>
+</Base>

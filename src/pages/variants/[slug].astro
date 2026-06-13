@@ -1,0 +1,66 @@
+---
+import Base from '../../layouts/Base.astro';
+import { VARIANTS, type Variant } from '../../data/variants.ts';
+
+export function getStaticPaths() {
+  return VARIANTS.map((v) => ({ params: { slug: v.slug }, props: { v } }));
+}
+interface Props {
+  v: Variant;
+}
+const { v } = Astro.props;
+const url = `https://numpredo.com/variants/${v.slug}/`;
+const others = VARIANTS.filter((x) => x.slug !== v.slug);
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: v.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: 'バリエーション', item: 'https://numpredo.com/play/' },
+    { '@type': 'ListItem', position: 3, name: v.name, item: url },
+  ],
+};
+---
+
+<Base title={v.title} description={v.description} canonical={url}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › {v.name}</nav>
+  <h1>{v.h1}</h1>
+  <p class="lead">{v.lead}</p>
+
+  <figure class="var-fig"><Fragment set:html={v.svg} /><figcaption>{v.svgCaption}</figcaption></figure>
+
+  {v.sections.map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => <p set:html={p} />)}</>))}
+
+  <h2>他のバリエーション</h2>
+  <ul>{others.map((x) => <li><a href={`/variants/${x.slug}/`}>{x.name}</a></li>)}</ul>
+
+  <h2>基本の数独で遊ぶ</h2>
+  <ul>
+    <li><a href="/play/beginner/">初級</a> / <a href="/play/intermediate/">中級</a> / <a href="/play/advanced/">上級</a></li>
+    <li><a href="/guide/how-to-solve/">解き方ガイド</a></li>
+  </ul>
+
+  <h2>よくある質問</h2>
+  <dl class="faq">{v.faq.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
+    .lead { color: var(--sub); font-size: 14px; margin: 0 0 16px; }
+    main ul { line-height: 2; } main ul a, main p a { color: var(--ai); }
+    .faq dt { font-family: var(--min); font-weight: 600; margin-top: 16px; } .faq dd { margin: 5px 0 0; color: var(--sub); }
+    .var-fig { margin: 16px auto; text-align: center; max-width: 360px; }
+    .var-fig svg { width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+    .var-fig figcaption { font-size: 12px; color: var(--sub); margin-top: 6px; }
+  </style>
+</Base>

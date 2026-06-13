@@ -1,0 +1,80 @@
+---
+import Base from '../layouts/Base.astro';
+import { LEVELS } from '../data/levels.ts';
+const title = '無料の数独・ナンプレ問題集（PDF印刷）｜numpredo';
+const description = '数独（ナンプレ）の問題を無料で印刷。難易度・問題数を選んでその場で生成、ブラウザの印刷からPDF保存もできます。解答付き、唯一解・論理だけで解ける高品質問題。';
+---
+
+<Base title={title} description={description}>
+  <nav class="crumb"><a href="/">ホーム</a> › 問題集・印刷</nav>
+  <h1>無料の数独・ナンプレ問題集（印刷）</h1>
+  <p class="lead">難易度と問題数を選んで「生成して印刷」を押すと、その場で問題を作成し印刷ダイアログが開きます。PDFとして保存も可能。解答付き、すべて唯一解・論理だけで解ける高品質問題です。</p>
+
+  <div id="print-tool" class="print-controls">
+    <div class="pc-row">
+      <span class="pc-label">難易度</span>
+      <div class="chips">
+        {LEVELS.map((l) => <button type="button" class={l.slug === 'advanced' ? 'chip on' : 'chip'} data-lv={l.slug}>{l.ja}</button>)}
+      </div>
+    </div>
+    <div class="pc-row">
+      <span class="pc-label">問題数</span>
+      <div class="chips">
+        {[4, 6, 12].map((n) => <button type="button" class={n === 6 ? 'chip on' : 'chip'} data-ct={n}>{n}問</button>)}
+      </div>
+    </div>
+    <label class="pc-check"><input type="checkbox" id="print-cand" /> 候補数字のマスを薄く印刷する</label>
+    <button id="print-go" type="button" class="print-go">生成して印刷</button>
+    <p id="print-status" class="print-status"></p>
+  </div>
+
+  <div id="print-mount" class="print-mount"></div>
+
+  <h2 class="screen-only">関連</h2>
+  <ul class="screen-only">
+    <li><a href="/guide/how-to-solve/">解き方ガイド</a></li>
+    <li><a href="/daily/">毎日の数独</a></li>
+    <li><a href="/play/advanced/">画面でプレイする</a></li>
+  </ul>
+
+  <script>
+    import '../client/print.ts';
+  </script>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
+    .lead { color: var(--sub); font-size: 14px; margin: 0 0 18px; }
+    main ul { line-height: 2; } main ul a { color: var(--ai); }
+
+    .print-controls { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 18px; }
+    .pc-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .pc-label { font-size: 13px; color: var(--sub); min-width: 48px; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { font-family: var(--min); font-size: 13px; padding: 5px 13px; border: 1px solid var(--line); border-radius: 4px; background: var(--washi); color: var(--sumi); cursor: pointer; }
+    .chip.on { background: var(--shu); color: var(--card); border-color: var(--shu); }
+    .pc-check { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--sub); margin: 4px 0 14px; }
+    .print-go { background: var(--shu); color: var(--card); border: 0; font-size: 14px; padding: 11px 22px; border-radius: 6px; cursor: pointer; font-family: var(--sans); }
+    .print-status { font-size: 13px; color: var(--sub); margin: 10px 0 0; }
+
+    .print-mount { margin-top: 20px; }
+    .print-head { display: none; align-items: center; justify-content: space-between; margin-bottom: 12px; font-family: var(--min); }
+    .ph-logo b { color: var(--shu); }
+    .pz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .pz figcaption, .az figcaption { font-family: var(--min); font-size: 12px; color: var(--sub); margin-bottom: 5px; }
+    .pz svg, .az svg { width: 100%; border: 1px solid var(--line); }
+    .answer-page { margin-top: 24px; }
+    .answer-page h3 { font-family: var(--min); }
+    .az-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+    @media print {
+      .site-header, .site-footer, .print-controls, .screen-only, .crumb, h1, .lead { display: none !important; }
+      main { max-width: none; padding: 0; }
+      body { background: #fff; }
+      .print-head { display: flex; }
+      .pz { page-break-inside: avoid; }
+      .answer-page { page-break-before: always; }
+      .pz svg, .az svg { border: 1px solid #ccc; }
+    }
+    @media (max-width: 560px) { .pz-grid { grid-template-columns: 1fr; } .az-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</Base>

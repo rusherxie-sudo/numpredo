@@ -1,0 +1,145 @@
+// 五档难度的元数据 + 题库（驱动动态路由 /play/[level]）。
+// 每档有独立攻略文案 / tips / FAQ → 避免程序化页被判薄内容。
+import beginner from './puzzles/beginner.json';
+import intermediate from './puzzles/intermediate.json';
+import advanced from './puzzles/advanced.json';
+import hard from './puzzles/hard.json';
+import extreme from './puzzles/extreme.json';
+
+interface RawPuzzle {
+  puzzle: string;
+  solution: string;
+}
+interface Pack {
+  puzzles: RawPuzzle[];
+}
+
+export interface LevelMeta {
+  slug: string;
+  ja: string;
+  en: string;
+  lead: string;
+  technique: string;
+  tips: string[];
+  faq: Array<{ q: string; a: string }>;
+  puzzles: RawPuzzle[];
+}
+
+const commonFaq = [
+  {
+    q: '数独とナンプレは違うものですか？',
+    a: '同じパズルの別名です。「ナンバープレース（ナンプレ）」を略さず呼ぶと数独になります。当サイトはどちらの呼び方の問題も同じ高品質エンジンで生成しています。',
+  },
+  {
+    q: '問題に解が複数あることはありませんか？',
+    a: 'ありません。すべての問題は生成時に「解が一つだけ」であることを機械的に検証し、論理だけで解けることも保証しています。',
+  },
+];
+
+const pk = (p: Pack): RawPuzzle[] => p.puzzles.map((x) => ({ puzzle: x.puzzle, solution: x.solution }));
+
+export const LEVELS: LevelMeta[] = [
+  {
+    slug: 'beginner',
+    ja: '初級',
+    en: 'やさしい',
+    lead: '数独・ナンプレ入門に最適。単数（マスに入る数字が一つに絞れる）だけで最後まで解けます。',
+    technique: '初級は「裸の単数」「隠れた単数」の発見だけで解けます。各行・列・ブロックを見て、ある数字が入れる場所が一つしかないマスを探しましょう。',
+    tips: [
+      '各ブロックで、ある数字がまだ無い場所を確認する。',
+      '行と列を見て、消去法でマスを絞り込む。',
+      '埋まったマスが次のヒントになる。順番に確定していく。',
+    ],
+    faq: [
+      {
+        q: '初級はどのくらいやさしいですか？',
+        a: '当てずっぽうや候補メモがなくても、単数の発見を繰り返すだけで解けます。数独が初めての方の練習に最適です。',
+      },
+      ...commonFaq,
+    ],
+    puzzles: pk(beginner),
+  },
+  {
+    slug: 'intermediate',
+    ja: '中級',
+    en: 'ふつう',
+    lead: '少し歯ごたえのある定番の難易度。「区画の絞り込み」を覚えると一気に解けるようになります。',
+    technique: '中級では単数に加え「区画の絞り込み（ロックされた候補）」が鍵。あるブロック内で、ある数字の候補が一行（一列）に揃っていたら、その行（列）の他ブロックからその数字を消せます。',
+    tips: [
+      '行き詰まったら空きマスに候補をメモする。',
+      'ブロック内で候補が一直線に並ぶ数字を探す。',
+      'その直線の延長上、他ブロックから候補を消去する。',
+    ],
+    faq: [
+      {
+        q: '中級を解くコツは？',
+        a: '候補メモを活用し、「区画の絞り込み」を意識すると詰まりにくくなります。まずはメモ機能で全空きマスの候補を書き出してみましょう。',
+      },
+      ...commonFaq,
+    ],
+    puzzles: pk(intermediate),
+  },
+  {
+    slug: 'advanced',
+    ja: '上級',
+    en: 'むずかしい',
+    lead: '唯一解・論理だけで解ける上級問題。「ペア（二国同盟）」を使いこなせば突破できます。',
+    technique: '上級の鍵は「ペア（二国同盟）」と「区画の絞り込み」。同じユニット内で同一の2候補だけを持つ二マスを見つけたら、他マスからその2数字を消去できます。',
+    tips: [
+      '全空きマスに候補をメモするのが第一歩。',
+      '同じ2候補だけを持つ2マス＝ペアを探す。',
+      'ペアと同じ行・列・ブロックの他マスから2数字を消去。',
+      '当てずっぽうは不要。必ず論理で次の一手が見つかる。',
+    ],
+    faq: [
+      {
+        q: '上級はどのくらい難しいですか？',
+        a: '単数だけでは手が止まり、ペアや区画の絞り込みが必要になります。すべて論理だけで解け、当てずっぽうは要りません。',
+      },
+      ...commonFaq,
+    ],
+    puzzles: pk(advanced),
+  },
+  {
+    slug: 'hard',
+    ja: '難問',
+    en: '手強い',
+    lead: 'さらに手強い難問。複合的なテクニックを組み合わせて、じっくり挑む一問。',
+    technique: '難問では「三国同盟（ネイキッドトリプル）」など、複数マス・複数候補をまたぐ推理が必要になります。候補を丁寧に整理し、複合的に絞り込みましょう。',
+    tips: [
+      '候補メモは必須。常に最新に保つ。',
+      '2マスのペアだけでなく、3マス・3候補の組も探す。',
+      '消去で生まれた単数を見逃さない。',
+    ],
+    faq: [
+      {
+        q: '難問と上級の違いは？',
+        a: '上級が主にペアで解けるのに対し、難問は三国同盟など複合テクニックが必要です。それでもすべて論理だけで解けます。',
+      },
+      ...commonFaq,
+    ],
+    puzzles: pk(hard),
+  },
+  {
+    slug: 'extreme',
+    ja: '超難問',
+    en: '最高峰',
+    lead: '最高峰の超難問。X-Wing などの高度なテクニックで挑む、数独の醍醐味。',
+    technique: '超難問では「X-Wing」のような盤面全体を見渡す高度なテクニックが効きます。ある数字の候補が2行2列の交点に限定される形を探しましょう。',
+    tips: [
+      '盤面全体を俯瞰し、数字ごとに候補の位置を見る。',
+      'X-Wing（2行2列の長方形）の形を探す。',
+      '焦らず一手ずつ。論理だけで必ず解けます。',
+    ],
+    faq: [
+      {
+        q: '超難問は当てずっぽうが必要ですか？',
+        a: 'いいえ。最高難度でも論理だけで解けるよう、生成時に検証しています。高度なテクニックを使えば必ず次の一手が見つかります。',
+      },
+      ...commonFaq,
+    ],
+    puzzles: pk(extreme),
+  },
+];
+
+export const levelBySlug = (slug: string): LevelMeta | undefined => LEVELS.find((l) => l.slug === slug);

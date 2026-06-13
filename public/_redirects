@@ -1,0 +1,28 @@
+# 301 redirects: old React multilingual URLs → new Astro Japanese URLs
+
+# Play pages
+/ja/play/easy/*    /play/beginner/ 301
+/ja/play/medium/*  /play/intermediate/ 301
+/ja/play/hard/*    /play/advanced/ 301
+/en/play/*         /play/beginner/ 301
+/zh-CN/play/*      /play/beginner/ 301
+/zh-TW/play/*      /play/beginner/ 301
+
+# Technique / guide pages
+/ja/technique/*    /guide/how-to-solve/ 301
+/en/technique/*    /guide/how-to-solve/ 301
+/zh-CN/technique/* /guide/how-to-solve/ 301
+
+# About
+/ja/about          /about/ 301
+/en/about          /about/ 301
+/zh-CN/about       /about/ 301
+
+# Variants
+/ja/6x6-sudoku     /variants/6x6/ 301
+
+# Language root redirects
+/en/*              / 301
+/zh-CN/*           / 301
+/zh-TW/*           / 301
+/ja                / 301

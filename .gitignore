@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.astro/
+
+# local dev / scripts
+engine-demo/
+scripts/*.js
+
+# research / planning docs (not part of site)
+competitors/
+content-plan/
+keywords/
+reports/
+numpredo-*.md
+
+# OS
+.DS_Store
