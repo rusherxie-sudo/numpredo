@@ -9,7 +9,13 @@ import {
 interface PuzzlePair {
   puzzle: string;
   solution: string;
+  level?: string;
 }
+
+// 难度等级 → 日语标签（daily 显示当天难度）
+const LV_JA: Record<string, string> = {
+  beginner: '初級', intermediate: '中級', advanced: '上級', hard: '難問', extreme: '超難問',
+};
 interface Saved {
   p: string; // 题面
   s: string; // 解
@@ -64,6 +70,7 @@ function setup(root: HTMLElement): void {
   let isRecord = false;
   let finalTime = 0;
   let elapsedBase = 0; // 恢复进度时的已用时基准
+  let dailyLevel = ''; // daily 当天题的难度档
   let start = Date.now();
   let timer: ReturnType<typeof setInterval> | null = null;
   let checkErrors = localStorage.getItem('numpredo.pref.check') !== '0';
@@ -378,8 +385,10 @@ function setup(root: HTMLElement): void {
     const dt = new Date();
     const streak = Number(localStorage.getItem('numpredo.daily.streak') || '0');
     const doneToday = localStorage.getItem('numpredo.daily.last') === dstr(dt);
+    const lvJa = LV_JA[dailyLevel] ?? '';
     dailyEl.innerHTML =
       `<div class="sk-d-date">${dt.getMonth() + 1}月${dt.getDate()}日の問題</div>` +
+      (lvJa ? `<div class="sk-d-level">本日の難易度: <b>${lvJa}</b></div>` : '') +
       `<div class="sk-d-streak">${streak > 0 ? streak + '日連続' : '記録に挑戦'}${doneToday ? ' ✓' : ''}</div>`;
   }
 
@@ -476,12 +485,13 @@ function setup(root: HTMLElement): void {
   }
 
   // —— 初始化：优先恢复未完成的存档 ——
+  const dailyIdx = daily ? Math.floor(Date.now() / 86400000) % set.length : 0;
+  if (daily) dailyLevel = set[dailyIdx].level ?? '';
   const saved = load();
   if (saved && saved.d !== 1) {
     apply(gridFromString(saved.p), gridFromString(saved.s), saved);
   } else {
-    const initIdx = daily ? Math.floor(Date.now() / 86400000) % set.length : 0;
-    const first = set[initIdx];
+    const first = set[dailyIdx];
     apply(gridFromString(first.puzzle), gridFromString(first.solution));
   }
   if (daily) fillDaily();

@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import SudokuGame from '../components/SudokuGame.astro';
 import daily from '../data/puzzles/daily.json';
-const set = daily.puzzles.map((p) => ({ puzzle: p.puzzle, solution: p.solution }));
+const set = daily.puzzles.map((p) => ({ puzzle: p.puzzle, solution: p.solution, level: p.level }));
 const title = '毎日の数独・ナンプレ｜日替わり問題 - numpredo';
 const description = '毎日新しい数独（ナンプレ）に挑戦。日替わりの一問でタイムを記録し、連続記録を伸ばそう。唯一解・論理だけで解ける高品質問題。登録不要。';
 const url = 'https://numpredo.com/daily/';

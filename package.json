@@ -7,10 +7,9 @@
   "scripts": {
     "demo": "node scripts/demo.ts",
     "render-demo": "node scripts/render-demo.ts",
-    "gen:puzzles": "node scripts/build-puzzles.ts",
-    "gen:daily": "node scripts/gen-daily.ts",
+    "gen:pool": "node scripts/gen-pool.ts",
     "dev": "astro dev",
-    "build": "node scripts/build-puzzles.ts && astro build",
+    "build": "astro build",
     "preview": "astro preview"
   },
   "engines": {

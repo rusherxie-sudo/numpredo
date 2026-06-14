@@ -88,7 +88,7 @@ const breadcrumbSchema = {
     {LEVELS.map((l) => <a href={`/play/${l.slug}/`} class={l.slug === meta.slug ? 'diff-bdg on' : 'diff-bdg'}>{l.ja}</a>)}
   </div>
 
-  <SudokuGame level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles} />
+  <SudokuGame level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.slice(0, 6)} />
 
   <ShareBar url={url} title={title} cta="この問題をシェア・友達に挑戦状を送ろう" />
 
