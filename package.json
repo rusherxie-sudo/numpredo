@@ -8,12 +8,13 @@
     "demo": "node scripts/demo.ts",
     "render-demo": "node scripts/render-demo.ts",
     "gen:puzzles": "node scripts/build-puzzles.ts",
+    "gen:daily": "node scripts/gen-daily.ts",
     "dev": "astro dev",
     "build": "node scripts/build-puzzles.ts && astro build",
     "preview": "astro preview"
   },
   "engines": {
-    "node": ">=24"
+    "node": ">=18"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

@@ -55,22 +55,8 @@ for (const { level, count } of PLAN) {
   console.log(`  ✓ ${LEVEL_META[level].ja.padEnd(3)} ${count} 题 → ${file}（${attempts} 次生成尝试）`);
 }
 
-// 每日一题池：客户端按当天日期确定性选题（全员同日同題）。30 題＝约一个月不重复。
-const dailyCount = 30;
-const dailyRecords: PuzzleRecord[] = [];
-let dailyAttempts = 0;
-while (dailyRecords.length < dailyCount) {
-  const { puzzle } = generateByLevel('advanced', 50);
-  dailyAttempts++;
-  if (!puzzle || !hasUniqueSolution(puzzle.puzzle) || !logicalSolve(puzzle.puzzle).solved) continue;
-  dailyRecords.push({
-    clues: puzzle.clues,
-    hardest: puzzle.hardest,
-    puzzle: gridToString(puzzle.puzzle),
-    solution: gridToString(puzzle.solution),
-  });
-}
-writeFileSync(`${OUT_DIR}/daily.json`, JSON.stringify({ name: 'daily', count: dailyCount, puzzles: dailyRecords }, null, 2));
-console.log(`  ✓ 毎日  ${dailyCount} 題 → ${OUT_DIR}/daily.json（${dailyAttempts} 次生成尝试）`);
+// 注意：毎日一題プール（daily.json）已独立到 scripts/gen-daily.ts，一次性生成并提交进 git。
+// build 流程不再生成 daily → 部署（CF）时不会被覆盖、全員同日同題稳定不变。
+// 难度题库（上面五档）仍每次 build 生成：play 页有「別の問題」实时生成，预置题变化无影响。
 
 console.log(`完成，用时 ${((Date.now() - t0) / 1000).toFixed(1)}s`);
