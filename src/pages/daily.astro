@@ -20,25 +20,30 @@ const webAppSchema = {
 };
 ---
 
-<Base title={title} description={description} canonical={url}>
+<Base title={title} description={description} canonical={url} wide>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
   </Fragment>
 
-  <nav class="crumb"><a href="/">ホーム</a> › 毎日</nav>
-  <h1>毎日の数独・ナンプレ</h1>
-  <p class="lead">毎日、全員に同じ一問が出題されます。タイムを記録して、連続記録（◯日連続）を伸ばしましょう。すべて唯一解・論理だけで解ける高品質問題です。</p>
+  <div class="px-text">
+    <nav class="crumb"><a href="/">ホーム</a> › 毎日</nav>
+    <h1>毎日の数独・ナンプレ</h1>
+    <p class="lead">毎日、全員に同じ一問が出題されます。タイムを記録して、連続記録（◯日連続）を伸ばしましょう。すべて唯一解・論理だけで解ける高品質問題です。</p>
+  </div>
 
   <SudokuGame level="advanced" levelJa="毎日" daily url={url} set={set} />
 
-  <h2>もっと遊ぶ</h2>
-  <ul>
-    <li><a href="/play/beginner/">初級</a> / <a href="/play/intermediate/">中級</a> / <a href="/play/advanced/">上級</a> / <a href="/play/hard/">難問</a> / <a href="/play/extreme/">超難問</a></li>
-    <li><a href="/guide/how-to-solve/">解き方ガイド</a> ・ <a href="/print/">問題集を印刷</a></li>
-  </ul>
-  <p class="note">※ タイムと連続記録はお使いの端末に保存されます（登録不要）。日付が変わると新しい問題に切り替わります。</p>
+  <div class="px-text">
+    <h2>もっと遊ぶ</h2>
+    <ul>
+      <li><a href="/play/beginner/">初級</a> / <a href="/play/intermediate/">中級</a> / <a href="/play/advanced/">上級</a> / <a href="/play/hard/">難問</a> / <a href="/play/extreme/">超難問</a></li>
+      <li><a href="/guide/how-to-solve/">解き方ガイド</a> ・ <a href="/print/">問題集を印刷</a></li>
+    </ul>
+    <p class="note">※ タイムと連続記録はお使いの端末に保存されます（登録不要）。日付が変わると新しい問題に切り替わります。</p>
+  </div>
 
   <style is:global>
+    .px-text { max-width: 820px; margin: 0 auto; }
     .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
     .lead { color: var(--sub); font-size: 14px; margin: 0 0 16px; }
     main ul { line-height: 2; } main ul a { color: var(--ai); }
