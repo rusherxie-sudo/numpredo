@@ -17,6 +17,19 @@ const feats = [
   ['無料PDF問題集', '難易度・問題数を選んで印刷。脳トレに最適。', '/print/'],
   ['毎日の数独', '毎日新しい一問。タイムを記録して挑戦。', '/daily/'],
 ];
+const variants = [
+  ['キラー数独', 'ケージの合計から解く頭脳派。', '/variants/killer/'],
+  ['6×6数独（ミニ）', '1〜6だけの入門向け。', '/variants/6x6/'],
+  ['不等号ナンプレ', '大小関係「＜＞」で絞り込む。', '/variants/inequality/'],
+  ['対角線数独（X数独）', '対角線にも1〜9。', '/variants/diagonal/'],
+];
+const learn = [
+  ['数独ソルバー（自動解答）', '/tools/solver/'],
+  ['数独と脳トレ・効果', '/guide/brain-training/'],
+  ['数独の歴史', '/guide/sudoku-history/'],
+  ['数独用語集', '/guide/glossary/'],
+  ['ルール・遊び方', '/guide/rules/'],
+];
 ---
 
 <Base title={title} description={description}>
@@ -56,6 +69,21 @@ const feats = [
     }
   </div>
 
+  <h2>バリエーション数独</h2>
+  <div class="var-grid">
+    {
+      variants.map(([h, p, href]) => (
+        <a href={href} class="feat-card">
+          <h3>{h}</h3>
+          <p>{p}</p>
+        </a>
+      ))
+    }
+  </div>
+
+  <h2>もっと知る</h2>
+  <ul class="learn-list">{learn.map(([h, href]) => (<li><a href={href}>{h}</a></li>))}</ul>
+
   <style is:global>
     .hero { text-align: center; padding: 40px 0 30px; }
     .mark { font-family: var(--min); font-size: 13px; color: var(--shu); letter-spacing: 0.3em; margin: 0 0 14px; }
@@ -76,9 +104,14 @@ const feats = [
     .feat-card p { font-size: 12px; color: var(--sub); line-height: 1.7; margin: 0; }
     .feat-card .arr { display: block; color: var(--shu); font-size: 12px; margin-top: 8px; }
 
+    .var-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .learn-list { line-height: 2; padding-left: 18px; margin: 8px 0 0; }
+    .learn-list a { color: var(--ai); }
+
     @media (max-width: 560px) {
       .diff-grid { grid-template-columns: repeat(3, 1fr); }
       .feat-grid { grid-template-columns: 1fr; }
+      .var-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </Base>

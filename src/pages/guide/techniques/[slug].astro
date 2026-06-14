@@ -11,6 +11,7 @@ interface Props {
 }
 const { t } = Astro.props;
 const url = `https://numpredo.com/guide/techniques/${t.slug}/`;
+const others = TECHNIQUES.filter((x) => x.slug !== t.slug);
 
 // fig → SVG
 const f = t.fig;
@@ -61,10 +62,13 @@ const breadcrumbSchema = {
 
   <figure class="guide-fig"><Fragment set:html={svg} /><figcaption>{t.figCaption}</figcaption></figure>
 
+  <h2>他のテクニック</h2>
+  <ul>{others.map((o) => (<li><a href={`/guide/techniques/${o.slug}/`}>{o.name}の解き方</a>（{o.level}）</li>))}</ul>
+
   <h2>実際に練習する</h2>
   <ul>
-    <li><a href="/play/advanced/">上級でペアを練習</a> / <a href="/play/hard/">難問</a> / <a href="/play/extreme/">超難問でX-Wingを練習</a></li>
-    <li><a href="/guide/how-to-solve/">解き方ガイドに戻る</a> ・ <a href="/guide/advanced/">上級テクニック一覧</a></li>
+    <li><a href="/play/advanced/">上級</a> / <a href="/play/hard/">難問</a> / <a href="/play/extreme/">超難問</a>で練習する</li>
+    <li><a href="/guide/how-to-solve/">解き方ガイドに戻る</a> ・ <a href="/guide/advanced/">上級テクニック一覧</a> ・ <a href="/tools/solver/">数独ソルバーで答え合わせ</a></li>
   </ul>
 
   <h2>よくある質問</h2>

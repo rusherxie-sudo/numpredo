@@ -3,7 +3,17 @@ import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import SudokuGame from '../../components/SudokuGame.astro';
 import { LEVELS, type LevelMeta } from '../../data/levels.ts';
+import { TECHNIQUES } from '../../data/techniques.ts';
 import { renderBoardSvg, gridFromString, traceFirstElimination, LIGHT_THEME } from '../../engine/index.ts';
+
+// 各難易度で習得すべき具体テクニック → 技巧攻略ページへ内部リンク
+const LEVEL_TECHS: Record<string, string[]> = {
+  beginner: ['naked-pair'],
+  intermediate: ['pointing', 'naked-pair'],
+  advanced: ['naked-pair', 'hidden-pair', 'pointing'],
+  hard: ['naked-triple', 'skyscraper', 'x-wing'],
+  extreme: ['x-wing', 'swordfish', 'skyscraper'],
+};
 
 export function getStaticPaths() {
   return LEVELS.map((meta) => ({ params: { level: meta.slug }, props: { meta } }));
@@ -13,6 +23,9 @@ interface Props {
   meta: LevelMeta;
 }
 const { meta } = Astro.props;
+const techLinks = (LEVEL_TECHS[meta.slug] ?? [])
+  .map((s) => TECHNIQUES.find((t) => t.slug === s))
+  .filter((t): t is (typeof TECHNIQUES)[number] => Boolean(t));
 
 const title = `${meta.ja}の数独・ナンプレを無料でプレイ｜numpredo`;
 const description = `${meta.ja}（${meta.en}）の数独（ナンプレ）を無料でオンラインプレイ。${meta.lead} メモ・自動チェック・タイマー付き、登録不要。`;
@@ -81,6 +94,11 @@ const breadcrumbSchema = {
 
   <h2>{meta.ja}で必要なテクニック</h2>
   <p>{meta.technique}</p>
+  {techLinks.length > 0 && (
+    <ul class="tech-links">
+      {techLinks.map((t) => (<li><a href={`/guide/techniques/${t.slug}/`}>{t.name}の解き方（図解）</a></li>))}
+    </ul>
+  )}
   <div class="fig-row">
     <figure class="guide-fig"><Fragment set:html={svgPuzzle} /><figcaption>{meta.ja}の問題例（太字がヒント）</figcaption></figure>
     {svgTech && <figure class="guide-fig"><Fragment set:html={svgTech} /><figcaption>候補消去の例（赤い候補が消える）</figcaption></figure>}
