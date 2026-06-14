@@ -8,21 +8,43 @@
 /zh-CN/play/*      /play/beginner/ 301
 /zh-TW/play/*      /play/beginner/ 301
 
-# Technique / guide pages
-/ja/technique/*    /guide/how-to-solve/ 301
-/en/technique/*    /guide/how-to-solve/ 301
-/zh-CN/technique/* /guide/how-to-solve/ 301
+# Technique pages — specific routes before wildcard fallback
+/ja/technique/naked-pair/*   /guide/techniques/naked-pair/ 301
+/ja/technique/x-wing/*       /guide/techniques/x-wing/ 301
+/ja/technique/pointing/*     /guide/techniques/pointing/ 301
+/ja/technique/hidden-pair/*  /guide/techniques/hidden-pair/ 301
+/ja/technique/naked-triple/* /guide/techniques/naked-triple/ 301
+/ja/technique/swordfish/*    /guide/techniques/swordfish/ 301
+/ja/technique/skyscraper/*   /guide/techniques/skyscraper/ 301
+/ja/technique/*              /guide/how-to-solve/ 301
+/en/technique/*              /guide/how-to-solve/ 301
+/zh-CN/technique/*           /guide/how-to-solve/ 301
+
+# Guide pages
+/ja/guide*           /guide/how-to-solve/ 301
+
+# Brain training
+/ja/brain-training*  /guide/brain-training/ 301
+
+# Sudoku apps / misc content (no equivalent, send to home)
+/ja/sudoku-apps*     / 301
+/ja/logic-puzzles*   / 301
+/ja/number-puzzles*  / 301
+/ja/wrong-answer*    / 301
+/ja/bored*           / 301
 
 # About
-/ja/about          /about/ 301
-/en/about          /about/ 301
-/zh-CN/about       /about/ 301
+/ja/about            /about/ 301
+/ja/about/           /about/ 301
+/en/about            /about/ 301
+/zh-CN/about         /about/ 301
 
 # Variants
-/ja/6x6-sudoku     /variants/6x6/ 301
+/ja/6x6-sudoku       /variants/6x6/ 301
+/ja/6x6-sudoku/      /variants/6x6/ 301
 
 # Language root redirects
-/en/*              / 301
-/zh-CN/*           / 301
-/zh-TW/*           / 301
-/ja                / 301
+/en/*                / 301
+/zh-CN/*             / 301
+/zh-TW/*             / 301
+/ja                  / 301
