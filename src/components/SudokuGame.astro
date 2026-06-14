@@ -26,9 +26,9 @@ const setJson = JSON.stringify(set);
 
 <style is:global>
   [data-sudoku] { margin: 6px 0 26px; }
-  .sk-layout { display: grid; grid-template-columns: 1fr 196px; gap: 22px; align-items: start; }
+  .sk-layout { display: grid; grid-template-columns: 1fr 200px; gap: 24px; align-items: start; max-width: 700px; margin: 0 auto; }
   .sk-left { min-width: 0; position: relative; }
-  .sk-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 440px; margin: 0 auto; border: 2px solid var(--thick); background: var(--card); }
+  .sk-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 470px; margin: 0 auto; border: 2px solid var(--thick); background: var(--card); }
   .sk-cell { border: 0.5px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.4vw, 25px); cursor: pointer; padding: 0; position: relative; color: var(--ai); font-family: var(--sans); font-weight: 500; transition: background 0.12s; }
   .sk-cell.sk-br { border-right: 1.5px solid var(--thick); }
   .sk-cell.sk-bb { border-bottom: 1.5px solid var(--thick); }
