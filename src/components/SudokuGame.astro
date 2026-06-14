@@ -1,0 +1,110 @@
+---
+// 可玩数独岛（和モダン）。play/[level] 与 daily 共用，避免样式/脚本重复。
+interface Props {
+  level: string;
+  levelJa: string;
+  daily?: boolean;
+  url?: string;
+  set: Array<{ puzzle: string; solution: string }>;
+}
+const { level, levelJa, daily = false, url = 'https://numpredo.com/', set } = Astro.props;
+const setJson = JSON.stringify(set);
+---
+
+<div
+  data-sudoku
+  data-level={level}
+  data-levelja={levelJa}
+  data-url={url}
+  data-daily={daily ? '1' : '0'}
+  data-set={setJson}
+></div>
+
+<script>
+  import '../client/sudoku-game.ts';
+</script>
+
+<style is:global>
+  [data-sudoku] { margin: 6px 0 26px; }
+  .sk-layout { display: grid; grid-template-columns: 1fr 196px; gap: 22px; align-items: start; }
+  .sk-left { min-width: 0; position: relative; }
+  .sk-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 440px; margin: 0 auto; border: 2px solid var(--thick); background: var(--card); }
+  .sk-cell { border: 0.5px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.4vw, 25px); cursor: pointer; padding: 0; position: relative; color: var(--ai); font-family: var(--sans); font-weight: 500; transition: background 0.12s; }
+  .sk-cell.sk-br { border-right: 1.5px solid var(--thick); }
+  .sk-cell.sk-bb { border-bottom: 1.5px solid var(--thick); }
+  .sk-given { color: var(--sumi); font-family: var(--min); font-weight: 600; }
+  .sk-peer { background: var(--tofu); }
+  .sk-same { background: var(--tofu2); }
+  .sk-sel { background: var(--shuw); box-shadow: inset 0 0 0 2px var(--shu); }
+  .sk-err { color: var(--err) !important; }
+  .sk-hint-cell { box-shadow: inset 0 0 0 2px var(--ai); background: rgba(43, 91, 122, 0.12); }
+  .sk-wrong-cell { box-shadow: inset 0 0 0 2px var(--err); background: rgba(181, 48, 42, 0.12); }
+  .sk-notes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; height: 100%; font-size: clamp(8px, 2vw, 11px); color: var(--note); line-height: 1; }
+  .sk-notes i { display: flex; align-items: center; justify-content: center; font-style: normal; }
+
+  .sk-side { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 14px; }
+  .sk-daily { text-align: center; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .sk-d-date { font-family: var(--min); font-size: 15px; color: var(--sumi); }
+  .sk-d-streak { font-family: var(--min); font-size: 13px; color: var(--shu); margin-top: 2px; }
+  .sk-timer { text-align: center; font-family: var(--min); font-size: 26px; color: var(--sumi); }
+  .sk-rem { text-align: center; font-size: 12px; color: var(--sub); margin: 2px 0 6px; }
+  .sk-rem.sk-clear { color: var(--shu); font-family: var(--min); font-size: 15px; }
+  .sk-badge { display: none; }
+
+  /* 数字键盘（带剩余计数） */
+  .sk-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 10px; }
+  .sk-key { position: relative; padding: 12px 0; font-size: 19px; border: 1px solid var(--line); border-radius: 5px; background: var(--washi); cursor: pointer; color: var(--sumi); font-family: var(--min); }
+  .sk-key:hover { background: var(--tofu); }
+  .sk-kc { position: absolute; right: 4px; bottom: 2px; font-size: 9px; font-style: normal; color: var(--note); font-family: var(--sans); }
+  .sk-key.sk-kdone { color: var(--note); background: var(--tofu); opacity: 0.55; }
+  .sk-key.sk-kdone .sk-kc { display: none; }
+  .sk-key.sk-ksel { border-color: var(--shu); box-shadow: inset 0 0 0 1px var(--shu); }
+  .sk-del { font-size: 13px; font-family: var(--sans); color: var(--sub); }
+
+  /* 提示消息 */
+  .sk-hint { display: none; font-size: 12px; line-height: 1.6; color: var(--sumi); background: var(--tofu); border-radius: 5px; padding: 8px 10px; margin-top: 10px; }
+  .sk-hint.on { display: block; }
+  .sk-hint a { color: var(--ai); }
+  .sk-hint b { color: var(--shu); }
+
+  .sk-ctrl { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .sk-cbtn { padding: 9px 0; border: 1px solid var(--line); border-radius: 5px; background: var(--washi); cursor: pointer; font-size: 13px; color: var(--sumi); font-family: var(--sans); }
+  .sk-cbtn:hover { background: var(--tofu); }
+  .sk-cbtn.on { background: var(--shu); color: var(--card); border-color: var(--shu); }
+  .sk-hintbtn { color: var(--ai); }
+
+  .sk-check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--sub); margin-top: 10px; cursor: pointer; }
+
+  /* 成绩卡 */
+  .sk-result { display: none; text-align: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .sk-result.on { display: block; }
+  .sk-r-title { font-family: var(--min); font-size: 17px; color: var(--shu); }
+  .sk-r-time { font-family: var(--min); font-size: 24px; color: var(--sumi); margin: 2px 0; }
+  .sk-r-rec { font-size: 12px; color: var(--shu); font-family: var(--min); }
+  .sk-r-best { font-size: 12px; color: var(--sub); }
+  .sk-share { margin-top: 10px; width: 100%; padding: 9px 0; border: 0; border-radius: 5px; background: var(--shu); color: var(--card); font-size: 13px; cursor: pointer; font-family: var(--sans); }
+
+  /* 彩屑 */
+  .sk-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+  .sk-confetti-bit { position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 1px; opacity: 0; animation: sk-fall 1.8s ease-in forwards; }
+  @keyframes sk-fall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(460px) rotate(420deg); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sk-confetti-bit { animation: none; display: none; }
+  }
+
+  @media (max-width: 560px) {
+    .sk-layout { grid-template-columns: 1fr; }
+    .sk-board { max-width: 100%; }
+    .sk-side { border: none; background: transparent; padding: 8px 0 0; }
+    .sk-daily { border-bottom: none; }
+    .sk-pad { grid-template-columns: repeat(5, 1fr); }
+    .sk-key { padding: 14px 0; }
+    .sk-ctrl { flex-wrap: wrap; flex-direction: row; }
+    .sk-cbtn { flex: 1 1 30%; }
+    .sk-timer { display: inline-block; }
+    .sk-rem { display: inline-block; margin-left: 10px; }
+  }
+</style>

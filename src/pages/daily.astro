@@ -1,7 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
+import SudokuGame from '../components/SudokuGame.astro';
 import daily from '../data/puzzles/daily.json';
-const setJson = JSON.stringify(daily.puzzles.map((p) => ({ puzzle: p.puzzle, solution: p.solution })));
+const set = daily.puzzles.map((p) => ({ puzzle: p.puzzle, solution: p.solution }));
 const title = '毎日の数独・ナンプレ｜日替わり問題 - numpredo';
 const description = '毎日新しい数独（ナンプレ）に挑戦。日替わりの一問でタイムを記録し、連続記録を伸ばそう。唯一解・論理だけで解ける高品質問題。登録不要。';
 const url = 'https://numpredo.com/daily/';
@@ -28,7 +29,7 @@ const webAppSchema = {
   <h1>毎日の数独・ナンプレ</h1>
   <p class="lead">毎日、全員に同じ一問が出題されます。タイムを記録して、連続記録（◯日連続）を伸ばしましょう。すべて唯一解・論理だけで解ける高品質問題です。</p>
 
-  <div data-sudoku data-daily="1" data-level="advanced" data-set={setJson}></div>
+  <SudokuGame level="advanced" levelJa="毎日" daily url={url} set={set} />
 
   <h2>もっと遊ぶ</h2>
   <ul>
@@ -37,57 +38,10 @@ const webAppSchema = {
   </ul>
   <p class="note">※ タイムと連続記録はお使いの端末に保存されます（登録不要）。日付が変わると新しい問題に切り替わります。</p>
 
-  <script>
-    import '../client/sudoku-game.ts';
-  </script>
-
   <style is:global>
     .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
     .lead { color: var(--sub); font-size: 14px; margin: 0 0 16px; }
     main ul { line-height: 2; } main ul a { color: var(--ai); }
     .note { font-size: 13px; color: var(--sub); }
-
-    [data-sudoku] { margin: 6px 0 26px; }
-    .sk-layout { display: grid; grid-template-columns: 1fr 196px; gap: 22px; align-items: start; }
-    .sk-left { min-width: 0; }
-    .sk-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 440px; margin: 0 auto; border: 2px solid var(--thick); background: var(--card); }
-    .sk-cell { border: 0.5px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.4vw, 25px); cursor: pointer; padding: 0; position: relative; color: var(--ai); font-family: var(--sans); font-weight: 500; transition: background 0.12s; }
-    .sk-cell.sk-br { border-right: 1.5px solid var(--thick); }
-    .sk-cell.sk-bb { border-bottom: 1.5px solid var(--thick); }
-    .sk-given { color: var(--sumi); font-family: var(--min); font-weight: 600; }
-    .sk-peer { background: var(--tofu); }
-    .sk-same { background: var(--tofu2); }
-    .sk-sel { background: var(--shuw); box-shadow: inset 0 0 0 2px var(--shu); }
-    .sk-err { color: var(--err) !important; }
-    .sk-notes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; height: 100%; font-size: clamp(8px, 2vw, 11px); color: var(--note); line-height: 1; }
-    .sk-notes i { display: flex; align-items: center; justify-content: center; font-style: normal; }
-    .sk-side { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 14px; }
-    .sk-daily { text-align: center; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--line); }
-    .sk-d-date { font-family: var(--min); font-size: 15px; color: var(--sumi); }
-    .sk-d-streak { font-family: var(--min); font-size: 13px; color: var(--shu); margin-top: 2px; }
-    .sk-timer { text-align: center; font-family: var(--min); font-size: 26px; color: var(--sumi); }
-    .sk-rem { text-align: center; font-size: 12px; color: var(--sub); margin: 2px 0 6px; }
-    .sk-rem.sk-clear { color: var(--shu); font-family: var(--min); font-size: 15px; }
-    .sk-badge { display: none; text-align: center; font-family: var(--min); font-size: 11px; color: var(--shu); border: 1px solid var(--shu); border-radius: 3px; padding: 2px 0; margin: 0 auto 10px; }
-    .sk-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 10px; }
-    .sk-key { padding: 12px 0; font-size: 19px; border: 1px solid var(--line); border-radius: 5px; background: var(--washi); cursor: pointer; color: var(--sumi); font-family: var(--min); }
-    .sk-key:hover { background: var(--tofu); }
-    .sk-del { font-size: 13px; font-family: var(--sans); color: var(--sub); }
-    .sk-ctrl { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-    .sk-cbtn { padding: 9px 0; border: 1px solid var(--line); border-radius: 5px; background: var(--washi); cursor: pointer; font-size: 13px; color: var(--sumi); font-family: var(--sans); }
-    .sk-cbtn.on { background: var(--shu); color: var(--card); border-color: var(--shu); }
-
-    @media (max-width: 560px) {
-      .sk-layout { grid-template-columns: 1fr; }
-      .sk-board { max-width: 100%; }
-      .sk-side { border: none; background: transparent; padding: 8px 0 0; }
-      .sk-daily { border-bottom: none; }
-      .sk-pad { grid-template-columns: repeat(5, 1fr); }
-      .sk-key { padding: 14px 0; }
-      .sk-ctrl { flex-direction: row; }
-      .sk-cbtn { flex: 1; }
-      .sk-timer { display: inline-block; }
-      .sk-rem { display: inline-block; margin-left: 10px; }
-    }
   </style>
 </Base>
