@@ -28,7 +28,7 @@ const techLinks = (LEVEL_TECHS[meta.slug] ?? [])
   .filter((t): t is (typeof TECHNIQUES)[number] => Boolean(t));
 
 const title = `${meta.ja}の数独・ナンプレを無料でプレイ｜numpredo`;
-const description = `${meta.ja}（${meta.en}）の数独（ナンプレ）を無料でオンラインプレイ。${meta.lead} メモ・自動チェック・タイマー付き、登録不要。`;
+const description = `${meta.ja}の数独・ナンプレを無料でプレイ。メモ・自動チェック・タイマー付き、登録不要。すべて唯一解・論理だけで解けます。`;
 const url = `https://numpredo.com/play/${meta.slug}/`;
 
 const others = LEVELS.filter((l) => l.slug !== meta.slug);

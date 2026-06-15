@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-const title = '無料の数独・ナンプレ｜唯一解・論理で解ける高品質パズル - numpredo';
+const title = '数独・ナンプレ｜無料・唯一解・論理で解ける - numpredo';
 const description =
   '数独（ナンプレ）を無料でオンラインプレイ。初級から上級まで、すべて唯一解・論理だけで解ける高品質問題。解き方ガイド・印刷問題集も無料、登録不要。';
 
@@ -30,9 +30,31 @@ const learn = [
   ['数独用語集', '/guide/glossary/'],
   ['ルール・遊び方', '/guide/rules/'],
 ];
+
+// 首页结构化数据：WebSite + Organization（站点级，提升 Google 对站点的理解）
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'numpredo',
+  alternateName: 'ナンプレdo',
+  url: 'https://numpredo.com/',
+  inLanguage: 'ja',
+};
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'numpredo',
+  url: 'https://numpredo.com/',
+  logo: 'https://numpredo.com/og-image.png',
+};
 ---
 
 <Base title={title} description={description} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+  </Fragment>
+
   <section class="hero">
     <p class="mark">数 独 ・ ナ ン プ レ</p>
     <h1 class="hero-h1">無料で楽しむ、<br />上質な数独。</h1>
