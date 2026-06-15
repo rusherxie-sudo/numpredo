@@ -1,6 +1,22 @@
 // 唯一解校验：回溯计数，最多数到 limit（默认 2）即停 —— 用于品质断言「解数 === 1」
 import type { Grid } from './types.ts';
-import { CELLS, MASK_ALL, PEERS, bit, popcount } from './board.ts';
+import { CELLS, MASK_ALL, PEERS, UNITS, bit, popcount } from './board.ts';
+
+/** given 之间是否已违反数独规则（同一行/列/宫出现重复数字）。
+ * 矛盾输入会让回溯指数爆炸（卡死页面），必须前置拦截。 */
+function givensConflict(grid: Grid): boolean {
+  for (const u of UNITS) {
+    let seen = 0;
+    for (const i of u) {
+      if (grid[i] !== 0) {
+        const b = bit(grid[i]);
+        if (seen & b) return true;
+        seen |= b;
+      }
+    }
+  }
+  return false;
+}
 
 /**
  * 统计 grid 的解的个数，至多统计到 limit。
@@ -8,6 +24,7 @@ import { CELLS, MASK_ALL, PEERS, bit, popcount } from './board.ts';
  * 采用 MRV 启发式（优先填候选最少的空格）以加速。
  */
 export function countSolutions(grid: Grid, limit = 2): number {
+  if (givensConflict(grid)) return 0; // 矛盾的 given → 无解（且避免指数爆炸）
   const g = grid.slice();
   let count = 0;
 
@@ -56,6 +73,7 @@ export const hasUniqueSolution = (grid: Grid): boolean => countSolutions(grid, 2
 
 /** 求任意一个完整解（无解返回 null）—— 供生成器取解 */
 export function solveOne(grid: Grid): Grid | null {
+  if (givensConflict(grid)) return null; // 矛盾的 given → 无解（且避免指数爆炸）
   const g = grid.slice();
   const rec = (): boolean => {
     let best = -1;
