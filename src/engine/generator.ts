@@ -59,17 +59,21 @@ function symmetricGroups(): number[][] {
  * 生成一道题：尽可能挖空，同时始终保持唯一解 + 逻辑可解。
  * 难度由「挖空后求解所需的最难技巧」自然涌现，再分类。
  */
-export function generatePuzzle(): Puzzle {
+export function generatePuzzle(minClues = 17): Puzzle {
   const solution = fullSolution();
   const puzzle = solution.slice();
+  let clues = 81;
 
   for (const group of shuffle(symmetricGroups())) {
+    if (clues - group.length < minClues) continue; // 挖到提示下限即停（控制填充度→难度）
     if (group.every((i) => puzzle[i] === 0)) continue;
     const backup = group.map((i) => puzzle[i]);
     for (const i of group) puzzle[i] = 0;
     // 必须同时满足：唯一解（先验，快）+ 仅靠人类技巧可解（no-guessing）
     if (!hasUniqueSolution(puzzle) || !logicalSolve(puzzle).solved) {
       group.forEach((i, k) => (puzzle[i] = backup[k]));
+    } else {
+      clues -= group.length;
     }
   }
 
@@ -89,13 +93,19 @@ export function generatePuzzle(): Puzzle {
  * 尝试生成指定难度的题。现有技巧链（至 X-Wing）下，越高难度命中越稀有，
  * 故反复生成并取目标档；超过 maxAttempts 返回最接近的一道（不抛错）。
  */
+/** 各档提示数下限（与 gen-pool 一致）：低档多提示·新手友好，高档挖到稀疏·逼出高级技巧。 */
+const LEVEL_MIN_CLUES: Record<DifficultyLevel, number> = {
+  beginner: 38, intermediate: 31, advanced: 28, hard: 17, extreme: 17,
+};
+
 export function generateByLevel(level: DifficultyLevel, maxAttempts = 80): { puzzle: Puzzle; hit: boolean; attempts: number } {
   const order: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
   const target = order.indexOf(level);
+  const minClues = LEVEL_MIN_CLUES[level];
   let closest: Puzzle | null = null;
   let closestDiff = 99;
   for (let a = 1; a <= maxAttempts; a++) {
-    const p = generatePuzzle();
+    const p = generatePuzzle(minClues);
     if (p.level === level) return { puzzle: p, hit: true, attempts: a };
     const diff = Math.abs(order.indexOf(p.level) - target);
     if (diff < closestDiff) {
