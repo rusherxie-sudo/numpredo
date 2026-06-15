@@ -1,0 +1,22 @@
+# 品质门 CI:本项目无单元测试框架,引擎正确性靠 scripts/demo.ts 的运行时断言保证。
+# push / PR 时自动跑三断言(唯一解 + 逻辑可解 + 解一致)+ 验证 SSG 构建。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 # demo.ts 用 node 原生跑 .ts(type stripping),需 Node 23+
+      - run: npm ci
+      - name: 引擎品质断言（唯一解 + 逻辑可解 + 解一致）
+        run: npm run demo
+      - name: 验证 SSG 构建（含构建期 SVG / 题库读取）
+        run: npm run build

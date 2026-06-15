@@ -13,5 +13,8 @@ keywords/
 reports/
 numpredo-*.md
 
+# Claude Code 个人本地配置（settings.json / agents / skills 进 git 共享）
+.claude/settings.local.json
+
 # OS
 .DS_Store

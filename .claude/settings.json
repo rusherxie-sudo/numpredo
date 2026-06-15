@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE 'src/data/puzzles/' && echo '{\"systemMessage\":\"⛔ src/data/puzzles/*.json 由 npm run gen:pool 生成,勿手改\",\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"题库由 npm run gen:pool 生成,请勿手动编辑 src/data/puzzles/*.json。需要调整题库时,改 src/engine/ 或 scripts/gen-pool.ts 的配置后重新运行生成脚本。\"}}' || true",
+            "statusMessage": "检查是否手改题库…"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE 'src/engine/|scripts/gen-pool' && echo '{\"systemMessage\":\"⚠️ 引擎/生成器已改,记得 npm run gen:pool 重新生成题库并提交\",\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"刚编辑了 src/engine/ 或 scripts/gen-pool.ts。改动引擎或难度/生成逻辑后,必须运行 npm run gen:pool 重新生成 src/data/puzzles/*.json 并一并提交,否则 git 题库会与引擎脱节、难度标签失真。\"}}' || true",
+            "statusMessage": "检查引擎改动…"
+          }
+        ]
+      }
+    ]
+  }
+}
