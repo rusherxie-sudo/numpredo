@@ -16,6 +16,7 @@ npm run build      # astro build → dist/（静态输出）
 npm run preview    # 预览构建产物
 
 npm run gen:pool   # 重新生成全部题库（见下方"题库"小节，改引擎/难度后必跑）
+npm run gen:sitemap # 刷新 sitemap 的真实 lastmod（改内容页/数据文件后跑，见"部署"小节）
 npm run demo       # 跑引擎自检：每道题断言唯一解 + 逻辑可解（无测试框架，这是品质门）
 npm run render-demo # 导出示例 SVG 到 engine-demo/
 ```
@@ -80,7 +81,9 @@ npm run render-demo # 导出示例 SVG 到 engine-demo/
 
 Cloudflare Pages 托管 `dist/` 静态输出。`public/_redirects` 是旧 React 多语言站 URL → 新日语站的 301 映射（改路由时同步维护）。`astro.config.mjs` 配 `site: numpredo.com` + `@astrojs/sitemap`。
 
-> Sitemap 有两份：`@astrojs/sitemap` 构建生成 `sitemap-index.xml`（`robots.txt` 指向它），外加手动维护的 `public/sitemap.xml`（为修 GSC 报错而加）。改站点结构时留意两者一致性。
+> Sitemap 只有一份：`@astrojs/sitemap` 构建生成 `sitemap-index.xml` + `sitemap-0.xml`（`robots.txt` 指向 index）。早期那份手动 `public/sitemap.xml` 已删除。
+>
+> **lastmod 用真实修改日，不是构建日**：每个 URL 的 `<lastmod>` 取自「该页内容源文件（页面 .astro + 它驱动的数据文件，**不含**共享布局 Base.astro）」的 git 提交日期，由 `npm run gen:sitemap` 离线算好写进 `src/data/sitemap-lastmod.json`（提交进 git），`astro.config.mjs` 的 `serialize` 构建时只读它注入。**为何离线预生成**：① 绝不用构建日兜底——那等于每次部署都谎称全站更新，Google 会判 lastmod 不可信而忽略；② CF Pages 构建环境可能 shallow clone，构建时现算 `git log` 会把日期塌缩成最近提交日 ≈ 构建日。与题库「预生成进 git」同一套防御思路。改内容页/数据文件后跑 `gen:sitemap` 刷新并提交（PostToolUse hook 会提醒；忘了只是 lastmod 偏旧，偏旧安全、偏新才有害）。
 
 ## 仓库约定
 

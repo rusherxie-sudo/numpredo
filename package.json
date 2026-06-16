@@ -8,6 +8,7 @@
     "demo": "node scripts/demo.ts",
     "render-demo": "node scripts/render-demo.ts",
     "gen:pool": "node scripts/gen-pool.ts",
+    "gen:sitemap": "node scripts/gen-sitemap-lastmod.ts",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview"

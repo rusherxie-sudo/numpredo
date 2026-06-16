@@ -20,6 +20,11 @@
             "type": "command",
             "command": "jq -r '.tool_input.file_path // empty' | grep -qE 'src/engine/|scripts/gen-pool' && echo '{\"systemMessage\":\"⚠️ 引擎/生成器已改,记得 npm run gen:pool 重新生成题库并提交\",\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"刚编辑了 src/engine/ 或 scripts/gen-pool.ts。改动引擎或难度/生成逻辑后,必须运行 npm run gen:pool 重新生成 src/data/puzzles/*.json 并一并提交,否则 git 题库会与引擎脱节、难度标签失真。\"}}' || true",
             "statusMessage": "检查引擎改动…"
+          },
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE 'src/pages/.*\\.astro|src/data/(levels|guides|techniques|variants)\\.ts' && echo '{\"systemMessage\":\"⚠️ 内容页/数据已改,记得 npm run gen:sitemap 刷新 sitemap lastmod 并提交\",\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"刚编辑了内容页(src/pages/**.astro)或内容数据(src/data/{levels,guides,techniques,variants}.ts)。sitemap 的 <lastmod> 取自 git 提交日并预生成进 src/data/sitemap-lastmod.json(构建时只读不现算),所以内容改动落库后应运行 npm run gen:sitemap 刷新并一并提交,否则该页 lastmod 会停在旧日期(偏旧是安全的,只是损失新鲜度信号)。\"}}' || true",
+            "statusMessage": "检查内容改动…"
           }
         ]
       }
