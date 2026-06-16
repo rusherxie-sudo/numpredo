@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+const title = 'お問い合わせ - numpredo';
+const description = 'numpredo へのお問い合わせは contact@numpredo.com まで。ご意見・ご要望、不具合のご報告、著作権に関するお問い合わせを受け付けています。';
+---
+
+<Base title={title} description={description}>
+  <nav class="crumb"><a href="/">ホーム</a> › お問い合わせ</nav>
+  <h1>お問い合わせ</h1>
+  <p>numpredo に関するご意見・ご要望、不具合のご報告、著作権・取材などのお問い合わせは、下記のメールアドレスまでお気軽にご連絡ください。</p>
+
+  <h2>メールでのお問い合わせ</h2>
+  <p class="mail"><a href="mailto:contact@numpredo.com">contact@numpredo.com</a></p>
+  <p class="sub">いただいたお問い合わせには順次対応いたしますが、内容によっては返信までお時間をいただく場合や、返信いたしかねる場合がございます。あらかじめご了承ください。</p>
+
+  <h2>主なお問い合わせ内容</h2>
+  <ul>
+    <li>問題や解答の誤りのご報告</li>
+    <li>サイトの不具合・表示崩れのご報告</li>
+    <li>機能のご要望・ご感想</li>
+    <li>著作権・コンテンツ利用に関するお問い合わせ（<a href="/terms/">利用規約</a>もあわせてご確認ください）</li>
+  </ul>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
+    .mail { font-family: var(--min); font-size: 18px; margin: 6px 0; } .mail a { color: var(--shu); text-decoration: none; }
+    .sub { color: var(--sub); font-size: 14px; } main ul { line-height: 2; } main ul a { color: var(--ai); }
+  </style>
+</Base>

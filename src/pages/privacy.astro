@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+const title = 'プライバシーポリシー - numpredo';
+const description = 'numpredo のプライバシーポリシー。Cookie、Google AdSense による第三者配信広告、Google アナリティクス（GA4）の利用、広告のパーソナライズを無効化する方法（広告設定・aboutads.info）について説明します。';
+---
+
+<Base title={title} description={description}>
+  <nav class="crumb"><a href="/">ホーム</a> › プライバシーポリシー</nav>
+  <h1>プライバシーポリシー</h1>
+  <p>numpredo（以下「当サイト」）は、利用者のプライバシーを尊重します。本ポリシーは、当サイトにおける情報の取り扱いについて説明するものです。</p>
+
+  <h2>取得する情報</h2>
+  <p>当サイトは、お名前・メールアドレスなどの個人情報を、利用者が<a href="/contact/">お問い合わせ</a>で自発的に送信される場合を除き、収集しません。ゲームのタイムや記録は、お使いのブラウザ内（ローカルストレージ）に保存され、当サイトのサーバーには送信されません。</p>
+
+  <h2>Cookie について</h2>
+  <p>当サイトおよび第三者は、サービス提供・アクセス解析・広告配信のために Cookie を使用することがあります。Cookie は、ブラウザの設定からいつでも無効化・削除できます。ただし無効にした場合、一部の機能が利用できなくなることがあります。</p>
+
+  <h2>広告について（Google AdSense）</h2>
+  <p>当サイトは、第三者配信の広告サービス「Google AdSense」を利用する場合があります。</p>
+  <ul>
+    <li>Google などの第三者配信事業者は、Cookie を使用して、利用者の当サイトや他のサイトへのアクセス情報にもとづいた広告を表示することがあります。</li>
+    <li>利用者は、<a href="https://adssettings.google.com/" target="_blank" rel="noopener nofollow">Google の広告設定</a>で、パーソナライズ広告を無効にできます。</li>
+    <li>また、<a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener nofollow">aboutads.info</a> または <a href="https://www.youronlinechoices.com/" target="_blank" rel="noopener nofollow">YourOnlineChoices</a> にアクセスすることで、第三者配信事業者によるパーソナライズ広告（Cookie）を無効にできます。</li>
+    <li>Google による Cookie やデータの使用については、<a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener nofollow">Google のポリシーと規約</a>をご確認ください。</li>
+  </ul>
+
+  <h2>アクセス解析（Google アナリティクス）</h2>
+  <p>当サイトは、サイトの利用状況を把握するために Google アナリティクス（GA4）を利用しています。GA4 は Cookie を使用して、個人を特定しない形でトラフィックデータを収集します。収集されるデータは匿名であり、個人を特定するものではありません。Google によるデータの取り扱いについては <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener nofollow">Google のポリシーと規約</a> をご覧ください。ブラウザの設定や <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener nofollow">Google アナリティクス オプトアウト アドオン</a> により、データ収集を拒否することもできます。</p>
+
+  <h2>ローカルストレージ</h2>
+  <p>ゲームの進行状況・タイム・自己ベストなどは、お使いのブラウザのローカルストレージに保存され、当サイトのサーバーには送信されません。ブラウザのデータを消去すると、これらの記録も削除されます。</p>
+
+  <h2>本ポリシーの変更</h2>
+  <p>本ポリシーは、必要に応じて予告なく変更されることがあります。変更後の内容は、当ページに掲載した時点で効力を生じます。</p>
+
+  <h2>お問い合わせ</h2>
+  <p>本ポリシーに関するお問い合わせは、<a href="/contact/">お問い合わせページ</a>（contact@numpredo.com）までご連絡ください。</p>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
+    main p { font-size: 15px; } main ul { line-height: 2; } main a { color: var(--ai); }
+  </style>
+</Base>

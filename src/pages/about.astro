@@ -1,44 +1,48 @@
 ---
 import Base from '../layouts/Base.astro';
-const title = 'numpredo について｜免責事項・プライバシー - numpredo';
-const description = 'numpredo（ナンプレdo）は、無料・登録不要で遊べる高品質な数独・ナンプレのサイトです。サイト紹介、免責事項、プライバシーポリシー、お問い合わせについて。';
+const title = 'numpredo（ナンプレdo）について｜運営方針と問題の作り方 - numpredo';
+const description = 'numpredoは無料・登録不要で遊べる日本語の数独・ナンプレサイトです。提供している内容、独立した個人運営であること、問題を自社エンジンで生成・検証していることを紹介します。';
 ---
 
 <Base title={title} description={description}>
   <nav class="crumb"><a href="/">ホーム</a> › このサイトについて</nav>
-  <h1>numpredo について</h1>
+  <h1>numpredo（ナンプレdo）について</h1>
   <p>
-    numpredo（ナンプレ do）は、<strong>無料・登録不要</strong>で遊べる数独・ナンプレのサイトです。
-    すべての問題は「解が一つだけ」「論理だけで解ける」ことを機械的に検証した、当てずっぽうのない高品質パズルです。
+    numpredo（ナンプレ do）は、<strong>無料・登録不要</strong>で楽しめる日本語の数独・ナンプレ（ナンバープレース）サイトです。
+    ブラウザだけで遊べる問題、解き方の図解ガイド、印刷用の問題集まで、数独を「遊ぶ・学ぶ・印刷する」すべてを一か所で提供しています。
   </p>
 
-  <h2>サイトの特徴</h2>
+  <h2>提供しているもの</h2>
   <ul>
-    <li>唯一解を保証（多解の欠陥問題なし）</li>
-    <li>論理だけで解ける（当てずっぽう不要）</li>
-    <li>難易度を技術ベースで判定（初級〜超難問）</li>
-    <li>登録不要・無料・スマホ対応</li>
+    <li><a href="/play/beginner/">オンラインでプレイ</a>（初級〜超難問の5段階・メモ・自動チェック・タイマー付き）</li>
+    <li><a href="/guide/how-to-solve/">解き方ガイド</a>と<a href="/guide/techniques/x-wing/">テクニック解説</a>（すべて図解付き）</li>
+    <li><a href="/print/">無料の印刷用問題集（PDF保存可）</a></li>
+    <li><a href="/daily/">毎日の問題</a>・<a href="/tools/solver/">数独ソルバー（自動解答）</a></li>
+    <li><a href="/variants/killer/">キラー数独などバリエーションの解説</a></li>
   </ul>
 
-  <h2>まずはこちらから</h2>
+  <h2>問題はどう作られているか</h2>
+  <p>
+    当サイトの問題は、<strong>自社開発の数独エンジンが自動生成</strong>しています。市販の問題集や第三者のデータを転載したものではありません。
+    すべての問題は生成時に「<strong>解が一つだけ（唯一解）</strong>」「<strong>当てずっぽうなしの論理だけで解ける</strong>」ことを機械的に検証しており、欠陥のある多解問題は収録していません。
+    難易度も、解くために必要となるテクニックの種類にもとづいて技術的に判定しています。
+  </p>
+
+  <h2>運営について</h2>
+  <p>
+    numpredo は、数独・パズルを愛する<strong>独立した個人による小規模運営</strong>のサイトです。特定の企業・団体とは関係がなく、中立の立場で運営しています。
+    サイトの維持・運営費をまかなうため、ページ内に第三者配信の広告（Google AdSense など）を掲載することがあります。広告と Cookie の取り扱いについては<a href="/privacy/">プライバシーポリシー</a>をご覧ください。
+  </p>
+
+  <h2>関連ページ</h2>
   <ul class="links">
-    <li><a href="/play/beginner/">初級の数独・ナンプレを無料でプレイ</a></li>
-    <li><a href="/guide/how-to-solve/">数独・ナンプレの解き方ガイド（図解）</a></li>
-    <li><a href="/print/">無料の数独・ナンプレ問題集（印刷）</a></li>
-    <li><a href="/daily/">毎日の数独・ナンプレ</a></li>
+    <li><a href="/terms/">利用規約・免責事項</a></li>
+    <li><a href="/privacy/">プライバシーポリシー</a></li>
+    <li><a href="/contact/">お問い合わせ</a></li>
   </ul>
-
-  <h2>免責事項</h2>
-  <p class="sub">当サイトのコンテンツは正確性に努めていますが、利用により生じた損害について責任を負いかねます。</p>
-
-  <h2>プライバシーポリシー</h2>
-  <p class="sub">タイムや記録はお使いの端末（ブラウザ）に保存され、サーバーには送信されません。アクセス解析を利用する場合があります。</p>
-
-  <h2>お問い合わせ</h2>
-  <p class="sub">ご意見・ご要望はお問い合わせフォーム（順次公開予定）よりお寄せください。</p>
 
   <style is:global>
     .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
-    main ul { line-height: 2; } .sub { color: var(--sub); font-size: 14px; }
+    main ul { line-height: 2; } main ul a { color: var(--ai); }
   </style>
 </Base>
