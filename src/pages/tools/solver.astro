@@ -1,18 +1,33 @@
 ---
 import Base from '../../layouts/Base.astro';
-const title = '数独ソルバー（解答ツール）｜無料で答えを表示 - numpredo';
+const title = '数独・ナンプレソルバー｜問題を入力して自動で解答（無料） - numpredo';
 const description = '数独・ナンプレの問題を入力すると、答えを自動で計算して表示する無料の解答ツール。唯一解かどうかも判定します。行き詰まったときに。';
 const sample = '..42.....3......6.5..3...71..5.72.43..39.65..21.53.6..15...3..4.8......5.....17..';
+const url = 'https://numpredo.com/tools/solver/';
+const faq = [
+  { q: 'ナンプレを自動で解いてくれますか？', a: 'はい。81マスを入力して「答えを表示」を押すと、解答プログラムが自動で計算し、答えの盤面を表示します。雑誌や新聞のナンプレの答え合わせ・解読にもお使いいただけます。' },
+  { q: '解が複数ある問題でも使えますか？', a: '入力した問題が「唯一解か」を自動で判定します。解が複数ある場合はその旨を表示し、一例を解答します。自力で解きたい方は<a href="/guide/how-to-solve/">解き方ガイド</a>をどうぞ。' },
+];
+const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
+const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: 'プレイ', item: 'https://numpredo.com/play/' }, { '@type': 'ListItem', position: 3, name: 'ソルバー', item: url }] };
 ---
 
 <Base title={title} description={description} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
   <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › ソルバー</nav>
-  <h1>数独ソルバー（解答ツール）</h1>
+  <h1>数独・ナンプレソルバー（自動解答ツール）</h1>
   <p class="lead">問題を入力すると答えを自動計算します。81マスを1〜9で、空きマスは「.」または「0」で入力してください（改行・スペースは無視されます）。</p>
 
   <textarea id="solver-input" class="solver-in" rows="4" spellcheck="false">{sample}</textarea>
   <div><button id="solver-btn" class="solver-go" type="button">答えを表示</button></div>
   <div id="solver-out" class="solver-out"></div>
+
+  <h2>ナンプレ・数独の自動解答について</h2>
+  <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a}></dd></>))}</dl>
 
   <h2>関連</h2>
   <ul>
@@ -28,6 +43,7 @@ const sample = '..42.....3......6.5..3...71..5.72.43..39.65..21.53.6..15...3..4.
     .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
     .lead { color: var(--sub); font-size: 14px; margin: 0 0 14px; }
     main ul { line-height: 2; } main ul a { color: var(--ai); }
+    .faq dt { font-family: var(--min); font-weight: 600; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--sub); font-size: 14px; } .faq a { color: var(--ai); }
     .solver-in { width: 100%; font-family: var(--mono, monospace); font-size: 13px; padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--sumi); resize: vertical; }
     .solver-go { margin-top: 10px; background: var(--shu); color: var(--card); border: 0; font-size: 14px; padding: 10px 22px; border-radius: 6px; cursor: pointer; font-family: var(--sans); }
     .solver-out { margin-top: 18px; }
