@@ -80,6 +80,15 @@ const footerCols = [
       rel="stylesheet"
     />
     <slot name="head" />
+
+    <!-- Google Analytics 4 — 经 Partytown 在 web worker 运行，不占主线程（保 CWV） -->
+    <script type="text/partytown" is:inline src="https://www.googletagmanager.com/gtag/js?id=G-CM79TWN2J0"></script>
+    <script type="text/partytown" is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-CM79TWN2J0');
+    </script>
   </head>
   <body>
     <header class="site-header">
