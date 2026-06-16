@@ -5,6 +5,7 @@ dist/
 # local dev / scripts
 engine-demo/
 scripts/*.js
+.playwright-mcp/
 
 # research / planning docs (not part of site)
 competitors/
