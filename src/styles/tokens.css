@@ -6,8 +6,8 @@
      的防闪 inline script 读 localStorage('numpredo_theme') 或 prefers 设定）。
    - 字体：主体 Noto Sans JP；明朝 Noto Serif JP 仅用于品牌 logo + 盘面题目数字
      （日本数独站的日式识别触点，--font-mincho）。
-   - 文件末尾的「兼容别名层」是迁移过渡：把旧变量名映射到新值，让尚未重构的
-     页面 <style> 在换 token 后不失色。全部页面迁完后删除该层。
+   - 全站已统一使用本文件定义的新变量；旧和风变量名（--washi/--shu/--min…）的
+     迁移过渡「兼容别名层」已于重构收尾删除，新增样式请直接用下列变量。
    ============================================================ */
 
 :root {
@@ -67,26 +67,4 @@
   --cell-same-bg: #163a2d; --pencil: #6e7a75;
 
   --key-bg: #1d2823; --key-line: #324440; --key-ink: #e9efec; --key-hover: #243530;
-}
-
-/* ============================================================
-   兼容别名层（迁移过渡 / 全页重构后删除）
-   旧变量名 → 新值，让未重构页面的 <style> 换 token 后不失色。
-   注：旧 --line 与新 --line 同名（边框语义一致），新值直接生效，无需别名。
-   ============================================================ */
-:root {
-  --washi: var(--bg);
-  --card: var(--surface);
-  --sumi: var(--ink);
-  --sub: var(--ink-3);
-  --thick: var(--box-line);
-  --shu: var(--accent);
-  --shuw: var(--cell-sel-bg);
-  --tofu: var(--surface-2);
-  --tofu2: var(--surface-3);
-  --ai: var(--accent);
-  --err: var(--num-error);
-  --note: var(--ink-4);
-  --min: var(--font-mincho);
-  --sans: var(--font-sans);
 }

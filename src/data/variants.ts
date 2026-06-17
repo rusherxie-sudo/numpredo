@@ -13,7 +13,7 @@ export interface Variant {
   faq: Array<{ q: string; a: string }>;
 }
 
-const G = 'stroke="var(--thick)"';
+const G = 'stroke="var(--box-line)"';
 const L = 'stroke="var(--line)"';
 
 export const VARIANTS: Variant[] = [
@@ -29,12 +29,12 @@ export const VARIANTS: Variant[] = [
         ${Array.from({ length: 4 }, (_, i) => `<line x1="${20 + i * 40}" y1="20" x2="${20 + i * 40}" y2="140"/>`).join('')}
         ${Array.from({ length: 4 }, (_, i) => `<line x1="20" y1="${20 + i * 40}" x2="140" y2="${20 + i * 40}"/>`).join('')}
       </g>
-      <rect x="22" y="22" width="76" height="36" rx="3" fill="none" stroke="var(--shu)" stroke-width="1.3" stroke-dasharray="4 3"/>
-      <text x="30" y="34" font-family="var(--sans)" font-size="11" fill="var(--shu)">12</text>
-      <text x="60" y="46" font-family="var(--min)" font-size="20" fill="var(--sumi)" text-anchor="middle">7</text>
-      <text x="100" y="46" font-family="var(--min)" font-size="20" fill="var(--sumi)" text-anchor="middle">5</text>
-      <text x="60" y="86" font-family="var(--min)" font-size="20" fill="var(--ai)" text-anchor="middle">3</text>
-      <text x="155" y="86" font-family="var(--sans)" font-size="11" fill="var(--sub)">合計が手がかり</text>
+      <rect x="22" y="22" width="76" height="36" rx="3" fill="none" stroke="var(--accent)" stroke-width="1.3" stroke-dasharray="4 3"/>
+      <text x="30" y="34" font-family="var(--font-sans)" font-size="11" fill="var(--accent)">12</text>
+      <text x="60" y="46" font-family="var(--font-mincho)" font-size="20" fill="var(--ink)" text-anchor="middle">7</text>
+      <text x="100" y="46" font-family="var(--font-mincho)" font-size="20" fill="var(--ink)" text-anchor="middle">5</text>
+      <text x="60" y="86" font-family="var(--font-mincho)" font-size="20" fill="var(--accent)" text-anchor="middle">3</text>
+      <text x="155" y="86" font-family="var(--font-sans)" font-size="11" fill="var(--ink-3)">合計が手がかり</text>
     </svg>`,
     svgCaption: '点線で囲まれたケージの合計（例：12）から、中の数字の組み合わせを絞り込む。',
     sections: [
@@ -61,7 +61,7 @@ export const VARIANTS: Variant[] = [
         ${Array.from({ length: 5 }, (_, i) => `<line x1="${40 + i * 20}" y1="20" x2="${40 + i * 20}" y2="140"/><line x1="20" y1="${40 + i * 20}" x2="140" y2="${40 + i * 20}"/>`).join('')}
       </g>
       <g ${G} stroke-width="1.6" fill="none"><line x1="80" y1="20" x2="80" y2="140"/><line x1="20" y1="60" x2="140" y2="60"/><line x1="20" y1="100" x2="140" y2="100"/></g>
-      ${[[0, 0, 1], [2, 0, 4], [4, 1, 6], [1, 3, 2], [5, 4, 3], [3, 5, 5]].map(([c, r, n]) => `<text x="${30 + c * 20}" y="${36 + r * 20}" font-family="var(--min)" font-size="14" fill="var(--sumi)" text-anchor="middle">${n}</text>`).join('')}
+      ${[[0, 0, 1], [2, 0, 4], [4, 1, 6], [1, 3, 2], [5, 4, 3], [3, 5, 5]].map(([c, r, n]) => `<text x="${30 + c * 20}" y="${36 + r * 20}" font-family="var(--font-mincho)" font-size="14" fill="var(--ink)" text-anchor="middle">${n}</text>`).join('')}
     </svg>`,
     svgCaption: '6×6の盤面。太線で区切られた2×3のブロックに1〜6を1回ずつ。',
     sections: [
@@ -86,11 +86,11 @@ export const VARIANTS: Variant[] = [
       <g ${G} stroke-width="1.4" fill="none">
         <rect x="20" y="20" width="44" height="44"/><rect x="84" y="20" width="44" height="44"/><rect x="148" y="20" width="44" height="44"/>
       </g>
-      <text x="42" y="50" font-family="var(--min)" font-size="22" fill="var(--sumi)" text-anchor="middle">2</text>
-      <text x="106" y="50" font-family="var(--min)" font-size="22" fill="var(--ai)" text-anchor="middle">?</text>
-      <text x="170" y="50" font-family="var(--min)" font-size="22" fill="var(--sumi)" text-anchor="middle">5</text>
-      <text x="74" y="48" font-family="var(--sans)" font-size="18" fill="var(--shu)" text-anchor="middle">&lt;</text>
-      <text x="138" y="48" font-family="var(--sans)" font-size="18" fill="var(--shu)" text-anchor="middle">&lt;</text>
+      <text x="42" y="50" font-family="var(--font-mincho)" font-size="22" fill="var(--ink)" text-anchor="middle">2</text>
+      <text x="106" y="50" font-family="var(--font-mincho)" font-size="22" fill="var(--accent)" text-anchor="middle">?</text>
+      <text x="170" y="50" font-family="var(--font-mincho)" font-size="22" fill="var(--ink)" text-anchor="middle">5</text>
+      <text x="74" y="48" font-family="var(--font-sans)" font-size="18" fill="var(--accent)" text-anchor="middle">&lt;</text>
+      <text x="138" y="48" font-family="var(--font-sans)" font-size="18" fill="var(--accent)" text-anchor="middle">&lt;</text>
     </svg>`,
     svgCaption: '記号は「小さい方」が開く向き。2 ＜ ? ＜ 5 なら、真ん中は3か4に絞られる。',
     sections: [
@@ -116,8 +116,8 @@ export const VARIANTS: Variant[] = [
         ${Array.from({ length: 8 }, (_, i) => `<line x1="${20 + (i + 1) * (120 / 9)}" y1="20" x2="${20 + (i + 1) * (120 / 9)}" y2="140"/><line x1="20" y1="${20 + (i + 1) * (120 / 9)}" x2="140" y2="${20 + (i + 1) * (120 / 9)}"/>`).join('')}
       </g>
       <g ${G} stroke-width="1.5" fill="none">${[60, 100].map((p) => `<line x1="${p}" y1="20" x2="${p}" y2="140"/><line x1="20" y1="${p}" x2="140" y2="${p}"/>`).join('')}</g>
-      <line x1="20" y1="20" x2="140" y2="140" stroke="var(--shu)" stroke-width="2" opacity="0.55"/>
-      <line x1="140" y1="20" x2="20" y2="140" stroke="var(--shu)" stroke-width="2" opacity="0.55"/>
+      <line x1="20" y1="20" x2="140" y2="140" stroke="var(--accent)" stroke-width="2" opacity="0.55"/>
+      <line x1="140" y1="20" x2="20" y2="140" stroke="var(--accent)" stroke-width="2" opacity="0.55"/>
     </svg>`,
     svgCaption: '通常の制約に加え、朱色の2本の対角線にも1〜9を1回ずつ。',
     sections: [
