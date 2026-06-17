@@ -9,6 +9,7 @@ const faq = [
   { q: '新聞の数独の答えを知りたいのですが？', a: '手元の新聞のマス目を上の欄に入力すれば、答えを自動で表示します。紙面の答え発表を待つ必要はありません。くわしくは<a href="/guide/newspaper/">新聞の数独・ナンプレが解けないときの答え合わせ方法</a>をご覧ください。' },
   { q: '答え合わせだけしたいときも使えますか？', a: 'はい。自分で解いた答えが合っているか確かめたいときも、問題のマスを入力すれば正しい解答が表示されるので、答え合わせに使えます。無料・登録不要です。' },
   { q: '解が複数ある問題でも使えますか？', a: '入力した問題が「唯一解か」を自動で判定します。解が複数ある場合はその旨を表示し、一例を解答します。自力で解きたい方は<a href="/guide/how-to-solve/">解き方ガイド</a>をどうぞ。' },
+  { q: '6×6 や変則ルール（キラー・対角線など）も解けますか？', a: 'このソルバーが対応しているのは 9×9 の標準的な数独（ナンプレ）です。6×6 などのサイズ違いや、キラー数独・対角線数独といった変則ルールには現在対応していません。各バリエーションのルールは<a href="/variants/6x6/">6×6数独</a>や<a href="/variants/killer/">キラー数独</a>の解説ページでご紹介しています。' },
 ];
 const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ自動解答ツール（ソルバー）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
@@ -24,7 +25,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 
   <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › ソルバー</nav>
   <h1>数独・ナンプレ自動解答ツール（答え合わせ・ソルバー）</h1>
-  <p class="lead">新聞・雑誌の数独・ナンプレが解けないときに。問題のマスを入力すると、答えを自動で計算して表示します。81マスを1〜9で、空きマスは「.」または「0」で入力してください（改行・スペースは無視されます）。</p>
+  <p class="lead"><strong>9×9 の標準的な数独（ナンプレ）</strong>専用の自動解答ツールです。新聞・雑誌の数独・ナンプレが解けないとき、問題のマスを入力すると答えを自動で計算して表示します。81マスを1〜9で、空きマスは「.」または「0」で入力してください（改行・スペースは無視されます）。</p>
 
   <textarea id="solver-input" class="solver-in" rows="4" spellcheck="false">{sample}</textarea>
   <div><button id="solver-btn" class="solver-go" type="button">答えを表示</button></div>

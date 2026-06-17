@@ -7,8 +7,12 @@ interface Props {
 }
 const { title, description, canonical, wide = false } = Astro.props;
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
-// 内容页（攻略 /guide・変種 /variants）用 article，其余（首页 / プレイ / ツール）用 website
-const ogType = /^\/(guide|variants)\//.test(Astro.url.pathname) ? 'article' : 'website';
+// 内容长文（/guide/xxx・/variants/xxx）用 article；hub 索引页（/guide/）与其余（首页 / プレイ / ツール）用 website
+const pathname = Astro.url.pathname;
+const ogType =
+  /^\/(guide|variants)\//.test(pathname) && pathname !== '/guide/' && pathname !== '/variants/'
+    ? 'article'
+    : 'website';
 
 // フォントは非ブロッキング読み込み（LCP/CWV 対策）：preload で先取り → media="print" + onload で all に切替。
 const fontHref =
@@ -30,6 +34,7 @@ const footerCols = [
   {
     h: '学ぶ・解き方',
     links: [
+      ['解き方ガイド一覧', '/guide/'],
       ['解き方ガイド', '/guide/how-to-solve/'],
       ['ルール・遊び方', '/guide/rules/'],
       ['初心者のコツ', '/guide/beginner/'],

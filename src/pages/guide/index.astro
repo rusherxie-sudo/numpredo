@@ -1,0 +1,111 @@
+---
+import Base from '../../layouts/Base.astro';
+import { GUIDES } from '../../data/guides.ts';
+import { TECHNIQUES } from '../../data/techniques.ts';
+
+const title = '数独・ナンプレの解き方・攻略ガイド一覧｜コツ・テクニック - numpredo';
+const description =
+  '数独（ナンプレ）の解き方・攻略記事の一覧。ルール、初心者のコツ、上級テクニック（ペア・区画・X-Wing）、用語集、脳トレ効果まで、すべて図解でわかりやすく解説します。';
+const url = 'https://numpredo.com/guide/';
+
+// 各記事のハブ用一行説明（メタ description より短く、カード表示専用）
+const guideBlurb: Record<string, string> = {
+  rules: '1〜9を重複なく埋める基本ルールと遊び方を一から。',
+  beginner: '裸の単数・隠れた単数の見つけ方など初心者のコツ。',
+  advanced: 'ペア・区画の絞り込み・X-Wingなど上級テクニック。',
+  'sudoku-vs-numpre': '「数独」と「ナンプレ」——呼び方が違う理由。',
+  'sudoku-history': '数独の起源から世界的ブームまでの歴史。',
+  glossary: '単数・ペア・ユニットなど基本用語をまとめて解説。',
+  'brain-training': '数独は脳トレに効く？効果と続けるコツ。',
+  tips: '初心者から中級まで、解き方のコツを段階的に。',
+  'when-stuck': 'どうしても解けない——詰まったときの次の一手。',
+  newspaper: '新聞（読売・毎日・朝日など）の数独の答え合わせ方法。',
+};
+const techBlurb: Record<string, string> = {
+  'naked-pair': '2マスが同じ2候補のとき、他マスから消去する。',
+  pointing: 'ブロック内の候補が一列に偏ったら、列の外を消去。',
+  'x-wing': '2行2列の長方形パターンで候補を消去する。',
+  'hidden-pair': '2マスにしか入らない2つの数字を確定させる。',
+  'naked-triple': '3マス3候補の組で、他マスを絞り込む。',
+  swordfish: 'X-Wingを3行3列に広げた応用パターン。',
+  skyscraper: '2本の強リンクのずれから候補を消去する。',
+};
+
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '数独・ナンプレの解き方・攻略ガイド一覧',
+  description,
+  url,
+  inLanguage: 'ja',
+  isPartOf: { '@type': 'WebSite', name: 'numpredo', url: 'https://numpredo.com/' },
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '解き方ガイド一覧', item: url },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={url}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › 解き方ガイド一覧</nav>
+  <h1>数独・ナンプレの解き方・攻略ガイド一覧</h1>
+  <p class="lead">ルールの基本から上級テクニックまで、数独（ナンプレ）の解き方・攻略記事をまとめました。すべて唯一解・論理だけで解ける考え方で、図解つきで解説しています。</p>
+
+  <a href="/guide/how-to-solve/" class="g-hero">
+    <span class="gh-j">数独・ナンプレの解き方完全ガイド</span>
+    <span class="gh-d">単数の発見から上級テクニックまで、図解で一気に。まず読みたい総合ガイドです。</span>
+  </a>
+
+  <h2>攻略・コツの記事</h2>
+  <div class="g-grid">
+    {GUIDES.map((g) => (
+      <a href={`/guide/${g.slug}/`} class="g-card">
+        <span class="gc-j">{g.h1}</span>
+        <span class="gc-d">{guideBlurb[g.slug] ?? g.description}</span>
+      </a>
+    ))}
+  </div>
+
+  <h2>テクニック別の図解解説</h2>
+  <div class="g-grid">
+    {TECHNIQUES.map((t) => (
+      <a href={`/guide/techniques/${t.slug}/`} class="g-card">
+        <span class="gc-j">{t.name}</span>
+        <span class="gc-d">{techBlurb[t.slug] ?? `${t.name}の解き方を図解で解説。`}</span>
+      </a>
+    ))}
+  </div>
+
+  <h2>練習する・ツール</h2>
+  <ul>
+    <li><a href="/play/">難易度を選んでプレイ（初級〜超難問）</a></li>
+    <li><a href="/tools/solver/">数独ソルバー（自動解答・答え合わせ）</a></li>
+    <li><a href="/print/">無料PDF問題集（印刷）</a></li>
+    <li><a href="/daily/">毎日の数独</a></li>
+  </ul>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
+    .lead { color: var(--sub); font-size: 14px; margin: 0 0 18px; }
+    main ul { line-height: 2; } main ul a { color: var(--ai); }
+    .g-hero { display: block; background: var(--tofu); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; text-decoration: none; color: var(--sumi); transition: border-color 0.12s; }
+    .g-hero:hover { border-color: var(--shu); }
+    .gh-j { font-family: var(--min); font-size: 18px; font-weight: 600; }
+    .gh-d { display: block; font-size: 13px; color: var(--sub); margin-top: 5px; }
+    .g-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .g-card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; text-decoration: none; color: var(--sumi); transition: border-color 0.12s; }
+    .g-card:hover { border-color: var(--shu); }
+    .gc-j { font-family: var(--min); font-size: 15px; font-weight: 600; line-height: 1.4; }
+    .gc-d { display: block; font-size: 12.5px; color: var(--sub); margin-top: 4px; }
+    @media (max-width: 560px) { .g-grid { grid-template-columns: 1fr; } }
+  </style>
+</Base>
