@@ -70,7 +70,9 @@ npm run render-demo # 导出示例 SVG 到 engine-demo/
 | `data/guides.ts` | `pages/guide/[slug].astro` | 攻略/信息长文（body 支持 HTML 内链） |
 | `data/variants.ts` | `pages/variants/[slug].astro` | 变体数独内容页（不可玩，手写和风 SVG 示意） |
 
-**防薄内容是硬约束**：每个程序化页必须注入该难度/变体/技巧**独有**的文案 + FAQ（否则被 Google 判薄内容）。新增程序化页时，给数据对象补齐独特 `lead`/`tips`/`faq`，并注入 JSON-LD（FAQPage / BreadcrumbList / WebApplication，见 `play/[level].astro` 范式）。
+**防薄内容是硬约束**：每个程序化页必须注入该难度/变体/技巧**独有**的文案 + FAQ（否则被 Google 判薄内容）。新增程序化页时，给数据对象补齐独特 `lead`/`tips`/`faq`，并注入 JSON-LD（FAQPage / BreadcrumbList / WebApplication，见 `play/[level].astro` 范式）。**article 类页**（`og:type=article`：`guide/[slug]`、`guide/techniques/[slug]`、`guide/how-to-solve`、`variants/[slug]`）另注入 `Article`，其 `dateModified` **复用 `src/data/sitemap-lastmod.json`**（按 pathname 查表，不要现编日期；技巧页/how-to 页与已有的 `HowTo` 并存）。
+
+> **FAQ 答案含内链时必须用 `set:html` 渲染**（`<dd set:html={f.a} />`），不能写 `{f.a}`——后者会把答案里的 `<a>` 转义成字面文本，内链失效且不可爬取。数据里只放可信的手写 HTML，不要塞半角 `<`/`>`（不等号变体用全角 `＜＞`）。
 
 ## 布局与设计系统
 
@@ -84,6 +86,8 @@ Cloudflare Pages 托管 `dist/` 静态输出。`public/_redirects` 是旧 React 
 > Sitemap 只有一份：`@astrojs/sitemap` 构建生成 `sitemap-index.xml` + `sitemap-0.xml`（`robots.txt` 指向 index）。早期那份手动 `public/sitemap.xml` 已删除。
 >
 > **lastmod 用真实修改日，不是构建日**：每个 URL 的 `<lastmod>` 取自「该页内容源文件（页面 .astro + 它驱动的数据文件，**不含**共享布局 Base.astro）」的 git 提交日期，由 `npm run gen:sitemap` 离线算好写进 `src/data/sitemap-lastmod.json`（提交进 git），`astro.config.mjs` 的 `serialize` 构建时只读它注入。**为何离线预生成**：① 绝不用构建日兜底——那等于每次部署都谎称全站更新，Google 会判 lastmod 不可信而忽略；② CF Pages 构建环境可能 shallow clone，构建时现算 `git log` 会把日期塌缩成最近提交日 ≈ 构建日。与题库「预生成进 git」同一套防御思路。改内容页/数据文件后跑 `gen:sitemap` 刷新并提交（PostToolUse hook 会提醒；忘了只是 lastmod 偏旧，偏旧安全、偏新才有害）。
+>
+> **`sitemap-lastmod.json` 有两个消费方**：① `astro.config.mjs` 注入 sitemap `<lastmod>`；② 4 个 article 模板（`guide/[slug]`、`guide/techniques/[slug]`、`guide/how-to-solve`、`variants/[slug]`）`import` 它取 `Article` 的 `dateModified`。当前格式是扁平映射 `{ "/url/": "ISO日期" }`，按 pathname 查表——**改它的键格式/结构会同时打断这 4 个模板**，动结构时记得一并改模板。
 
 ## 仓库约定
 
