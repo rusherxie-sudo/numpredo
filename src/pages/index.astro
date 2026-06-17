@@ -1,37 +1,42 @@
 ---
 import Base from '../layouts/Base.astro';
+import advanced from '../data/puzzles/advanced.json';
+import { gridFromString, renderBoardSvg } from '../engine/index.ts';
+
 const title = '数独・ナンプレ｜無料・唯一解・論理で解ける - numpredo';
 const description =
-  '数独（ナンプレ）を無料でオンラインプレイ。初級から上級まで、すべて唯一解・論理だけで解ける高品質問題。解き方ガイド・印刷問題集も無料、登録不要。';
+  '数独（ナンプレ）を無料でオンラインプレイ。初級から超難問まで、すべて唯一解・論理だけで解ける高品質問題。解き方ガイド・印刷問題集も無料、登録不要。';
 
-const diffs = [
-  ['初級', 'やさしい', '/play/beginner/'],
-  ['中級', 'ふつう', '/play/intermediate/'],
-  ['上級', 'むずかしい', '/play/advanced/'],
-  ['難問', '手強い', '/play/hard/'],
-  ['超難問', '最高峰', '/play/extreme/'],
-  ['毎日', '日替わり', '/daily/'],
+// hero の盤面：実題を構築期に SVG 化（CSS 変数主題で明暗自動追随）
+const heroGrid = gridFromString(advanced.puzzles[0].puzzle);
+const heroSvg = renderBoardSvg(heroGrid, {
+  given: heroGrid.map((v) => v !== 0),
+  cell: 36,
+  title: '数独の問題例',
+  desc: '9×9に1〜9を、タテ・ヨコ・3×3で重複なく',
+});
+
+// [Lv, 名前, href, 等級(1-5), 説明]
+const diffs: [string, string, string, number, string][] = [
+  ['Lv.1', '初級', '/play/beginner/', 1, 'はじめての方に。ヒントが多めで、基本だけで解けます。'],
+  ['Lv.2', '中級', '/play/intermediate/', 2, '少し考える一手が必要。基本に慣れてきた方へ。'],
+  ['Lv.3', '上級', '/play/advanced/', 3, '候補メモを使いこなして。腕に自信がある方に。'],
+  ['Lv.4', '難問', '/play/hard/', 4, '高度なテクニックが必要な、歯ごたえのある一問。'],
+  ['Lv.5', '超難問', '/play/extreme/', 5, '最難関。じっくり腰を据えて挑む上級者向け。'],
 ];
-const feats = [
-  ['解き方ガイド', '基本から上級テクニックまで、図解でわかりやすく。', '/guide/how-to-solve/'],
-  ['無料PDF問題集', '難易度・問題数を選んで印刷。脳トレに最適。', '/print/'],
-  ['毎日の数独', '毎日新しい一問。タイムを記録して挑戦。', '/daily/'],
+const tools: [string, string, string, string][] = [
+  ['解', '解き方ガイド', '/guide/', 'ルールから上級テクニックまで、盤面の図解つきで解説。'],
+  ['刷', '印刷用PDF', '/print/', '難易度と問題数をえらんで、無料でダウンロード＆印刷。'],
+  ['答', '自動解答ソルバー', '/tools/solver/', '81マスを入力すると答えを自動計算。新聞の答え合わせにも。'],
+  ['変', 'バリエーション', '/play/', 'キラー数独・6×6・不等号・対角線などのルール紹介。'],
 ];
-const variants = [
-  ['キラー数独', 'ケージの合計から解く頭脳派。', '/variants/killer/'],
-  ['6×6数独（ミニ）', '1〜6だけの入門向け。', '/variants/6x6/'],
-  ['不等号ナンプレ', '大小関係「＜＞」で絞り込む。', '/variants/inequality/'],
-  ['対角線数独（X数独）', '対角線にも1〜9。', '/variants/diagonal/'],
-];
-const learn = [
-  ['数独ソルバー（自動解答）', '/tools/solver/'],
-  ['数独と脳トレ・効果', '/guide/brain-training/'],
-  ['数独の歴史', '/guide/sudoku-history/'],
-  ['数独用語集', '/guide/glossary/'],
-  ['ルール・遊び方', '/guide/rules/'],
+const why: [string, string, string][] = [
+  ['無料', '登録なしで遊べる', 'アカウント登録もアプリも不要。開いてすぐ始められます。'],
+  ['📱', 'スマホでも快適', '小さな画面でも押しやすい数字キーボードで、サクサク作答。'],
+  ['✎', '候補メモ機能', 'マスの中に小さく候補を書き込んで、消去法で絞り込めます。'],
+  ['✓', '自動でこたえ合わせ', 'まちがいはその場で表示。ソルバーで紙の問題も照合できます。'],
 ];
 
-// 首页结构化数据：WebSite + Organization（站点级，提升 Google 对站点的理解）
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -55,85 +60,161 @@ const orgSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
   </Fragment>
 
-  <section class="hero">
-    <p class="mark">数 独 ・ ナ ン プ レ</p>
-    <h1 class="hero-h1">無料で楽しむ、<br />上質な数独・ナンプレ。</h1>
-    <p class="hero-lead">
-      すべての問題は「解が一つだけ」「論理だけで解ける」ことを検証済み。当てずっぽうのない、本物の数独体験を。
-    </p>
-    <div class="vals">
-      <span>◦ 唯一解保証</span><span>◦ 論理で解ける</span><span>◦ 登録不要</span><span>◦ スマホ対応</span>
+  <section class="hp-hero">
+    <div class="hp-hero-l">
+      <span class="hp-badge">登録不要・完全無料</span>
+      <h1 class="hp-h1">毎日とける、<br />無料の数独・ナンプレ。</h1>
+      <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで5段階、毎日あたらしいデイリー問題も。解き方ガイドと、自動でこたえ合わせできるソルバーつき。</p>
+      <div class="hp-cta">
+        <a href="/play/beginner/" class="hp-btn hp-btn-p">初級をはじめる</a>
+        <a href="/daily/" class="hp-btn hp-btn-s">今日のナンプレ →</a>
+      </div>
+      <div class="hp-difflinks">またはレベルを選ぶ：<a href="/play/beginner/">初級</a><a href="/play/intermediate/">中級</a><a href="/play/advanced/">上級</a><a href="/play/hard/">難問</a><a href="/play/extreme/">超難問</a></div>
+      <div class="hp-meta"><span>5段階の難易度</span><span class="hp-dot">·</span><span>毎日更新</span><span class="hp-dot">·</span><span>スマホ対応</span></div>
+    </div>
+    <div class="hp-hero-r">
+      <div class="hp-board"><Fragment set:html={heroSvg} /></div>
+      <div class="hp-board-cap">9×9に 1–9 を。タテ・ヨコ・3×3で重複なく。</div>
     </div>
   </section>
 
-  <h2>難易度を選んで遊ぶ</h2>
-  <div class="diff-grid">
-    {
-      diffs.map(([ja, en, href]) => (
-        <a href={href} class="diff-card">
-          <span class="j">{ja}</span>
-          <span class="e">{en}</span>
+  <section class="hp-sec">
+    <div class="hp-sec-head">
+      <div>
+        <div class="hp-eyebrow">PLAY</div>
+        <h2 class="hp-h2">難易度をえらぶ</h2>
+      </div>
+      <a href="/play/" class="hp-more">難易度一覧をみる →</a>
+    </div>
+    <div class="hp-diffs">
+      {diffs.map(([lv, name, href, lvl, desc]) => (
+        <a href={href} class="hp-diff">
+          <div class="hp-diff-top">
+            <span class="hp-diff-lv">{lv}</span>
+            <span class="hp-bars">{[1, 2, 3, 4, 5].map((i) => <i class={i <= lvl ? 'on' : ''}></i>)}</span>
+          </div>
+          <div class="hp-diff-name">{name}</div>
+          <p class="hp-diff-desc">{desc}</p>
         </a>
-      ))
-    }
-  </div>
+      ))}
+    </div>
+  </section>
 
-  <h2>学ぶ・印刷する</h2>
-  <div class="feat-grid">
-    {
-      feats.map(([h, p, href]) => (
-        <a href={href} class="feat-card">
-          <h3>{h}</h3>
-          <p>{p}</p>
-          <span class="arr">{h}へ →</span>
-        </a>
-      ))
-    }
-  </div>
+  <section class="hp-tools-wrap">
+    <div class="hp-sec hp-tools-in">
+      <div class="hp-eyebrow">LEARN &amp; TOOLS</div>
+      <h2 class="hp-h2" style="margin-bottom:28px">学ぶ・つかう</h2>
+      <div class="hp-tools">
+        {tools.map(([icon, name, href, desc]) => (
+          <a href={href} class="hp-tool">
+            <div class="hp-tool-ic">{icon}</div>
+            <div class="hp-tool-name">{name}</div>
+            <p class="hp-tool-desc">{desc}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
 
-  <h2>バリエーション数独</h2>
-  <div class="var-grid">
-    {
-      variants.map(([h, p, href]) => (
-        <a href={href} class="feat-card">
-          <h3>{h}</h3>
-          <p>{p}</p>
-        </a>
-      ))
-    }
-  </div>
+  <section class="hp-sec">
+    <h2 class="hp-h2 hp-center">numpredo が選ばれる理由</h2>
+    <div class="hp-why">
+      {why.map(([big, h, p]) => (
+        <div class="hp-why-i">
+          <div class="hp-why-big">{big}</div>
+          <div class="hp-why-h">{h}</div>
+          <p class="hp-why-p">{p}</p>
+        </div>
+      ))}
+    </div>
+  </section>
 
-  <h2>もっと知る</h2>
-  <ul class="learn-list">{learn.map(([h, href]) => (<li><a href={href}>{h}</a></li>))}</ul>
+  <section class="hp-sec hp-var-sec">
+    <div class="hp-var">
+      <div>
+        <h2 class="hp-var-h">変わり種のナンプレも</h2>
+        <p class="hp-var-p">キラー数独・6×6・不等号・対角線など、ふつうの数独に飽きたら。ルールと解き方を図解で紹介しています。</p>
+      </div>
+      <a href="/play/" class="hp-var-btn">バリエーションをみる →</a>
+    </div>
+  </section>
 
   <style is:global>
-    .hero { text-align: center; padding: 40px 0 30px; }
-    .mark { font-family: var(--min); font-size: 13px; color: var(--shu); letter-spacing: 0.3em; margin: 0 0 14px; }
-    .hero-h1 { font-family: var(--min); font-weight: 700; font-size: clamp(26px, 6vw, 34px); line-height: 1.35; margin: 0 0 14px; letter-spacing: 0.02em; }
-    .hero-lead { font-size: 14px; color: var(--sub); line-height: 1.9; max-width: 460px; margin: 0 auto; }
-    .vals { display: flex; gap: 16px; justify-content: center; margin-top: 18px; font-size: 12px; color: var(--sub); flex-wrap: wrap; }
+    .hp-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; align-items: center; padding: 32px 0 44px; }
+    .hp-badge { display: inline-flex; align-items: center; gap: 8px; font-size: var(--text-sm); font-weight: 700; color: var(--accent); background: var(--accent-tint); border-radius: 7px; padding: 6px 12px; margin-bottom: 22px; }
+    .hp-h1 { font-weight: 700; font-size: clamp(34px, 4.6vw, 52px); line-height: 1.2; letter-spacing: -.02em; margin: 0 0 20px; word-break: keep-all; line-break: strict; }
+    .hp-lead { font-size: var(--text-md); line-height: 1.9; color: var(--ink-3); max-width: 470px; margin: 0 0 30px; }
+    .hp-cta { display: flex; align-items: center; gap: 13px; margin-bottom: 26px; flex-wrap: wrap; }
+    .hp-btn { font-size: var(--text-md); font-weight: 700; padding: 14px 26px; border-radius: var(--radius); text-decoration: none; transition: all .15s; }
+    .hp-btn-p { background: var(--accent); color: var(--accent-on); }
+    .hp-btn-p:hover { background: var(--accent-ink); }
+    .hp-btn-s { background: var(--surface); color: var(--ink); border: 1.5px solid var(--line-2); }
+    .hp-btn-s:hover { border-color: var(--accent); color: var(--accent); }
+    .hp-difflinks { font-size: var(--text-sm); color: var(--ink-4); margin: -6px 0 18px; }
+    .hp-difflinks a { color: var(--accent); text-decoration: none; margin: 0 7px; font-weight: 500; }
+    .hp-difflinks a:hover { text-decoration: underline; }
+    .hp-meta { display: flex; align-items: center; gap: 14px; font-size: var(--text-sm); color: var(--ink-4); flex-wrap: wrap; }
+    .hp-dot { opacity: .5; }
+    .hp-hero-r { display: flex; flex-direction: column; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); }
+    .hp-board { width: 100%; max-width: 340px; }
+    .hp-board svg { width: 100%; height: auto; display: block; }
+    .hp-board-cap { font-size: var(--text-xs); color: var(--ink-4); text-align: center; line-height: 1.7; }
 
-    .diff-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 9px; }
-    .diff-card { background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 16px 6px; text-align: center; text-decoration: none; color: var(--sumi); transition: border-color 0.12s, background 0.12s; }
-    .diff-card:hover { border-color: var(--shu); background: var(--tofu); }
-    .diff-card .j { display: block; font-family: var(--min); font-size: 17px; font-weight: 600; }
-    .diff-card .e { display: block; font-size: 10px; color: var(--sub); margin-top: 3px; }
+    .hp-sec { max-width: 1080px; margin: 0 auto; padding: 28px 0 48px; }
+    .hp-sec-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 22px; gap: 16px; }
+    .hp-eyebrow { font-size: var(--text-xs); font-weight: 700; letter-spacing: .12em; color: var(--accent); margin-bottom: 8px; }
+    .hp-h2 { font-weight: 700; font-size: var(--text-xl); letter-spacing: -.01em; margin: 0; }
+    .hp-center { text-align: center; margin-bottom: 28px; }
+    .hp-more { font-size: var(--text-sm); font-weight: 700; color: var(--accent); text-decoration: none; white-space: nowrap; }
 
-    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .feat-card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px 16px; text-decoration: none; color: var(--sumi); transition: border-color 0.12s; }
-    .feat-card:hover { border-color: var(--shu); }
-    .feat-card h3 { font-family: var(--min); font-size: 15px; margin: 0 0 6px; }
-    .feat-card p { font-size: 12px; color: var(--sub); line-height: 1.7; margin: 0; }
-    .feat-card .arr { display: block; color: var(--shu); font-size: 12px; margin-top: 8px; }
+    .hp-diffs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .hp-diff { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; text-decoration: none; color: var(--ink); transition: border-color .15s, transform .15s; }
+    .hp-diff:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .hp-diff-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .hp-diff-lv { font-size: var(--text-xs); font-weight: 700; letter-spacing: .06em; color: var(--ink-4); }
+    .hp-bars { display: flex; gap: 3px; }
+    .hp-bars i { width: 18px; height: 4px; border-radius: 2px; background: var(--line-2); }
+    .hp-bars i.on { background: var(--accent); }
+    .hp-diff-name { font-size: var(--text-lg); font-weight: 700; margin-bottom: 6px; }
+    .hp-diff-desc { font-size: var(--text-sm); line-height: 1.8; color: var(--ink-3); margin: 0; }
+    .hp-daily { background: var(--accent); border: 1px solid var(--accent); border-radius: var(--radius); padding: 22px; text-decoration: none; transition: background .15s; }
+    .hp-daily:hover { background: var(--accent-ink); }
+    .hp-daily-tag { font-size: var(--text-xs); font-weight: 700; color: var(--accent-on); opacity: .9; margin-bottom: 14px; }
+    .hp-daily-name { font-size: var(--text-lg); font-weight: 700; color: var(--accent-on); margin-bottom: 6px; }
+    .hp-daily-desc { font-size: var(--text-sm); line-height: 1.8; color: var(--accent-on); opacity: .9; margin: 0; }
 
-    .var-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .learn-list { line-height: 2; padding-left: 18px; margin: 8px 0 0; }
-    .learn-list a { color: var(--ai); }
+    .hp-tools-wrap { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .hp-tools-in { padding: 52px 0; }
+    .hp-tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .hp-tool { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 22px; text-decoration: none; color: var(--ink); transition: border-color .15s; }
+    .hp-tool:hover { border-color: var(--accent); }
+    .hp-tool-ic { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--accent-tint); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; font-family: var(--font-mincho); margin-bottom: 16px; }
+    .hp-tool-name { font-size: var(--text-base); font-weight: 700; margin-bottom: 7px; }
+    .hp-tool-desc { font-size: var(--text-sm); line-height: 1.8; color: var(--ink-3); margin: 0; }
 
-    @media (max-width: 560px) {
-      .diff-grid { grid-template-columns: repeat(3, 1fr); }
-      .feat-grid { grid-template-columns: 1fr; }
-      .var-grid { grid-template-columns: repeat(2, 1fr); }
+    .hp-why { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 24px; }
+    .hp-why-i { text-align: center; }
+    .hp-why-big { font-size: 28px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+    .hp-why-h { font-size: var(--text-base); font-weight: 700; margin-bottom: 6px; }
+    .hp-why-p { font-size: var(--text-sm); color: var(--ink-3); line-height: 1.75; margin: 0; }
+
+    .hp-var-sec { padding-bottom: 24px; }
+    .hp-var { background: var(--surface-2); border-radius: var(--radius-lg); padding: 34px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .hp-var-h { font-weight: 700; font-size: var(--text-lg); margin: 0 0 8px; }
+    .hp-var-p { font-size: var(--text-sm); color: var(--ink-3); line-height: 1.7; max-width: 520px; margin: 0; }
+    .hp-var-btn { background: var(--surface); border: 1px solid var(--line-2); color: var(--ink); font-size: var(--text-base); font-weight: 700; padding: 13px 24px; border-radius: var(--radius); white-space: nowrap; text-decoration: none; transition: all .15s; }
+    .hp-var-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    @media (max-width: 760px) {
+      .hp-sec-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+      /* hero：盤面を背景の地紋に、文字を主役に。CTA は横1行で省スペース */
+      .hp-hero { position: relative; grid-template-columns: 1fr; padding: 30px 0 34px; }
+      .hp-hero-r { position: absolute; inset: 0; z-index: 0; background: none; border: 0; box-shadow: none; padding: 0; opacity: .1; pointer-events: none; justify-content: center; align-items: center; }
+      .hp-hero-r .hp-board { max-width: 94%; }
+      .hp-board-cap { display: none; }
+      .hp-hero-l { position: relative; z-index: 1; }
+      .hp-cta { flex-wrap: nowrap; gap: 10px; }
+      .hp-btn { flex: 1 1 0; min-width: 0; text-align: center; padding: 13px 6px; font-size: var(--text-base); white-space: nowrap; }
     }
   </style>
 </Base>

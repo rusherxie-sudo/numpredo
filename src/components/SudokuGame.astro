@@ -72,7 +72,7 @@ const setJson = JSON.stringify(set);
   .sk-ctrl { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .sk-cbtn { padding: 9px 0; border: 1px solid var(--line); border-radius: 5px; background: var(--washi); cursor: pointer; font-size: 13px; color: var(--sumi); font-family: var(--sans); }
   .sk-cbtn:hover { background: var(--tofu); }
-  .sk-cbtn.on { background: var(--shu); color: var(--card); border-color: var(--shu); }
+  .sk-cbtn.on { background: var(--shu); color: var(--accent-on); border-color: var(--shu); }
   .sk-hintbtn { color: var(--ai); }
 
   .sk-check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--sub); margin-top: 10px; cursor: pointer; }
@@ -84,7 +84,7 @@ const setJson = JSON.stringify(set);
   .sk-r-time { font-family: var(--min); font-size: 24px; color: var(--sumi); margin: 2px 0; }
   .sk-r-rec { font-size: 12px; color: var(--shu); font-family: var(--min); }
   .sk-r-best { font-size: 12px; color: var(--sub); }
-  .sk-share { margin-top: 10px; width: 100%; padding: 9px 0; border: 0; border-radius: 5px; background: var(--shu); color: var(--card); font-size: 13px; cursor: pointer; font-family: var(--sans); }
+  .sk-share { margin-top: 10px; width: 100%; padding: 9px 0; border: 0; border-radius: 5px; background: var(--shu); color: var(--accent-on); font-size: 13px; cursor: pointer; font-family: var(--sans); }
 
   /* 彩屑 */
   .sk-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
@@ -97,16 +97,27 @@ const setJson = JSON.stringify(set);
     .sk-confetti-bit { animation: none; display: none; }
   }
 
-  @media (max-width: 560px) {
-    .sk-layout { grid-template-columns: 1fr; }
-    .sk-board { max-width: 100%; }
-    .sk-side { border: none; background: transparent; padding: 8px 0 0; }
+  /* ===== モバイル（縦画面）専用レイアウト：盤面を主役に、片手で押せるキーボード ===== */
+  @media (max-width: 760px) {
+    [data-sudoku] { margin: 2px 0 18px; }
+    .sk-layout { grid-template-columns: 1fr; gap: 12px; max-width: 520px; }
+    /* 盤面は満幅（指で押しやすい大きさ）。52vh 上限で下のキーボードも視野に */
+    .sk-board { max-width: min(100%, 52vh); }
+    .sk-cell { font-size: clamp(20px, 6.4vw, 30px); }
+    .sk-side { border: none; background: transparent; padding: 0; }
     .sk-daily { border-bottom: none; }
-    .sk-pad { grid-template-columns: repeat(5, 1fr); }
-    .sk-key { padding: 14px 0; }
-    .sk-ctrl { flex-wrap: wrap; flex-direction: row; }
-    .sk-cbtn { flex: 1 1 30%; }
-    .sk-timer { display: inline-block; }
-    .sk-rem { display: inline-block; margin-left: 10px; }
+    /* タイマー + 残数を1行に */
+    .sk-timer { display: inline-block; font-size: 22px; }
+    .sk-rem { display: inline-block; margin-left: 12px; }
+    /* キーボード：5列・大きめタップ領域（44px+） */
+    .sk-pad { grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 12px; }
+    .sk-key { padding: 15px 0; font-size: 22px; }
+    .sk-kc { font-size: 10px; right: 5px; bottom: 3px; }
+    .sk-del { font-size: 14px; }
+    /* 操作ボタンは横並び（指で押せる幅） */
+    .sk-ctrl { flex-direction: row; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .sk-cbtn { flex: 1 1 28%; padding: 12px 0; }
   }
+  /* プレイ中は浮动シェアを隠す（PC・モバイル両方）：盤面・キーボード操作を邪魔しない */
+  .fsh { display: none; }
 </style>

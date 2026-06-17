@@ -152,6 +152,8 @@ function setup(root: HTMLElement): void {
 
   // —— 键盘操作 ——
   document.addEventListener('keydown', (e) => {
+    const ae = document.activeElement;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
     if (e.key.startsWith('Arrow')) {
       let r = selected < 0 ? 0 : rowOf(selected);
       let c = selected < 0 ? 0 : colOf(selected);

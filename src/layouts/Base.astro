@@ -1,4 +1,7 @@
 ---
+import '../styles/tokens.css';
+import FloatingShare from '../components/FloatingShare.astro';
+
 interface Props {
   title: string;
   description: string;
@@ -7,16 +10,26 @@ interface Props {
 }
 const { title, description, canonical, wide = false } = Astro.props;
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
-// 内容长文（/guide/xxx・/variants/xxx）用 article；hub 索引页（/guide/）与其余（首页 / プレイ / ツール）用 website
+// 内容长文（/guide/xxx・/variants/xxx）用 article；hub 索引页（/guide/）与其余用 website
 const pathname = Astro.url.pathname;
 const ogType =
   /^\/(guide|variants)\//.test(pathname) && pathname !== '/guide/' && pathname !== '/variants/'
     ? 'article'
     : 'website';
 
-// フォントは非ブロッキング読み込み（LCP/CWV 対策）：preload で先取り → media="print" + onload で all に切替。
+// 非ブロッキング読み込み：本文 Noto Sans JP、ロゴ/盤面の given 数字のみ Noto Serif JP（明朝・日式触点）
 const fontHref =
-  'https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap';
+  'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@600;700&display=swap';
+
+// グローバルナビ（active はパス接頭辞で判定）
+const nav: [string, string, string][] = [
+  ['遊ぶ', '/play/beginner/', '/play'],
+  ['解き方', '/guide/', '/guide'],
+  ['印刷', '/print/', '/print'],
+  ['デイリー', '/daily/', '/daily'],
+  ['ソルバー', '/tools/solver/', '/tools/solver'],
+];
+const activePre = nav.find(([, , pre]) => pathname.startsWith(pre))?.[2] ?? '';
 
 const footerCols = [
   {
@@ -69,6 +82,17 @@ const footerCols = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- 防闪：本文渲染前に data-theme を確定（localStorage 優先、無ければ OS 設定） -->
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('numpredo_theme');
+          if (t !== 'light' && t !== 'dark')
+            t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
@@ -106,25 +130,31 @@ const footerCols = [
     </script>
   </head>
   <body>
-    <header class="site-header">
-      <a href="/" class="logo">numpre<b>do</b></a>
-      <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden />
-      <label for="nav-toggle" class="burger" aria-label="メニュー"><span></span><span></span><span></span></label>
-      <nav class="site-nav">
-        <a href="/play/advanced/">遊ぶ</a>
-        <a href="/guide/how-to-solve/">解き方</a>
-        <a href="/print/">問題集</a>
-        <a href="/daily/">毎日</a>
+    <header class="snav">
+      <div class="snav-in">
+        <a href="/" class="snav-logo">numpre<b>do</b></a>
+        <nav class="snav-links" data-desk>
+          {nav.map(([label, href, pre]) => <a href={href} class={activePre === pre ? 'on' : ''}>{label}</a>)}
+        </nav>
+        <div class="snav-tools">
+          <button class="snav-theme" data-theme-toggle aria-label="テーマ切替">☾</button>
+          <a href="/play/beginner/" class="snav-cta" data-cta>今すぐ遊ぶ</a>
+          <button class="snav-burger" data-burger aria-label="メニュー" aria-expanded="false">☰</button>
+        </div>
+      </div>
+      <nav class="snav-mobile" data-mobile hidden>
+        {nav.map(([label, href]) => <a href={href}>{label}</a>)}
+        <a href="/play/beginner/" class="snav-mcta">今すぐ遊ぶ</a>
       </nav>
     </header>
 
     <main class={wide ? 'wide' : ''}><slot /></main>
 
-    <footer class="site-footer">
-      <div class="foot-cols">
+    <footer class="sfoot">
+      <div class="sfoot-cols">
         {
           footerCols.map((col) => (
-            <div class="foot-col">
+            <div class="sfoot-col">
               <h4>{col.h}</h4>
               {col.links.map(([label, href]) => (
                 <a href={href}>{label}</a>
@@ -133,12 +163,12 @@ const footerCols = [
           ))
         }
       </div>
-      <div class="foot-friend">
+      <div class="sfoot-friend">
         姉妹サイト：<a href="https://pazumori.com/" target="_blank" rel="noopener">パズモリ（パズル森）</a> — クロスワード・イラストロジック・ワードルなど、無料で遊べるオリジナルパズル
       </div>
-      <div class="foot-bottom">
-        <span class="foot-logo">numpre<b>do</b><span class="foot-tag">無料・登録不要</span></span>
-        <span class="foot-links">
+      <div class="sfoot-bottom">
+        <span class="sfoot-logo">numpre<b>do</b><span class="sfoot-tag">無料・登録不要</span></span>
+        <span class="sfoot-links">
           <a href="/terms/">利用規約・免責</a>
           <a href="/privacy/">プライバシー</a>
           <a href="/contact/">お問い合わせ</a>
@@ -146,59 +176,71 @@ const footerCols = [
       </div>
     </footer>
 
+    <FloatingShare />
+
+    <script>
+      import '../client/site-nav.ts';
+    </script>
+
     <style is:global>
-      :root {
-        --washi: #f7f5f0; --card: #fffdf8; --sumi: #1f1b16; --sub: #6b6258; --line: #e4dece;
-        --thick: #3a352e; --shu: #c8463c; --shuw: rgba(200, 70, 60, 0.13); --tofu: #f1ead9;
-        --tofu2: #eadfc9; --ai: #2b5b7a; --err: #b5302a; --note: #a89f90;
-        --min: 'Noto Serif JP', serif; --sans: 'Noto Sans JP', system-ui, -apple-system, sans-serif;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --washi: #1b1916; --card: #24211c; --sumi: #ece7dd; --sub: #9c9388; --line: #3a352e;
-          --thick: #7a7060; --shu: #e0655a; --shuw: rgba(224, 101, 90, 0.17); --tofu: #2c2822;
-          --tofu2: #363029; --ai: #86b6d2; --err: #e0655a; --note: #8a8174;
-        }
-      }
       * { box-sizing: border-box; }
-      body { margin: 0; font-family: var(--sans); color: var(--sumi); background: var(--washi); line-height: 1.8; }
-      a { color: inherit; }
+      body {
+        margin: 0; font-family: var(--font-sans); color: var(--ink); background: var(--bg);
+        line-height: 1.8; transition: background-color .25s ease, color .25s ease;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: var(--accent); }
+      h1, h2, h3 { color: var(--ink); }
+      h1 { font-weight: 700; font-size: var(--text-2xl); line-height: 1.3; letter-spacing: .01em; }
+      h2 { font-weight: 700; font-size: var(--text-xl); line-height: 1.4; margin-top: var(--space-6); }
+      h3 { font-weight: 700; font-size: var(--text-md); }
+      p { font-size: var(--text-base); }
 
-      .site-header { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 13px 22px; background: var(--card); border-bottom: 1px solid var(--line); }
-      .logo { font-family: var(--min); font-weight: 600; font-size: 21px; letter-spacing: 0.03em; text-decoration: none; color: var(--sumi); }
-      .logo b { color: var(--shu); font-weight: 600; }
-      .site-nav { display: flex; gap: 18px; }
-      .site-nav a { color: var(--sub); text-decoration: none; font-size: 14px; }
-      .site-nav a:hover { color: var(--shu); }
-      .burger { display: none; flex-direction: column; gap: 4px; cursor: pointer; padding: 4px; }
-      .burger span { width: 20px; height: 2px; background: var(--sumi); display: block; }
+      main { max-width: 1080px; margin: 0 auto; padding: var(--space-5) var(--space-5) var(--space-8); }
+      main.wide { max-width: 1240px; }
 
-      main { max-width: 1060px; margin: 0 auto; padding: 26px 24px 48px; }
-      h1 { font-family: var(--min); font-weight: 600; font-size: 23px; line-height: 1.45; }
-      h2 { font-family: var(--min); font-weight: 600; font-size: 19px; margin-top: 34px; padding-left: 12px; border-left: 3px solid var(--shu); }
-      p { font-size: 15px; }
+      /* ---------- SiteNav ---------- */
+      .snav { position: sticky; top: 0; z-index: 30; background: var(--surface); border-bottom: 1px solid var(--line); }
+      .snav-in { max-width: 1240px; margin: 0 auto; height: 60px; padding: 0 var(--space-5); display: flex; align-items: center; gap: var(--space-5); }
+      .snav-logo { font-family: var(--font-mincho); font-weight: 700; font-size: 23px; letter-spacing: .01em; text-decoration: none; color: var(--ink); }
+      .snav-logo b { color: var(--accent); font-weight: 700; }
+      .snav-links { display: flex; gap: var(--space-5); margin-right: auto; }
+      .snav-links a { color: var(--ink-2); text-decoration: none; font-size: var(--text-base); font-weight: 500; padding: 4px 0; transition: color .15s; }
+      .snav-links a:hover { color: var(--accent); }
+      .snav-links a.on { color: var(--accent); font-weight: 700; }
+      .snav-tools { display: flex; align-items: center; gap: var(--space-3); }
+      .snav-theme { background: none; border: 1px solid var(--line); color: var(--ink-2); width: 36px; height: 36px; border-radius: var(--radius-pill); cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+      .snav-theme:hover { border-color: var(--accent); color: var(--accent); }
+      .snav-cta { background: var(--accent); color: var(--accent-on); text-decoration: none; font-size: var(--text-sm); font-weight: 700; padding: 9px 18px; border-radius: var(--radius-pill); white-space: nowrap; }
+      .snav-cta:hover { background: var(--accent-ink); }
+      .snav-burger { display: none; background: none; border: 0; color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 6px; }
+      .snav-mobile { display: none; }
 
-      .site-footer { background: var(--card); border-top: 1px solid var(--line); padding: 26px 22px 16px; }
-      .foot-cols { max-width: 1060px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
-      .foot-col h4 { font-family: var(--min); font-weight: 600; font-size: 13px; margin: 0 0 9px; padding-left: 8px; border-left: 2px solid var(--shu); }
-      .foot-col a { display: block; font-size: 12.5px; color: var(--sub); text-decoration: none; padding: 3px 0; }
-      .foot-col a:hover { color: var(--shu); }
-      .foot-friend { max-width: 1060px; margin: 18px auto 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--sub); line-height: 1.7; }
-      .foot-friend a { color: var(--ai); text-decoration: none; }
-      .foot-friend a:hover { color: var(--shu); }
-      .foot-bottom { max-width: 1060px; margin: 14px auto 0; padding-top: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 11px; color: var(--sub); }
-      .foot-logo { font-family: var(--min); font-size: 14px; }
-      .foot-logo b { color: var(--shu); }
-      .foot-tag { font-size: 10px; border: 1px solid var(--line); border-radius: 3px; padding: 1px 6px; margin-left: 8px; }
-      .foot-links { display: flex; gap: 14px; }
-      .foot-links a { color: var(--sub); text-decoration: none; }
+      /* ---------- SiteFooter ---------- */
+      .sfoot { background: var(--surface); border-top: 1px solid var(--line); padding: var(--space-8) var(--space-5) var(--space-5); margin-top: var(--space-10); }
+      .sfoot-cols { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-5); }
+      .sfoot-col h4 { font-weight: 700; font-size: var(--text-sm); margin: 0 0 var(--space-3); color: var(--ink); }
+      .sfoot-col a { display: block; font-size: var(--text-sm); color: var(--ink-3); text-decoration: none; padding: 4px 0; }
+      .sfoot-col a:hover { color: var(--accent); }
+      .sfoot-friend { max-width: 1080px; margin: var(--space-5) auto 0; padding-top: var(--space-4); border-top: 1px solid var(--line); font-size: var(--text-xs); color: var(--ink-3); line-height: 1.7; }
+      .sfoot-friend a { color: var(--accent); text-decoration: none; }
+      .sfoot-bottom { max-width: 1080px; margin: var(--space-4) auto 0; padding-top: var(--space-4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); font-size: var(--text-xs); color: var(--ink-3); }
+      .sfoot-logo { font-family: var(--font-mincho); font-size: var(--text-md); font-weight: 700; }
+      .sfoot-logo b { color: var(--accent); }
+      .sfoot-tag { font-size: 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 1px 7px; margin-left: var(--space-2); font-family: var(--font-sans); }
+      .sfoot-links { display: flex; gap: var(--space-4); }
+      .sfoot-links a { color: var(--ink-3); text-decoration: none; }
+      .sfoot-links a:hover { color: var(--accent); }
 
-      @media (max-width: 560px) {
-        .burger { display: flex; }
-        .site-nav { position: absolute; top: 100%; right: 0; left: 0; flex-direction: column; gap: 0; background: var(--card); border-bottom: 1px solid var(--line); max-height: 0; overflow: hidden; transition: max-height 0.2s ease; z-index: 20; }
-        .nav-toggle:checked ~ .site-nav { max-height: 240px; }
-        .site-nav a { padding: 12px 22px; border-top: 1px solid var(--line); font-size: 15px; }
-        .foot-cols { grid-template-columns: repeat(2, 1fr); }
+      @media (max-width: 760px) {
+        .snav-links[data-desk] { display: none; }
+        .snav-cta[data-cta] { display: none; }
+        .snav-burger { display: flex; }
+        .snav-tools { margin-left: auto; }
+        .snav-mobile { display: flex; flex-direction: column; padding: var(--space-3) var(--space-5) var(--space-5); background: var(--surface); border-top: 1px solid var(--line); }
+        .snav-mobile[hidden] { display: none; }
+        .snav-mobile a { color: var(--ink); text-decoration: none; font-size: var(--text-md); font-weight: 500; padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
+        .snav-mcta { color: var(--accent) !important; font-weight: 700 !important; border-bottom: 0 !important; }
       }
     </style>
   </body>

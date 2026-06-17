@@ -1,0 +1,35 @@
+---
+// 全站右下角浮动分享按钮。点击展开渠道（X / LINE / Facebook / はてブ / コピー）。
+---
+<div class="fsh" data-fsh>
+  <div class="fsh-menu" data-fsh-menu hidden>
+    <button class="fsh-ch" data-ch="x"><span class="fsh-dot" style="background:#000"></span>𝕏 でシェア</button>
+    <button class="fsh-ch" data-ch="line"><span class="fsh-dot" style="background:#06c755"></span>LINE で送る</button>
+    <button class="fsh-ch" data-ch="fb"><span class="fsh-dot" style="background:#1877f2"></span>Facebook</button>
+    <button class="fsh-ch" data-ch="hatena"><span class="fsh-dot" style="background:#00a4de"></span>はてブ</button>
+    <button class="fsh-ch" data-ch="copy"><span class="fsh-dot" style="background:var(--accent)"></span>リンクをコピー</button>
+  </div>
+  <button class="fsh-main" data-fsh-toggle aria-label="このページをシェア" aria-expanded="false">
+    <span class="fsh-ic">⤴</span><span class="fsh-tx">シェア</span>
+  </button>
+</div>
+
+<script>
+  import '../client/floating-share.ts';
+</script>
+
+<style is:global>
+  .fsh { position: fixed; right: 16px; bottom: 16px; z-index: 40; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .fsh-main { display: flex; align-items: center; gap: 7px; background: var(--accent); color: var(--accent-on); border: 0; border-radius: var(--radius-pill); padding: 12px 20px; font-size: var(--text-sm); font-weight: 700; cursor: pointer; box-shadow: var(--shadow); font-family: var(--font-sans); transition: background .15s; }
+  .fsh-main:hover { background: var(--accent-ink); }
+  .fsh-ic { font-size: 16px; line-height: 1; }
+  .fsh-menu { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .fsh-menu[hidden] { display: none; }
+  .fsh-ch { display: flex; align-items: center; gap: 9px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 9px 16px; font-size: var(--text-sm); font-weight: 500; cursor: pointer; box-shadow: var(--shadow-sm); white-space: nowrap; font-family: var(--font-sans); transition: border-color .15s; }
+  .fsh-ch:hover { border-color: var(--accent); }
+  .fsh-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: 0 0 auto; }
+  @media (max-width: 760px) {
+    .fsh { right: 12px; bottom: 12px; }
+    .fsh-main { padding: 10px 16px; }
+  }
+</style>

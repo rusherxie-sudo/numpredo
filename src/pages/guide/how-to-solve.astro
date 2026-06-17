@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import advanced from '../../data/puzzles/advanced.json';
-import { renderBoardSvg, gridFromString, traceFirstElimination, LIGHT_THEME, type CandidateMark } from '../../engine/index.ts';
+import { renderBoardSvg, gridFromString, traceFirstElimination, TOKEN_THEME, type CandidateMark } from '../../engine/index.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
 const lastmod: Record<string, string> = lastmodJson;
 
@@ -13,7 +13,7 @@ const url = 'https://numpredo.com/guide/how-to-solve/';
 // 构建期用引擎生成「題面」与「テクニック消去」の和風図解
 const sample = gridFromString(advanced.puzzles[0].puzzle);
 const givenMask = sample.map((v) => v !== 0);
-const svgPuzzle = renderBoardSvg(sample, { given: givenMask, theme: LIGHT_THEME, cell: 40, title: '数独の問題例', desc: '上級ナンプレの問題例' });
+const svgPuzzle = renderBoardSvg(sample, { given: givenMask, theme: TOKEN_THEME, cell: 40, title: '数独の問題例', desc: '上級ナンプレの問題例' });
 
 const trace = traceFirstElimination(sample);
 let svgTech = '';
@@ -27,7 +27,7 @@ if (trace) {
     candidates: trace.candidates,
     cellHighlights: cells,
     candidateMarks: marks,
-    theme: LIGHT_THEME,
+    theme: TOKEN_THEME,
     cell: 40,
     title: 'テクニックによる候補の消去',
     desc: '黄色のマスから赤い候補が消去される様子',

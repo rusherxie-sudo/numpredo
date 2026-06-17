@@ -16,30 +16,43 @@ export interface SvgTheme {
   eliminate: string; // 消除标记色
 }
 
-/** 和モダン明亮主题（与站点盘面统一） */
-export const LIGHT_THEME: SvgTheme = {
-  bg: '#fffdf8', // 和纸白
-  gridThin: '#e4dece',
-  gridThick: '#3a352e', // 墨
-  given: '#1f1b16', // 墨黑（题面，明朝体由使用方设字体）
-  filled: '#2b5b7a', // 藍（用户填入）
-  candidate: '#a89f90', // 茶灰候选
-  highlightCell: '#f1ead9', // 豆腐
-  candHighlight: '#c8463c', // 朱赤
-  eliminate: '#b5302a', // 消除红
+/** トークン主題（既定）：CSS 変数で出力 → インライン SVG が data-theme に追随（明暗自動・図解/ソルバー用） */
+export const TOKEN_THEME: SvgTheme = {
+  bg: 'var(--board-bg)',
+  gridThin: 'var(--cell-line)',
+  gridThick: 'var(--box-line)',
+  given: 'var(--num-given)',
+  filled: 'var(--num-user)',
+  candidate: 'var(--pencil)',
+  highlightCell: 'var(--cell-peer-bg)',
+  candHighlight: 'var(--accent)',
+  eliminate: 'var(--num-error)',
 };
 
-/** 和モダン暗色主题（夜の墨，暖黑） */
+/** 固定明亮主題（印刷用・現代クリーン配色のハードコード値） */
+export const LIGHT_THEME: SvgTheme = {
+  bg: '#ffffff',
+  gridThin: '#e0e7e4',
+  gridThick: '#b7c4bf',
+  given: '#15201b',
+  filled: '#1f7a5c',
+  candidate: '#93a39d',
+  highlightCell: '#eef4f2',
+  candHighlight: '#1f7a5c',
+  eliminate: '#d2362a',
+};
+
+/** 固定暗色主題（互換保持） */
 export const DARK_THEME: SvgTheme = {
-  bg: '#24211c',
-  gridThin: '#3a352e',
-  gridThick: '#7a7060',
-  given: '#ece7dd',
-  filled: '#86b6d2',
-  candidate: '#8a8174',
-  highlightCell: '#2c2822',
-  candHighlight: '#e0655a',
-  eliminate: '#e0655a',
+  bg: '#131c18',
+  gridThin: '#273530',
+  gridThick: '#3f534c',
+  given: '#e9efec',
+  filled: '#46c79a',
+  candidate: '#6e7a75',
+  highlightCell: '#1a2823',
+  candHighlight: '#34b88a',
+  eliminate: '#ff6f63',
 };
 
 export interface CandidateMark {
@@ -72,7 +85,7 @@ const sub = (d: number): { sr: number; sc: number } => ({ sr: ((d - 1) / 3) | 0,
 export function renderBoardSvg(grid: Grid, opts: RenderOptions = {}): string {
   const cell = opts.cell ?? 56;
   const m = Math.round(cell * 0.18); // 外边距
-  const t = opts.theme ?? LIGHT_THEME;
+  const t = opts.theme ?? TOKEN_THEME;
   const S = m * 2 + cell * 9;
   const given = opts.given;
   const parts: string[] = [];
@@ -106,8 +119,10 @@ export function renderBoardSvg(grid: Grid, opts: RenderOptions = {}): string {
     if (grid[i] !== 0) {
       const isGiven = given ? given[i] : true;
       parts.push(
-        `<text x="${x + cell / 2}" y="${y + cell / 2}" font-family="sans-serif" font-size="${fontMain}" font-weight="${
-          isGiven ? 700 : 400
+        `<text x="${x + cell / 2}" y="${y + cell / 2}" font-family="${
+          isGiven ? "'Noto Serif JP', serif" : "'Noto Sans JP', sans-serif"
+        }" font-size="${fontMain}" font-weight="${
+          isGiven ? 700 : 500
         }" fill="${isGiven ? t.given : t.filled}" text-anchor="middle" dominant-baseline="central">${grid[i]}</text>`,
       );
     } else if (opts.candidates && opts.candidates[i]) {

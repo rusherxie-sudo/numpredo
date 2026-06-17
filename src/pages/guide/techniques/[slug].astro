@@ -1,7 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import { TECHNIQUES, type Technique } from '../../../data/techniques.ts';
-import { renderBoardSvg, bit, LIGHT_THEME, type CandidateMark } from '../../../engine/index.ts';
+import { renderBoardSvg, bit, TOKEN_THEME, type CandidateMark } from '../../../engine/index.ts';
 import lastmodJson from '../../../data/sitemap-lastmod.json';
 const lastmod: Record<string, string> = lastmodJson;
 
@@ -24,7 +24,7 @@ const cellHighlights = f.highlight.map((cell) => ({ cell }));
 const candidateMarks: CandidateMark[] = [];
 for (const k of Object.keys(f.eliminate)) for (const d of f.eliminate[+k]) candidateMarks.push({ cell: +k, digit: d, type: 'eliminate' });
 for (const cell of f.highlight) for (const d of f.notes[cell] ?? []) candidateMarks.push({ cell, digit: d, type: 'highlight' });
-const svg = renderBoardSvg(f.given, { given: givenMask, candidates, cellHighlights, candidateMarks, theme: LIGHT_THEME, cell: 38, title: t.name, desc: t.figCaption });
+const svg = renderBoardSvg(f.given, { given: givenMask, candidates, cellHighlights, candidateMarks, theme: TOKEN_THEME, cell: 38, title: t.name, desc: t.figCaption });
 
 const dateModified = lastmod[`/guide/techniques/${t.slug}/`];
 const articleSchema = {

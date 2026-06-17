@@ -1,17 +1,17 @@
 ---
 import Base from '../../layouts/Base.astro';
-const title = '数独・ナンプレ自動解答ツール｜答え合わせ・ソルバー（無料） - numpredo';
-const description = '新聞・雑誌の数独・ナンプレが解けないときに。81マスを入力すると答えを自動で計算・表示します。唯一解かどうかも判定し、答え合わせ・解答チェックにも。無料・登録不要。';
-const sample = '..42.....3......6.5..3...71..5.72.43..39.65..21.53.6..15...3..4.8......5.....17..';
+const title = '数独・ナンプレ自動解答｜写真でかんたん答え合わせ・ソルバー（無料） - numpredo';
+const description = '新聞・雑誌の数独・ナンプレが解けないときに。写真を撮る/画像を選ぶだけで盤面を読み取り、答えを自動計算。手入力もOK。9×9 標準数独の答え合わせ・ソルバー、無料・登録不要。';
 const url = 'https://numpredo.com/tools/solver/';
 const faq = [
-  { q: 'ナンプレ・数独を自動で解いてくれますか？', a: 'はい。81マスを入力して「答えを表示」を押すと、解答プログラムが自動で計算し、答えの盤面を表示します。雑誌や新聞のナンプレ・数独の答え合わせ・解読にもお使いいただけます。' },
-  { q: '新聞の数独の答えを知りたいのですが？', a: '手元の新聞のマス目を上の欄に入力すれば、答えを自動で表示します。紙面の答え発表を待つ必要はありません。くわしくは<a href="/guide/newspaper/">新聞の数独・ナンプレが解けないときの答え合わせ方法</a>をご覧ください。' },
+  { q: '写真から問題を読み取れますか？', a: 'はい。新聞や雑誌の数独・ナンプレを撮影、またはスクリーンショットを選ぶと、盤面のマス目を自動で読み取り、上の盤面に反映します。明るく、なるべく正面から撮るときれいに読み取れます。' },
+  { q: '読み取りが間違っていたら？', a: '読み取りは完璧ではありません。反映された盤面を見て、間違っているマスをタップ（クリック）して数字キーで直してから「解く」を押してください。最初から手入力で使うこともできます。' },
+  { q: 'ナンプレ・数独を自動で解いてくれますか？', a: 'はい。盤面を入力（または写真から読み取り）して「解く」を押すと、解答プログラムが自動で計算し、答えの盤面を表示します。新聞・雑誌の答え合わせ・解読にもお使いいただけます。' },
   { q: '答え合わせだけしたいときも使えますか？', a: 'はい。自分で解いた答えが合っているか確かめたいときも、問題のマスを入力すれば正しい解答が表示されるので、答え合わせに使えます。無料・登録不要です。' },
   { q: '解が複数ある問題でも使えますか？', a: '入力した問題が「唯一解か」を自動で判定します。解が複数ある場合はその旨を表示し、一例を解答します。自力で解きたい方は<a href="/guide/how-to-solve/">解き方ガイド</a>をどうぞ。' },
   { q: '6×6 や変則ルール（キラー・対角線など）も解けますか？', a: 'このソルバーが対応しているのは 9×9 の標準的な数独（ナンプレ）です。6×6 などのサイズ違いや、キラー数独・対角線数独といった変則ルールには現在対応していません。各バリエーションのルールは<a href="/variants/6x6/">6×6数独</a>や<a href="/variants/killer/">キラー数独</a>の解説ページでご紹介しています。' },
 ];
-const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ自動解答ツール（ソルバー）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
+const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ自動解答ツール（写真ソルバー）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: 'プレイ', item: 'https://numpredo.com/play/' }, { '@type': 'ListItem', position: 3, name: 'ソルバー', item: url }] };
 ---
@@ -24,15 +24,24 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
   </Fragment>
 
   <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › ソルバー</nav>
-  <h1>数独・ナンプレ自動解答ツール（答え合わせ・ソルバー）</h1>
-  <p class="lead"><strong>9×9 の標準的な数独（ナンプレ）</strong>専用の自動解答ツールです。新聞・雑誌の数独・ナンプレが解けないとき、問題のマスを入力すると答えを自動で計算して表示します。81マスを1〜9で、空きマスは「.」または「0」で入力してください（改行・スペースは無視されます）。</p>
+  <h1>数独・ナンプレ自動解答ツール（写真でかんたん答え合わせ）</h1>
+  <p class="lead"><strong>9×9 の標準的な数独（ナンプレ）</strong>専用。新聞・雑誌の数独が解けないとき、<strong>写真を撮る／画像を選ぶ</strong>だけで盤面を読み取り、答えを自動計算します。読み取り後は盤面で確認・修正してから「解く」を押してください。手入力だけでもOKです。</p>
 
-  <textarea id="solver-input" class="solver-in" rows="4" spellcheck="false">{sample}</textarea>
-  <div><button id="solver-btn" class="solver-go" type="button">答えを表示</button></div>
-  <div id="solver-out" class="solver-out"></div>
+  <div class="sv-photo">
+    <label class="sv-photo-btn sv-photo-cam"><input type="file" accept="image/*" capture="environment" data-photo hidden />カメラで撮影</label>
+    <label class="sv-photo-btn"><input type="file" accept="image/*" data-photo hidden />画像・スクショを選ぶ</label>
+    <span class="sv-photo-or">または下の盤面に直接入力</span>
+  </div>
+
+  <p id="sv-msg" class="sv-msg"></p>
+  <div id="sv-app"></div>
+
+  <h2>写真・画像から数独を解く方法</h2>
+  <p>スマホで撮影、または画像・スクリーンショットを選ぶだけで、数独・ナンプレの盤面を自動で読み取ります。読み取った数字は上の盤面に反映されるので、間違っているマスをタップして直し、「解く」を押すだけ。新聞や雑誌の数独を写真に撮って答え合わせするのに便利です。</p>
+  <p>きれいに読み取るコツ：① 盤面が画面いっぱいになるよう、なるべく正面から撮る ② 明るい場所で、影や反射が入らないようにする ③ 9×9 の標準的な数独に対応。読み取りは完璧ではないため、反映された盤面を確認・修正してから「解く」を押してください。<strong>画像はお使いの端末内だけで処理され、サーバーには送信されません。</strong></p>
 
   <h2>新聞・雑誌の数独／ナンプレの答え合わせに</h2>
-  <p>新聞（読売・毎日・朝日など）や雑誌のナンプレ・数独が解けないとき、紙面の答え発表を待たずにこのツールで答え合わせができます。手元の問題のマス目を上の欄に入力して「答えを表示」を押すだけ。唯一解かどうかも判定します。くわしくは<a href="/guide/newspaper/">新聞の数独・ナンプレが解けないときの答え合わせ方法</a>をどうぞ。</p>
+  <p>新聞（読売・毎日・朝日など）や雑誌のナンプレ・数独が解けないとき、紙面の答え発表を待たずに答え合わせができます。問題を撮影するか、マス目を入力して「解く」を押すだけ。唯一解かどうかも判定します。くわしくは<a href="/guide/newspaper/">新聞の数独・ナンプレが解けないときの答え合わせ方法</a>をどうぞ。</p>
 
   <h2>ナンプレ・数独の自動解答について</h2>
   <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a}></dd></>))}</dl>
@@ -45,19 +54,55 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
   </ul>
 
   <script>
-    import '../../client/solver.ts';
+    import '../../client/ocr-solve.ts';
   </script>
 
   <style is:global>
-    .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }
-    .lead { color: var(--sub); font-size: 14px; margin: 0 0 14px; }
-    main ul { line-height: 2; } main ul a { color: var(--ai); }
-    .faq dt { font-family: var(--min); font-weight: 600; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--sub); font-size: 14px; } .faq a { color: var(--ai); }
-    .solver-in { width: 100%; font-family: var(--mono, monospace); font-size: 13px; padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--sumi); resize: vertical; }
-    .solver-go { margin-top: 10px; background: var(--shu); color: var(--card); border: 0; font-size: 14px; padding: 10px 22px; border-radius: 6px; cursor: pointer; font-family: var(--sans); }
-    .solver-out { margin-top: 18px; }
-    .solver-out svg { max-width: 420px; width: 100%; border: 1px solid var(--line); border-radius: 6px; }
-    .solver-msg { font-size: 13px; color: var(--sub); margin: 0 0 8px; }
-    .solver-msg.err { color: var(--err); }
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
+    .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 16px; }
+    main ul { line-height: 2; } main ul a { color: var(--accent); }
+    .faq dt { font-weight: 700; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--ink-3); font-size: 14px; } .faq a { color: var(--accent); }
+
+    .sv-photo { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    .sv-photo-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--accent-on); font-size: var(--text-base); font-weight: 700; padding: 12px 20px; border-radius: var(--radius); cursor: pointer; }
+    .sv-photo-btn:hover { background: var(--accent-ink); }
+    .sv-photo-or { font-size: var(--text-sm); color: var(--ink-4); }
+
+    .sv-layout { display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start; max-width: 760px; }
+    .sv-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 460px; margin: 0 auto; border: 2px solid var(--board-edge); background: var(--board-bg); border-radius: 4px; overflow: hidden; }
+    .sv-cell { border: 0.5px solid var(--cell-line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.2vw, 26px); cursor: pointer; padding: 0; color: var(--ink-4); font-family: var(--font-sans); }
+    .sv-cell.sv-br { border-right: 2px solid var(--box-line); }
+    .sv-cell.sv-bb { border-bottom: 2px solid var(--box-line); }
+    .sv-cell.sv-given { color: var(--num-given); font-family: var(--font-mincho); font-weight: 700; }
+    .sv-cell.sv-sel { background: var(--cell-sel-bg); box-shadow: inset 0 0 0 2px var(--accent); }
+    .sv-cell.sv-err { color: var(--num-error) !important; background: var(--cell-error-bg); }
+    .sv-cell.sv-solved { color: var(--num-user); font-weight: 700; }
+
+    .sv-pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+    .sv-key { padding: 14px 0; font-size: 20px; border: 1px solid var(--key-line); border-radius: 6px; background: var(--key-bg); color: var(--key-ink); cursor: pointer; font-family: var(--font-mincho); }
+    .sv-key:hover { background: var(--key-hover); }
+    .sv-del { font-size: 13px; font-family: var(--font-sans); color: var(--ink-3); }
+    .sv-ctrl { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .sv-go { flex: 1 1 100%; padding: 13px 0; border: 0; border-radius: var(--radius); background: var(--accent); color: var(--accent-on); font-size: var(--text-md); font-weight: 700; cursor: pointer; }
+    .sv-go:hover { background: var(--accent-ink); }
+    .sv-sub { flex: 1 1 40%; padding: 10px 0; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--surface); color: var(--ink); font-size: var(--text-sm); cursor: pointer; }
+    .sv-sub:hover { border-color: var(--accent); color: var(--accent); }
+
+    .sv-msg { font-size: 13px; color: var(--ink-3); margin: 0 0 10px; min-height: 1.2em; }
+    .sv-msg.ok { color: var(--accent); }
+    .sv-msg.warn { color: var(--ink-2); }
+    .sv-msg.err { color: var(--num-error); }
+
+    @media (min-width: 761px) { .sv-photo-cam { display: none; } }
+    @media (max-width: 760px) {
+      .sv-layout { grid-template-columns: 1fr; gap: 14px; max-width: 520px; }
+      .sv-board { max-width: min(100%, 52vh); }
+      .sv-cell { font-size: clamp(20px, 6.2vw, 30px); }
+      .sv-pad { gap: 8px; }
+      .sv-key { padding: 16px 0; font-size: 22px; }
+      .sv-photo-btn { flex: 1 1 100%; justify-content: center; }
+      .sv-photo-or { display: none; }
+    }
+    .fsh { display: none; }
   </style>
 </Base>
