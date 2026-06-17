@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { VARIANTS, type Variant } from '../../data/variants.ts';
+import lastmodJson from '../../data/sitemap-lastmod.json';
+const lastmod: Record<string, string> = lastmodJson;
 
 export function getStaticPaths() {
   return VARIANTS.map((v) => ({ params: { slug: v.slug }, props: { v } }));
@@ -12,6 +14,20 @@ const { v } = Astro.props;
 const url = `https://numpredo.com/variants/${v.slug}/`;
 const others = VARIANTS.filter((x) => x.slug !== v.slug);
 
+// 変種解説ページ → Article（著者/発行者で E-E-A-T、dateModified は既存の git 提交日を流用）
+const dateModified = lastmod[`/variants/${v.slug}/`];
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: v.h1,
+  description: v.description,
+  inLanguage: 'ja',
+  mainEntityOfPage: url,
+  image: 'https://numpredo.com/og-image.png',
+  author: { '@type': 'Organization', name: 'numpredo', url: 'https://numpredo.com/' },
+  publisher: { '@type': 'Organization', name: 'numpredo', logo: { '@type': 'ImageObject', url: 'https://numpredo.com/og-image.png' } },
+  ...(dateModified ? { dateModified } : {}),
+};
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -30,6 +46,7 @@ const breadcrumbSchema = {
 
 <Base title={v.title} description={v.description} canonical={url}>
   <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>
@@ -52,7 +69,7 @@ const breadcrumbSchema = {
   </ul>
 
   <h2>よくある質問</h2>
-  <dl class="faq">{v.faq.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  <dl class="faq">{v.faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
 
   <style is:global>
     .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }

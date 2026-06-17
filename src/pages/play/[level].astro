@@ -123,7 +123,7 @@ const breadcrumbSchema = {
   <p>紙で解きたい方は<a href="/print/">無料の数独・ナンプレ問題集（PDF印刷）</a>へ。難易度・問題数を選んでダウンロードできます。</p>
 
   <h2>よくある質問</h2>
-  <dl class="faq">{meta.faq.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  <dl class="faq">{meta.faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
   </div>
 
   <style is:global>

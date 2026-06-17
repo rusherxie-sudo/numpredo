@@ -48,7 +48,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 
   <div class="screen-only">
     <h2>ナンプレの印刷・PDF保存について</h2>
-    <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+    <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
   </div>
 
   <h2 class="screen-only">関連</h2>

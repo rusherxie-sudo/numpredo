@@ -2,6 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import { GUIDES, type GuideArticle } from '../../data/guides.ts';
+import lastmodJson from '../../data/sitemap-lastmod.json';
+const lastmod: Record<string, string> = lastmodJson;
 
 export function getStaticPaths() {
   return GUIDES.map((g) => ({ params: { slug: g.slug }, props: { g } }));
@@ -12,6 +14,20 @@ interface Props {
 const { g } = Astro.props;
 const url = `https://numpredo.com/guide/${g.slug}/`;
 
+// 攻略長文 → Article（著者/発行者で E-E-A-T、dateModified で鮮度。日付は既存の git 提交日を流用、捏造しない）
+const dateModified = lastmod[`/guide/${g.slug}/`];
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: g.h1,
+  description: g.description,
+  inLanguage: 'ja',
+  mainEntityOfPage: url,
+  image: 'https://numpredo.com/og-image.png',
+  author: { '@type': 'Organization', name: 'numpredo', url: 'https://numpredo.com/' },
+  publisher: { '@type': 'Organization', name: 'numpredo', logo: { '@type': 'ImageObject', url: 'https://numpredo.com/og-image.png' } },
+  ...(dateModified ? { dateModified } : {}),
+};
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -30,6 +46,7 @@ const breadcrumbSchema = {
 
 <Base title={g.title} description={g.description} canonical={url}>
   <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>
@@ -49,7 +66,7 @@ const breadcrumbSchema = {
   <ShareBar url={url} title={g.title} cta="この解説が役に立ったらシェア" />
 
   <h2>よくある質問</h2>
-  <dl class="faq">{g.faq.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+  <dl class="faq">{g.faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
 
   <style is:global>
     .crumb { font-size: 12px; color: var(--sub); margin-bottom: 10px; } .crumb a { color: var(--sub); text-decoration: none; }

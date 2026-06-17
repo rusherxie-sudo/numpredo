@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+// カスタム 404：未マッチ URL を CF Pages がこのページ（404.html）で返す。
+// 誤って入った/失効リンクのトラフィックを主要導線へ受け止める（直帰を減らす）。
+const title = 'ページが見つかりません（404）- numpredo';
+const description =
+  'お探しのページは見つかりませんでした。数独・ナンプレのプレイ、解き方ガイド、無料プリント問題集はこちらから。';
+---
+
+<Base title={title} description={description}>
+  <section class="nf">
+    <p class="nf-code">404</p>
+    <h1>ページが見つかりませんでした</h1>
+    <p class="nf-lead">
+      お探しのページは、移動または削除された可能性があります。URL をご確認のうえ、以下からお進みください。
+    </p>
+    <ul class="nf-links">
+      <li><a href="/">ホームへ戻る</a></li>
+      <li><a href="/play/">数独・ナンプレを遊ぶ（難易度一覧）</a></li>
+      <li><a href="/guide/how-to-solve/">数独・ナンプレの解き方ガイド</a></li>
+      <li><a href="/print/">無料PDF問題集（印刷・PDF保存）</a></li>
+      <li><a href="/daily/">毎日の数独</a></li>
+      <li><a href="/tools/solver/">数独ソルバー（自動解答）</a></li>
+    </ul>
+  </section>
+
+  <style is:global>
+    .nf { text-align: center; padding: 36px 0 56px; }
+    .nf-code { font-family: var(--min); font-weight: 700; font-size: 56px; color: var(--shu); margin: 0; letter-spacing: 0.12em; line-height: 1; }
+    .nf h1 { font-size: 21px; margin: 10px 0 12px; }
+    .nf-lead { color: var(--sub); font-size: 14px; margin: 0 auto 24px; max-width: 480px; line-height: 1.9; }
+    .nf-links { list-style: none; padding: 0; margin: 0; display: inline-flex; flex-direction: column; gap: 9px; text-align: left; }
+    .nf-links a { color: var(--ai); text-decoration: none; font-size: 14px; }
+    .nf-links a:hover { color: var(--shu); }
+  </style>
+</Base>
