@@ -28,7 +28,7 @@ const setJson = JSON.stringify(set);
   [data-sudoku] { margin: 6px 0 26px; }
   .sk-layout { display: grid; grid-template-columns: 1fr 220px; gap: 28px; align-items: start; max-width: 880px; margin: 0 auto; }
   .sk-left { min-width: 0; position: relative; }
-  .sk-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 600px; margin: 0 auto; border: 2px solid var(--box-line); background: var(--surface); }
+  .sk-board { position: relative; display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 600px; margin: 0 auto; border: 2px solid var(--box-line); background: var(--surface); }
   .sk-cell { border: 0.5px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.4vw, 25px); cursor: pointer; padding: 0; position: relative; color: var(--accent); font-family: var(--font-sans); font-weight: 500; transition: background 0.12s; }
   .sk-cell.sk-br { border-right: 1.5px solid var(--box-line); }
   .sk-cell.sk-bb { border-bottom: 1.5px solid var(--box-line); }
@@ -48,8 +48,12 @@ const setJson = JSON.stringify(set);
   .sk-d-level { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
   .sk-d-level b { color: var(--accent); font-family: var(--font-mincho); }
   .sk-d-streak { font-family: var(--font-mincho); font-size: 13px; color: var(--accent); margin-top: 2px; }
-  .sk-timer { text-align: center; font-family: var(--font-mincho); font-size: 26px; color: var(--ink); }
-  .sk-rem { text-align: center; font-size: 12px; color: var(--ink-3); margin: 2px 0 6px; }
+  .sk-timerow { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .sk-timer { font-family: var(--font-mincho); font-size: 26px; color: var(--ink); }
+  .sk-pause-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--line-2); border-radius: 50%; background: var(--surface); color: var(--ink-3); cursor: pointer; flex: none; }
+  .sk-pause-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .sk-pause-btn svg { width: 13px; height: 13px; }
+  .sk-rem { font-size: 12px; color: var(--ink-3); margin: 0; }
   .sk-rem.sk-clear { color: var(--accent); font-family: var(--font-mincho); font-size: 15px; }
   .sk-badge { display: none; }
 
@@ -70,10 +74,29 @@ const setJson = JSON.stringify(set);
   .sk-hint b { color: var(--accent); }
 
   .sk-ctrl { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-  .sk-cbtn { padding: 9px 0; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); cursor: pointer; font-size: 13px; color: var(--ink); font-family: var(--font-sans); }
+  .sk-cbtn { position: relative; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 0; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); cursor: pointer; font-size: 13px; color: var(--ink); font-family: var(--font-sans); }
+  .sk-ci { width: 17px; height: 17px; flex: none; }
+  .sk-cl { white-space: nowrap; }
   .sk-cbtn:hover { background: var(--surface-2); }
   .sk-cbtn.on { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+  .sk-cbtn.on .sk-ci { color: var(--accent-on); }
   .sk-hintbtn { color: var(--accent); }
+  /* 笔记 ON 角标（强反馈）*/
+  .sk-cbtn.on::after { content: 'ON'; position: absolute; top: 3px; right: 5px; font-size: 8px; font-weight: 700; line-height: 1; letter-spacing: .04em; }
+  /* 次级操作行（やり直す/別の問題）*/
+  .sk-ctrl2 { display: flex; gap: 8px; margin-top: 8px; }
+  .sk-ctrl2 .sk-cbtn { flex: 1; }
+  /* 区域完成即时反馈：填满一行/列/宫且全部正确 → 该 9 格脉冲一下 */
+  .sk-area-done::after { content: ''; position: absolute; inset: 0; background: var(--accent); opacity: 0; animation: sk-area 0.72s ease-out; pointer-events: none; }
+  @keyframes sk-area { 0% { opacity: .5; } 40% { opacity: .42; } 100% { opacity: 0; } }
+  /* 笔记模式：选中格虚线框 → 盘面一眼可见"正在记候选" */
+  .sk-pencil-on .sk-sel { outline: 2px dashed var(--accent); outline-offset: -3px; }
+  /* 暂停遮罩：覆盖盘面 + 停表 + 中央继续按钮（防"停表盯盘"作弊）*/
+  .sk-pause-overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: var(--surface); z-index: 6; }
+  .sk-paused .sk-pause-overlay { display: flex; }
+  .sk-resume { display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-on); cursor: pointer; box-shadow: var(--shadow); }
+  .sk-resume svg { width: 26px; height: 26px; margin-left: 3px; }
+  @media (prefers-reduced-motion: reduce) { .sk-area-done::after { animation: none; } }
 
   .sk-check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-3); margin-top: 10px; cursor: pointer; }
 
@@ -106,17 +129,16 @@ const setJson = JSON.stringify(set);
     .sk-cell { font-size: clamp(20px, 6.4vw, 30px); }
     .sk-side { border: none; background: transparent; padding: 0; }
     .sk-daily { border-bottom: none; }
-    /* タイマー + 残数を1行に */
-    .sk-timer { display: inline-block; font-size: 22px; }
-    .sk-rem { display: inline-block; margin-left: 12px; }
-    /* キーボード：5列・大きめタップ領域（44px+） */
-    .sk-pad { grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 12px; }
-    .sk-key { padding: 15px 0; font-size: 22px; }
-    .sk-kc { font-size: 10px; right: 5px; bottom: 3px; }
-    .sk-del { font-size: 14px; }
-    /* 操作ボタンは横並び（指で押せる幅） */
-    .sk-ctrl { flex-direction: row; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .sk-cbtn { flex: 1 1 28%; padding: 12px 0; }
+    /* タイマー行（タイマー + 一時停止ボタン + 残数）*/
+    .sk-timer { font-size: 22px; }
+    /* キーボード：1-9 単行（「消す」は工具栏へ移動）→ 盤面を広く、親指で一列スキャン */
+    .sk-pad { grid-template-columns: repeat(9, 1fr); gap: 4px; margin-top: 12px; }
+    .sk-key { padding: 13px 0; font-size: 20px; }
+    .sk-kc { font-size: 9px; right: 3px; bottom: 2px; }
+    /* 操作ボタンはアイコン+ラベルで1行に収める（sudoku.com 風・親指で押しやすい） */
+    .sk-ctrl { flex-direction: row; flex-wrap: nowrap; gap: 6px; margin-top: 14px; }
+    .sk-cbtn { flex: 1 1 0; min-width: 0; flex-direction: column; gap: 4px; padding: 9px 0; font-size: 10px; }
+    .sk-ci { width: 21px; height: 21px; }
   }
   /* プレイ中は浮动シェアを隠す（PC・モバイル両方）：盤面・キーボード操作を邪魔しない */
   .fsh { display: none; }

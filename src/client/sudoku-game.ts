@@ -36,10 +36,21 @@ function el(tag: string, cls = ''): HTMLElement {
   if (cls) e.className = cls;
   return e;
 }
-function btn(label: string, on: () => void): HTMLButtonElement {
+// 控制按钮：アイコン + ラベル（モバイルでも1行に収まり、視認性が高い）。
+// SVG は stroke=currentColor なので、ボタンの文字色（通常/アクティブ）に追従する。
+const CTRL_ICONS: Record<string, string> = {
+  pencil: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  undo: '<path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7.7L3 8"/>',
+  bulb: '<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.8 10.8c.5.5.8 1.1.8 2.2h6c0-1.1.3-1.7.8-2.2A6 6 0 0 0 12 3Z"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/>',
+  shuffle: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  eraser: '<path d="M20 20H8.5l-5.5-5.5a1.8 1.8 0 0 1 0-2.5l8-8a1.8 1.8 0 0 1 2.5 0l6 6a1.8 1.8 0 0 1 0 2.5L13.5 20"/><path d="M8.5 9.5 15 16"/>',
+};
+function cbtn(icon: string, label: string, on: () => void): HTMLButtonElement {
   const b = el('button', 'sk-cbtn') as HTMLButtonElement;
   b.type = 'button';
-  b.textContent = label;
+  b.innerHTML = `<svg class="sk-ci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CTRL_ICONS[icon] ?? ''}</svg><span class="sk-cl">${label}</span>`;
+  b.setAttribute('aria-label', label);
   b.addEventListener('click', on);
   return b;
 }
@@ -66,6 +77,8 @@ function setup(root: HTMLElement): void {
   let history: Array<{ c: number[]; n: number[] }> = [];
   let selected = -1;
   let pencil = false;
+  let paused = false;
+  let highlightDigit = 0; // 点数字键高亮全盘该数字（按数字扫描；0=无）
   let done = false;
   let isRecord = false;
   let finalTime = 0;
@@ -75,7 +88,7 @@ function setup(root: HTMLElement): void {
   let timer: ReturnType<typeof setInterval> | null = null;
   let checkErrors = localStorage.getItem('numpredo.pref.check') !== '0';
 
-  const elapsed = (): number => (done ? finalTime : elapsedBase + (Date.now() - start));
+  const elapsed = (): number => (done ? finalTime : paused ? elapsedBase : elapsedBase + (Date.now() - start));
 
   root.innerHTML = '';
   const layout = el('div', 'sk-layout');
@@ -90,15 +103,28 @@ function setup(root: HTMLElement): void {
 
   const dailyEl = el('div', 'sk-daily');
   const timerEl = el('div', 'sk-timer');
+  const pauseBtn = el('button', 'sk-pause-btn') as HTMLButtonElement;
+  pauseBtn.type = 'button';
+  pauseBtn.setAttribute('aria-label', '一時停止');
+  pauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+  pauseBtn.addEventListener('click', () => togglePause());
   const remEl = el('div', 'sk-rem');
+  const timeRow = el('div', 'sk-timerow');
+  timeRow.append(timerEl, pauseBtn, remEl);
   const badge = el('div', 'sk-badge');
   const pad = el('div', 'sk-pad');
   const hintMsg = el('div', 'sk-hint');
   const ctrl = el('div', 'sk-ctrl');
+  const ctrl2 = el('div', 'sk-ctrl2');
   const checkRow = el('label', 'sk-check');
   const result = el('div', 'sk-result');
+  // 暂停遮罩：覆盖盘面，停表时隐藏盘面内容（防"停表盯盘"作弊），中央继续按钮
+  const pauseOverlay = el('div', 'sk-pause-overlay');
+  pauseOverlay.innerHTML = '<button class="sk-resume" type="button" aria-label="再開"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>';
+  board.append(pauseOverlay);
+  (pauseOverlay.querySelector('.sk-resume') as HTMLElement).addEventListener('click', () => resume());
   if (daily) side.append(dailyEl);
-  side.append(timerEl, remEl, badge, pad, hintMsg, ctrl, checkRow, result);
+  side.append(timeRow, badge, pad, hintMsg, ctrl, ctrl2, checkRow, result);
 
   // —— 棋盘格 ——
   const cells: HTMLButtonElement[] = [];
@@ -107,7 +133,7 @@ function setup(root: HTMLElement): void {
     c.type = 'button';
     if (colOf(i) % 3 === 2 && colOf(i) !== 8) c.classList.add('sk-br');
     if (rowOf(i) % 3 === 2 && rowOf(i) !== 8) c.classList.add('sk-bb');
-    c.addEventListener('click', () => { selected = i; clearHint(); render(); });
+    c.addEventListener('click', () => { if (paused) return; selected = i; highlightDigit = 0; clearHint(); render(); });
     cells.push(c);
     board.append(c);
   }
@@ -122,22 +148,21 @@ function setup(root: HTMLElement): void {
     keys.push(b);
     pad.append(b);
   }
-  const del = el('button', 'sk-key sk-del') as HTMLButtonElement;
-  del.type = 'button';
-  del.textContent = '消す';
-  del.addEventListener('click', () => clearCell());
-  pad.append(del);
+  // 「消す」已移到工具栏（橡皮擦），数字键盘只保留 1-9（移动端单行 9 键）
 
-  // —— 控制按钮 ——
-  const penBtn = btn('メモ', () => {
+  // —— 控制按钮 ——（核心4：消す/メモ/元に戻す/ヒント 进工具栏；やり直す/別の問題 放次级行）
+  const eraseBtn = cbtn('eraser', '消す', () => clearCell());
+  const penBtn = cbtn('pencil', 'メモ', () => {
     pencil = !pencil;
     penBtn.classList.toggle('on', pencil);
+    render();
   });
-  const undoBtn = btn('元に戻す', () => undo());
-  const hintBtn = btn('ヒント', () => hint());
+  const undoBtn = cbtn('undo', '元に戻す', () => undo());
+  const hintBtn = cbtn('bulb', 'ヒント', () => hint());
   hintBtn.classList.add('sk-hintbtn');
-  ctrl.append(penBtn, undoBtn, hintBtn, btn('やり直す', () => restart()));
-  if (!daily) ctrl.append(btn('別の問題', () => newPuzzle()));
+  ctrl.append(eraseBtn, penBtn, undoBtn, hintBtn);
+  ctrl2.append(cbtn('refresh', 'やり直す', () => restart()));
+  if (!daily) ctrl2.append(cbtn('shuffle', '別の問題', () => newPuzzle()));
 
   // —— 间違いチェック开关 ——
   const checkBox = el('input') as HTMLInputElement;
@@ -154,6 +179,7 @@ function setup(root: HTMLElement): void {
   document.addEventListener('keydown', (e) => {
     const ae = document.activeElement;
     if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+    if (paused) { if (e.key === 'Escape' || e.key === ' ') { resume(); e.preventDefault(); } return; }
     if (e.key.startsWith('Arrow')) {
       let r = selected < 0 ? 0 : rowOf(selected);
       let c = selected < 0 ? 0 : colOf(selected);
@@ -185,7 +211,13 @@ function setup(root: HTMLElement): void {
     if (history.length > 200) history.shift();
   }
   function input(d: number): void {
-    if (done || selected < 0 || given[selected]) return;
+    if (done || paused) return;
+    // 無選択 or 固定マス（given）を選択中 → 数字キーは「全盤ハイライト（数字スキャン）」として働く
+    if (selected < 0 || given[selected]) {
+      highlightDigit = highlightDigit === d ? 0 : d;
+      render();
+      return;
+    }
     clearHint();
     pushHistory();
     if (pencil) {
@@ -198,13 +230,15 @@ function setup(root: HTMLElement): void {
       if (!wasToggleOff) {
         for (const p of PEERS[selected]) notes[p] &= ~bit(d);
       }
+      highlightDigit = wasToggleOff ? 0 : d; // 填入后顺带高亮该数字全盘，帮你看分布
     }
     checkDone();
+    if (!done) checkAreaComplete(selected); // 填满一行/列/宫 → 即时反馈
     save();
     render();
   }
   function clearCell(): void {
-    if (done || selected < 0 || given[selected]) return;
+    if (done || paused || selected < 0 || given[selected]) return;
     if (cur[selected] === 0 && notes[selected] === 0) return;
     clearHint();
     pushHistory();
@@ -214,7 +248,7 @@ function setup(root: HTMLElement): void {
     render();
   }
   function undo(): void {
-    if (done || !history.length) return;
+    if (done || paused || !history.length) return;
     const prev = history.pop()!;
     cur = prev.c;
     notes = prev.n;
@@ -234,6 +268,39 @@ function setup(root: HTMLElement): void {
     if (daily) { bumpStreak(); fillDaily(); }
     showResult(prev);
     burst();
+  }
+
+  // —— 暂停（停表 + 遮盖盘面，防"停表盯盘"作弊）——
+  function pause(): void {
+    if (done || paused) return;
+    paused = true;
+    elapsedBase += Date.now() - start; // 当前段时长累积进 base → elapsed 即冻结
+    if (timer) { clearInterval(timer); timer = null; }
+    left.classList.add('sk-paused');
+    save();
+    render();
+  }
+  function resume(): void {
+    if (!paused) return;
+    paused = false;
+    start = Date.now();
+    if (!done) timer = setInterval(render, 1000);
+    left.classList.remove('sk-paused');
+    render();
+  }
+  function togglePause(): void { paused ? resume() : pause(); }
+
+  // —— 区域完成即时反馈（填满一行/列/宫且全部正确 → 该 9 格脉冲一下）——
+  function checkAreaComplete(cell: number): void {
+    if (cell < 0) return;
+    for (const u of UNITS) {
+      if (!u.includes(cell)) continue;
+      if (u.every((i) => cur[i] !== 0 && cur[i] === solution[i])) flashArea(u);
+    }
+  }
+  function flashArea(idxs: number[]): void {
+    for (const i of idxs) cells[i].classList.add('sk-area-done');
+    setTimeout(() => { for (const i of idxs) cells[i].classList.remove('sk-area-done'); }, 720);
   }
 
   // —— 提示（先查错误 → 逻辑找单数指路 → 高级技巧回退揭示）——
@@ -309,6 +376,9 @@ function setup(root: HTMLElement): void {
     given = pz.map((v) => v !== 0);
     history = [];
     selected = -1;
+    paused = false;
+    highlightDigit = 0;
+    left.classList.remove('sk-paused');
     isRecord = false;
     clearHint();
     if (restore) {
@@ -433,19 +503,21 @@ function setup(root: HTMLElement): void {
   // —— 渲染 ——
   function render(): void {
     const selVal = selected >= 0 ? cur[selected] : 0;
+    const hlVal = highlightDigit > 0 ? highlightDigit : selVal; // 高亮：数字键扫描优先，否则随选中格值
     const peerSet = selected >= 0 ? new Set(PEERS[selected]) : new Set<number>();
+    board.classList.toggle('sk-pencil-on', pencil); // 笔记模式 → 盘面状态反馈
     let rem = 0;
     const counts = new Array(10).fill(0);
     for (let i = 0; i < 81; i++) {
       const c = cells[i];
-      const keep = c.className.match(/sk-(hint-cell|wrong-cell)/g) || [];
+      const keep = c.className.match(/sk-(hint-cell|wrong-cell|area-done)/g) || [];
       c.className = ['sk-cell', ...keep].join(' ');
       if (colOf(i) % 3 === 2 && colOf(i) !== 8) c.classList.add('sk-br');
       if (rowOf(i) % 3 === 2 && rowOf(i) !== 8) c.classList.add('sk-bb');
       if (given[i]) c.classList.add('sk-given');
       if (i === selected) c.classList.add('sk-sel');
       else if (peerSet.has(i)) c.classList.add('sk-peer');
-      if (selVal && cur[i] === selVal) c.classList.add('sk-same');
+      if (hlVal && cur[i] === hlVal) c.classList.add('sk-same');
       if (checkErrors && cur[i] !== 0 && !given[i] && cur[i] !== solution[i]) c.classList.add('sk-err');
 
       if (cur[i] !== 0) {
@@ -472,7 +544,7 @@ function setup(root: HTMLElement): void {
       const left = 9 - counts[d];
       (k.querySelector('.sk-kc') as HTMLElement).textContent = left > 0 ? String(left) : '';
       k.classList.toggle('sk-kdone', left <= 0);
-      k.classList.toggle('sk-ksel', selVal === d && selVal !== 0);
+      k.classList.toggle('sk-ksel', (selVal === d && selVal !== 0) || highlightDigit === d);
     }
     timerEl.textContent = fmt(elapsed());
     if (done) {
