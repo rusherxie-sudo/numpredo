@@ -43,6 +43,18 @@
 /ja/6x6-sudoku       /variants/6x6/ 301
 /ja/6x6-sudoku/      /variants/6x6/ 301
 
+# Difficulty slug aliases (old naming → current slug)
+/play/expert/*       /play/hard/ 301
+/play/master/*       /play/extreme/ 301
+
+# Solver shortcut URL
+/solver/             /tools/solver/ 301
+/solver              /tools/solver/ 301
+
+# Technique stubs not yet built → how-to-solve
+/guide/techniques/naked-single/   /guide/how-to-solve/ 301
+/guide/techniques/hidden-single/  /guide/how-to-solve/ 301
+
 # Language root redirects
 /en/*                / 301
 /zh-CN/*             / 301
