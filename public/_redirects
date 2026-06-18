@@ -65,6 +65,14 @@
 /solver/             /tools/solver/ 301
 /solver              /tools/solver/ 301
 
+# Guide slugs not in current site → how-to-solve
+/guide/benefits/     /guide/how-to-solve/ 301
+/guide/benefits      /guide/how-to-solve/ 301
+/guide/for-seniors/  /guide/how-to-solve/ 301
+/guide/for-seniors   /guide/how-to-solve/ 301
+/guide/for-kids/     /guide/how-to-solve/ 301
+/guide/for-kids      /guide/how-to-solve/ 301
+
 # Technique stubs not yet built → how-to-solve
 /guide/techniques/naked-single/   /guide/how-to-solve/ 301
 /guide/techniques/hidden-single/  /guide/how-to-solve/ 301
