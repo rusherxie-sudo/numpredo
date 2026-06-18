@@ -38,6 +38,12 @@
 /ja/about/           /about/ 301
 /en/about            /about/ 301
 /zh-CN/about         /about/ 301
+/zh-TW/about         /about/ 301
+/zh-TW/about/        /about/ 301
+
+# Misc old pages without equivalent
+/en/stuck-mid-game/  / 301
+/en/stuck-mid-game   / 301
 
 # Variants
 /ja/6x6-sudoku       /variants/6x6/ 301
