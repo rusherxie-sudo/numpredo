@@ -49,6 +49,14 @@
 /ja/6x6-sudoku       /variants/6x6/ 301
 /ja/6x6-sudoku/      /variants/6x6/ 301
 
+# Variant slugs not in current site → killer (最接近的变体页)
+/variants/irregular/ /variants/killer/ 301
+/variants/irregular  /variants/killer/ 301
+/variants/samurai/   /variants/killer/ 301
+/variants/samurai    /variants/killer/ 301
+/variants/hyper/     /variants/killer/ 301
+/variants/hyper      /variants/killer/ 301
+
 # Difficulty slug aliases (old naming → current slug)
 /play/expert/*       /play/hard/ 301
 /play/master/*       /play/extreme/ 301
