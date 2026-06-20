@@ -45,6 +45,12 @@ const itemListSchema = {
     ))}
   </div>
 
+  <h2>問題集・一手ずつ図解で解き方</h2>
+  <p class="lead">各難易度の問題を、解答エンジンの手順どおりに一手ずつ図解。詰まったときの「次の一手」と、その難易度で使うテクニックがわかります。</p>
+  <ul>
+    {LEVELS.map((l) => <li><a href={`/play/${l.slug}/1/`}>数独{l.ja}の問題を図解で解く（No.1〜12）</a></li>)}
+  </ul>
+
   <h2>バリエーション数独</h2>
   <ul>
     <li><a href="/variants/killer/">キラー数独</a> — ケージの合計から解く</li>
