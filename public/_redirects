@@ -80,8 +80,7 @@
 /guide/benefits      /guide/how-to-solve/ 301
 /guide/for-seniors/  /guide/how-to-solve/ 301
 /guide/for-seniors   /guide/how-to-solve/ 301
-/guide/for-kids/     /guide/how-to-solve/ 301
-/guide/for-kids      /guide/how-to-solve/ 301
+# /guide/for-kids 已建为真页（子供向け数独），不再 301
 
 # Technique stubs not yet built → how-to-solve
 /guide/techniques/naked-single/   /guide/how-to-solve/ 301
