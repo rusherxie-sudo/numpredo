@@ -309,7 +309,7 @@ export function traceFirstElimination(
 
 /**
  * 沿技巧链推进，捕获「每个关键步」执行前的盘面/候选快照 + 该步。供题目图解页逐步演示。
- * 关键步 = 消除型步骤（有 eliminations）；includeSingles 时，纯填入型题也收代表单数步，避免空页。
+ * 选步优先级：消除型「難しい一手」> hiddenSingle（起步示例·限量）> nakedSingle（纯单数题兜底）。
  */
 export function traceKeySteps(
   grid: Grid,
@@ -339,7 +339,8 @@ export function traceKeySteps(
   if (elim.length >= maxSteps) return elim.slice(0, maxSteps);
   const hidden = all.filter((x) => x.step.technique === 'hiddenSingle');
   if (elim.length > 0) {
-    const keep = new Set<(typeof all)[number]>([...elim, ...hidden.slice(0, maxSteps - elim.length)]);
+    // 消去型の難点はすべて見せ、起步の隠れた単数は最多2手だけ添える（図解を難点に集中、雷同図を避ける）
+    const keep = new Set<(typeof all)[number]>([...elim, ...hidden.slice(0, Math.min(maxSteps - elim.length, 2))]);
     return all.filter((x) => keep.has(x)).slice(0, maxSteps); // 保持解题原序
   }
   if (hidden.length > 0) return hidden.slice(0, maxSteps);
