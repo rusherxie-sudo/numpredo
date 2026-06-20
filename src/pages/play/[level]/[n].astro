@@ -1,0 +1,200 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ShareBar from '../../../components/ShareBar.astro';
+import { LEVELS, type LevelMeta } from '../../../data/levels.ts';
+import { renderBoardSvg, gridFromString, logicalSolve, traceKeySteps, TOKEN_THEME, type SolveStep } from '../../../engine/index.ts';
+import lastmodJson from '../../../data/sitemap-lastmod.json';
+import publishedJson from '../../../data/published.json';
+const lastmod: Record<string, string> = lastmodJson;
+const published: Record<string, string> = publishedJson;
+
+const PER_LEVEL = 12;
+
+export function getStaticPaths() {
+  const per = 12; // getStaticPaths 独立作用域，不能引用 frontmatter 顶层常量 PER_LEVEL
+  return LEVELS.flatMap((meta) =>
+    Array.from({ length: per }, (_, i) => i + 1)
+      .filter((n) => meta.puzzles[n - 1])
+      .map((n) => ({ params: { level: meta.slug, n: String(n) }, props: { meta, n } })),
+  );
+}
+
+interface Props {
+  meta: LevelMeta;
+  n: number;
+}
+const { meta, n } = Astro.props;
+const puzzle = meta.puzzles[n - 1];
+const url = `https://numpredo.com/play/${meta.slug}/${n}/`;
+
+// 技巧元数据：日语名 + 技巧详解页 slug + 一句说明（数据驱动每步文案）
+const TECH_INFO: Record<string, { ja: string; slug?: string; desc: (s: SolveStep) => string }> = {
+  nakedSingle: { ja: '裸の単数', desc: (s) => `候補が${s.digit}ひとつだけに絞られたマス。ここは${s.digit}で確定します。` },
+  hiddenSingle: { ja: '隠れた単数', desc: (s) => `この行・列・ブロックの中で${s.digit}が入れるのはこのマスだけ。${s.digit}で確定します。` },
+  lockedCandidates: { ja: '区画の絞り込み（ポインティング）', slug: 'pointing', desc: () => 'あるブロック内で、ある数字の候補が一直線に並んでいます。その行（列）の交差する外のマスから、その数字の候補を消去できます。' },
+  nakedPair: { ja: 'ペア（二国同盟）', slug: 'naked-pair', desc: () => '同じ2つの候補だけを持つ2マス（ペア）を見つけました。同じ単元の他のマスから、その2つの数字を消去できます。' },
+  hiddenPair: { ja: '隠れたペア', slug: 'hidden-pair', desc: () => '2つの数字が同じ2マスにしか入らない形（隠れたペア）です。その2マスから、ペア以外の候補をすべて消去できます。' },
+  nakedTriple: { ja: '三国同盟（ネイキッドトリプル）', slug: 'naked-triple', desc: () => '3つのマスで候補が3種類に収まる組（三国同盟）を見つけました。同じ単元の他のマスから、その3数字を消去できます。' },
+  xWing: { ja: 'X-Wing', slug: 'x-wing', desc: () => '2つの行で、ある数字の候補が同じ2つの列だけに現れる長方形（X-Wing）です。その2列の他の行から、その数字を消去できます。' },
+};
+
+const grid = gridFromString(puzzle.puzzle);
+const given = grid.map((v) => v !== 0);
+const sol = logicalSolve(gridFromString(puzzle.puzzle));
+const keySteps = traceKeySteps(gridFromString(puzzle.puzzle));
+const clues = grid.filter((v) => v !== 0).length;
+const hardest = sol.hardest ?? 'nakedSingle';
+const hardestInfo = TECH_INFO[hardest] ?? TECH_INFO.nakedSingle;
+
+// 題面 SVG
+const svgPuzzle = renderBoardSvg(grid, { given, theme: TOKEN_THEME, cell: 34, title: `数独${meta.ja} No.${n}の問題`, desc: `${meta.ja}の問題例` });
+
+// 各キーステップの図解 SVG + 説明
+const stepFigs = keySteps.map((ks, i) => {
+  const st = ks.step;
+  const isElim = !!(st.eliminations && st.eliminations.length);
+  const marks = isElim ? st.eliminations!.map(([cell, digit]) => ({ cell, digit, type: 'eliminate' as const })) : [];
+  const hl = isElim
+    ? [...new Set(st.eliminations!.map(([c]) => c))].map((cell) => ({ cell }))
+    : st.cell != null
+      ? [{ cell: st.cell }]
+      : [];
+  const info = TECH_INFO[st.technique] ?? TECH_INFO.nakedSingle;
+  return {
+    svg: renderBoardSvg(ks.grid, { given, candidates: ks.candidates, cellHighlights: hl, candidateMarks: marks, theme: TOKEN_THEME, cell: 34, title: `手順${i + 1}：${info.ja}`, desc: info.ja }),
+    label: `手順 ${i + 1}：${info.ja}`,
+    text: info.desc(st),
+    slug: info.slug,
+  };
+});
+
+// 他の問題（同档相邻 + 他难度同编号）
+const sameLevelNs = Array.from({ length: PER_LEVEL }, (_, i) => i + 1).filter((x) => x !== n && meta.puzzles[x - 1]);
+const otherLevels = LEVELS.filter((l) => l.slug !== meta.slug);
+
+const title = `数独${meta.ja} No.${n}｜一手ずつ図解で解き方 - numpredo`;
+const description = `数独（ナンプレ）${meta.ja}の問題 No.${n}を一手ずつ図解で解説。ヒント${clues}個、最難テクニックは${hardestInfo.ja}。当てずっぽうなしで論理だけで解ける手順を、盤面付きでわかりやすく。`;
+const h1 = `数独${meta.ja} No.${n}｜一手ずつ図解で解き方`;
+
+const faq = [
+  { q: `この数独${meta.ja} No.${n}の難易度は？`, a: `ヒント（最初から入っている数字）は${clues}個で、解くのに必要な最も難しいテクニックは「${hardestInfo.ja}」です。${meta.lead}` },
+  { q: '解けないときはどうすればいい？', a: `まず全空きマスに候補をメモしましょう。それでも詰まったら、このページの「一手ずつ図解」で${hardestInfo.ja}の使いどころを確認してください。${hardestInfo.slug ? `くわしくは<a href="/guide/techniques/${hardestInfo.slug}/">${hardestInfo.ja}の解き方</a>へ。` : '基本は<a href="/guide/beginner/">単数の見つけ方</a>で解けます。'}` },
+  { q: 'この問題は当てずっぽうなしで解けますか？', a: 'はい。当サイトの問題はすべて「解が一つだけ」「論理だけで解ける」ことを検証済みです。図解の手順どおりに進めれば、必ず次の一手が見つかります。' },
+];
+
+const dateModified = lastmod[`/play/${meta.slug}/${n}/`];
+const datePublished = published[`/play/${meta.slug}/${n}/`];
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: h1,
+  description,
+  inLanguage: 'ja',
+  mainEntityOfPage: url,
+  image: 'https://numpredo.com/og-image.png',
+  author: { '@type': 'Organization', name: 'numpredo', url: 'https://numpredo.com/' },
+  publisher: { '@type': 'Organization', name: 'numpredo', logo: { '@type': 'ImageObject', url: 'https://numpredo.com/og-image.png' } },
+  ...(datePublished ? { datePublished } : {}),
+  ...(dateModified ? { dateModified } : {}),
+};
+const howToSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: `数独${meta.ja} No.${n}の解き方`,
+  description: `数独${meta.ja} No.${n}を論理だけで解く手順`,
+  inLanguage: 'ja',
+  step: stepFigs.map((f, i) => ({ '@type': 'HowToStep', position: i + 1, name: f.label, text: f.text })),
+};
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: 'プレイ', item: 'https://numpredo.com/play/' },
+    { '@type': 'ListItem', position: 3, name: meta.ja, item: `https://numpredo.com/play/${meta.slug}/` },
+    { '@type': 'ListItem', position: 4, name: `No.${n}`, item: url },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={url}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › <a href={`/play/${meta.slug}/`}>{meta.ja}</a> › No.{n}</nav>
+  <h1>{h1}</h1>
+  <p class="lead">数独（ナンプレ）<strong>{meta.ja}</strong>の問題 No.{n} を、論理だけで解いた手順で一手ずつ図解します。ヒント<strong>{clues}個</strong>、最難テクニックは<strong>{hardestInfo.ja}</strong>。すべて当てずっぽうなしで解けます。</p>
+
+  <figure class="pz-fig"><Fragment set:html={svgPuzzle} /><figcaption>数独{meta.ja} No.{n} の問題（太字がヒント）</figcaption></figure>
+
+  <h2>この問題の特徴</h2>
+  <ul class="feat">
+    <li>ヒントの数：<strong>{clues}個</strong></li>
+    <li>最難テクニック：<strong>{hardestInfo.ja}</strong></li>
+    <li>論理で解ける手数：<strong>全{sol.steps.length}手</strong></li>
+  </ul>
+
+  <h2>一手ずつ図解で解いてみよう</h2>
+  <p>裸の単数で埋まるところから、難しい一手（{hardestInfo.ja}）まで、解答エンジンが実際に解いた推理を順番に図解します。各図の<strong>赤い候補が消える数字</strong>、<strong>枠つきのマス</strong>が注目点です。</p>
+  <div class="steps">
+    {stepFigs.map((f) => (
+      <figure class="step-fig">
+        <Fragment set:html={f.svg} />
+        <figcaption><strong>{f.label}</strong>{f.slug ? <> ・ <a href={`/guide/techniques/${f.slug}/`}>くわしい解き方</a></> : null}</figcaption>
+        <p set:html={f.text} />
+      </figure>
+    ))}
+  </div>
+
+  <h2>つまずいたら</h2>
+  <p set:html={hardestInfo.slug
+    ? `この問題の山場は<a href="/guide/techniques/${hardestInfo.slug}/">${hardestInfo.ja}</a>です。使い方をくわしく確認してから戻ると、自力で解けるようになります。全体の手順は<a href="/guide/how-to-solve/">解き方完全ガイド</a>に。`
+    : `${meta.ja}は<a href="/guide/beginner/">単数の見つけ方</a>だけで解けます。手順全体は<a href="/guide/how-to-solve/">解き方完全ガイド</a>へ。`} />
+
+  <ShareBar url={url} title={title} cta="この図解が役に立ったらシェア" />
+
+  <h2>遊ぶ・印刷する</h2>
+  <ul>
+    <li><a href={`/play/${meta.slug}/`}>同じ難易度（{meta.ja}）を画面でプレイ</a></li>
+    <li><a href="/print/">無料プリントで{meta.ja}を印刷</a></li>
+  </ul>
+
+  <h2>他の{meta.ja}の問題</h2>
+  <ul class="numlist">
+    {sameLevelNs.map((x) => <li><a href={`/play/${meta.slug}/${x}/`}>数独{meta.ja} No.{x}</a></li>)}
+  </ul>
+
+  <h2>他の難易度の図解</h2>
+  <ul class="numlist">
+    {otherLevels.map((l) => <li><a href={`/play/${l.slug}/${n}/`}>数独{l.ja} No.{n}</a></li>)}
+  </ul>
+
+  <h2>よくある質問</h2>
+  <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
+    .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 16px; }
+    main ul { line-height: 1.9; } main ul a, main p a { color: var(--accent); }
+    .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 16px; } .faq dd { margin: 5px 0 0; color: var(--ink-3); }
+    .pz-fig { margin: 14px auto; text-align: center; max-width: 320px; }
+    .pz-fig svg, .step-fig svg { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .pz-fig figcaption, .step-fig figcaption { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+    .feat { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+    .feat li { font-size: 14px; color: var(--ink-2); }
+    .steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 16px; margin: 14px 0; }
+    .step-fig { margin: 0; }
+    .step-fig p { font-size: 13px; color: var(--ink-3); margin: 6px 0 0; line-height: 1.6; }
+    .numlist { columns: 2; }
+    @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } .numlist { columns: 1; } }
+  </style>
+</Base>
