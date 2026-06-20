@@ -3,9 +3,35 @@ import Base from '../../layouts/Base.astro';
 import { LEVELS } from '../../data/levels.ts';
 const title = '数独・ナンプレを無料でプレイ｜難易度一覧 - numpredo';
 const description = '初級から超難問まで、無料の数独（ナンプレ）を難易度別にプレイ。すべて唯一解・論理だけで解ける高品質問題。登録不要、スマホ対応。';
+const url = 'https://numpredo.com/play/';
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: 'プレイ', item: url },
+  ],
+};
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: '数独・ナンプレの難易度一覧',
+  itemListElement: LEVELS.map((l, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: `${l.ja}の数独・ナンプレ`,
+    url: `https://numpredo.com/play/${l.slug}/`,
+  })),
+};
 ---
 
-<Base title={title} description={description} wide>
+<Base title={title} description={description} canonical={url} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+  </Fragment>
+
   <nav class="crumb"><a href="/">ホーム</a> › プレイ</nav>
   <h1>数独・ナンプレを無料でプレイ</h1>
   <p class="lead">難易度を選んでプレイ。すべて唯一解・論理だけで解ける高品質問題です。</p>

@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-const title = '数独・ナンプレ自動解答｜写真でかんたん答え合わせ・ソルバー（無料） - numpredo';
+const title = '数独・ナンプレ自動解答｜写真で答え合わせ（無料）- numpredo';
 const description = '新聞・雑誌の数独・ナンプレが解けないときに。写真を撮る/画像を選ぶだけで盤面を読み取り、答えを自動計算。手入力もOK。9×9 標準数独の答え合わせ・ソルバー、無料・登録不要。';
 const url = 'https://numpredo.com/tools/solver/';
 const faq = [
@@ -75,7 +75,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     .sv-cell.sv-bb { border-bottom: 2px solid var(--box-line); }
     .sv-cell.sv-given { color: var(--num-given); font-family: var(--font-mincho); font-weight: 700; }
     .sv-cell.sv-sel { background: var(--cell-sel-bg); box-shadow: inset 0 0 0 2px var(--accent); }
-    .sv-cell.sv-err { color: var(--num-error) !important; background: var(--cell-error-bg); }
+    .sv-cell.sv-err { color: var(--num-error) !important; background: var(--cell-error-bg); text-decoration: underline wavy; text-underline-offset: 2px; }
     .sv-cell.sv-solved { color: var(--num-user); font-weight: 700; }
 
     .sv-pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }

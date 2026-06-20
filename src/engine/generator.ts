@@ -93,8 +93,8 @@ export function generatePuzzle(minClues = 17): Puzzle {
  * 尝试生成指定难度的题。现有技巧链（至 X-Wing）下，越高难度命中越稀有，
  * 故反复生成并取目标档；超过 maxAttempts 返回最接近的一道（不抛错）。
  */
-/** 各档提示数下限（与 gen-pool 一致）：低档多提示·新手友好，高档挖到稀疏·逼出高级技巧。 */
-const LEVEL_MIN_CLUES: Record<DifficultyLevel, number> = {
+/** 各档提示数下限（题库生成的**单一来源**，gen-pool 也 import 此常量）：低档多提示·新手友好，高档挖到稀疏·逼出高级技巧。 */
+export const LEVEL_MIN_CLUES: Record<DifficultyLevel, number> = {
   beginner: 38, intermediate: 31, advanced: 28, hard: 17, extreme: 17,
 };
 

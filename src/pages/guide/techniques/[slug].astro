@@ -3,7 +3,9 @@ import Base from '../../../layouts/Base.astro';
 import { TECHNIQUES, type Technique } from '../../../data/techniques.ts';
 import { renderBoardSvg, bit, TOKEN_THEME, type CandidateMark } from '../../../engine/index.ts';
 import lastmodJson from '../../../data/sitemap-lastmod.json';
+import publishedJson from '../../../data/published.json';
 const lastmod: Record<string, string> = lastmodJson;
+const published: Record<string, string> = publishedJson;
 
 export function getStaticPaths() {
   return TECHNIQUES.map((t) => ({ params: { slug: t.slug }, props: { t } }));
@@ -26,6 +28,7 @@ for (const k of Object.keys(f.eliminate)) for (const d of f.eliminate[+k]) candi
 for (const cell of f.highlight) for (const d of f.notes[cell] ?? []) candidateMarks.push({ cell, digit: d, type: 'highlight' });
 const svg = renderBoardSvg(f.given, { given: givenMask, candidates, cellHighlights, candidateMarks, theme: TOKEN_THEME, cell: 38, title: t.name, desc: t.figCaption });
 
+const datePublished = published[`/guide/techniques/${t.slug}/`];
 const dateModified = lastmod[`/guide/techniques/${t.slug}/`];
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -37,6 +40,7 @@ const articleSchema = {
   image: 'https://numpredo.com/og-image.png',
   author: { '@type': 'Organization', name: 'numpredo', url: 'https://numpredo.com/' },
   publisher: { '@type': 'Organization', name: 'numpredo', logo: { '@type': 'ImageObject', url: 'https://numpredo.com/og-image.png' } },
+  ...(datePublished ? { datePublished } : {}),
   ...(dateModified ? { dateModified } : {}),
 };
 const howToSchema = {

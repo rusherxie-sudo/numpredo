@@ -3,12 +3,12 @@
 // 进度自动保存(localStorage，刷新不丢)、撤销、数字剩余计数、メモ自动清除、方向键、提示、胜利演出。
 import {
   PEERS, UNITS, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf,
-  gridFromString, generateByLevel, type DifficultyLevel, type Grid,
+  gridFromString, generateByLevel, solveOne, type DifficultyLevel, type Grid,
 } from '../engine/index.ts';
 
 interface PuzzlePair {
   puzzle: string;
-  solution: string;
+  solution?: string; // daily は未配信（瘦身）→ クライアントで solveOne 現算。play は予生成解を同梱。
   level?: string;
 }
 
@@ -28,8 +28,21 @@ interface Saved {
 
 const pad2 = (n: number): string => (n < 10 ? '0' : '') + n;
 const fmt = (ms: number): string => `${pad2((ms / 60000) | 0)}:${pad2(((ms / 1000) | 0) % 60)}`;
-const dstr = (d: Date): string => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 const gridToStr = (g: Grid): string => g.join('');
+
+// —— daily は全て JST（日本標準時）基準：端末のタイムゾーンに依らず全員が同じ日に同じ問題。
+// 日界・日付ラベル・ストリークを JST 0 時で揃える（daily.astro の「毎日0時更新」と一致）。
+const JST = 9 * 3600 * 1000;
+// JST の壁時計日付（dayShift 日ずらし可）を YYYY-MM-DD で返す。+9h した時刻を getUTC* で読む。
+const jstDayStr = (dayShift = 0): string => {
+  const d = new Date(Date.now() + JST + dayShift * 86400000);
+  return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+};
+const jstParts = (): { m: number; d: number } => {
+  const d = new Date(Date.now() + JST);
+  return { m: d.getUTCMonth() + 1, d: d.getUTCDate() };
+};
+const jstDayIndex = (): number => Math.floor((Date.now() + JST) / 86400000);
 
 function el(tag: string, cls = ''): HTMLElement {
   const e = document.createElement(tag);
@@ -126,11 +139,14 @@ function setup(root: HTMLElement): void {
   if (daily) side.append(dailyEl);
   side.append(timeRow, badge, pad, hintMsg, ctrl, ctrl2, checkRow, result);
 
-  // —— 棋盘格 ——
+  // —— 棋盘格（role=grid + 各セル role=gridcell・動的 aria でスクリーンリーダー対応）——
+  board.setAttribute('role', 'grid');
+  board.setAttribute('aria-label', '数独の盤面（9×9）');
   const cells: HTMLButtonElement[] = [];
   for (let i = 0; i < 81; i++) {
     const c = el('button', 'sk-cell') as HTMLButtonElement;
     c.type = 'button';
+    c.setAttribute('role', 'gridcell');
     if (colOf(i) % 3 === 2 && colOf(i) !== 8) c.classList.add('sk-br');
     if (rowOf(i) % 3 === 2 && rowOf(i) !== 8) c.classList.add('sk-bb');
     c.addEventListener('click', () => { if (paused) return; selected = i; highlightDigit = 0; clearHint(); render(); });
@@ -284,7 +300,7 @@ function setup(root: HTMLElement): void {
     if (!paused) return;
     paused = false;
     start = Date.now();
-    if (!done) timer = setInterval(render, 1000);
+    if (!done) timer = setInterval(tick, 1000);
     left.classList.remove('sk-paused');
     render();
   }
@@ -396,7 +412,7 @@ function setup(root: HTMLElement): void {
     }
     start = Date.now();
     if (timer) clearInterval(timer);
-    if (!done) timer = setInterval(render, 1000);
+    if (!done) timer = setInterval(tick, 1000);
     result.classList.remove('on');
     render();
   }
@@ -428,7 +444,7 @@ function setup(root: HTMLElement): void {
       e: elapsed(),
       d: done ? 1 : 0,
     };
-    if (daily) data.day = dstr(new Date());
+    if (daily) data.day = jstDayStr();
     try { localStorage.setItem(progKey(), JSON.stringify(data)); } catch { /* 容量超限忽略 */ }
   }
   function load(): Saved | null {
@@ -436,7 +452,7 @@ function setup(root: HTMLElement): void {
       const raw = localStorage.getItem(progKey());
       if (!raw) return null;
       const o = JSON.parse(raw) as Saved;
-      if (daily && o.day !== dstr(new Date())) return null; // 跨日失效
+      if (daily && o.day !== jstDayStr()) return null; // 跨日失效（JST 基準）
       if (!o.p || !o.s || !o.c || o.c.length !== 81) return null;
       return o;
     } catch { return null; }
@@ -444,22 +460,20 @@ function setup(root: HTMLElement): void {
 
   // —— daily：日期 + 连续记录 ——
   function bumpStreak(): void {
-    const today = dstr(new Date());
+    const today = jstDayStr();
     const last = localStorage.getItem('numpredo.daily.last');
     if (last === today) return;
-    const y = new Date();
-    y.setDate(y.getDate() - 1);
-    const streak = last === dstr(y) ? Number(localStorage.getItem('numpredo.daily.streak') || '0') + 1 : 1;
+    const streak = last === jstDayStr(-1) ? Number(localStorage.getItem('numpredo.daily.streak') || '0') + 1 : 1;
     localStorage.setItem('numpredo.daily.last', today);
     localStorage.setItem('numpredo.daily.streak', String(streak));
   }
   function fillDaily(): void {
-    const dt = new Date();
+    const { m, d } = jstParts();
     const streak = Number(localStorage.getItem('numpredo.daily.streak') || '0');
-    const doneToday = localStorage.getItem('numpredo.daily.last') === dstr(dt);
+    const doneToday = localStorage.getItem('numpredo.daily.last') === jstDayStr();
     const lvJa = LV_JA[dailyLevel] ?? '';
     dailyEl.innerHTML =
-      `<div class="sk-d-date">${dt.getMonth() + 1}月${dt.getDate()}日の問題</div>` +
+      `<div class="sk-d-date">${m}月${d}日の問題</div>` +
       (lvJa ? `<div class="sk-d-level">本日の難易度: <b>${lvJa}</b></div>` : '') +
       `<div class="sk-d-streak">${streak > 0 ? streak + '日連続' : '記録に挑戦'}${doneToday ? ' ✓' : ''}</div>`;
   }
@@ -501,6 +515,10 @@ function setup(root: HTMLElement): void {
   }
 
   // —— 渲染 ——
+  // 计时器每秒只更新时间文本（轻量），不触发整盘重渲染——render 仅在状态变化时调用。
+  function tick(): void {
+    timerEl.textContent = fmt(elapsed());
+  }
   function render(): void {
     const selVal = selected >= 0 ? cur[selected] : 0;
     const hlVal = highlightDigit > 0 ? highlightDigit : selVal; // 高亮：数字键扫描优先，否则随选中格值
@@ -537,6 +555,16 @@ function setup(root: HTMLElement): void {
         c.textContent = '';
         rem++;
       }
+      // スクリーンリーダー向け：位置＋内容＋状態を aria に反映
+      const pos = `${rowOf(i) + 1}行${colOf(i) + 1}列`;
+      const bad = checkErrors && cur[i] !== 0 && !given[i] && cur[i] !== solution[i];
+      c.setAttribute('aria-label',
+        cur[i] !== 0 ? `${pos} ${cur[i]}${given[i] ? '（固定）' : ''}${bad ? '（誤り）' : ''}`
+          : notes[i] ? `${pos} メモ ${digitsOf(notes[i]).join(' ')}`
+            : `${pos} 空き`);
+      c.setAttribute('aria-selected', i === selected ? 'true' : 'false');
+      if (bad) c.setAttribute('aria-invalid', 'true');
+      else c.removeAttribute('aria-invalid');
     }
     // 数字键计数 + 填满置灰 + 选中数字高亮
     for (let d = 1; d <= 9; d++) {
@@ -545,6 +573,7 @@ function setup(root: HTMLElement): void {
       (k.querySelector('.sk-kc') as HTMLElement).textContent = left > 0 ? String(left) : '';
       k.classList.toggle('sk-kdone', left <= 0);
       k.classList.toggle('sk-ksel', (selVal === d && selVal !== 0) || highlightDigit === d);
+      k.setAttribute('aria-label', left > 0 ? `${d}（あと${left}）` : `${d}（完了）`);
     }
     timerEl.textContent = fmt(elapsed());
     if (done) {
@@ -559,14 +588,17 @@ function setup(root: HTMLElement): void {
   }
 
   // —— 初始化：优先恢复未完成的存档 ——
-  const dailyIdx = daily ? Math.floor(Date.now() / 86400000) % set.length : 0;
+  const dailyIdx = daily ? jstDayIndex() % set.length : 0;
   if (daily) dailyLevel = set[dailyIdx].level ?? '';
   const saved = load();
   if (saved && saved.d !== 1) {
     apply(gridFromString(saved.p), gridFromString(saved.s), saved);
   } else {
     const first = set[dailyIdx];
-    apply(gridFromString(first.puzzle), gridFromString(first.solution));
+    const fpz = gridFromString(first.puzzle);
+    // daily は solution 未配信 → solveOne で現算（play は予生成 solution をそのまま使う）
+    const fsol = first.solution ? gridFromString(first.solution) : solveOne(fpz);
+    if (fsol) apply(fpz, fsol);
   }
   if (daily) fillDaily();
 }

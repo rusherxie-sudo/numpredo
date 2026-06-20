@@ -19,9 +19,12 @@ function setup(app: HTMLElement): void {
   // ---- DOM 構築：盤面 + キーボード ----
   app.innerHTML = '';
   const board = el('div', 'sv-board');
+  board.setAttribute('role', 'grid');
+  board.setAttribute('aria-label', '数独の盤面（9×9）入力');
   const cells: HTMLButtonElement[] = [];
   for (let i = 0; i < 81; i++) {
     const c = el('button', 'sv-cell') as HTMLButtonElement;
+    c.setAttribute('role', 'gridcell');
     const r = (i / 9) | 0;
     const cc = i % 9;
     if (cc === 2 || cc === 5) c.classList.add('sv-br');
@@ -135,6 +138,19 @@ function setup(app: HTMLElement): void {
         if (grid[i] !== 0) c.classList.add('sv-given');
         if (conf && conf.has(i)) c.classList.add('sv-err');
         if (i === sel) c.classList.add('sv-sel');
+      }
+      // スクリーンリーダー向け：位置＋内容＋状態
+      const pos = `${((i / 9) | 0) + 1}行${(i % 9) + 1}列`;
+      if (solved) {
+        c.setAttribute('aria-label', `${pos} ${solved[i]}${givenMask[i] ? '（入力）' : '（解答）'}`);
+        c.setAttribute('aria-selected', 'false');
+        c.removeAttribute('aria-invalid');
+      } else {
+        const dup = !!(conf && conf.has(i));
+        c.setAttribute('aria-label', grid[i] === 0 ? `${pos} 空き` : `${pos} ${grid[i]}${dup ? '（重複）' : ''}`);
+        c.setAttribute('aria-selected', i === sel ? 'true' : 'false');
+        if (dup) c.setAttribute('aria-invalid', 'true');
+        else c.removeAttribute('aria-invalid');
       }
     }
   }
@@ -263,30 +279,34 @@ async function recognizeImage(file: File, onProgress?: (done: number) => void): 
   });
 
   const out: string[] = [];
-  for (let i = 0; i < 81; i++) {
-    const r = (i / 9) | 0;
-    const c = i % 9;
-    // マス中央 70% をトリミング（グリッド線を避ける）
-    const pad = cellPx * 0.15;
-    const x = c * cellPx + pad;
-    const y = r * cellPx + pad;
-    const w = cellPx - pad * 2;
-    const sub = ctx.getImageData(x, y, w, w);
-    if (isBlank(sub)) {
-      out.push('.');
+  try {
+    for (let i = 0; i < 81; i++) {
+      const r = (i / 9) | 0;
+      const c = i % 9;
+      // マス中央 70% をトリミング（グリッド線を避ける）
+      const pad = cellPx * 0.15;
+      const x = c * cellPx + pad;
+      const y = r * cellPx + pad;
+      const w = cellPx - pad * 2;
+      const sub = ctx.getImageData(x, y, w, w);
+      if (isBlank(sub)) {
+        out.push('.');
+        onProgress?.(i + 1);
+        continue;
+      }
+      const cell = document.createElement('canvas');
+      cell.width = w;
+      cell.height = w;
+      cell.getContext('2d')?.putImageData(sub, 0, 0);
+      const { data } = await worker.recognize(cell);
+      const m = (data.text || '').match(/[1-9]/);
+      out.push(m ? m[0] : '.');
       onProgress?.(i + 1);
-      continue;
     }
-    const cell = document.createElement('canvas');
-    cell.width = w;
-    cell.height = w;
-    cell.getContext('2d')?.putImageData(sub, 0, 0);
-    const { data } = await worker.recognize(cell);
-    const m = (data.text || '').match(/[1-9]/);
-    out.push(m ? m[0] : '.');
-    onProgress?.(i + 1);
+  } finally {
+    // 識別中に例外が出ても worker を必ず解放（リーク防止）
+    await worker.terminate();
   }
-  await worker.terminate();
   return out.join('');
 }
 

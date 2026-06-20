@@ -13,6 +13,7 @@ import {
   logicalSolve,
   levelOf,
   LEVEL_META,
+  LEVEL_MIN_CLUES,
 } from '../src/engine/index.ts';
 
 interface PuzzleRecord {
@@ -27,14 +28,14 @@ interface PuzzleRecord {
 const OUT = 'src/data/puzzles';
 const ORDER: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
 
-// 各档配置：题数 + 提示下限（控制填充度→难度梯度）+ score 上限（抑制同档极端难题）。
-// minClues 高 → 挖得浅 → 提示多、简单；低 → 挖到稀疏 → 逼出高级技巧。
-const CFG: Record<DifficultyLevel, { count: number; minClues: number; maxScore: number }> = {
-  beginner: { count: 55, minClues: 38, maxScore: Infinity }, // 38提示·纯single·新手友好
-  intermediate: { count: 90, minClues: 31, maxScore: Infinity },
-  advanced: { count: 110, minClues: 28, maxScore: 92 }, // 排除用过多pair的"伪难"题
-  hard: { count: 73, minClues: 17, maxScore: Infinity },
-  extreme: { count: 37, minClues: 17, maxScore: Infinity },
+// 各档配置：题数 + score 上限（抑制同档极端难题）。提示下限 minClues 统一取自引擎的
+// LEVEL_MIN_CLUES（单一来源，与 generateByLevel 共用，避免两份常量漂移）。
+const CFG: Record<DifficultyLevel, { count: number; maxScore: number }> = {
+  beginner: { count: 55, maxScore: Infinity }, // 38提示·纯single·新手友好
+  intermediate: { count: 90, maxScore: Infinity },
+  advanced: { count: 110, maxScore: 92 }, // 排除用过多pair的"伪难"题
+  hard: { count: 73, maxScore: Infinity },
+  extreme: { count: 37, maxScore: Infinity },
 };
 
 const buckets: Record<DifficultyLevel, PuzzleRecord[]> = {
@@ -45,7 +46,8 @@ const t0 = Date.now();
 console.log('統一題庫生成（各档提示下限 + levelOf 严格入桶）…');
 
 for (const lv of ORDER) {
-  const { count, minClues, maxScore } = CFG[lv];
+  const { count, maxScore } = CFG[lv];
+  const minClues = LEVEL_MIN_CLUES[lv];
   let attempts = 0;
   while (buckets[lv].length < count) {
     const p = generatePuzzle(minClues);
@@ -74,7 +76,8 @@ for (const lv of ORDER) {
   );
 }
 
-// daily.json = 全题库打乱（每天随机一档）
+// daily.json = 全题库を生成期に一度だけシャッフルした「固定スナップショット」（結果は git 提交で不変）。
+// 「日替わり」の確定性は、クライアントが JST 日付インデックスで選題して担保する（生成側の乱数は再現性なしで可）。
 const all = ORDER.flatMap((lv) => buckets[lv]);
 for (let i = all.length - 1; i > 0; i--) {
   const j = Math.floor(Math.random() * (i + 1));

@@ -49,6 +49,16 @@
 /ja/6x6-sudoku       /variants/6x6/ 301
 /ja/6x6-sudoku/      /variants/6x6/ 301
 
+# 旧日语 URL：GSC 仍有展现/排名，但现有规则未覆盖（曾返回 404）→ 精准 301 回收权重
+/ja/beginner*            /play/beginner/ 301
+/ja/play/master*         /play/extreme/ 301
+/ja/techniques*          /guide/how-to-solve/ 301
+/ja/sudoku-history*      /guide/sudoku-history/ 301
+/ja/sudoku-glossary*     /guide/glossary/ 301
+/ja/sudoku-science*      /guide/brain-training/ 301
+/ja/too-many-candidates* /guide/when-stuck/ 301
+/ja/trial-and-error*     /guide/when-stuck/ 301
+
 # Variant slugs not in current site → killer (最接近的变体页)
 /variants/irregular/ /variants/killer/ 301
 /variants/irregular  /variants/killer/ 301
@@ -82,3 +92,4 @@
 /zh-CN/*             / 301
 /zh-TW/*             / 301
 /ja                  / 301
+/ja/*                / 301

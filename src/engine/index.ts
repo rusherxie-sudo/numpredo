@@ -6,4 +6,4 @@ export { countSolutions, hasUniqueSolution, solveOne } from './countSolver.ts';
 export { logicalSolve, traceFirstElimination } from './logicalSolver.ts';
 export * from './svg.ts';
 export { TECH_WEIGHT, LEVELS, LEVEL_META, levelOf, levelFromHardestWeight } from './difficulty.ts';
-export { fullSolution, generatePuzzle, generateByLevel } from './generator.ts';
+export { fullSolution, generatePuzzle, generateByLevel, LEVEL_MIN_CLUES } from './generator.ts';

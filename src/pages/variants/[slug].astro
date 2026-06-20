@@ -2,7 +2,9 @@
 import Base from '../../layouts/Base.astro';
 import { VARIANTS, type Variant } from '../../data/variants.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
+import publishedJson from '../../data/published.json';
 const lastmod: Record<string, string> = lastmodJson;
+const published: Record<string, string> = publishedJson;
 
 export function getStaticPaths() {
   return VARIANTS.map((v) => ({ params: { slug: v.slug }, props: { v } }));
@@ -14,7 +16,8 @@ const { v } = Astro.props;
 const url = `https://numpredo.com/variants/${v.slug}/`;
 const others = VARIANTS.filter((x) => x.slug !== v.slug);
 
-// 変種解説ページ → Article（著者/発行者で E-E-A-T、dateModified は既存の git 提交日を流用）
+// 変種解説ページ → Article（著者/発行者で E-E-A-T、datePublished/dateModified は既存の git 提交日を流用）
+const datePublished = published[`/variants/${v.slug}/`];
 const dateModified = lastmod[`/variants/${v.slug}/`];
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -26,6 +29,7 @@ const articleSchema = {
   image: 'https://numpredo.com/og-image.png',
   author: { '@type': 'Organization', name: 'numpredo', url: 'https://numpredo.com/' },
   publisher: { '@type': 'Organization', name: 'numpredo', logo: { '@type': 'ImageObject', url: 'https://numpredo.com/og-image.png' } },
+  ...(datePublished ? { datePublished } : {}),
   ...(dateModified ? { dateModified } : {}),
 };
 const faqSchema = {
