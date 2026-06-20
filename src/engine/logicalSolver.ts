@@ -298,11 +298,50 @@ export function traceFirstElimination(
         if (step.eliminations && step.eliminations.length) {
           return { grid: gPrev, candidates: candPrev, step };
         }
-        advanced = true; // 填入型步骤（裸单/隐单），继续推进
+        advanced = true; // 填入型步骤（裸単/隐単），继续推进
         break;
       }
     }
     if (!advanced) break;
   }
   return null;
+}
+
+/**
+ * 沿技巧链推进，捕获「每个关键步」执行前的盘面/候选快照 + 该步。供题目图解页逐步演示。
+ * 关键步 = 消除型步骤（有 eliminations）；includeSingles 时，纯填入型题也收代表单数步，避免空页。
+ */
+export function traceKeySteps(
+  grid: Grid,
+  opts: { maxSteps?: number } = {},
+): Array<{ grid: Grid; candidates: number[]; step: SolveStep }> {
+  const { maxSteps = 8 } = opts;
+  const s = initState(grid);
+  // 先完整推演，收集每一步「执行前」的盘面/候选快照（保持解题顺序）。
+  const all: Array<{ grid: Grid; candidates: number[]; step: SolveStep }> = [];
+  while (s.g.includes(0)) {
+    let advanced = false;
+    for (const tech of TECHNIQUES) {
+      const candPrev = s.cand.slice();
+      const gPrev = s.g.slice();
+      const step = tech(s);
+      if (step) {
+        all.push({ grid: gPrev, candidates: candPrev, step });
+        advanced = true;
+        break;
+      }
+    }
+    if (!advanced) break;
+  }
+  // 选步优先级：消除型「難しい一手」 > hiddenSingle（有教学价值） > nakedSingle（trivial）。
+  // 解题前期多是裸単填入，难点技巧在中后期——必须按技巧重要性选，而非取开头 N 步。
+  const elim = all.filter((x) => x.step.eliminations && x.step.eliminations.length);
+  if (elim.length >= maxSteps) return elim.slice(0, maxSteps);
+  const hidden = all.filter((x) => x.step.technique === 'hiddenSingle');
+  if (elim.length > 0) {
+    const keep = new Set<(typeof all)[number]>([...elim, ...hidden.slice(0, maxSteps - elim.length)]);
+    return all.filter((x) => keep.has(x)).slice(0, maxSteps); // 保持解题原序
+  }
+  if (hidden.length > 0) return hidden.slice(0, maxSteps);
+  return all.slice(0, Math.min(maxSteps, 4)); // 纯裸単的极初级题：展示前几手起步
 }
