@@ -10,6 +10,7 @@ const faq = [
   { q: '答え合わせだけしたいときも使えますか？', a: 'はい。自分で解いた答えが合っているか確かめたいときも、問題のマスを入力すれば正しい解答が表示されるので、答え合わせに使えます。無料・登録不要です。' },
   { q: '解が複数ある問題でも使えますか？', a: '入力した問題が「唯一解か」を自動で判定します。解が複数ある場合はその旨を表示し、一例を解答します。自力で解きたい方は<a href="/guide/how-to-solve/">解き方ガイド</a>をどうぞ。' },
   { q: '6×6 や変則ルール（キラー・対角線など）も解けますか？', a: 'このソルバーが対応しているのは 9×9 の標準的な数独（ナンプレ）です。6×6 などのサイズ違いや、キラー数独・対角線数独といった変則ルールには現在対応していません。各バリエーションのルールは<a href="/variants/6x6/">6×6数独</a>や<a href="/variants/killer/">キラー数独</a>の解説ページでご紹介しています。' },
+  { q: 'このソルバーは数独の解き方も教えてくれますか？', a: 'はい。「解く」を押すと、答えだけでなく論理だけで解く手順を一手ずつ図解で表示します。どの手筋を使うか、どのマスから埋まるかが分かるので、解き方の練習になります。手筋ごとのくわしい解説は<a href="/guide/how-to-solve/">解き方完全ガイド</a>をどうぞ。' },
 ];
 const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ自動解答ツール（写真ソルバー）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
@@ -35,6 +36,12 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 
   <p id="sv-msg" class="sv-msg"></p>
   <div id="sv-app"></div>
+
+  <div id="sv-steps" class="sv-steps" hidden></div>
+
+  <h2>答えだけでなく「数独・ナンプレの解き方」も一手ずつ表示します</h2>
+  <p>このソルバーは答えを出すだけではありません。「解く」を押すと、その問題を<strong>論理だけで解く手順</strong>を一手ずつ図解（解き方の手順）で表示します。どのマスから埋まるのか、どの手筋（テクニック）を使うのかを盤面付きで確認できるので、新聞・雑誌の答え合わせをしながら<strong>数独・ナンプレの解き方そのものを学べます</strong>。難易度の目安（初級〜超難問）も自動で判定します。</p>
+  <p>使う手筋は<a href="/guide/techniques/naked-pair/">ペア（二国同盟）</a>や<a href="/guide/techniques/x-wing/">X-Wing</a>など。一つひとつの解き方は<a href="/guide/how-to-solve/">解き方完全ガイド</a>でくわしく解説しています。当てずっぽうなしで、論理だけで解けるのが数独の魅力です。</p>
 
   <h2>写真・画像から数独を解く方法</h2>
   <p>スマホで撮影、または画像・スクリーンショットを選ぶだけで、数独・ナンプレの盤面を自動で読み取ります。読み取った数字は上の盤面に反映されるので、間違っているマスをタップして直し、「解く」を押すだけ。新聞や雑誌の数独を写真に撮って答え合わせするのに便利です。</p>
@@ -92,6 +99,17 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     .sv-msg.ok { color: var(--accent); }
     .sv-msg.warn { color: var(--ink-2); }
     .sv-msg.err { color: var(--num-error); }
+
+    .sv-steps { max-width: 760px; margin: 18px auto 0; }
+    .sv-steps h2 { margin-top: 8px; }
+    .sv-steps-badge { font-size: var(--text-sm); color: var(--ink-2); margin: 0 0 4px; }
+    .sv-steps-intro { font-size: 13px; color: var(--ink-3); margin: 0 0 12px; }
+    .sv-steps-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 16px; }
+    .sv-step { margin: 0; }
+    .sv-step svg { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .sv-step figcaption { font-size: 12px; color: var(--ink-3); margin-top: 6px; } .sv-step figcaption a { color: var(--accent); }
+    .sv-step p { font-size: 13px; color: var(--ink-3); margin: 6px 0 0; line-height: 1.6; }
+    @media (max-width: 560px) { .sv-steps-grid { grid-template-columns: 1fr; } }
 
     @media (min-width: 761px) { .sv-photo-cam { display: none; } }
     @media (max-width: 760px) {

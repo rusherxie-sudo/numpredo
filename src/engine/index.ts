@@ -5,5 +5,6 @@ export * from './board.ts';
 export { countSolutions, hasUniqueSolution, solveOne } from './countSolver.ts';
 export { logicalSolve, traceFirstElimination, traceKeySteps } from './logicalSolver.ts';
 export * from './svg.ts';
+export { TECH_INFO, renderStepFigures, type StepFigure } from './stepFigures.ts';
 export { TECH_WEIGHT, LEVELS, LEVEL_META, levelOf, levelFromHardestWeight } from './difficulty.ts';
 export { fullSolution, generatePuzzle, generateByLevel, LEVEL_MIN_CLUES } from './generator.ts';

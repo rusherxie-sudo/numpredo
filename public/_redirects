@@ -4,6 +4,8 @@
 /ja/play/easy/*    /play/beginner/ 301
 /ja/play/medium/*  /play/intermediate/ 301
 /ja/play/hard/*    /play/advanced/ 301
+/en/play/expert*   /play/extreme/ 301
+/en/play/master*   /play/extreme/ 301
 /en/play/*         /play/beginner/ 301
 /zh-CN/play/*      /play/beginner/ 301
 /zh-TW/play/*      /play/beginner/ 301
@@ -30,7 +32,7 @@
 /ja/sudoku-apps*     / 301
 /ja/logic-puzzles*   / 301
 /ja/number-puzzles*  / 301
-/ja/wrong-answer*    / 301
+/ja/wrong-answer*    /tools/solver/ 301
 /ja/bored*           / 301
 
 # About
@@ -85,6 +87,10 @@
 # Technique stubs not yet built → how-to-solve
 /guide/techniques/naked-single/   /guide/how-to-solve/ 301
 /guide/techniques/hidden-single/  /guide/how-to-solve/ 301
+
+# 旧英文 URL：GSC 仍有展现/排名，精准 301 到主题对口的新页（回收权重，胜过兜底到首页）
+/en/wrong-answer*    /tools/solver/ 301
+/en/sudoku-science*  /guide/brain-training/ 301
 
 # Language root redirects
 /en/*                / 301

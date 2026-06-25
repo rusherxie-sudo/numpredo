@@ -1,13 +1,14 @@
 // 数独ソルバー（写真・画像から読み取り → 可視盤面で確認・修正 → 自動求解）。
 // 求解は既存エンジンを完全再利用（純客户端・大模型不要）。識別は Tesseract.js を
 // 必要時のみ CDN から動的 import。識別が不完全でも盤面で手修正できるのが肝。
-import { solveOne, countSolutions } from '../engine/index.ts';
+import { solveOne, countSolutions, logicalSolve, traceKeySteps, renderStepFigures, levelOf, LEVEL_META, TECH_INFO } from '../engine/index.ts';
 
 const app = document.getElementById('sv-app');
 if (app) setup(app);
 
 function setup(app: HTMLElement): void {
   const msgEl = document.getElementById('sv-msg') as HTMLElement | null;
+  const stepsEl = document.getElementById('sv-steps') as HTMLElement | null;
   const photoInputs = Array.from(document.querySelectorAll<HTMLInputElement>('[data-photo]'));
 
   const SAMPLE = '..42.....3......6.5..3...71..5.72.43..39.65..21.53.6..15...3..4.8......5.....17..';
@@ -30,7 +31,7 @@ function setup(app: HTMLElement): void {
     if (cc === 2 || cc === 5) c.classList.add('sv-br');
     if (r === 2 || r === 5) c.classList.add('sv-bb');
     c.addEventListener('click', () => {
-      if (solved) solved = null; // 解答表示中なら入力モードに戻す
+      if (solved) { solved = null; clearSteps(); } // 解答表示中なら入力モードに戻す
       sel = i;
       render();
     });
@@ -120,6 +121,7 @@ function setup(app: HTMLElement): void {
   function input(n: number): void {
     if (sel < 0) return;
     solved = null; // 編集したら解答表示を解除
+    clearSteps();
     grid[sel] = n;
     render();
   }
@@ -184,6 +186,7 @@ function setup(app: HTMLElement): void {
     solved = sol;
     setMsg(n > 1 ? '※ 解が複数あります。一例を表示しています（緑が答え）。' : '解けました！緑の数字が答えです。盤面をタップすると再入力できます。', n > 1 ? 'warn' : 'ok');
     render();
+    renderSteps(grid.slice()); // 「解き方の手順」を図解表示（grid は元の問題＝題面）
   }
 
   async function onImage(file: File): Promise<void> {
@@ -206,6 +209,36 @@ function setup(app: HTMLElement): void {
 
   function clearOut(): void {
     solved = null;
+    clearSteps();
+  }
+  function clearSteps(): void {
+    if (!stepsEl) return;
+    stepsEl.innerHTML = '';
+    stepsEl.hidden = true;
+  }
+  // 「解き方の手順」：論理ソルバーで解析し要所を一手ずつ図解。
+  // 動的生成のためクローラーは見えないが、実ユーザーの理解・滞在・回遊（技巧ページ内リンク）を高める。
+  function renderSteps(puzzle: number[]): void {
+    if (!stepsEl) return;
+    const given = puzzle.map((v) => v !== 0);
+    const res = logicalSolve(puzzle.slice());
+    const keySteps = traceKeySteps(puzzle.slice());
+    if (!keySteps.length) {
+      clearSteps();
+      return;
+    }
+    const figs = renderStepFigures(keySteps, given, 30);
+    const level = LEVEL_META[levelOf(res)];
+    const hardestJa = res.hardest ? (TECH_INFO[res.hardest]?.ja ?? res.hardest) : '基本の手筋';
+    const badge = `<p class="sv-steps-badge">難易度の目安：<strong>${level.ja}</strong>（最難テクニック：${hardestJa}）</p>`;
+    const intro = res.solved
+      ? '<p class="sv-steps-intro">この問題を論理だけで解く手順を、要所だけ図解します。枠つきのマス・色つきの候補が注目点です。</p>'
+      : '<p class="sv-steps-intro">この問題は当サイトの論理ソルバーの手筋（X-Wingまで）では最後まで解けませんでした。<strong>ここまでは論理で解ける手順</strong>を図解します（答え自体は上の盤面に表示済みです）。</p>';
+    const steps = figs
+      .map((f) => `<figure class="sv-step">${f.svg}<figcaption>${f.label}${f.slug ? ` ・ <a href="/guide/techniques/${f.slug}/">くわしい解き方</a>` : ''}</figcaption><p>${f.text}</p></figure>`)
+      .join('');
+    stepsEl.innerHTML = `<h2>解き方の手順（自動）</h2>${badge}${intro}<div class="sv-steps-grid">${steps}</div>`;
+    stepsEl.hidden = false;
   }
   function setMsg(text: string, type: string): void {
     if (!msgEl) return;
