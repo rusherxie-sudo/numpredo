@@ -17,10 +17,6 @@ const ogType =
     ? 'article'
     : 'website';
 
-// 非ブロッキング読み込み：本文 Noto Sans JP、ロゴ/盤面の given 数字のみ Noto Serif JP（明朝・日式触点）
-const fontHref =
-  'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@600;700&display=swap';
-
 // グローバルナビ（active はパス接頭辞で判定）
 const nav: [string, string, string][] = [
   ['遊ぶ', '/play/beginner/', '/play'],
@@ -114,11 +110,6 @@ const footerCols = [
     <meta name="twitter:image" content="https://numpredo.com/og-image.png" />
     <meta name="twitter:image:alt" content="numpredo — 無料の数独・ナンプレ" />
     <meta name="robots" content="index,follow" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href={fontHref} />
-    <link rel="stylesheet" href={fontHref} media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href={fontHref} /></noscript>
     <slot name="head" />
 
     <!-- Google Analytics 4 — 经 Partytown 在 web worker 运行，不占主线程（保 CWV） -->

@@ -12,8 +12,11 @@
 
 :root {
   /* ---- Typography ---- */
-  --font-sans: 'Noto Sans JP', system-ui, -apple-system, sans-serif;
-  --font-mincho: 'Noto Serif JP', serif;            /* 仅 logo + 盘面 given 数字 */
+  /* 系统日文字体栈：零下载。原 Google Fonts Noto JP 在移动端要拉 37 个分片≈740KB，
+     把 LCP 拖到 6.9s(PSI 移动 60 分)。设备自带的 ヒラギノ/游ゴシック・游明朝 同样和风；
+     末尾保留 Noto 仅作「本地已装则用」兜底——无 @font-face 不会触发下载。 */
+  --font-sans: system-ui, -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', YuGothic, Meiryo, 'Noto Sans JP', sans-serif;
+  --font-mincho: 'Hiragino Mincho ProN', 'Yu Mincho', YuMincho, 'Noto Serif JP', serif;  /* 仅 logo + 盘面 given 数字 */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace; /* 数字/计时器/番号 */
 
   /* type scale */
