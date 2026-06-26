@@ -25,7 +25,8 @@ const setJson = JSON.stringify(set);
 </script>
 
 <style is:global>
-  [data-sudoku] { margin: 6px 0 26px; }
+  /* min-height：岛 hydration 前为盘面+侧栏预留高度，防止 JS 注入时撑开布局(CLS)。桌面盘面≈600px 主导高度。 */
+  [data-sudoku] { margin: 6px 0 26px; min-height: 600px; }
   .sk-layout { display: grid; grid-template-columns: 1fr 220px; gap: 28px; align-items: start; max-width: 880px; margin: 0 auto; }
   .sk-left { min-width: 0; position: relative; }
   .sk-board { position: relative; display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 600px; margin: 0 auto; border: 2px solid var(--box-line); background: var(--surface); }
@@ -124,7 +125,8 @@ const setJson = JSON.stringify(set);
 
   /* ===== モバイル（縦画面）専用レイアウト：盤面を主役に、片手で押せるキーボード ===== */
   @media (max-width: 760px) {
-    [data-sudoku] { margin: 2px 0 18px; }
+    /* モバイル：盤面(min(100vw,52vh)) + タイマー/キーボード/ツールバー ≈ +200px を予約(CLS 対策) */
+    [data-sudoku] { margin: 2px 0 18px; min-height: calc(min(100vw, 52vh) + 200px); }
     .sk-layout { grid-template-columns: 1fr; gap: 12px; max-width: 520px; }
     /* 盤面は満幅（指で押しやすい大きさ）。52vh 上限で下のキーボードも視野に */
     .sk-board { max-width: min(100%, 52vh); }
