@@ -7,6 +7,7 @@ import {
   type DifficultyLevel,
   type Grid,
 } from '../engine/index.ts';
+import { track } from './track.ts';
 
 const LEVEL_JA: Record<string, string> = {
   beginner: '初級',
@@ -81,6 +82,7 @@ function setup(): void {
         `<div class="answer-page"><h3>解答</h3><div class="az-grid">${ans}</div></div>`;
 
       status.textContent = `生成完了（${((Date.now() - t0) / 1000).toFixed(1)}秒）。印刷ダイアログを開きます…`;
+      track('print_pdf', { level, count, candidates: cand });
       setTimeout(() => window.print(), 300);
     }, 30);
   });

@@ -5,6 +5,7 @@ import {
   PEERS, UNITS, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf,
   gridFromString, generateByLevel, solveOne, type DifficultyLevel, type Grid,
 } from '../engine/index.ts';
+import { track } from './track.ts';
 
 interface PuzzlePair {
   puzzle: string;
@@ -480,6 +481,7 @@ function setup(root: HTMLElement): void {
 
   // —— 胜利演出 ——
   function showResult(prevBest: number): void {
+    track('game_complete', { level: levelJa, daily, record: isRecord });
     const lines = [`<div class="sk-r-title">クリア！</div>`];
     lines.push(`<div class="sk-r-time">${fmt(finalTime)}</div>`);
     if (isRecord) lines.push(`<div class="sk-r-rec">✦ 自己ベスト更新！</div>`);
@@ -493,6 +495,7 @@ function setup(root: HTMLElement): void {
     result.classList.add('on');
   }
   function share(): void {
+    track('share_click', { from: daily ? 'daily' : 'game', level: levelJa });
     const text = `numpredoで【${levelJa}】を ${fmt(finalTime)} でクリア！`;
     const nav = navigator as Navigator & { share?: (d: { title?: string; text?: string; url?: string }) => Promise<void> };
     if (nav.share) {

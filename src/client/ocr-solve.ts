@@ -2,6 +2,7 @@
 // 求解は既存エンジンを完全再利用（純客户端・大模型不要）。識別は Tesseract.js を
 // 必要時のみ CDN から動的 import。識別が不完全でも盤面で手修正できるのが肝。
 import { solveOne, countSolutions, logicalSolve, traceKeySteps, renderStepFigures, levelOf, LEVEL_META, TECH_INFO } from '../engine/index.ts';
+import { track } from './track.ts';
 
 const app = document.getElementById('sv-app');
 if (app) setup(app);
@@ -187,6 +188,7 @@ function setup(app: HTMLElement): void {
     setMsg(n > 1 ? '※ 解が複数あります。一例を表示しています（緑が答え）。' : '解けました！緑の数字が答えです。盤面をタップすると再入力できます。', n > 1 ? 'warn' : 'ok');
     render();
     renderSteps(grid.slice()); // 「解き方の手順」を図解表示（grid は元の問題＝題面）
+    track('solver_solve', { result: n > 1 ? 'multiple' : 'unique' });
   }
 
   async function onImage(file: File): Promise<void> {
@@ -200,6 +202,7 @@ function setup(app: HTMLElement): void {
       render();
       const filled = grid.filter((v) => v !== 0).length;
       setMsg(`写真から ${filled} マスを読み取りました。間違いを盤面で直してから「解く」を押してください。`, 'ok');
+      track('solver_ocr', { cells: filled });
     } catch (e) {
       setMsg('画像の読み取りに失敗しました。明るく正面から撮り直すか、盤面に手入力してください。', 'err');
     } finally {
@@ -239,6 +242,7 @@ function setup(app: HTMLElement): void {
       .join('');
     stepsEl.innerHTML = `<h2>解き方の手順（自動）</h2>${badge}${intro}<div class="sv-steps-grid">${steps}</div>`;
     stepsEl.hidden = false;
+    track('solver_steps_view', { level: level.ja, solved: res.solved });
   }
   function setMsg(text: string, type: string): void {
     if (!msgEl) return;
