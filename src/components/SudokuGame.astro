@@ -37,6 +37,8 @@ const setJson = JSON.stringify(set);
   .sk-same { background: var(--surface-3); }
   .sk-sel { background: var(--cell-sel-bg); box-shadow: inset 0 0 0 2px var(--accent); }
   .sk-err { color: var(--num-error) !important; text-decoration: underline wavy; text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+  /* 规则冲突（同行/列/宫重复）即时粉红高亮——客观、不剧透答案，双 class 提高特异性盖过 peer/same 背景 */
+  .sk-cell.sk-conflict { background: rgba(181, 48, 42, 0.16); }
   .sk-hint-cell { box-shadow: inset 0 0 0 2px var(--accent); background: rgba(43, 91, 122, 0.12); }
   .sk-wrong-cell { box-shadow: inset 0 0 0 2px var(--num-error); background: rgba(181, 48, 42, 0.12); }
   .sk-notes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; height: 100%; font-size: clamp(8px, 2vw, 11px); color: var(--ink-4); line-height: 1; }
@@ -132,8 +134,8 @@ const setJson = JSON.stringify(set);
     /* タイマー行（タイマー + 一時停止ボタン + 残数）*/
     .sk-timer { font-size: 22px; }
     /* キーボード：1-9 単行（「消す」は工具栏へ移動）→ 盤面を広く、親指で一列スキャン */
-    .sk-pad { grid-template-columns: repeat(9, 1fr); gap: 4px; margin-top: 12px; }
-    .sk-key { padding: 13px 0; font-size: 20px; }
+    .sk-pad { grid-template-columns: repeat(9, 1fr); gap: 3px; margin-top: 12px; }
+    .sk-key { padding: 16px 0; font-size: 24px; min-height: 52px; }
     .sk-kc { font-size: 9px; right: 3px; bottom: 2px; }
     /* 操作ボタンはアイコン+ラベルで1行に収める（sudoku.com 風・親指で押しやすい） */
     .sk-ctrl { flex-direction: row; flex-wrap: nowrap; gap: 6px; margin-top: 14px; }

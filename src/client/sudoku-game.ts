@@ -540,6 +540,10 @@ function setup(root: HTMLElement): void {
       else if (peerSet.has(i)) c.classList.add('sk-peer');
       if (hlVal && cur[i] === hlVal) c.classList.add('sk-same');
       if (checkErrors && cur[i] !== 0 && !given[i] && cur[i] !== solution[i]) c.classList.add('sk-err');
+      // 规则冲突：与同行/列/宫的相同数字重复 → 即时粉红高亮（客观、不剧透答案，与 checkErrors 开关无关）
+      if (cur[i] !== 0) {
+        for (const p of PEERS[i]) if (cur[p] === cur[i]) { c.classList.add('sk-conflict'); break; }
+      }
 
       if (cur[i] !== 0) {
         c.textContent = String(cur[i]);
