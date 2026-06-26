@@ -12,7 +12,9 @@ const lastmod = JSON.parse(
 
 export default defineConfig({
   site: 'https://numpredo.com',
-  build: { format: 'directory' },
+  // CSS 内联进 HTML:消除 render-blocking 的 <link> 请求 + 断开关键请求链(网络依赖树)。
+  // 内容站每页 CSS 仅 ~13KB(gzip 后更小)、零 JS,内联换来的首屏提速远超失去的跨页缓存。
+  build: { format: 'directory', inlineStylesheets: 'always' },
   integrations: [
     sitemap({
       // 给每个 URL 注入真实 <lastmod>；映射表里没有的页（理论上不会有）则不写，绝不用构建日兜底。

@@ -37,7 +37,7 @@
 
   /* ===== LIGHT ===== */
   --bg: #f4f6f5; --surface: #ffffff; --surface-2: #eef2f1; --surface-3: #e8edeb;
-  --ink: #14201b; --ink-2: #3f4a45; --ink-3: #5c6b66; --ink-4: #7e8a85;
+  --ink: #14201b; --ink-2: #3f4a45; --ink-3: #5c6b66; --ink-4: #66716b; /* ink-4 加深至对比≥4.5(a11y AA) */
   --line: #e6ebe9; --line-2: #d9e1de;
 
   --accent: #1f7a5c; --accent-ink: #156047; --accent-tint: #e4f1ec; --accent-on: #ffffff;
