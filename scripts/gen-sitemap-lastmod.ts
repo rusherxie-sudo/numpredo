@@ -75,12 +75,14 @@ const map: Record<string, string> = {};
 
 for (const rel of listPages()) {
   if (rel.includes('[')) {
-    // 嵌套双参数路由 play/[level]/[n]：level × (1..12)。slugsFromData 只提单层 slug，特判处理。
+    // 嵌套双参数路由 play/[level]/[n]：level × (1..题库题数)。slugsFromData 只提单层 slug，特判处理。
     if (rel === 'play/[level]/[n].astro') {
       for (const lv of slugsFromData('src/data/levels.ts')) {
-        const d = gitLastmod([`${PAGES}/${rel}`, `src/data/puzzles/${lv}.json`]);
+        const pf = `src/data/puzzles/${lv}.json`;
+        const d = gitLastmod([`${PAGES}/${rel}`, pf]);
         if (!d) continue;
-        for (let nn = 1; nn <= 12; nn++) map[`/play/${lv}/${nn}/`] = d;
+        const count = JSON.parse(readFileSync(pf, 'utf-8')).puzzles.length; // = [n].astro 的「题库每题一页」
+        for (let nn = 1; nn <= count; nn++) map[`/play/${lv}/${nn}/`] = d;
       }
       continue;
     }

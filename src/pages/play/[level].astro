@@ -118,7 +118,7 @@ const breadcrumbSchema = {
 
   <h2>{meta.ja}の問題集・一手ずつ図解</h2>
   <p>{meta.ja}の問題を、解答エンジンの手順どおりに一手ずつ図解で解説しています。詰まったときの「次の一手」の参考にどうぞ。</p>
-  <ul>{Array.from({ length: 12 }, (_, i) => i + 1).filter((i) => meta.puzzles[i - 1]).map((i) => <li><a href={`/play/${meta.slug}/${i}/`}>数独{meta.ja} No.{i} の解き方図解</a></li>)}</ul>
+  <ul class="setlist">{Array.from({ length: meta.puzzles.length }, (_, i) => i + 1).map((i) => <li><a href={`/play/${meta.slug}/${i}/`}>数独{meta.ja} No.{i} の解き方図解</a></li>)}</ul>
 
   <h2>他の難易度で遊ぶ</h2>
   <ul>{others.map((l) => <li><a href={`/play/${l.slug}/`}>{l.ja}（{l.en}）</a></li>)}</ul>
@@ -139,6 +139,9 @@ const breadcrumbSchema = {
     .faq dd { margin: 5px 0 0; color: var(--ink-3); }
     main ul { line-height: 2; }
     main ul a { color: var(--accent); }
+    .setlist { columns: 3; column-gap: 24px; }
+    .setlist li { break-inside: avoid; }
+    @media (max-width: 760px) { .setlist { columns: 2; } }
 
     .fig-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 14px 0; }
     .guide-fig { flex: 1 1 240px; margin: 0; text-align: center; }

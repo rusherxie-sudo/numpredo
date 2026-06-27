@@ -8,14 +8,10 @@ import publishedJson from '../../../data/published.json';
 const lastmod: Record<string, string> = lastmodJson;
 const published: Record<string, string> = publishedJson;
 
-const PER_LEVEL = 12;
-
 export function getStaticPaths() {
-  const per = 12; // getStaticPaths 独立作用域，不能引用 frontmatter 顶层常量 PER_LEVEL
+  // 題目集页 = 题库每题一页(无人为上限):题库多少题就出多少页,加题库自动加页。
   return LEVELS.flatMap((meta) =>
-    Array.from({ length: per }, (_, i) => i + 1)
-      .filter((n) => meta.puzzles[n - 1])
-      .map((n) => ({ params: { level: meta.slug, n: String(n) }, props: { meta, n } })),
+    meta.puzzles.map((_, i) => ({ params: { level: meta.slug, n: String(i + 1) }, props: { meta, n: i + 1 } })),
   );
 }
 
@@ -41,8 +37,8 @@ const svgPuzzle = renderBoardSvg(grid, { given, theme: TOKEN_THEME, cell: 34, ti
 // 各キーステップの図解 SVG + 説明（engine の共通関数で生成）
 const stepFigs = renderStepFigures(keySteps, given);
 
-// 他の問題（同档相邻 + 他难度同编号）
-const sameLevelNs = Array.from({ length: PER_LEVEL }, (_, i) => i + 1).filter((x) => x !== n && meta.puzzles[x - 1]);
+// 他の問題（同档相邻 ±6 を内部リンク。全件は档主页=枢纽が列挙、ここは近隣のみで過剰リンク回避）
+const sameLevelNs = Array.from({ length: meta.puzzles.length }, (_, i) => i + 1).filter((x) => x !== n && Math.abs(x - n) <= 6);
 const otherLevels = LEVELS.filter((l) => l.slug !== meta.slug);
 
 const title = `数独${meta.ja} No.${n}｜一手ずつ図解で解き方 - numpredo`;
