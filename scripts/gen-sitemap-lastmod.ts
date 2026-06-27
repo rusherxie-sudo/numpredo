@@ -81,7 +81,7 @@ for (const rel of listPages()) {
         const pf = `src/data/puzzles/${lv}.json`;
         const d = gitLastmod([`${PAGES}/${rel}`, pf]);
         if (!d) continue;
-        const count = JSON.parse(readFileSync(pf, 'utf-8')).puzzles.length; // = [n].astro 的「题库每题一页」
+        const count = Math.min(30, JSON.parse(readFileSync(pf, 'utf-8')).puzzles.length); // = [n].astro 的 SETS_PER_LEVEL
         for (let nn = 1; nn <= count; nn++) map[`/play/${lv}/${nn}/`] = d;
       }
       continue;

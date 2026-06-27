@@ -118,7 +118,7 @@ const breadcrumbSchema = {
 
   <h2>{meta.ja}の問題集・一手ずつ図解</h2>
   <p>{meta.ja}の問題を、解答エンジンの手順どおりに一手ずつ図解で解説しています。詰まったときの「次の一手」の参考にどうぞ。</p>
-  <ul class="setlist">{Array.from({ length: meta.puzzles.length }, (_, i) => i + 1).map((i) => <li><a href={`/play/${meta.slug}/${i}/`}>数独{meta.ja} No.{i} の解き方図解</a></li>)}</ul>
+  <ul class="setlist">{Array.from({ length: Math.min(30, meta.puzzles.length) }, (_, i) => i + 1).map((i) => <li><a href={`/play/${meta.slug}/${i}/`}>数独{meta.ja} No.{i} の解き方図解</a></li>)}</ul>
 
   <h2>他の難易度で遊ぶ</h2>
   <ul>{others.map((l) => <li><a href={`/play/${l.slug}/`}>{l.ja}（{l.en}）</a></li>)}</ul>
