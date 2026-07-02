@@ -113,6 +113,7 @@ const orgSchema = {
           </a>
         ))}
       </div>
+      <p class="hp-guidelinks">よく読まれる解説：<a href="/guide/sudoku-vs-numpre/">数独とナンプレの違い</a><a href="/guide/rules/">数独のルール</a><a href="/guide/how-to-solve/">数独の解き方</a><a href="/guide/when-stuck/">行き詰まったときは</a></p>
     </div>
   </section>
 
@@ -191,6 +192,9 @@ const orgSchema = {
     .hp-tool-ic { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--accent-tint); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; font-family: var(--font-mincho); margin-bottom: 16px; }
     .hp-tool-name { font-size: var(--text-base); font-weight: 700; margin-bottom: 7px; }
     .hp-tool-desc { font-size: var(--text-sm); line-height: 1.8; color: var(--ink-3); margin: 0; }
+    .hp-guidelinks { font-size: var(--text-sm); color: var(--ink-4); margin: 22px 0 0; line-height: 2; }
+    .hp-guidelinks a { color: var(--accent); text-decoration: none; margin: 0 10px; font-weight: 500; white-space: nowrap; }
+    .hp-guidelinks a:hover { text-decoration: underline; }
 
     .hp-why { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 24px; }
     .hp-why-i { text-align: center; }
