@@ -4,7 +4,7 @@
 // daily 模式：按 JST 日序号顺序选题（data-daystart 窗口偏移，全员同日同題），显示日期 + 连续记录(streak)。
 // 进度自动保存(localStorage，刷新不丢)、撤销、数字剩余计数、メモ自动清除、方向键、提示、胜利演出。
 import {
-  PEERS, UNITS, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf,
+  DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf,
   gridFromString, solveOne, type DifficultyLevel, type Grid,
 } from '../engine/index.ts';
 import { track } from './track.ts';
@@ -97,6 +97,11 @@ function setup(root: HTMLElement): void {
   const levelJa = root.dataset.levelja ?? '数独';
   const daily = root.dataset.daily === '1';
   const shareUrl = root.dataset.url ?? 'https://numpredo.com/';
+  // 変体上下文：data-variant="diagonal" で units/peers を対角線入りに差し替え——
+  // 衝突チェック・メモ自動消去・ヒント・エリア完成が全部対角線制約込みで動く
+  const variant = root.dataset.variant ?? '';
+  const ctx = variant === 'diagonal' ? buildContext(DIAGONAL_UNITS) : STANDARD_CONTEXT;
+  const diagCells = variant === 'diagonal' ? new Set(DIAGONAL_UNITS.flat()) : new Set<number>();
   if (!set.length) return;
 
   let puzzleGrid: Grid = [];
@@ -161,7 +166,7 @@ function setup(root: HTMLElement): void {
 
   // —— 棋盘格（role=grid > role=row > role=gridcell 合规层级；行容器 display:contents 不影响 CSS grid 布局）——
   board.setAttribute('role', 'grid');
-  board.setAttribute('aria-label', '数独の盤面（9×9）');
+  board.setAttribute('aria-label', variant === 'diagonal' ? '数独の盤面（9×9・対角線ルール）' : '数独の盤面（9×9）');
   const cells: HTMLButtonElement[] = [];
   for (let r = 0; r < 9; r++) {
     const rowEl = el('div', 'sk-rowg');
@@ -270,9 +275,9 @@ function setup(root: HTMLElement): void {
       const wasToggleOff = cur[selected] === d;
       cur[selected] = wasToggleOff ? 0 : d;
       notes[selected] = 0;
-      // メモ自动清除：填入数字时，从同行・列・宫的候选笔记里移除该数字
+      // メモ自动清除：填入数字时，从同 unit（行・列・宫，変体では対角線も）的候选笔记里移除该数字
       if (!wasToggleOff) {
-        for (const p of PEERS[selected]) notes[p] &= ~bit(d);
+        for (const p of ctx.peers[selected]) notes[p] &= ~bit(d);
       }
       highlightDigit = wasToggleOff ? 0 : d; // 填入后顺带高亮该数字全盘，帮你看分布
     }
@@ -340,7 +345,7 @@ function setup(root: HTMLElement): void {
   // —— 区域完成即时反馈（填满一行/列/宫且全部正确 → 该 9 格脉冲一下）——
   function checkAreaComplete(cell: number): void {
     if (cell < 0) return;
-    for (const u of UNITS) {
+    for (const u of ctx.units) {
       if (!u.includes(cell)) continue;
       if (u.every((i) => cur[i] !== 0 && cur[i] === solution[i])) flashArea(u);
     }
@@ -396,7 +401,7 @@ function setup(root: HTMLElement): void {
     for (let i = 0; i < 81; i++) {
       if (g[i] !== 0) continue;
       let m = MASK_ALL;
-      for (const p of PEERS[i]) if (g[p]) m &= ~bit(g[p]);
+      for (const p of ctx.peers[i]) if (g[p]) m &= ~bit(g[p]);
       cand[i] = m;
     }
     // 裸单数：候选只剩一个
@@ -405,8 +410,8 @@ function setup(root: HTMLElement): void {
         return { cell: i, digit: digitsOf(cand[i])[0], tech: 'nakedSingle' };
       }
     }
-    // 隐单数：某数字在单元内只剩一处
-    for (const u of UNITS) {
+    // 隐单数：某数字在单元内只剩一处（変体では対角線 unit も対象）
+    for (const u of ctx.units) {
       for (let d = 1; d <= 9; d++) {
         let spot = -1, n = 0;
         for (const c of u) if (g[c] === 0 && cand[c] & bit(d)) { n++; spot = c; }
@@ -567,7 +572,7 @@ function setup(root: HTMLElement): void {
   function render(): void {
     const selVal = selected >= 0 ? cur[selected] : 0;
     const hlVal = highlightDigit > 0 ? highlightDigit : selVal; // 高亮：数字键扫描优先，否则随选中格值
-    const peerSet = selected >= 0 ? new Set(PEERS[selected]) : new Set<number>();
+    const peerSet = selected >= 0 ? new Set(ctx.peers[selected]) : new Set<number>();
     board.classList.toggle('sk-pencil-on', pencil); // 笔记模式 → 盘面状态反馈
     let rem = 0;
     const counts = new Array(10).fill(0);
@@ -577,14 +582,15 @@ function setup(root: HTMLElement): void {
       c.className = ['sk-cell', ...keep].join(' ');
       if (colOf(i) % 3 === 2 && colOf(i) !== 8) c.classList.add('sk-br');
       if (rowOf(i) % 3 === 2 && rowOf(i) !== 8) c.classList.add('sk-bb');
+      if (diagCells.has(i)) c.classList.add('sk-diag'); // 対角線変体：対角線マスの色分け（毎フレーム再付与）
       if (given[i]) c.classList.add('sk-given');
       if (i === selected) c.classList.add('sk-sel');
       else if (peerSet.has(i)) c.classList.add('sk-peer');
       if (hlVal && cur[i] === hlVal) c.classList.add('sk-same');
       if (checkErrors && cur[i] !== 0 && !given[i] && cur[i] !== solution[i]) c.classList.add('sk-err');
-      // 规则冲突：与同行/列/宫的相同数字重复 → 即时粉红高亮（客观、不剧透答案，与 checkErrors 开关无关）
+      // 规则冲突：与同 unit（行/列/宫，変体では対角線も）的相同数字重复 → 即时粉红高亮（客观、不剧透答案）
       if (cur[i] !== 0) {
-        for (const p of PEERS[i]) if (cur[p] === cur[i]) { c.classList.add('sk-conflict'); break; }
+        for (const p of ctx.peers[i]) if (cur[p] === cur[i]) { c.classList.add('sk-conflict'); break; }
       }
 
       if (cur[i] !== 0) {

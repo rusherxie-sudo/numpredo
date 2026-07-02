@@ -1,5 +1,5 @@
 ---
-// 可玩数独岛（和モダン）。play/[level] 与 daily 共用，避免样式/脚本重复。
+// 可玩数独岛（和モダン）。play/[level]・daily・変体页（variants/diagonal）共用，避免样式/脚本重复。
 interface Props {
   level: string;
   levelJa: string;
@@ -8,8 +8,10 @@ interface Props {
   set: Array<{ puzzle: string; solution?: string; level?: string }>;
   /** daily 专用：嵌入窗口首日的 JST 日序号（见 daily.astro 的窗口裁剪注释） */
   daystart?: number;
+  /** 変体规则：'diagonal' = 対角線数独（units/peers 换成对角线上下文 + 対角線マス色分け） */
+  variant?: string;
 }
-const { level, levelJa, daily = false, url = 'https://numpredo.com/', set, daystart } = Astro.props;
+const { level, levelJa, daily = false, url = 'https://numpredo.com/', set, daystart, variant } = Astro.props;
 const setJson = JSON.stringify(set);
 ---
 
@@ -20,6 +22,7 @@ const setJson = JSON.stringify(set);
   data-url={url}
   data-daily={daily ? '1' : '0'}
   data-daystart={daystart}
+  data-variant={variant}
   data-set={setJson}
 ></div>
 
@@ -47,6 +50,9 @@ const setJson = JSON.stringify(set);
   .sk-err { color: var(--num-error) !important; text-decoration: underline wavy; text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
   /* 规则冲突（同行/列/宫重复）即时粉红高亮——客观、不剧透答案，双 class 提高特异性盖过 peer/same 背景 */
   .sk-cell.sk-conflict { background: rgba(181, 48, 42, 0.16); }
+  /* 対角線変体：対角線マスに淡い朱をのせる。background-image の重ね層なので
+     peer/same/sel の background(-color) 状態と共存する（conflict/sel は shorthand で上書き＝強調優先） */
+  .sk-cell.sk-diag { background-image: linear-gradient(rgba(200, 70, 60, 0.09), rgba(200, 70, 60, 0.09)); }
   .sk-hint-cell { box-shadow: inset 0 0 0 2px var(--accent); background: rgba(43, 91, 122, 0.12); }
   .sk-wrong-cell { box-shadow: inset 0 0 0 2px var(--num-error); background: rgba(181, 48, 42, 0.12); }
   .sk-notes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; height: 100%; font-size: clamp(8px, 2vw, 11px); color: var(--ink-4); line-height: 1; }
