@@ -16,7 +16,9 @@ jobs:
         with:
           node-version: 24 # demo.ts 用 node 原生跑 .ts(type stripping),需 Node 23+
       - run: npm ci
-      - name: 引擎品质断言（唯一解 + 逻辑可解 + 解一致）
+      - name: TypeScript 类型检查（客户端代码无测试覆盖，这是它唯一的静态防线）
+        run: npx tsc --noEmit
+      - name: 引擎品质断言（三断言 + 题库全量复核 + 技巧链键完备）
         run: npm run demo
       - name: 验证 SSG 构建（含构建期 SVG / 题库读取）
         run: npm run build

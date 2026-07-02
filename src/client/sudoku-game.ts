@@ -29,6 +29,20 @@ interface Saved {
   day?: string; // daily 模式的日期校验
 }
 
+// localStorage 在部分环境（Safari「すべてのCookieをブロック」/ 一部 WebView）下**访问即抛异常**——
+// 统一走 safe 包装：存取失败静默降级（游戏照玩，只是不保存/不恢复），避免 setup 同步流程整体崩溃。
+const store = {
+  get: (k: string): string | null => {
+    try { return store.get(k); } catch { return null; }
+  },
+  set: (k: string, v: string): void => {
+    try { store.set(k, v); } catch { /* 降级：不保存 */ }
+  },
+  remove: (k: string): void => {
+    try { store.remove(k); } catch { /* noop */ }
+  },
+};
+
 const pad2 = (n: number): string => (n < 10 ? '0' : '') + n;
 const fmt = (ms: number): string => `${pad2((ms / 60000) | 0)}:${pad2(((ms / 1000) | 0) % 60)}`;
 const gridToStr = (g: Grid): string => g.join('');
@@ -103,7 +117,7 @@ function setup(root: HTMLElement): void {
   let poolIdx = 0; // 当前题在嵌入题库 set 中的下标（「別の問題」循环消费用）
   let start = Date.now();
   let timer: ReturnType<typeof setInterval> | null = null;
-  let checkErrors = localStorage.getItem('numpredo.pref.check') !== '0';
+  let checkErrors = store.get('numpredo.pref.check') !== '0';
 
   const elapsed = (): number => (done ? finalTime : paused ? elapsedBase : elapsedBase + (Date.now() - start));
 
@@ -198,7 +212,7 @@ function setup(root: HTMLElement): void {
   checkBox.checked = checkErrors;
   checkBox.addEventListener('change', () => {
     checkErrors = checkBox.checked;
-    localStorage.setItem('numpredo.pref.check', checkErrors ? '1' : '0');
+    store.set('numpredo.pref.check', checkErrors ? '1' : '0');
     render();
   });
   checkRow.append(checkBox, document.createTextNode(' 間違いを赤く表示'));
@@ -292,9 +306,9 @@ function setup(root: HTMLElement): void {
     done = true;
     finalTime = elapsedBase + (Date.now() - start);
     if (timer) clearInterval(timer);
-    const prev = Number(localStorage.getItem(bestKey()) || '0');
+    const prev = Number(store.get(bestKey()) || '0');
     isRecord = prev === 0 || finalTime < prev;
-    if (isRecord) localStorage.setItem(bestKey(), String(finalTime));
+    if (isRecord) store.set(bestKey(), String(finalTime));
     if (daily) { bumpStreak(); fillDaily(); }
     track('game_complete', { level: levelJa, daily, record: isRecord });
     renderResult(prev);
@@ -434,14 +448,14 @@ function setup(root: HTMLElement): void {
     render();
   }
   function restart(): void {
-    localStorage.removeItem(progKey());
+    store.remove(progKey());
     apply(puzzleGrid.slice(), solution.slice());
   }
   // 「別の問題」：预生成池内循环（难度保真、零等待）。set 由 play/[level].astro 嵌入 30 道，
   // 与图解页 No.1〜30 一一对应（?n= 直达同一下标）。
   function newPuzzle(): void {
     if (set.length < 2) return;
-    localStorage.removeItem(progKey());
+    store.remove(progKey());
     poolIdx = (poolIdx + 1) % set.length;
     const nx = set[poolIdx];
     const pz = gridFromString(nx.puzzle);
@@ -463,15 +477,16 @@ function setup(root: HTMLElement): void {
       d: done ? 1 : 0,
     };
     if (daily) data.day = jstDayStr();
-    try { localStorage.setItem(progKey(), JSON.stringify(data)); } catch { /* 容量超限忽略 */ }
+    store.set(progKey(), JSON.stringify(data)); // store 内部已兜异常（容量超限/不可用 → 静默不保存）
   }
   function load(): Saved | null {
     try {
-      const raw = localStorage.getItem(progKey());
+      const raw = store.get(progKey());
       if (!raw) return null;
       const o = JSON.parse(raw) as Saved;
       if (daily && o.day !== jstDayStr()) return null; // 跨日失效（JST 基準）
-      if (!o.p || !o.s || !o.c || o.c.length !== 81) return null;
+      // 三个盘面串都必须 81 位——损坏存档若只查 c，p/s 会在 gridFromString 处抛异常砸掉整个岛
+      if (o.p?.length !== 81 || o.s?.length !== 81 || o.c?.length !== 81) return null;
       return o;
     } catch { return null; }
   }
@@ -479,18 +494,18 @@ function setup(root: HTMLElement): void {
   // —— daily：日期 + 连续记录 ——
   function bumpStreak(): void {
     const today = jstDayStr();
-    const last = localStorage.getItem('numpredo.daily.last');
+    const last = store.get('numpredo.daily.last');
     if (last === today) return;
-    const streak = last === jstDayStr(-1) ? Number(localStorage.getItem('numpredo.daily.streak') || '0') + 1 : 1;
-    localStorage.setItem('numpredo.daily.last', today);
-    localStorage.setItem('numpredo.daily.streak', String(streak));
+    const streak = last === jstDayStr(-1) ? Number(store.get('numpredo.daily.streak') || '0') + 1 : 1;
+    store.set('numpredo.daily.last', today);
+    store.set('numpredo.daily.streak', String(streak));
   }
   function fillDaily(): void {
     const { m, d } = jstParts();
     // 断签即视为归零：last 不是今天/昨天时，旧 streak 只是历史值，显示会误导（bumpStreak 下次完成会重置）
-    const last = localStorage.getItem('numpredo.daily.last');
+    const last = store.get('numpredo.daily.last');
     const active = last === jstDayStr() || last === jstDayStr(-1);
-    const streak = active ? Number(localStorage.getItem('numpredo.daily.streak') || '0') : 0;
+    const streak = active ? Number(store.get('numpredo.daily.streak') || '0') : 0;
     const doneToday = last === jstDayStr();
     const lvJa = LV_JA[dailyLevel] ?? '';
     dailyEl.innerHTML =
@@ -653,7 +668,7 @@ function setup(root: HTMLElement): void {
     if (i >= 0) poolIdx = i; // 存档题在池内 → 「別の問題」从它继续往后循环
     apply(gridFromString(saved.p), gridFromString(saved.s), saved);
     // 完成局照样恢复：盘面保持完成态 + 成绩卡（无彩屑/不重复上报），并给「次の問題へ」入口
-    if (done) renderResult(Number(localStorage.getItem(bestKey()) || '0'));
+    if (done) renderResult(Number(store.get(bestKey()) || '0'));
   } else {
     const fpz = gridFromString(target.puzzle);
     // daily は solution 未配信 → solveOne で現算（play は予生成 solution をそのまま使う）

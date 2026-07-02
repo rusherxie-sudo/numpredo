@@ -15,11 +15,14 @@
     "preview": "astro preview"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22.6"
   },
   "dependencies": {
     "@astrojs/partytown": "^2.1.7",
     "@astrojs/sitemap": "^3.7.3",
     "astro": "^5.13.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3"
   }
 }

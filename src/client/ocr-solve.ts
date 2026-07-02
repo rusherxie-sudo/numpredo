@@ -260,7 +260,11 @@ function setup(app: HTMLElement): void {
     const steps = figs
       .map((f) => `<figure class="sv-step">${f.svg}<figcaption>${f.label}${f.slug ? ` ・ <a href="/guide/techniques/${f.slug}/">くわしい解き方</a>` : ''}</figcaption><p>${f.text}</p></figure>`)
       .join('');
-    stepsEl.innerHTML = `<h2>解き方の手順（自動）</h2>${badge}${intro}<div class="sv-steps-grid">${steps}</div>`;
+    // 解答後の次の一歩（用完即走の受け皿：練習・学習への回遊導線）
+    const next =
+      `<p class="sv-next">答え合わせができたら：<a href="/play/${levelOf(res)}/">同じ難易度（${level.ja}）を自分で解いてみる</a>` +
+      ` ・ <a href="/guide/how-to-solve/">解き方を基礎から学ぶ</a> ・ <a href="/print/">問題集を印刷する</a></p>`;
+    stepsEl.innerHTML = `<h2>解き方の手順（自動）</h2>${badge}${intro}<div class="sv-steps-grid">${steps}</div>${next}`;
     stepsEl.hidden = false;
     track('solver_steps_view', { level: level.ja, solved: res.solved });
   }
@@ -410,8 +414,10 @@ function fileToImage(file: File): Promise<HTMLImageElement> {
   });
 }
 
-// Tesseract.js を必要時のみ CDN から動的ロード（本体バンドルに含めない）
+// Tesseract.js を必要時のみ CDN から動的ロード（本体バンドルに含めない）。
+// バージョンは**厳密固定**：範囲指定（@5）だと esm.sh 側の解決が変わった日に挙動が変わる。
 async function loadTesseract(): Promise<any> {
-  const mod: any = await import(/* @vite-ignore */ 'https://esm.sh/tesseract.js@5');
+  // @ts-expect-error -- リモート URL import には型定義がない（実行時は Vite が素通しする）
+  const mod: any = await import(/* @vite-ignore */ 'https://esm.sh/tesseract.js@5.1.1');
   return mod.default ?? mod;
 }

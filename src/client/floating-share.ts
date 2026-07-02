@@ -1,4 +1,5 @@
 // 浮动分享按钮：展开渠道菜单 + 各 SNS 分享 / リンクコピー（当前ページ URL を実行時取得）。
+export {}; // 顶层 const 与其他入口脚本同名（如 site-nav 的 toggle）——标记为模块，隔离作用域让 tsc 通过
 const toggle = document.querySelector<HTMLButtonElement>('[data-fsh-toggle]');
 const menu = document.querySelector<HTMLElement>('[data-fsh-menu]');
 const shareText = '無料で遊べるナンプレ「numpredo」で毎日数独！';
@@ -26,12 +27,20 @@ menu?.querySelectorAll<HTMLButtonElement>('[data-ch]').forEach((btn) => {
     else if (ch === 'hatena') window.open(`https://b.hatena.ne.jp/add?mode=confirm&url=${u}&title=${t}`, '_blank', 'noopener');
     else if (ch === 'copy') {
       const label = btn.querySelector('.fsh-dot')?.outerHTML ?? '';
-      navigator.clipboard?.writeText(location.href).then(() => {
-        btn.innerHTML = label + 'コピーしました ✓';
-        setTimeout(() => {
-          btn.innerHTML = label + 'リンクをコピー';
-        }, 1800);
-      });
+      navigator.clipboard
+        ?.writeText(location.href)
+        .then(() => {
+          btn.innerHTML = label + 'コピーしました ✓';
+          setTimeout(() => {
+            btn.innerHTML = label + 'リンクをコピー';
+          }, 1800);
+        })
+        .catch(() => {
+          btn.innerHTML = label + 'コピーできませんでした';
+          setTimeout(() => {
+            btn.innerHTML = label + 'リンクをコピー';
+          }, 1800);
+        });
     }
   });
 });
