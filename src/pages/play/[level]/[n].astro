@@ -47,13 +47,28 @@ const sameLevelNs = Array.from({ length: Math.min(SETS_PER_LEVEL, meta.puzzles.l
 const otherLevels = LEVELS.filter((l) => l.slug !== meta.slug);
 
 const title = `数独${meta.ja} No.${n}｜一手ずつ図解で解き方 - numpredo`;
-const description = `数独（ナンプレ）${meta.ja}の問題 No.${n}を一手ずつ図解で解説。ヒント${clues}個、最難テクニックは${hardestInfo.ja}。当てずっぽうなしで論理だけで解ける手順を、盤面付きでわかりやすく。`;
+const description = `数独（ナンプレ）${meta.ja}の問題 No.${n}を一手ずつ図解で解説。ヒント${clues}個・論理で解ける手数は全${sol.steps.length}手、最難テクニックは${hardestInfo.ja}。当てずっぽうなしで解ける手順を盤面付きで。`;
 const h1 = `数独${meta.ja} No.${n}｜一手ずつ図解で解き方`;
 
+// FAQ 第2・3問は3套措辞按 n%3 轮换：同档30页逐字相同の定型文が FAQPage JSON-LD で並ぶのを避ける
+// （第1問は clues/手数/最難技巧が入るため元々ページ固有）
+const faqStuck = [
+  `まず全空きマスに候補をメモしましょう。それでも詰まったら、このページの「一手ずつ図解」で${hardestInfo.ja}の使いどころを確認してください。`,
+  `候補のメモを最新の状態に整えるのが先決です。行き詰まったら、図解の該当手順まで進めて、${hardestInfo.ja}をどこで使うかを見比べてみてください。`,
+  `詰まったときは、消せる候補の見落としがないかを疑いましょう。このページの図解で、${hardestInfo.ja}が登場する場面を確認するのが近道です。`,
+];
+const faqStuckLink = hardestInfo.slug
+  ? `くわしくは<a href="/guide/techniques/${hardestInfo.slug}/">${hardestInfo.ja}の解き方</a>へ。`
+  : '基本は<a href="/guide/beginner/">単数の見つけ方</a>で解けます。';
+const faqNoGuess = [
+  'はい。当サイトの問題はすべて「解が一つだけ」「論理だけで解ける」ことを検証済みです。図解の手順どおりに進めれば、必ず次の一手が見つかります。',
+  `はい。この問題は機械検証で唯一解・論理のみで解けることを確認済みです。全${sol.steps.length}手のどこにも当てずっぽうは登場しません。`,
+  'はい。仮置き（トライ＆エラー）は一切不要です。掲載している図解も、実際に論理だけで解いた手順をそのまま示しています。',
+];
 const faq = [
   { q: `この数独${meta.ja} No.${n}の難易度は？`, a: `ヒント（最初から入っている数字）は${clues}個、論理だけで解ける手数は全${sol.steps.length}手です。この問題を解くカギは「${hardestInfo.ja}」。当てずっぽうなしで、図解の手順どおりに進めれば必ず解けます。` },
-  { q: '解けないときはどうすればいい？', a: `まず全空きマスに候補をメモしましょう。それでも詰まったら、このページの「一手ずつ図解」で${hardestInfo.ja}の使いどころを確認してください。${hardestInfo.slug ? `くわしくは<a href="/guide/techniques/${hardestInfo.slug}/">${hardestInfo.ja}の解き方</a>へ。` : '基本は<a href="/guide/beginner/">単数の見つけ方</a>で解けます。'}` },
-  { q: 'この問題は当てずっぽうなしで解けますか？', a: 'はい。当サイトの問題はすべて「解が一つだけ」「論理だけで解ける」ことを検証済みです。図解の手順どおりに進めれば、必ず次の一手が見つかります。' },
+  { q: '解けないときはどうすればいい？', a: `${faqStuck[n % 3]}${faqStuckLink}` },
+  { q: 'この問題は当てずっぽうなしで解けますか？', a: faqNoGuess[n % 3] },
 ];
 
 const dateModified = lastmod[`/play/${meta.slug}/${n}/`];

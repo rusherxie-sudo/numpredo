@@ -3,15 +3,84 @@
 import { renderBoardSvg, TOKEN_THEME } from './svg.ts';
 import type { Grid, SolveStep } from './types.ts';
 
-/** 技巧元数据：日语名 ＋ 技巧详解页 slug ＋ 一句说明（数据驱动每步文案） */
+// ---- 説明文の部品：消去ステップを盤面の実データ（どのマスから・どの数字を消すか）で具体化する ----
+// 同構造ページ（題目集 150 頁）の文面が金太郎飴にならないよう、説明は eliminations から生成し、
+// 言い回しは盤面座標から**決定的に**選ぶ（Math.random 不使用 → ビルド再現性を保つ）。
+
+const rcJa = (c: number): string => `${((c / 9) | 0) + 1}行${(c % 9) + 1}列`;
+
+/** 消去先の要約：「3行7列のマス」「3行7列と5行7列のマス」「3行7列など4マス」＋消える数字 */
+function elimTarget(el: Array<[number, number]>): string {
+  if (!el.length) return '関係するマスから不要な候補'; // 護欄：消去型は必ず ≥1 だが、将来の技巧が空を返しても NaN 文を出さない
+  const cs = [...new Set(el.map(([c]) => c))];
+  const ds = [...new Set(el.map(([, d]) => d))].sort((a, b) => a - b);
+  const place =
+    cs.length === 1 ? `${rcJa(cs[0])}のマス` : cs.length === 2 ? `${rcJa(cs[0])}と${rcJa(cs[1])}のマス` : `${rcJa(cs[0])}など${cs.length}マス`;
+  return `${place}から候補${ds.join('・')}`;
+}
+
+/** 盤面座標から決定的に言い回しを選ぶ（同一題は常に同一文面） */
+function pick(s: SolveStep, variants: Array<(el: Array<[number, number]>) => string>): string {
+  const el = s.eliminations ?? [];
+  const seed = (el[0]?.[0] ?? s.cell ?? 0) + el.length;
+  return variants[seed % variants.length](el);
+}
+
+/** 技巧元数据：日语名 ＋ 技巧详解页 slug ＋ 说明生成器（数据驱动每步文案） */
 export const TECH_INFO: Record<string, { ja: string; slug?: string; desc: (s: SolveStep) => string }> = {
-  nakedSingle: { ja: '裸の単数', desc: (s) => `${(((s.cell ?? 0) / 9) | 0) + 1}行目・左から${((s.cell ?? 0) % 9) + 1}番目のマスは、候補が${s.digit}ひとつだけ。ここは${s.digit}で確定します。` },
-  hiddenSingle: { ja: '隠れた単数', desc: (s) => `${(((s.cell ?? 0) / 9) | 0) + 1}行目・左から${((s.cell ?? 0) % 9) + 1}番目のマス。この行・列・ブロックで${s.digit}が入れるのはここだけなので、${s.digit}で確定します。` },
-  lockedCandidates: { ja: '区画の絞り込み（ポインティング）', slug: 'pointing', desc: () => 'あるブロック内で、ある数字の候補が一直線に並んでいます。その行（列）の交差する外のマスから、その数字の候補を消去できます。' },
-  nakedPair: { ja: 'ペア（二国同盟）', slug: 'naked-pair', desc: () => '同じ2つの候補だけを持つ2マス（ペア）を見つけました。同じ単元の他のマスから、その2つの数字を消去できます。' },
-  hiddenPair: { ja: '隠れたペア', slug: 'hidden-pair', desc: () => '2つの数字が同じ2マスにしか入らない形（隠れたペア）です。その2マスから、ペア以外の候補をすべて消去できます。' },
-  nakedTriple: { ja: '三国同盟（ネイキッドトリプル）', slug: 'naked-triple', desc: () => '3つのマスで候補が3種類に収まる組（三国同盟）を見つけました。同じ単元の他のマスから、その3数字を消去できます。' },
-  xWing: { ja: 'X-Wing', slug: 'x-wing', desc: () => '2つの行で、ある数字の候補が同じ2つの列だけに現れる長方形（X-Wing）です。その2列の他の行から、その数字を消去できます。' },
+  nakedSingle: {
+    ja: '裸の単数',
+    desc: (s) => `${rcJa(s.cell ?? 0)}のマスは、残る候補が${s.digit}だけ。ここは${s.digit}で確定します。`,
+  },
+  hiddenSingle: {
+    ja: '隠れた単数',
+    desc: (s) => `${rcJa(s.cell ?? 0)}のマスに注目。この行・列・ブロックで${s.digit}が入れるのはここだけなので、${s.digit}で確定します。`,
+  },
+  lockedCandidates: {
+    ja: '区画の絞り込み',
+    slug: 'pointing',
+    desc: (s) =>
+      pick(s, [
+        (el) => `ある数字の候補が、ブロックと行（列）の交差部分に絞り込まれました。交差の外側にあたる${elimTarget(el)}を消去できます。`,
+        (el) => `候補の並びが一つの区画に閉じ込められる形です。区画の絞り込みにより、${elimTarget(el)}を消去できます。`,
+      ]),
+  },
+  nakedPair: {
+    ja: 'ペア（二国同盟）',
+    slug: 'naked-pair',
+    desc: (s) =>
+      pick(s, [
+        (el) => `同じ2候補だけを持つ2マス（ペア）が見つかりました。ペア以外の${elimTarget(el)}を消去できます。`,
+        (el) => `2つのマスが同じ2つの数字を取り合う二国同盟の形。同じ単元に属する${elimTarget(el)}を消去できます。`,
+      ]),
+  },
+  hiddenPair: {
+    ja: '隠れたペア',
+    slug: 'hidden-pair',
+    desc: (s) =>
+      pick(s, [
+        (el) => `2つの数字の入り先が同じ2マスに限られる「隠れたペア」です。この2マスに残る他の候補、${elimTarget(el)}を消去できます。`,
+        (el) => `候補表示の中に隠れたペアが潜んでいました。ペアの2マスから、${elimTarget(el)}を整理できます。`,
+      ]),
+  },
+  nakedTriple: {
+    ja: '三国同盟（ネイキッドトリプル）',
+    slug: 'naked-triple',
+    desc: (s) =>
+      pick(s, [
+        (el) => `3つのマスの候補が3種類の数字に収まる三国同盟です。同盟の外側にあたる${elimTarget(el)}を消去できます。`,
+        (el) => `3マスで3つの数字を分け合う形が確定しました。これにより${elimTarget(el)}を消去できます。`,
+      ]),
+  },
+  xWing: {
+    ja: 'X-Wing',
+    slug: 'x-wing',
+    desc: (s) =>
+      pick(s, [
+        (el) => `ある数字の候補が長方形の四隅に並ぶX-Wingが完成しています。四隅の行（列）に沿って、${elimTarget(el)}を消去できます。`,
+        (el) => `2本の行（列）で候補の位置がそろうX-Wing。挟まれたラインの${elimTarget(el)}を消去できます。`,
+      ]),
+  },
 };
 
 export interface StepFigure {
