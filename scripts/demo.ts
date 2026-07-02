@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { Grid, Puzzle } from '../src/engine/index.ts';
 import {
+  DIAGONAL_CONTEXT,
   LEVELS,
   LEVEL_META,
   TECHNIQUE_NAMES,
@@ -14,6 +15,7 @@ import {
   generatePuzzle,
   gridFromString,
   hasUniqueSolution,
+  isSolved,
   levelOf,
   logicalSolve,
 } from '../src/engine/index.ts';
@@ -150,6 +152,42 @@ if (existsSync(`${POOL_DIR}/daily.json`)) {
   const daily = JSON.parse(readFileSync(`${POOL_DIR}/daily.json`, 'utf-8')).puzzles as Array<{ puzzle: string }>;
   for (const [i, row] of daily.entries()) assert(poolSeen.has(row.puzzle), `daily#${i + 1} 不在任何档位桶内`);
   console.log(`    ✓ 档位桶 ${poolCount} 题复核 + daily ${daily.length} 题溯源，用时 ${Date.now() - t5}ms`);
+}
+
+// ---- 6. 対角線変体：生成断言（引擎上下文注入的实证）----
+// 三断言全部在 DIAGONAL_CONTEXT 下执行；第四条 isSolved(solution, ctx) 单独防
+// 「fullSolution 漏传 ctx 只生成标准解」的系统性缺陷（前三条可能被碰巧合法的解掩盖）。
+console.log('\n[6] 対角線変体：生成 3 题，逐题断言（对角线上下文）…');
+const t6 = Date.now();
+for (let i = 0; i < 3; i++) {
+  const p = generatePuzzle(28, DIAGONAL_CONTEXT);
+  assert(hasUniqueSolution(p.puzzle, DIAGONAL_CONTEXT), `対角線#${i} 唯一解（对角线规则下）`);
+  const res = logicalSolve(p.puzzle, DIAGONAL_CONTEXT);
+  assert(res.solved, `対角線#${i} 纯逻辑可解(no-guessing)`);
+  assert(res.grid.join('') === p.solution.join(''), `対角線#${i} 逻辑解==生成解`);
+  assert(isSolved(p.solution, DIAGONAL_CONTEXT), `対角線#${i} 解必须满足两条对角线约束`);
+}
+console.log(`    ✓ 3 题全过（唯一解+逻辑可解+对角线约束），用时 ${Date.now() - t6}ms`);
+
+// ---- 7. 対角線题库全量复核（与 [5] 同一防线：引擎改动后忘跑 gen:pool 即红）----
+if (existsSync(`${POOL_DIR}/diagonal.json`)) {
+  console.log('\n[7] 复核対角線题库全部题目…');
+  const t7 = Date.now();
+  const rows = JSON.parse(readFileSync(`${POOL_DIR}/diagonal.json`, 'utf-8')).puzzles as Array<{
+    puzzle: string; solution: string; level: string;
+  }>;
+  for (const [i, row] of rows.entries()) {
+    const g = gridFromString(row.puzzle);
+    assert(hasUniqueSolution(g, DIAGONAL_CONTEXT), `対角線题库#${i + 1} 唯一解`);
+    const res = logicalSolve(g, DIAGONAL_CONTEXT);
+    assert(res.solved, `対角線题库#${i + 1} 纯逻辑可解`);
+    assert(res.grid.join('') === gridFromString(row.solution).join(''), `対角線题库#${i + 1} 逻辑解==入库解`);
+    assert(isSolved(gridFromString(row.solution), DIAGONAL_CONTEXT), `対角線题库#${i + 1} 解满足对角线约束`);
+    assert(levelOf(res) === row.level, `対角線题库#${i + 1} 难度标签脱节: 存储=${row.level} 现算=${levelOf(res)}`);
+  }
+  console.log(`    ✓ ${rows.length} 题复核通过，用时 ${Date.now() - t7}ms`);
+} else {
+  console.log('\n[7] （diagonal.json 不存在，跳过——変体题库生成前属正常）');
 }
 
 // ---- 结果 ----
