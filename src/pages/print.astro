@@ -14,12 +14,14 @@ const faq = [
   { q: '高齢者向けに大きく印刷したいのですが？', a: '印刷ダイアログの拡大・縮小（倍率）を上げると、マス目を大きく印刷できます。1枚あたりの問題数を少なめ（4問）にすると、さらにゆったり大きく印刷でき、目にやさしくなります。' },
   { q: '数独の問題集として使えますか？', a: '使えます。数百問の検証済み問題プールから押すたびにランダムに組み合わせるので、何度でも刷って問題集として使えます。難易度別にまとめて印刷すれば、自分専用のドリルになります。' },
 ];
+const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ無料プリント問題集（PDF印刷）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: '問題集・印刷', item: url }] };
 ---
 
 <Base title={title} description={description} wide>
   <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>

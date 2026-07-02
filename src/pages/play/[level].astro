@@ -96,7 +96,8 @@ const breadcrumbSchema = {
     <p class="lead">{meta.lead}</p>
     <ShareBar url={url} title={title} cta="この問題をシェア・友達に挑戦状を送ろう" />
 
-  <h2>{meta.ja}で必要なテクニック</h2>
+  {/* 見出しは「レベルアップ」語義：一覧には上位档のテクニックも含むため（初級ページで上級技を"必要"と言わない） */}
+  <h2>{meta.ja}の攻略とレベルアップに役立つテクニック</h2>
   <p>{meta.technique}</p>
   {techLinks.length > 0 && (
     <ul class="tech-links">
