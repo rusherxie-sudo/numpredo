@@ -7,9 +7,11 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import {
   type DifficultyLevel,
+  DIAGONAL_CONTEXT,
   generatePuzzle,
   gridToString,
   hasUniqueSolution,
+  isSolved,
   logicalSolve,
   levelOf,
   LEVEL_META,
@@ -97,6 +99,59 @@ for (const lv of ORDER) {
     JSON.stringify({ level: lv, ja: LEVEL_META[lv].ja, count: buckets[lv].length, puzzles: buckets[lv] }, null, 2),
   );
 }
+
+// ---- 対角線変体池（/variants/diagonal/ 可玩页专用；独立 JSON、不进 daily）----
+// 对角线约束等效于「隐形提示」：minClues=32 实测 40/40 全初级、28 时 37/40 初级，
+// 必须挖到 24 才逼出中高级技巧（24 实测约 52%初/25%中/20%上/2%難）。
+// beginner 设上限压到 12，其余自然分布 → 30 题「12初/约10中/约8上」的健康梯度。
+// 三断言与标准档同一标准，全部在 DIAGONAL_CONTEXT 下执行；追加模式（既存前缀不重排）。
+const DIAG_COUNT = 30;
+const DIAG_MIN_CLUES = 24;
+const DIAG_BEGINNER_CAP = 12;
+const diagFile = `${OUT}/diagonal.json`;
+const diagPool: PuzzleRecord[] = existsSync(diagFile)
+  ? ((JSON.parse(readFileSync(diagFile, 'utf-8')).puzzles ?? []) as PuzzleRecord[])
+  : [];
+const diagSeen = new Set(diagPool.map((r) => r.puzzle));
+const diagLevelCount: Record<string, number> = {};
+for (const r of diagPool) diagLevelCount[r.level] = (diagLevelCount[r.level] ?? 0) + 1;
+const diagFresh: PuzzleRecord[] = [];
+let diagAttempts = 0;
+while (diagPool.length + diagFresh.length < DIAG_COUNT) {
+  if (++diagAttempts > MAX_ATTEMPTS_PER_LEVEL) {
+    throw new Error(
+      `対角線 尝试 ${diagAttempts} 次仍只有 ${diagPool.length + diagFresh.length}/${DIAG_COUNT} 题——命中率异常，检查 DIAG_MIN_CLUES / DIAG_BEGINNER_CAP`,
+    );
+  }
+  const p = generatePuzzle(DIAG_MIN_CLUES, DIAGONAL_CONTEXT);
+  if (p.level === 'beginner' && (diagLevelCount.beginner ?? 0) >= DIAG_BEGINNER_CAP) continue;
+  const ps = gridToString(p.puzzle);
+  if (diagSeen.has(ps)) continue;
+  // 入库前完整过三大品质断言（对角线上下文）+ 解满足对角线约束——与各档 bucket 同一标准
+  const res = logicalSolve(p.puzzle, DIAGONAL_CONTEXT);
+  if (!hasUniqueSolution(p.puzzle, DIAGONAL_CONTEXT) || !res.solved) continue;
+  if (res.grid.join('') !== p.solution.join('')) continue;
+  if (!isSolved(p.solution, DIAGONAL_CONTEXT)) continue;
+  diagSeen.add(ps);
+  diagLevelCount[p.level] = (diagLevelCount[p.level] ?? 0) + 1;
+  diagFresh.push({
+    clues: p.clues,
+    hardest: p.hardest,
+    score: p.score,
+    puzzle: ps,
+    solution: gridToString(p.solution),
+    level: p.level,
+  });
+}
+// 新增批内按 score 易→难排序后追加；既存前缀不重排（将来图解页 No.n / ?n= 直达稳定）
+diagFresh.sort((a, b) => a.score - b.score);
+diagPool.push(...diagFresh);
+writeFileSync(
+  diagFile,
+  JSON.stringify({ variant: 'diagonal', ja: '対角線', count: diagPool.length, puzzles: diagPool }, null, 2),
+);
+const diagDist = Object.entries(diagLevelCount).map(([k, v]) => `${k}=${v}`).join(' ');
+console.log(`  ✓ 対角線 ${diagPool.length}題（新${diagFresh.length}・${diagAttempts}次尝试・${diagDist}）→ 不进 daily`);
 
 // daily.json = 前缀稳定的追加模式：既存 daily 的顺序保持不变，只把「池里新增的题」打乱后追加到末尾。
 // 消费方（daily.astro）按「EPOCH 起算日序号 → 池内序号」顺序索引——前缀不重排 ⇒ 扩库部署不会改变
