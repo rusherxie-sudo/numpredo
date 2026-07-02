@@ -2,8 +2,24 @@
 import Base from '../layouts/Base.astro';
 import SudokuGame from '../components/SudokuGame.astro';
 import daily from '../data/puzzles/daily.json';
+// —— 日替わり選題：EPOCH（上线日）起算的「日序号 → 池内序号」顺序映射 ——
+// ① 顺序索引（非取模散射）+ daily.json 追加模式前缀稳定（gen-pool.ts）⇒ 扩库部署不再中途换当天的题；
+// ② HTML 只嵌入 [构建日-1, +WINDOW-1] 的窗口（全池 485 题 ≈55KB → 90 题 ≈10KB）；
+//    构建停滞超过窗口时客户端按窗口取模兜底（仍全员一致，只是复用窗口内题目）。
 // solution は配信しない（HTML 肥大化を避ける）——クライアントが solveOne で現算する。
-const set = daily.puzzles.map((p) => ({ puzzle: p.puzzle, level: p.level }));
+const EPOCH = Math.floor(Date.UTC(2026, 5, 14) / 86400000); // 2026-06-14（JST 上线日）的日序号
+const todayIdx = Math.floor((Date.now() + 9 * 3600 * 1000) / 86400000); // 构建时的 JST 日序号
+const WINDOW = 90;
+const dayStart = todayIdx - 1; // 留 1 天余量：时钟略慢的端末跨日毫秒差也取得到
+const pool = daily.puzzles;
+const idxFor = (d: number): number => {
+  const k = d - EPOCH;
+  return k < pool.length ? Math.max(0, k) : k % pool.length; // 池耗尽（485 天后）才回绕
+};
+const set = Array.from({ length: WINDOW }, (_, o) => {
+  const p = pool[idxFor(dayStart + o)];
+  return { puzzle: p.puzzle, level: p.level };
+});
 const title = '毎日の数独・ナンプレ｜日替わり問題で記録に挑戦 - numpredo';
 const description = '毎日0時に更新、その日の数独（ナンプレ）の一問に挑戦。全員が同じ問題でタイムを競い、連続日数（ストリーク）を伸ばせます。すべて唯一解・論理だけで解ける高品質問題。メモ・自動チェックつき、無料・登録不要でスマホ・PCに対応。';
 const url = 'https://numpredo.com/daily/';
@@ -53,7 +69,7 @@ const breadcrumbSchema = {
     <h1>毎日の数独・ナンプレ</h1>
   </div>
 
-  <SudokuGame level="advanced" levelJa="毎日" daily url={url} set={set} />
+  <SudokuGame level="advanced" levelJa="毎日" daily url={url} set={set} daystart={dayStart} />
 
   <div class="px-text">
     <p class="lead">毎日、全員に同じ一問が出題されます。タイムを記録して、連続記録（◯日連続）を伸ばしましょう。すべて唯一解・論理だけで解ける高品質問題です。</p>

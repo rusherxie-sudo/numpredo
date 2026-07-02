@@ -11,7 +11,7 @@ const published: Record<string, string> = publishedJson;
 const SETS_PER_LEVEL = 30; // 题目集出页数/档(题库更大,余下作 daily 池+储备)。新站渐进放量,收录稳了再调高。
 
 export function getStaticPaths() {
-  const cap = 30; // = SETS_PER_LEVEL(getStaticPaths 独立作用域,改时同步;同步点:本文件 sameLevelNs、play/[level].astro、gen-sitemap-lastmod.ts)
+  const cap = 30; // = SETS_PER_LEVEL(getStaticPaths 独立作用域,改时同步;同步点:本文件 sameLevelNs、play/[level].astro 的 setlist 与嵌入 set(slice 30, ?n= 直达)、gen-sitemap-lastmod.ts)
   return LEVELS.flatMap((meta) =>
     Array.from({ length: Math.min(cap, meta.puzzles.length) }, (_, i) => i + 1).map((n) => ({
       params: { level: meta.slug, n: String(n) },
@@ -138,6 +138,7 @@ const breadcrumbSchema = {
 
   <h2>遊ぶ・印刷する</h2>
   <ul>
+    <li><a href={`/play/${meta.slug}/?n=${n}`}>この問題（No.{n}）を画面でプレイ</a></li>
     <li><a href={`/play/${meta.slug}/`}>同じ難易度（{meta.ja}）を画面でプレイ</a></li>
     <li><a href="/print/">無料プリントで{meta.ja}を印刷</a></li>
   </ul>

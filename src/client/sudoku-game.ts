@@ -1,9 +1,11 @@
-// 客户端可玩岛（和モダン）。普通模式：初始题预生成，「別の問題」引擎实时生成（无限）。
-// daily 模式：按当天日期确定性选题（全员同日同題），显示日期 + 连续记录(streak)，无「別の問題」。
+// 客户端可玩岛（和モダン）。普通模式：题目全部来自预生成题库（页面嵌入 set；「別の問題」
+// 池内循环消费，?n= 直达指定题号）——不做客户端实时生成：难度命中率低（hard 实测 0/5 且可能
+// 掉到初级）、还会冻结主线程数百 ms，与「检验后入库」的品质承诺相悖。
+// daily 模式：按 JST 日序号顺序选题（data-daystart 窗口偏移，全员同日同題），显示日期 + 连续记录(streak)。
 // 进度自动保存(localStorage，刷新不丢)、撤销、数字剩余计数、メモ自动清除、方向键、提示、胜利演出。
 import {
   PEERS, UNITS, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf,
-  gridFromString, generateByLevel, solveOne, type DifficultyLevel, type Grid,
+  gridFromString, solveOne, type DifficultyLevel, type Grid,
 } from '../engine/index.ts';
 import { track } from './track.ts';
 
@@ -98,6 +100,7 @@ function setup(root: HTMLElement): void {
   let finalTime = 0;
   let elapsedBase = 0; // 恢复进度时的已用时基准
   let dailyLevel = ''; // daily 当天题的难度档
+  let poolIdx = 0; // 当前题在嵌入题库 set 中的下标（「別の問題」循环消费用）
   let start = Date.now();
   let timer: ReturnType<typeof setInterval> | null = null;
   let checkErrors = localStorage.getItem('numpredo.pref.check') !== '0';
@@ -132,27 +135,35 @@ function setup(root: HTMLElement): void {
   const ctrl2 = el('div', 'sk-ctrl2');
   const checkRow = el('label', 'sk-check');
   const result = el('div', 'sk-result');
-  // 暂停遮罩：覆盖盘面，停表时隐藏盘面内容（防"停表盯盘"作弊），中央继续按钮
+  // 暂停遮罩：覆盖盘面，停表时隐藏盘面内容（防"停表盯盘"作弊），中央继续按钮。
+  // aria-hidden + tabindex=-1：读屏/键盘走 sk-pause-btn（label 随状态切）或 Space/Escape，避免 grid 内非法子节点。
   const pauseOverlay = el('div', 'sk-pause-overlay');
-  pauseOverlay.innerHTML = '<button class="sk-resume" type="button" aria-label="再開"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>';
+  pauseOverlay.setAttribute('aria-hidden', 'true');
+  pauseOverlay.innerHTML = '<button class="sk-resume" type="button" tabindex="-1"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>';
   board.append(pauseOverlay);
-  (pauseOverlay.querySelector('.sk-resume') as HTMLElement).addEventListener('click', () => resume());
+  pauseOverlay.addEventListener('click', () => resume()); // 整层可点，触达更大
   if (daily) side.append(dailyEl);
   side.append(timeRow, badge, pad, hintMsg, ctrl, ctrl2, checkRow, result);
 
-  // —— 棋盘格（role=grid + 各セル role=gridcell・動的 aria でスクリーンリーダー対応）——
+  // —— 棋盘格（role=grid > role=row > role=gridcell 合规层级；行容器 display:contents 不影响 CSS grid 布局）——
   board.setAttribute('role', 'grid');
   board.setAttribute('aria-label', '数独の盤面（9×9）');
   const cells: HTMLButtonElement[] = [];
-  for (let i = 0; i < 81; i++) {
-    const c = el('button', 'sk-cell') as HTMLButtonElement;
-    c.type = 'button';
-    c.setAttribute('role', 'gridcell');
-    if (colOf(i) % 3 === 2 && colOf(i) !== 8) c.classList.add('sk-br');
-    if (rowOf(i) % 3 === 2 && rowOf(i) !== 8) c.classList.add('sk-bb');
-    c.addEventListener('click', () => { if (paused) return; selected = i; highlightDigit = 0; clearHint(); render(); });
-    cells.push(c);
-    board.append(c);
+  for (let r = 0; r < 9; r++) {
+    const rowEl = el('div', 'sk-rowg');
+    rowEl.setAttribute('role', 'row');
+    for (let cc = 0; cc < 9; cc++) {
+      const i = r * 9 + cc;
+      const c = el('button', 'sk-cell') as HTMLButtonElement;
+      c.type = 'button';
+      c.setAttribute('role', 'gridcell');
+      if (colOf(i) % 3 === 2 && colOf(i) !== 8) c.classList.add('sk-br');
+      if (rowOf(i) % 3 === 2 && rowOf(i) !== 8) c.classList.add('sk-bb');
+      c.addEventListener('click', () => { if (paused) return; selected = i; highlightDigit = 0; clearHint(); render(); });
+      cells.push(c);
+      rowEl.append(c);
+    }
+    board.append(rowEl);
   }
 
   // —— 数字键盘（带剩余计数）——
@@ -210,6 +221,7 @@ function setup(root: HTMLElement): void {
       e.preventDefault();
       clearHint();
       render();
+      cells[selected].focus(); // 焦点跟随选中格：读屏能播报新格，Tab 序也保持一致（roving tabindex）
       return;
     }
     if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
@@ -236,9 +248,10 @@ function setup(root: HTMLElement): void {
       return;
     }
     clearHint();
+    if (pencil && cur[selected] !== 0) return; // 已填格无笔记可记：直接返回，不产生"空撤销"记录
     pushHistory();
     if (pencil) {
-      if (cur[selected] === 0) notes[selected] ^= bit(d);
+      notes[selected] ^= bit(d);
     } else {
       const wasToggleOff = cur[selected] === d;
       cur[selected] = wasToggleOff ? 0 : d;
@@ -273,17 +286,18 @@ function setup(root: HTMLElement): void {
     save();
     render();
   }
+  const bestKey = (): string => `numpredo.best.${daily ? 'daily' : level}`;
   function checkDone(): void {
     if (!cur.every((v, i) => v === solution[i])) return;
     done = true;
     finalTime = elapsedBase + (Date.now() - start);
     if (timer) clearInterval(timer);
-    const key = `numpredo.best.${daily ? 'daily' : level}`;
-    const prev = Number(localStorage.getItem(key) || '0');
+    const prev = Number(localStorage.getItem(bestKey()) || '0');
     isRecord = prev === 0 || finalTime < prev;
-    if (isRecord) localStorage.setItem(key, String(finalTime));
+    if (isRecord) localStorage.setItem(bestKey(), String(finalTime));
     if (daily) { bumpStreak(); fillDaily(); }
-    showResult(prev);
+    track('game_complete', { level: levelJa, daily, record: isRecord });
+    renderResult(prev);
     burst();
   }
 
@@ -294,6 +308,7 @@ function setup(root: HTMLElement): void {
     elapsedBase += Date.now() - start; // 当前段时长累积进 base → elapsed 即冻结
     if (timer) { clearInterval(timer); timer = null; }
     left.classList.add('sk-paused');
+    pauseBtn.setAttribute('aria-label', '再開');
     save();
     render();
   }
@@ -303,6 +318,7 @@ function setup(root: HTMLElement): void {
     start = Date.now();
     if (!done) timer = setInterval(tick, 1000);
     left.classList.remove('sk-paused');
+    pauseBtn.setAttribute('aria-label', '一時停止');
     render();
   }
   function togglePause(): void { paused ? resume() : pause(); }
@@ -421,15 +437,16 @@ function setup(root: HTMLElement): void {
     localStorage.removeItem(progKey());
     apply(puzzleGrid.slice(), solution.slice());
   }
+  // 「別の問題」：预生成池内循环（难度保真、零等待）。set 由 play/[level].astro 嵌入 30 道，
+  // 与图解页 No.1〜30 一一对应（?n= 直达同一下标）。
   function newPuzzle(): void {
-    if (timer) clearInterval(timer);
+    if (set.length < 2) return;
     localStorage.removeItem(progKey());
-    remEl.textContent = '新しい問題を生成中…';
-    setTimeout(() => {
-      const attempts = level === 'hard' || level === 'extreme' ? 25 : 40;
-      const p = generateByLevel(level, attempts).puzzle;
-      apply(p.puzzle, p.solution);
-    }, 20);
+    poolIdx = (poolIdx + 1) % set.length;
+    const nx = set[poolIdx];
+    const pz = gridFromString(nx.puzzle);
+    const sol = nx.solution ? gridFromString(nx.solution) : solveOne(pz);
+    if (sol) apply(pz, sol);
   }
 
   // —— 进度持久化 ——
@@ -470,8 +487,11 @@ function setup(root: HTMLElement): void {
   }
   function fillDaily(): void {
     const { m, d } = jstParts();
-    const streak = Number(localStorage.getItem('numpredo.daily.streak') || '0');
-    const doneToday = localStorage.getItem('numpredo.daily.last') === jstDayStr();
+    // 断签即视为归零：last 不是今天/昨天时，旧 streak 只是历史值，显示会误导（bumpStreak 下次完成会重置）
+    const last = localStorage.getItem('numpredo.daily.last');
+    const active = last === jstDayStr() || last === jstDayStr(-1);
+    const streak = active ? Number(localStorage.getItem('numpredo.daily.streak') || '0') : 0;
+    const doneToday = last === jstDayStr();
     const lvJa = LV_JA[dailyLevel] ?? '';
     dailyEl.innerHTML =
       `<div class="sk-d-date">${m}月${d}日の問題</div>` +
@@ -479,15 +499,22 @@ function setup(root: HTMLElement): void {
       `<div class="sk-d-streak">${streak > 0 ? streak + '日連続' : '記録に挑戦'}${doneToday ? ' ✓' : ''}</div>`;
   }
 
-  // —— 胜利演出 ——
-  function showResult(prevBest: number): void {
-    track('game_complete', { level: levelJa, daily, record: isRecord });
+  // —— 成绩卡（纯渲染，无演出/统计副作用：完局存档恢复时也复用，不会重复上报/撒彩屑）——
+  function renderResult(prevBest: number): void {
     const lines = [`<div class="sk-r-title">クリア！</div>`];
     lines.push(`<div class="sk-r-time">${fmt(finalTime)}</div>`);
     if (isRecord) lines.push(`<div class="sk-r-rec">✦ 自己ベスト更新！</div>`);
     else if (prevBest) lines.push(`<div class="sk-r-best">自己ベスト ${fmt(prevBest)}</div>`);
     result.innerHTML = lines.join('');
-    const sb = el('button', 'sk-share') as HTMLButtonElement;
+    const hasNext = !daily && set.length > 1;
+    if (hasNext) {
+      const nb = el('button', 'sk-share') as HTMLButtonElement;
+      nb.type = 'button';
+      nb.textContent = '次の問題へ';
+      nb.addEventListener('click', () => newPuzzle());
+      result.append(nb);
+    }
+    const sb = el('button', hasNext ? 'sk-share sk-ghost' : 'sk-share') as HTMLButtonElement;
     sb.type = 'button';
     sb.textContent = '結果をシェア';
     sb.addEventListener('click', share);
@@ -572,6 +599,8 @@ function setup(root: HTMLElement): void {
       c.setAttribute('aria-selected', i === selected ? 'true' : 'false');
       if (bad) c.setAttribute('aria-invalid', 'true');
       else c.removeAttribute('aria-invalid');
+      // roving tabindex：Tab 只进入一个格（选中格，未选中时左上角），81 个 tab 停靠点 → 1 个
+      c.tabIndex = i === selected || (selected < 0 && i === 0) ? 0 : -1;
     }
     // 数字键计数 + 填满置灰 + 选中数字高亮
     for (let d = 1; d <= 9; d++) {
@@ -594,17 +623,41 @@ function setup(root: HTMLElement): void {
     }
   }
 
-  // —— 初始化：优先恢复未完成的存档 ——
-  const dailyIdx = daily ? jstDayIndex() % set.length : 0;
-  if (daily) dailyLevel = set[dailyIdx].level ?? '';
-  const saved = load();
-  if (saved && saved.d !== 1) {
-    apply(gridFromString(saved.p), gridFromString(saved.s), saved);
+  // —— 页面切后台自动暂停（计时公平：挂后台不再累计），离开页面前兜底保存 ——
+  document.addEventListener('visibilitychange', () => { if (document.hidden && !done && !paused) pause(); });
+  window.addEventListener('pagehide', () => { if (!done && !paused) save(); });
+
+  // —— 初始化：定位起始题 → 恢复存档（含完成局）或开新局 ——
+  let initIdx = 0;
+  if (daily) {
+    // JST 日序号 → 嵌入窗口偏移（data-daystart 为窗口首日，见 daily.astro）。
+    // 窗口外（构建停滞超过窗口天数）取模兜底——仍是全员一致的确定性选题。
+    const dayStart = Number(root.dataset.daystart ?? NaN);
+    const off = jstDayIndex() - dayStart;
+    initIdx = Number.isFinite(dayStart) ? ((off % set.length) + set.length) % set.length : 0;
+    dailyLevel = set[initIdx].level ?? '';
   } else {
-    const first = set[dailyIdx];
-    const fpz = gridFromString(first.puzzle);
+    // ?n= 直达题库第 n 题（图解页 /play/{level}/{n}/ 的「この問題をプレイ」入口）
+    const urlN = Number(new URLSearchParams(location.search).get('n') ?? '0');
+    if (urlN >= 1 && urlN <= set.length) initIdx = urlN - 1;
+  }
+  poolIdx = initIdx;
+  const target = set[initIdx];
+  const saved = load();
+  // 题面串统一成 0 表空再比较：存档 p 是 gridToStr（0 表空），题库 JSON 用 . 表空
+  const normP = (s: string): string => s.replace(/[^1-9]/g, '0');
+  // ?n= 明示指定且与存档不是同一题时，以指定题开新局（首次落子会覆盖旧存档——用户主动选择）
+  const savedUsable = saved && (initIdx === 0 || daily || normP(saved.p) === normP(target.puzzle));
+  if (saved && savedUsable) {
+    const i = set.findIndex((s) => normP(s.puzzle) === normP(saved.p));
+    if (i >= 0) poolIdx = i; // 存档题在池内 → 「別の問題」从它继续往后循环
+    apply(gridFromString(saved.p), gridFromString(saved.s), saved);
+    // 完成局照样恢复：盘面保持完成态 + 成绩卡（无彩屑/不重复上报），并给「次の問題へ」入口
+    if (done) renderResult(Number(localStorage.getItem(bestKey()) || '0'));
+  } else {
+    const fpz = gridFromString(target.puzzle);
     // daily は solution 未配信 → solveOne で現算（play は予生成 solution をそのまま使う）
-    const fsol = first.solution ? gridFromString(first.solution) : solveOne(fpz);
+    const fsol = target.solution ? gridFromString(target.solution) : solveOne(fpz);
     if (fsol) apply(fpz, fsol);
   }
   if (daily) fillDaily();

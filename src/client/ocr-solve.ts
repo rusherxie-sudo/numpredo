@@ -18,26 +18,31 @@ function setup(app: HTMLElement): void {
   let solved: number[] | null = null; // 解答盤（表示中は同じ盤面に直接反映）
   let givenMask: boolean[] = []; // 解答時に「どのマスが元の入力か」を記録
 
-  // ---- DOM 構築：盤面 + キーボード ----
+  // ---- DOM 構築：盤面 + キーボード（role=grid > row > gridcell 合规层级，行容器 display:contents）----
   app.innerHTML = '';
   const board = el('div', 'sv-board');
   board.setAttribute('role', 'grid');
   board.setAttribute('aria-label', '数独の盤面（9×9）入力');
   const cells: HTMLButtonElement[] = [];
-  for (let i = 0; i < 81; i++) {
-    const c = el('button', 'sv-cell') as HTMLButtonElement;
-    c.setAttribute('role', 'gridcell');
-    const r = (i / 9) | 0;
-    const cc = i % 9;
-    if (cc === 2 || cc === 5) c.classList.add('sv-br');
-    if (r === 2 || r === 5) c.classList.add('sv-bb');
-    c.addEventListener('click', () => {
-      if (solved) { solved = null; clearSteps(); } // 解答表示中なら入力モードに戻す
-      sel = i;
-      render();
-    });
-    cells.push(c);
-    board.append(c);
+  for (let r = 0; r < 9; r++) {
+    const rowEl = el('div', 'sv-rowg');
+    rowEl.setAttribute('role', 'row');
+    for (let cc = 0; cc < 9; cc++) {
+      const i = r * 9 + cc;
+      const c = el('button', 'sv-cell') as HTMLButtonElement;
+      c.type = 'button';
+      c.setAttribute('role', 'gridcell');
+      if (cc === 2 || cc === 5) c.classList.add('sv-br');
+      if (r === 2 || r === 5) c.classList.add('sv-bb');
+      c.addEventListener('click', () => {
+        if (solved) { solved = null; clearSteps(); } // 解答表示中なら入力モードに戻す
+        sel = i;
+        render();
+      });
+      cells.push(c);
+      rowEl.append(c);
+    }
+    board.append(rowEl);
   }
 
   const pad = el('div', 'sv-pad');
@@ -84,7 +89,7 @@ function setup(app: HTMLElement): void {
   layout.append(left, right);
   app.append(layout);
 
-  // 物理キーボード
+  // 物理キーボード（矢印は preventDefault：ページスクロールさせない。焦点も選択セルに追従）
   document.addEventListener('keydown', (e) => {
     if (sel < 0) return;
     const ae = document.activeElement;
@@ -92,22 +97,34 @@ function setup(app: HTMLElement): void {
     if (e.key >= '1' && e.key <= '9') {
       input(Number(e.key));
       e.preventDefault();
-    } else if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') {
+      return;
+    }
+    if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') {
       input(0);
       e.preventDefault();
-    } else if (e.key === 'ArrowRight') {
-      sel = Math.min(80, sel + 1);
-      render();
-    } else if (e.key === 'ArrowLeft') {
-      sel = Math.max(0, sel - 1);
-      render();
-    } else if (e.key === 'ArrowDown') {
-      sel = Math.min(80, sel + 9);
-      render();
-    } else if (e.key === 'ArrowUp') {
-      sel = Math.max(0, sel - 9);
-      render();
+      return;
     }
+    const mv: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 9, ArrowUp: -9 };
+    if (e.key in mv) {
+      e.preventDefault();
+      sel = Math.max(0, Math.min(80, sel + mv[e.key]));
+      render();
+      cells[sel].focus();
+    }
+  });
+
+  // 81 文字（数字と . / 0）の貼り付けで盤面一括入力（愛好者向け：文字列形式の問題を直接ペースト）
+  document.addEventListener('paste', (e) => {
+    const ae = document.activeElement;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+    const cleaned = (e.clipboardData?.getData('text') ?? '').replace(/[^0-9.]/g, '');
+    if (cleaned.length < 81) return;
+    e.preventDefault();
+    grid = strToGrid(cleaned);
+    sel = -1;
+    clearOut();
+    setMsg('貼り付けから盤面を読み込みました。「解く」を押してください。', 'ok');
+    render();
   });
 
   // 画像入力
@@ -124,6 +141,7 @@ function setup(app: HTMLElement): void {
     solved = null; // 編集したら解答表示を解除
     clearSteps();
     grid[sel] = n;
+    if (n !== 0 && sel < 80) sel++; // 数字入力で次のマスへ自動前進（25個前後の手入力が半分の操作で済む）
     render();
   }
 
@@ -155,6 +173,8 @@ function setup(app: HTMLElement): void {
         if (dup) c.setAttribute('aria-invalid', 'true');
         else c.removeAttribute('aria-invalid');
       }
+      // roving tabindex：Tab は選択セル（未選択時は左上）だけに止まる
+      c.tabIndex = i === sel || (sel < 0 && i === 0) ? 0 : -1;
     }
   }
 
@@ -250,8 +270,8 @@ function setup(app: HTMLElement): void {
     msgEl.className = 'sv-msg' + (type ? ' ' + type : '');
   }
 
-  // 初期表示
-  grid = strToGrid(SAMPLE);
+  // 初期表示：空盤面から（サンプルを預填すると、自分の問題を打ち込む際に混ざる罠になる。
+  // 動作を試したい人は「サンプル」ボタンで読み込める）
   render();
   setMsg('写真を読み込むか、盤面に直接入力して「解く」を押してください。', '');
 }
@@ -306,6 +326,21 @@ async function recognizeImage(file: File, onProgress?: (done: number) => void): 
   const sx = (img.width - side) / 2;
   const sy = (img.height - side) / 2;
   ctx.drawImage(img, sx, sy, side, side, 0, 0, S, S);
+
+  // 暗色スクショ（黒背景・白文字＝ダークモードのアプリ画面など）対策：
+  // 平均輝度が低ければ全体を反転してから認識（isBlank と Tesseract は「明るい紙面」前提）
+  const full = ctx.getImageData(0, 0, S, S);
+  const fd = full.data;
+  let lumSum = 0;
+  for (let i = 0; i < fd.length; i += 4) lumSum += (fd[i] + fd[i + 1] + fd[i + 2]) / 3;
+  if (lumSum / (fd.length / 4) < 100) {
+    for (let i = 0; i < fd.length; i += 4) {
+      fd[i] = 255 - fd[i];
+      fd[i + 1] = 255 - fd[i + 1];
+      fd[i + 2] = 255 - fd[i + 2];
+    }
+    ctx.putImageData(full, 0, 0);
+  }
 
   const cellPx = S / 9;
   const tess = await loadTesseract();

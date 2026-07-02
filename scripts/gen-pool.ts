@@ -2,7 +2,7 @@
 // 各档严格按 levelOf 入桶（难度标签真实），并按难度设定「提示数下限 minClues」：
 //   低档留更多提示（盘面满、对新手友好），高档挖到稀疏（逼出高级技巧）。
 //   提示数随难度递减；同档加 maxScore 上限，抑制极端难题、缓解跨档难度倒挂。
-// daily.json = 全题库打乱（每天随机一档，难度偏中间有梯度）。
+// daily.json = 前缀稳定追加（既存顺序不变+新题乱序追加，扩库不漂移当日选题；每天随机一档，难度有梯度）。
 // 题库需要重新生成/调整时手动运行：node scripts/gen-pool.ts
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import {
@@ -86,13 +86,28 @@ for (const lv of ORDER) {
   );
 }
 
-// daily.json = 全题库を生成期に一度だけシャッフルした「固定スナップショット」（結果は git 提交で不変）。
-// 「日替わり」の確定性は、クライアントが JST 日付インデックスで選題して担保する（生成側の乱数は再現性なしで可）。
-const all = ORDER.flatMap((lv) => buckets[lv]);
-for (let i = all.length - 1; i > 0; i--) {
+// daily.json = 前缀稳定的追加模式：既存 daily 的顺序保持不变，只把「池里新增的题」打乱后追加到末尾。
+// 消费方（daily.astro）按「EPOCH 起算日序号 → 池内序号」顺序索引——前缀不重排 ⇒ 扩库部署不会改变
+// 当天及既往日期的选题（旧实现全量重洗，365→485 那次扩库曾导致当天中途换题）。
+// 注意：若人工删除各档 bucket json 全量重生题库，必须同时删除 daily.json 一起重建，
+// 否则旧题滞留 daily 前缀、其难度标签可能与新引擎脱节。
+const prevDaily: PuzzleRecord[] = existsSync(`${OUT}/daily.json`)
+  ? ((JSON.parse(readFileSync(`${OUT}/daily.json`, 'utf-8')).puzzles ?? []) as PuzzleRecord[])
+  : [];
+const inDaily = new Set(prevDaily.map((r) => r.puzzle));
+const fresh = ORDER.flatMap((lv) => buckets[lv]).filter((r) => !inDaily.has(r.puzzle));
+for (let i = fresh.length - 1; i > 0; i--) {
   const j = Math.floor(Math.random() * (i + 1));
-  [all[i], all[j]] = [all[j], all[i]];
+  [fresh[i], fresh[j]] = [fresh[j], fresh[i]];
 }
+const all = [...prevDaily, ...fresh];
 writeFileSync(`${OUT}/daily.json`, JSON.stringify({ name: 'daily', count: all.length, puzzles: all }, null, 2));
 
 console.log(`✓ 完成 ${((Date.now() - t0) / 1000).toFixed(1)}s → daily ${all.length} 題`);
+
+// daily 池余量预警：顺序消费（每日 1 题）耗尽后 daily.astro 会走取模回绕（题目复用且扩库会漂移当日选题）。
+// 余量低于窗口天数（daily.astro 的 WINDOW=90）就该扩库了。EPOCH 与 daily.astro 保持一致：2026-06-14。
+const EPOCH = Math.floor(Date.UTC(2026, 5, 14) / 86400000);
+const remain = all.length - (Math.floor((Date.now() + 9 * 3600 * 1000) / 86400000) - EPOCH);
+if (remain < 90) console.warn(`⚠ daily 池余量仅 ${remain} 天（<90）——请扩库（调大 CFG count 后重跑），避免回绕复用旧题`);
+else console.log(`  daily 池余量 ${remain} 天`);

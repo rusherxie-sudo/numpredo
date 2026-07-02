@@ -89,7 +89,8 @@ const breadcrumbSchema = {
     </div>
   </div>
 
-  <SudokuGame level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.slice(0, 6)} />
+  {/* 嵌入 30 道 = 图解页 No.1〜30（SETS_PER_LEVEL，改时同步）：「別の問題」池内循环 + ?n= 直达，不做客户端实时生成 */}
+<SudokuGame level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.slice(0, 30).map((p) => ({ puzzle: p.puzzle, solution: p.solution }))} />
 
   <div class="px-text">
     <p class="lead">{meta.lead}</p>

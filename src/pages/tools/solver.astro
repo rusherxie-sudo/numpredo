@@ -77,6 +77,9 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 
     .sv-layout { display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start; max-width: 760px; }
     .sv-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 460px; margin: 0 auto; border: 2px solid var(--board-edge); background: var(--board-bg); border-radius: 4px; overflow: hidden; }
+    /* aria 行容器（role=row）不参与布局；盘面/键盘禁文字选中（触控连点不弹选字） */
+    .sv-rowg { display: contents; }
+    .sv-board, .sv-pad, .sv-ctrl { -webkit-user-select: none; user-select: none; }
     .sv-cell { border: 0.5px solid var(--cell-line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.2vw, 26px); cursor: pointer; padding: 0; color: var(--ink-4); font-family: var(--font-sans); }
     .sv-cell.sv-br { border-right: 2px solid var(--box-line); }
     .sv-cell.sv-bb { border-bottom: 2px solid var(--box-line); }

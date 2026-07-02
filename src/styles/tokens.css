@@ -71,3 +71,10 @@
 
   --key-bg: #1d2823; --key-line: #324440; --key-ink: #e9efec; --key-hover: #243530;
 }
+
+/* ===== 触控最适化：按钮连点不触发 iOS 双击缩放，点按不闪系统高亮 =====
+   数独盘面/数字键这类高频点按控件尤其受益（游戏面板另有 user-select:none）。 */
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}

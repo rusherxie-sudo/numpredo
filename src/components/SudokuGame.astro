@@ -6,8 +6,10 @@ interface Props {
   daily?: boolean;
   url?: string;
   set: Array<{ puzzle: string; solution?: string; level?: string }>;
+  /** daily 专用：嵌入窗口首日的 JST 日序号（见 daily.astro 的窗口裁剪注释） */
+  daystart?: number;
 }
-const { level, levelJa, daily = false, url = 'https://numpredo.com/', set } = Astro.props;
+const { level, levelJa, daily = false, url = 'https://numpredo.com/', set, daystart } = Astro.props;
 const setJson = JSON.stringify(set);
 ---
 
@@ -17,6 +19,7 @@ const setJson = JSON.stringify(set);
   data-levelja={levelJa}
   data-url={url}
   data-daily={daily ? '1' : '0'}
+  data-daystart={daystart}
   data-set={setJson}
 ></div>
 
@@ -30,6 +33,10 @@ const setJson = JSON.stringify(set);
   .sk-layout { display: grid; grid-template-columns: 1fr 220px; gap: 28px; align-items: start; max-width: 880px; margin: 0 auto; }
   .sk-left { min-width: 0; position: relative; }
   .sk-board { position: relative; display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 600px; margin: 0 auto; border: 2px solid var(--box-line); background: var(--surface); }
+  /* aria 行容器（role=row）不参与布局：格子仍作为 grid item 排 9 列 */
+  .sk-rowg { display: contents; }
+  /* 游戏操作面高频点按：禁掉文字选中（iOS 长按/快速连点不再弹选字） */
+  .sk-board, .sk-pad, .sk-ctrl, .sk-ctrl2, .sk-timerow { -webkit-user-select: none; user-select: none; }
   .sk-cell { border: 0.5px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.4vw, 25px); cursor: pointer; padding: 0; position: relative; color: var(--accent); font-family: var(--font-sans); font-weight: 500; transition: background 0.12s; }
   .sk-cell.sk-br { border-right: 1.5px solid var(--box-line); }
   .sk-cell.sk-bb { border-bottom: 1.5px solid var(--box-line); }
@@ -111,6 +118,8 @@ const setJson = JSON.stringify(set);
   .sk-r-rec { font-size: 12px; color: var(--accent); font-family: var(--font-mincho); }
   .sk-r-best { font-size: 12px; color: var(--ink-3); }
   .sk-share { margin-top: 10px; width: 100%; padding: 9px 0; border: 0; border-radius: 5px; background: var(--accent); color: var(--accent-on); font-size: 13px; cursor: pointer; font-family: var(--font-sans); }
+  /* 成绩卡次要按钮（有「次の問題へ」时シェア降级为描边） */
+  .sk-share.sk-ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
 
   /* 彩屑 */
   .sk-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }

@@ -53,7 +53,9 @@ npm run render-demo # 导出示例 SVG 到 engine-demo/
 
 ### 题库：预生成进 git，不在构建时生成
 
-`src/data/puzzles/*.json`（五档 + `daily.json`）由 `npm run gen:pool` 手动生成并**提交进 git**。构建时**不**生成题库——这是刻意决策（部署稳定、可复现）。`gen-pool.ts` 里 `CFG` 控制各档题数、提示数下限（`minClues`，越低挖得越稀疏越难）、`maxScore`（抑制同档极端难题、缓解跨档难度倒挂）。`daily.json` 是全题库确定性打乱（每天随机一档）。
+`src/data/puzzles/*.json`（五档 + `daily.json`）由 `npm run gen:pool` 手动生成并**提交进 git**。构建时**不**生成题库——这是刻意决策（部署稳定、可复现）。`gen-pool.ts` 里 `CFG` 控制各档题数、提示数下限（`minClues`，越低挖得越稀疏越难）、`maxScore`（抑制同档极端难题、缓解跨档难度倒挂）。`daily.json` 是**前缀稳定的追加模式**（旧序永不重排、新题乱序续尾）；daily 页按「上线日 EPOCH（2026-06-14）起算日序号」顺序消费（`daily.astro` 只嵌 90 天窗口），扩库部署不会改变当天选题。全量重生题库时必须连 `daily.json` 一起删除重建。
+
+**运行时不做客户端生成题目**：`play/[level]` 嵌入池内前 30 道（与图解页 No.1〜30 对应，`?n=` 直达），「別の問題」池内循环；打印页按档动态 import 题库 JSON 随机抽样。`generateByLevel` 只用于离线脚本——它未命中目标难度时返回最接近档（hard 实测命中 0/5），不能拿给用户当指定难度用。
 
 > 技术选型文档（`numpredo-技术选型定稿.md`）规划题库存 R2 + Workers Cron 选每日题，但**当前实现更简单**：题库进 git、daily 用确定性 JSON。改任何引擎/难度逻辑后，记得 `npm run gen:pool` 重新生成并提交。
 
