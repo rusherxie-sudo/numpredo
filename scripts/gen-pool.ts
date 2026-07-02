@@ -50,6 +50,9 @@ for (const lv of ORDER) {
 const t0 = Date.now();
 console.log('統一題庫生成（各档提示下限 + levelOf 严格入桶）…');
 
+// 保险丝：某档命中率异常趋零时 fail-fast 并给出诊断，而不是无输出死循环（引擎/CFG 改坏时的防线）
+const MAX_ATTEMPTS_PER_LEVEL = 200000;
+
 for (const lv of ORDER) {
   const { count, maxScore } = CFG[lv];
   const minClues = LEVEL_MIN_CLUES[lv];
@@ -57,13 +60,20 @@ for (const lv of ORDER) {
   const before = buckets[lv].length;
   let attempts = 0;
   while (buckets[lv].length < count) {
+    if (++attempts > MAX_ATTEMPTS_PER_LEVEL) {
+      throw new Error(
+        `${lv} 尝试 ${attempts} 次仍只有 ${buckets[lv].length}/${count} 题——命中率异常，检查引擎技巧链 / minClues / maxScore 配置`,
+      );
+    }
     const p = generatePuzzle(minClues);
-    attempts++;
     if (p.level !== lv) continue;
     if (p.score > maxScore) continue;
     const ps = gridToString(p.puzzle);
     if (seen.has(ps)) continue;
-    if (!hasUniqueSolution(p.puzzle) || !logicalSolve(p.puzzle).solved) continue;
+    // 入桶前完整过三大品质断言（唯一解 / 纯逻辑可解 / 逻辑解==生成解）——与 demo.ts 同一标准
+    const res = logicalSolve(p.puzzle);
+    if (!hasUniqueSolution(p.puzzle) || !res.solved) continue;
+    if (res.grid.join('') !== p.solution.join('')) continue;
     seen.add(ps);
     buckets[lv].push({
       clues: p.clues,

@@ -1,7 +1,7 @@
 // 人类技巧求解器：逐级技巧链，是难度评级 / 提示 / 攻略演示的共用核心。
 // 始终优先用最简单技巧；记录所用最难技巧与加权步数 → 难度。
 import type { Grid, SolveResult, SolveStep } from './types.ts';
-import { CELLS, MASK_ALL, PEERS, UNITS, bit, boxOf, colOf, digitsOf, popcount, rowOf } from './board.ts';
+import { CELLS, MASK_ALL, PEERS, UNITS, bit, boxOf, colOf, digitsOf, isSolved, popcount, rowOf } from './board.ts';
 import { TECH_WEIGHT } from './difficulty.ts';
 
 interface State {
@@ -61,35 +61,41 @@ function hiddenSingle(s: State): SolveStep | null {
   return null;
 }
 
-/** 区块（指向/声明）：某数候选被锁在一行/列与某宫的交集内，向外消除 */
+/** 行 r / 列 c / 宫 b 的 9 格坐标（lockedCandidates 的消除目标线） */
+function lineCells(kind: 'row' | 'col' | 'box', k: number): number[] {
+  if (kind === 'row') return Array.from({ length: 9 }, (_, c) => k * 9 + c);
+  if (kind === 'col') return Array.from({ length: 9 }, (_, r) => r * 9 + k);
+  const br = (k / 3) | 0;
+  const bc = k % 3;
+  const out: number[] = [];
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) out.push((br * 3 + r) * 9 + (bc * 3 + c));
+  return out;
+}
+
+/**
+ * 区块（指向 pointing ＋ 声明 claiming）：某数在 unit 内的候选若同时全落在另一条「行/列/宫」，
+ * 该数必在两者交集内 → 从那条线的 unit 外格消除。
+ * unit=宫、候选共行/列 → 指向；unit=行/列、候选共宫 → 声明。
+ * （容器恰为 unit 自身时全部被 inUnit 过滤，无害空转——换取三方向统一处理，不再漏 claiming。）
+ */
 function lockedCandidates(s: State): SolveStep | null {
   for (const u of UNITS) {
     const empties = emptyCellsOf(s, u);
     for (let d = 1; d <= 9; d++) {
       const cells = empties.filter((c) => s.cand[c] & bit(d));
       if (cells.length < 2) continue;
-      // 该数候选是否共一行 / 一列 / 一宫
-      const r0 = rowOf(cells[0]);
-      const c0 = colOf(cells[0]);
-      const b0 = boxOf(cells[0]);
-      const sameRow = cells.every((c) => rowOf(c) === r0);
-      const sameCol = cells.every((c) => colOf(c) === c0);
-      const sameBox = cells.every((c) => boxOf(c) === b0);
-      const acc: Array<[number, number]> = [];
-      // 找到一条与当前 unit 不同的「线/宫」做消除目标（u 自身会被 inUnit 过滤掉）
-      const targets: number[] = [];
-      if (sameRow) {
-        for (let c = 0; c < 9; c++) targets.push(r0 * 9 + c);
-      } else if (sameCol) {
-        for (let r = 0; r < 9; r++) targets.push(r * 9 + c0);
-      } else if (sameBox) {
-        const br = (b0 / 3) | 0;
-        const bc = b0 % 3;
-        for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) targets.push((br * 3 + r) * 9 + (bc * 3 + c));
-      } else continue;
+      const containers: Array<['row' | 'col' | 'box', number] | null> = [
+        cells.every((c) => rowOf(c) === rowOf(cells[0])) ? ['row', rowOf(cells[0])] : null,
+        cells.every((c) => colOf(c) === colOf(cells[0])) ? ['col', colOf(cells[0])] : null,
+        cells.every((c) => boxOf(c) === boxOf(cells[0])) ? ['box', boxOf(cells[0])] : null,
+      ];
       const inUnit = new Set(u);
-      for (const t of targets) if (!inUnit.has(t)) eliminate(s, t, d, acc);
-      if (acc.length) return { technique: 'lockedCandidates', eliminations: acc };
+      for (const cont of containers) {
+        if (!cont) continue;
+        const acc: Array<[number, number]> = [];
+        for (const t of lineCells(cont[0], cont[1])) if (!inUnit.has(t)) eliminate(s, t, d, acc);
+        if (acc.length) return { technique: 'lockedCandidates', eliminations: acc };
+      }
     }
   }
   return null;
@@ -222,18 +228,23 @@ const TECHNIQUES: Array<(s: State) => SolveStep | null> = [
 ];
 
 /**
+ * 技巧链名单（与 TECHNIQUES 一一对应，新增技巧时同步）。
+ * demo.ts 用它断言 TECH_WEIGHT / TECH_INFO 键完备——缺键会被静默兜底成权重 1（初級），必须有守卫。
+ */
+export const TECHNIQUE_NAMES: readonly string[] = [
+  'nakedSingle', 'hiddenSingle', 'lockedCandidates', 'nakedPair', 'hiddenPair', 'nakedTriple', 'xWing',
+];
+// 双数组脱节即时爆炸（不能用 fn.name 派生——客户端 minify 会改函数名；length 比较不受影响）
+if (TECHNIQUES.length !== TECHNIQUE_NAMES.length) {
+  throw new Error(`TECHNIQUES(${TECHNIQUES.length}) 与 TECHNIQUE_NAMES(${TECHNIQUE_NAMES.length}) 数量脱节——新增技巧时两处同步`);
+}
+
+/**
  * 仅用已实现的人类技巧求解（不猜测）。
  * solved=false 表示需要比 X-Wing 更高级的技巧或猜测 → 视为超出当前可保障范围。
  */
 export function logicalSolve(grid: Grid): SolveResult {
-  const s: State = { g: grid.slice(), cand: new Array(CELLS).fill(0) };
-  // 初始化候选
-  for (let i = 0; i < CELLS; i++) {
-    if (s.g[i] !== 0) continue;
-    let m = MASK_ALL;
-    for (const p of PEERS[i]) if (s.g[p]) m &= ~bit(s.g[p]);
-    s.cand[i] = m;
-  }
+  const s = initState(grid);
 
   const steps: SolveStep[] = [];
   const techniqueCounts: Record<string, number> = {};
@@ -266,7 +277,8 @@ export function logicalSolve(grid: Grid): SolveResult {
     break; // 无技巧可推进
   }
 
-  return { solved: !s.g.includes(0), grid: s.g, steps, techniqueCounts, hardest, score };
+  // isSolved 校验合法性而非仅「填满」：若未来技巧引入 unsound 消除填出错解，这里不再放行
+  return { solved: isSolved(s.g), grid: s.g, steps, techniqueCounts, hardest, score };
 }
 
 function initState(grid: Grid): State {
