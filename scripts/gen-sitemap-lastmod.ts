@@ -26,6 +26,14 @@ const DYNAMIC_DATA: Record<string, string> = {
   'variants/[slug].astro': 'src/data/variants.ts',
 };
 
+// 静态页里「内容也来自数据文件」的例外 → 附加内容源。
+// 例：variants/diagonal.astro 是独立可玩路由，但文案在 variants.ts、题库在 diagonal.json——
+// 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
+// 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
+const STATIC_EXTRA_DATA: Record<string, string[]> = {
+  'variants/diagonal.astro': ['src/data/variants.ts', 'src/data/puzzles/diagonal.json'],
+};
+
 // 递归列出 src/pages 下所有 .astro（返回相对 PAGES 的 posix 路径）
 function listPages(dir = PAGES, base = ''): string[] {
   const out: string[] = [];
@@ -73,7 +81,10 @@ function gitLastmod(files: string[]): string {
 
 const map: Record<string, string> = {};
 
-for (const rel of listPages()) {
+// 先动态路由、后静态页：同 URL 时静态页的归因优先
+// （playable 变体页与 [slug]×数据文件的 slug 正则会撞同一 URL，静态页的源文件组才是准的）
+const allPages = listPages();
+for (const rel of [...allPages.filter((p) => p.includes('[')), ...allPages.filter((p) => !p.includes('['))]) {
   if (rel.includes('[')) {
     // 嵌套双参数路由 play/[level]/[n]：level × (1..题库题数)。slugsFromData 只提单层 slug，特判处理。
     if (rel === 'play/[level]/[n].astro') {
@@ -99,7 +110,7 @@ for (const rel of listPages()) {
       map[dir ? `/${dir}/${slug}/` : `/${slug}/`] = date;
     }
   } else {
-    const date = gitLastmod([`${PAGES}/${rel}`]);
+    const date = gitLastmod([`${PAGES}/${rel}`, ...(STATIC_EXTRA_DATA[rel] ?? [])]);
     if (date) map[fileToUrl(rel)] = date;
   }
 }

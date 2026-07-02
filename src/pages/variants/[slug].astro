@@ -7,7 +7,9 @@ const lastmod: Record<string, string> = lastmodJson;
 const published: Record<string, string> = publishedJson;
 
 export function getStaticPaths() {
-  return VARIANTS.map((v) => ({ params: { slug: v.slug }, props: { v } }));
+  // playable 变体走各自的独立静态路由（如 diagonal.astro，嵌可玩岛）；
+  // 本动态模板只出「纯内容页」，保持零 JS（Astro hoisted script 条件渲染也会打包，不能混在这里嵌游戏）
+  return VARIANTS.filter((v) => !v.playable).map((v) => ({ params: { slug: v.slug }, props: { v } }));
 }
 interface Props {
   v: Variant;
