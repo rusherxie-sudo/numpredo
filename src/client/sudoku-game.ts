@@ -33,13 +33,13 @@ interface Saved {
 // 统一走 safe 包装：存取失败静默降级（游戏照玩，只是不保存/不恢复），避免 setup 同步流程整体崩溃。
 const store = {
   get: (k: string): string | null => {
-    try { return store.get(k); } catch { return null; }
+    try { return localStorage.getItem(k); } catch { return null; }
   },
   set: (k: string, v: string): void => {
-    try { store.set(k, v); } catch { /* 降级：不保存 */ }
+    try { localStorage.setItem(k, v); } catch { /* 降级：不保存 */ }
   },
   remove: (k: string): void => {
-    try { store.remove(k); } catch { /* noop */ }
+    try { localStorage.removeItem(k); } catch { /* noop */ }
   },
 };
 
