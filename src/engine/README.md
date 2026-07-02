@@ -13,9 +13,9 @@ npm run demo   # node v24 原生跑 .ts，无需编译/依赖
 | 文件 | 职责 |
 |------|------|
 | `types.ts` | 核心类型（Grid / SolveResult / Puzzle / DifficultyLevel） |
-| `board.ts` | 位掩码候选、units/peers 预计算、序列化 |
+| `board.ts` | 位掩码候选、units/peers 预计算（BoardContext 上下文化：标准 27 units 或変体附加 units，如 DIAGONAL_CONTEXT）、序列化 |
 | `countSolver.ts` | 唯一解校验（MRV 回溯，数到 2 即停）+ solveOne |
-| `logicalSolver.ts` | 人类技巧链 + 难度评分（提示/攻略演示共用核心） |
+| `logicalSolver.ts` | 人类技巧链 + 难度评分（提示/攻略演示共用核心）。**新增 unit 类技巧必须遍历 `s.ctx.units` 而非全局 `UNITS`**，否则変体求解静默少推理 |
 | `difficulty.ts` | 技巧权重 → 难度等级（初級/中級/上級/難問/超難問） |
 | `generator.ts` | 完整解 → 对称挖空（每步保证唯一解 + 逻辑可解） |
 

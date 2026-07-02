@@ -143,8 +143,9 @@ while (diagPool.length + diagFresh.length < DIAG_COUNT) {
     level: p.level,
   });
 }
-// 新增批内按 score 易→难排序后追加；既存前缀不重排（将来图解页 No.n / ?n= 直达稳定）
-diagFresh.sort((a, b) => a.score - b.score);
+// 新增批内按（难度档主序 → score 次序）易→难排序后追加；既存前缀不重排（将来图解页 No.n / ?n= 直达稳定）。
+// 纯 score 排序会把低步数的 extreme 排进中段——档位（最难技巧）才是难度主语义，score 只做同档内排序。
+diagFresh.sort((a, b) => ORDER.indexOf(a.level) - ORDER.indexOf(b.level) || a.score - b.score);
 diagPool.push(...diagFresh);
 writeFileSync(
   diagFile,

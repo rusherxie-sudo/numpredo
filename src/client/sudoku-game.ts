@@ -5,7 +5,7 @@
 // 进度自动保存(localStorage，刷新不丢)、撤销、数字剩余计数、メモ自动清除、方向键、提示、胜利演出。
 import {
   DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf,
-  gridFromString, solveOne, type DifficultyLevel, type Grid,
+  gridFromString, solveOne, type Grid,
 } from '../engine/index.ts';
 import { track } from './track.ts';
 
@@ -93,7 +93,9 @@ const TECH_JA: Record<string, { ja: string; href: string }> = {
 
 function setup(root: HTMLElement): void {
   const set: PuzzlePair[] = JSON.parse(root.dataset.set ?? '[]');
-  const level = (root.dataset.level ?? 'advanced') as DifficultyLevel;
+  // level は保存キーの名前空間（numpredo.prog.* / numpredo.best.*）：五档 slug のほか
+  // 変体キー（'diagonal' 等）も来る——DifficultyLevel ではなく素の string が正しい型
+  const level = root.dataset.level ?? 'advanced';
   const levelJa = root.dataset.levelja ?? '数独';
   const daily = root.dataset.daily === '1';
   const shareUrl = root.dataset.url ?? 'https://numpredo.com/';
@@ -464,7 +466,7 @@ function setup(root: HTMLElement): void {
     poolIdx = (poolIdx + 1) % set.length;
     const nx = set[poolIdx];
     const pz = gridFromString(nx.puzzle);
-    const sol = nx.solution ? gridFromString(nx.solution) : solveOne(pz);
+    const sol = nx.solution ? gridFromString(nx.solution) : solveOne(pz, ctx);
     if (sol) apply(pz, sol);
   }
 
@@ -678,7 +680,7 @@ function setup(root: HTMLElement): void {
   } else {
     const fpz = gridFromString(target.puzzle);
     // daily は solution 未配信 → solveOne で現算（play は予生成 solution をそのまま使う）
-    const fsol = target.solution ? gridFromString(target.solution) : solveOne(fpz);
+    const fsol = target.solution ? gridFromString(target.solution) : solveOne(fpz, ctx);
     if (fsol) apply(fpz, fsol);
   }
   if (daily) fillDaily();
