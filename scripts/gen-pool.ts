@@ -34,7 +34,9 @@ const CFG: Record<DifficultyLevel, { count: number; maxScore: number }> = {
   beginner: { count: 85, maxScore: Infinity }, // 38提示·纯single·新手友好
   intermediate: { count: 120, maxScore: Infinity },
   advanced: { count: 135, maxScore: 92 }, // 排除用过多pair的"伪难"题
-  hard: { count: 95, maxScore: Infinity },
+  // hard 上限压 score 尾部倒挂（2026-07 重建后 hard max=141 > extreme max=114）。
+  // 追加模式下只约束**未来新增题**（存量不裁，避免为调参再全站换题面）——扩库时逐步稀释尾部。
+  hard: { count: 95, maxScore: 112 },
   extreme: { count: 50, maxScore: Infinity },
 };
 
