@@ -1,7 +1,7 @@
 // 题目生成器：完整解 → 中心对称挖空。
 // 每挖一步都要求「唯一解 + 逻辑可解(no-guessing)」，从源头保证品质。
 import type { DifficultyLevel, Grid, Puzzle } from './types.ts';
-import { CELLS, MASK_ALL, PEERS, bit, digitsOf, popcount } from './board.ts';
+import { type BoardContext, CELLS, MASK_ALL, STANDARD_CONTEXT, bit, digitsOf, popcount } from './board.ts';
 import { hasUniqueSolution } from './countSolver.ts';
 import { logicalSolve } from './logicalSolver.ts';
 import { levelOf } from './difficulty.ts';
@@ -14,8 +14,8 @@ function shuffle<T>(arr: T[]): T[] {
   return arr;
 }
 
-/** 随机回溯生成一个合法完整解 */
-export function fullSolution(): Grid {
+/** 随机回溯生成一个合法完整解（变体 ctx 下同时满足附加单元约束） */
+export function fullSolution(ctx: BoardContext = STANDARD_CONTEXT): Grid {
   const g = new Array<number>(CELLS).fill(0);
   const rec = (): boolean => {
     let best = -1;
@@ -24,7 +24,7 @@ export function fullSolution(): Grid {
     for (let i = 0; i < CELLS; i++) {
       if (g[i] !== 0) continue;
       let m = MASK_ALL;
-      for (const p of PEERS[i]) if (g[p]) m &= ~bit(g[p]);
+      for (const p of ctx.peers[i]) if (g[p]) m &= ~bit(g[p]);
       const c = popcount(m);
       if (c === 0) return false;
       if (c < bestCount) {
@@ -59,25 +59,27 @@ function symmetricGroups(): number[][] {
  * 生成一道题：尽可能挖空，同时始终保持唯一解 + 逻辑可解。
  * 难度由「挖空后求解所需的最难技巧」自然涌现，再分类。
  */
-export function generatePuzzle(minClues = 17): Puzzle {
-  const solution = fullSolution();
+export function generatePuzzle(minClues = 17, ctx: BoardContext = STANDARD_CONTEXT): Puzzle {
+  const solution = fullSolution(ctx);
   const puzzle = solution.slice();
   let clues = 81;
 
+  // 中心对称挖空对变体也安全：两条对角线本身中心对称（i∈对角线 ⇔ 80-i∈同一对角线），
+  // 唯一解/逻辑可解校验都走同一 ctx，品质门与标准完全一致。
   for (const group of shuffle(symmetricGroups())) {
     if (clues - group.length < minClues) continue; // 挖到提示下限即停（控制填充度→难度）
     if (group.every((i) => puzzle[i] === 0)) continue;
     const backup = group.map((i) => puzzle[i]);
     for (const i of group) puzzle[i] = 0;
     // 必须同时满足：唯一解（先验，快）+ 仅靠人类技巧可解（no-guessing）
-    if (!hasUniqueSolution(puzzle) || !logicalSolve(puzzle).solved) {
+    if (!hasUniqueSolution(puzzle, ctx) || !logicalSolve(puzzle, ctx).solved) {
       group.forEach((i, k) => (puzzle[i] = backup[k]));
     } else {
       clues -= group.length;
     }
   }
 
-  const res = logicalSolve(puzzle);
+  const res = logicalSolve(puzzle, ctx);
   return {
     puzzle,
     solution,

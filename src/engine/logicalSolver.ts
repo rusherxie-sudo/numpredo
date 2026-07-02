@@ -1,19 +1,20 @@
 // 人类技巧求解器：逐级技巧链，是难度评级 / 提示 / 攻略演示的共用核心。
 // 始终优先用最简单技巧；记录所用最难技巧与加权步数 → 难度。
 import type { Grid, SolveResult, SolveStep } from './types.ts';
-import { CELLS, MASK_ALL, PEERS, UNITS, bit, boxOf, colOf, digitsOf, isSolved, popcount, rowOf } from './board.ts';
+import { type BoardContext, CELLS, MASK_ALL, STANDARD_CONTEXT, bit, boxOf, colOf, digitsOf, isSolved, popcount, rowOf } from './board.ts';
 import { TECH_WEIGHT } from './difficulty.ts';
 
 interface State {
   g: Grid;
   cand: number[]; // 每空格候选位掩码；已填格为 0
+  ctx: BoardContext; // units/peers 来源（标准 or 变体）——unit 内推理对任意 unit 集合 sound
 }
 
 /** 落子并联动消除关联格候选 */
 function place(s: State, i: number, d: number): void {
   s.g[i] = d;
   s.cand[i] = 0;
-  for (const p of PEERS[i]) s.cand[p] &= ~bit(d);
+  for (const p of s.ctx.peers[i]) s.cand[p] &= ~bit(d);
 }
 
 /** 真正消除一个候选位时返回 true（已消除则 false），用于避免空转 */
@@ -42,7 +43,7 @@ function nakedSingle(s: State): SolveStep | null {
 }
 
 function hiddenSingle(s: State): SolveStep | null {
-  for (const u of UNITS) {
+  for (const u of s.ctx.units) {
     for (let d = 1; d <= 9; d++) {
       let spot = -1;
       let n = 0;
@@ -79,7 +80,7 @@ function lineCells(kind: 'row' | 'col' | 'box', k: number): number[] {
  * （容器恰为 unit 自身时全部被 inUnit 过滤，无害空转——换取三方向统一处理，不再漏 claiming。）
  */
 function lockedCandidates(s: State): SolveStep | null {
-  for (const u of UNITS) {
+  for (const u of s.ctx.units) {
     const empties = emptyCellsOf(s, u);
     for (let d = 1; d <= 9; d++) {
       const cells = empties.filter((c) => s.cand[c] & bit(d));
@@ -102,7 +103,7 @@ function lockedCandidates(s: State): SolveStep | null {
 }
 
 function nakedPair(s: State): SolveStep | null {
-  for (const u of UNITS) {
+  for (const u of s.ctx.units) {
     const empties = emptyCellsOf(s, u);
     const pairs = empties.filter((c) => popcount(s.cand[c]) === 2);
     for (let a = 0; a < pairs.length; a++)
@@ -122,7 +123,7 @@ function nakedPair(s: State): SolveStep | null {
 }
 
 function hiddenPair(s: State): SolveStep | null {
-  for (const u of UNITS) {
+  for (const u of s.ctx.units) {
     const empties = emptyCellsOf(s, u);
     for (let d1 = 1; d1 <= 8; d1++)
       for (let d2 = d1 + 1; d2 <= 9; d2++) {
@@ -142,7 +143,7 @@ function hiddenPair(s: State): SolveStep | null {
 }
 
 function nakedTriple(s: State): SolveStep | null {
-  for (const u of UNITS) {
+  for (const u of s.ctx.units) {
     const empties = emptyCellsOf(s, u).filter((c) => {
       const p = popcount(s.cand[c]);
       return p === 2 || p === 3;
@@ -243,8 +244,8 @@ if (TECHNIQUES.length !== TECHNIQUE_NAMES.length) {
  * 仅用已实现的人类技巧求解（不猜测）。
  * solved=false 表示需要比 X-Wing 更高级的技巧或猜测 → 视为超出当前可保障范围。
  */
-export function logicalSolve(grid: Grid): SolveResult {
-  const s = initState(grid);
+export function logicalSolve(grid: Grid, ctx: BoardContext = STANDARD_CONTEXT): SolveResult {
+  const s = initState(grid, ctx);
 
   const steps: SolveStep[] = [];
   const techniqueCounts: Record<string, number> = {};
@@ -278,15 +279,15 @@ export function logicalSolve(grid: Grid): SolveResult {
   }
 
   // isSolved 校验合法性而非仅「填满」：若未来技巧引入 unsound 消除填出错解，这里不再放行
-  return { solved: isSolved(s.g), grid: s.g, steps, techniqueCounts, hardest, score };
+  return { solved: isSolved(s.g, ctx), grid: s.g, steps, techniqueCounts, hardest, score };
 }
 
-function initState(grid: Grid): State {
-  const s: State = { g: grid.slice(), cand: new Array(CELLS).fill(0) };
+function initState(grid: Grid, ctx: BoardContext): State {
+  const s: State = { g: grid.slice(), cand: new Array(CELLS).fill(0), ctx };
   for (let i = 0; i < CELLS; i++) {
     if (s.g[i] !== 0) continue;
     let m = MASK_ALL;
-    for (const p of PEERS[i]) if (s.g[p]) m &= ~bit(s.g[p]);
+    for (const p of ctx.peers[i]) if (s.g[p]) m &= ~bit(s.g[p]);
     s.cand[i] = m;
   }
   return s;
@@ -298,8 +299,9 @@ function initState(grid: Grid): State {
  */
 export function traceFirstElimination(
   grid: Grid,
+  ctx: BoardContext = STANDARD_CONTEXT,
 ): { grid: Grid; candidates: number[]; step: SolveStep } | null {
-  const s = initState(grid);
+  const s = initState(grid, ctx);
   while (s.g.includes(0)) {
     let advanced = false;
     for (const tech of TECHNIQUES) {
@@ -326,9 +328,10 @@ export function traceFirstElimination(
 export function traceKeySteps(
   grid: Grid,
   opts: { maxSteps?: number } = {},
+  ctx: BoardContext = STANDARD_CONTEXT,
 ): Array<{ grid: Grid; candidates: number[]; step: SolveStep }> {
   const { maxSteps = 8 } = opts;
-  const s = initState(grid);
+  const s = initState(grid, ctx);
   // 先完整推演，收集每一步「执行前」的盘面/候选快照（保持解题顺序）。
   const all: Array<{ grid: Grid; candidates: number[]; step: SolveStep }> = [];
   while (s.g.includes(0)) {
