@@ -13,6 +13,7 @@ const faq = [
   { q: 'まとめて何問も印刷できますか？', a: '問題数（4問・6問・12問）を選んで作成すれば、複数のナンプレを一度に印刷できます。押すたびにランダムな組み合わせになるので、自分だけの問題集のように使えます。' },
   { q: '高齢者向けに大きく印刷したいのですが？', a: '印刷ダイアログの拡大・縮小（倍率）を上げると、マス目を大きく印刷できます。1枚あたりの問題数を少なめ（4問）にすると、さらにゆったり大きく印刷でき、目にやさしくなります。' },
   { q: '数独の問題集として使えますか？', a: '使えます。数百問の検証済み問題プールから押すたびにランダムに組み合わせるので、何度でも刷って問題集として使えます。難易度別にまとめて印刷すれば、自分専用のドリルになります。' },
+  { q: '印刷した解答ページをなくしてしまったら？', a: '<a href="/tools/solver/">数独ソルバー（自動解答）</a>にマス目を入力すれば、答えをその場で自動表示できます。写真を撮って読み取らせることもできます。' },
 ];
 const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ無料プリント問題集（PDF印刷）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
@@ -81,6 +82,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     <li><a href="/guide/how-to-solve/">解き方ガイド</a></li>
     <li><a href="/daily/">毎日の数独</a></li>
     <li><a href="/play/advanced/">画面でプレイする</a></li>
+    <li><a href="/tools/solver/">自動解答ソルバーで答え合わせ</a></li>
   </ul>
 
   <script>
