@@ -4,8 +4,8 @@
 // daily 模式：按 JST 日序号顺序选题（data-daystart 窗口偏移，全员同日同題），显示日期 + 连续记录(streak)。
 // 进度自动保存(localStorage，刷新不丢)、撤销、数字剩余计数、メモ自动清除、方向键、提示、胜利演出。
 import {
-  DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf,
-  gridFromString, solveOne, type Grid,
+  DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf, boxOf,
+  gridFromString, solveOne, traceFirstElimination, logicalSolve, type Grid,
 } from '../engine/index.ts';
 import { track } from './track.ts';
 
@@ -85,11 +85,22 @@ function cbtn(icon: string, label: string, on: () => void): HTMLButtonElement {
   return b;
 }
 
-// 技巧名 → 日语 + 解法页链接（用于提示的教学引导）
+// 技巧名 → 日语 + 解法页链接（用于提示的教学引导）。键与引擎技巧链一致，止于 xWing（对齐五档）。
 const TECH_JA: Record<string, { ja: string; href: string }> = {
   nakedSingle: { ja: '裸の単数', href: '/guide/beginner/' },
   hiddenSingle: { ja: '隠れた単数', href: '/guide/beginner/' },
+  lockedCandidates: { ja: '区画の絞り込み（ポインティング）', href: '/guide/techniques/pointing/' },
+  nakedPair: { ja: 'ネイキッドペア（二国同盟）', href: '/guide/techniques/naked-pair/' },
+  hiddenPair: { ja: '隠れたペア（ヒドゥンペア）', href: '/guide/techniques/hidden-pair/' },
+  nakedTriple: { ja: '三国同盟（ネイキッドトリプル）', href: '/guide/techniques/naked-triple/' },
+  xWing: { ja: 'X-Wing（エックスウイング）', href: '/guide/techniques/x-wing/' },
+  swordfish: { ja: 'スワードフィッシュ', href: '/guide/techniques/swordfish/' },
+  skyscraper: { ja: 'スカイスクレイパー', href: '/guide/techniques/skyscraper/' },
 };
+// ブロックの日本語ラベル（ナッジ段階の位置指示）
+const BOX_JA = ['左上', '中央上', '右上', '左中', '中央', '右中', '左下', '中央下', '右下'];
+// 认知难度递增序（成绩卡「使ったテクニック」按此排序展示）
+const TECH_ORDER = ['nakedSingle', 'hiddenSingle', 'lockedCandidates', 'nakedPair', 'hiddenPair', 'nakedTriple', 'xWing'];
 
 function setup(root: HTMLElement): void {
   const set: PuzzlePair[] = JSON.parse(root.dataset.set ?? '[]');
@@ -122,6 +133,14 @@ function setup(root: HTMLElement): void {
   let elapsedBase = 0; // 恢复进度时的已用时基准
   let dailyLevel = ''; // daily 当天题的难度档
   let poolIdx = 0; // 当前题在嵌入题库 set 中的下标（「別の問題」循环消费用）
+  // —— 提示（三级递进）状态：hintSig 记录上次提示时的盘面签名，变了就重置到第1级，连点同盘则升级 ——
+  let hintLevel = 0;
+  let hintSig = '';
+  const hintRegion = new Set<number>(); // ナッジ：高亮区域（宫）
+  const hintFocus = new Set<number>(); // 目标格 / 消除目标格
+  const hintWrong = new Set<number>(); // 错填格（纠错提示）
+  const hintCand = new Map<number, number>(); // 格 → 临时候选浮层 bitmask（引擎现算，不入 notes）
+  const hintX = new Map<number, number>(); // 格 → 该步要消除的候选 bitmask（浮层里标红）
   let start = Date.now();
   let timer: ReturnType<typeof setInterval> | null = null;
   let checkErrors = store.get('numpredo.pref.check') !== '0';
@@ -155,6 +174,10 @@ function setup(root: HTMLElement): void {
   const ctrl = el('div', 'sk-ctrl');
   const ctrl2 = el('div', 'sk-ctrl2');
   const checkRow = el('label', 'sk-check');
+  // 信任标语（②「無需猜測保証」卖点化）：常驻侧栏，声明本站题「論理だけで必ず解ける・唯一解」——
+  // 这是 sudoku.com 上级题(含推测局面)结构上给不了的品质承诺，兼一条到解き方ガイドの内链。
+  const guarantee = el('div', 'sk-guarantee');
+  guarantee.innerHTML = '<b>◆ 当てずっぽう不要</b><span>論理だけで必ず解ける唯一解の問題です。<a href="/guide/how-to-solve/">解き方ガイド</a></span>';
   const result = el('div', 'sk-result');
   // 暂停遮罩：覆盖盘面，停表时隐藏盘面内容（防"停表盯盘"作弊），中央继续按钮。
   // aria-hidden + tabindex=-1：读屏/键盘走 sk-pause-btn（label 随状态切）或 Space/Escape，避免 grid 内非法子节点。
@@ -164,7 +187,7 @@ function setup(root: HTMLElement): void {
   board.append(pauseOverlay);
   pauseOverlay.addEventListener('click', () => resume()); // 整层可点，触达更大
   if (daily) side.append(dailyEl);
-  side.append(timeRow, badge, pad, hintMsg, ctrl, ctrl2, checkRow, result);
+  side.append(timeRow, badge, pad, hintMsg, ctrl, ctrl2, checkRow, guarantee, result);
 
   // —— 棋盘格（role=grid > role=row > role=gridcell 合规层级；行容器 display:contents 不影响 CSS grid 布局）——
   board.setAttribute('role', 'grid');
@@ -357,47 +380,19 @@ function setup(root: HTMLElement): void {
     setTimeout(() => { for (const i of idxs) cells[i].classList.remove('sk-area-done'); }, 720);
   }
 
-  // —— 提示（先查错误 → 逻辑找单数指路 → 高级技巧回退揭示）——
+  // —— 提示（三级递进：ナッジ → テクニック → 結論。纠错优先；高级技巧配候选浮层教学）——
   function clearHint(): void {
     hintMsg.textContent = '';
     hintMsg.classList.remove('on');
-    for (const c of cells) c.classList.remove('sk-hint-cell', 'sk-wrong-cell');
+    hintRegion.clear();
+    hintFocus.clear();
+    hintWrong.clear();
+    hintCand.clear();
+    hintX.clear();
+    for (const c of cells) c.classList.remove('sk-hint-cell', 'sk-hint-region', 'sk-wrong-cell');
   }
-  function hint(): void {
-    if (done) return;
-    clearHint();
-    // ① 有填错的格 → 先提示纠错（不揭示答案）
-    const wrong: number[] = [];
-    for (let i = 0; i < 81; i++) if (cur[i] !== 0 && !given[i] && cur[i] !== solution[i]) wrong.push(i);
-    if (wrong.length) {
-      for (const i of wrong) cells[i].classList.add('sk-wrong-cell');
-      hintMsg.innerHTML = `<b>${wrong.length}マス</b>が間違っています。まず直してみましょう。`;
-      hintMsg.classList.add('on');
-      return;
-    }
-    // ② 逻辑找一个可确定的单数（基于已正确填入的盘面）
-    const found = findSingle();
-    if (found) {
-      selected = found.cell;
-      cells[found.cell].classList.add('sk-hint-cell');
-      const t = TECH_JA[found.tech];
-      hintMsg.innerHTML = `このマスは<b>${t.ja}</b>で <b>${found.digit}</b> に決まります（<a href="${t.href}">解き方</a>）。`;
-      hintMsg.classList.add('on');
-      render();
-      return;
-    }
-    // ③ 单数推不动 → 需要更高级技巧，揭示一个空格并引导
-    let empty = -1;
-    for (let i = 0; i < 81; i++) if (cur[i] === 0) { empty = i; break; }
-    if (empty < 0) return;
-    selected = empty;
-    cells[empty].classList.add('sk-hint-cell');
-    hintMsg.innerHTML = `ここから先は<a href="/guide/how-to-solve/">ペアやX-Wing</a>が必要です。このマスは <b>${solution[empty]}</b> です。`;
-    hintMsg.classList.add('on');
-    render();
-  }
-  function findSingle(): { cell: number; digit: number; tech: string } | null {
-    // 用 given + 正确填入构造盘面（忽略错误填入与笔记）
+  // 「正确盘面」= given + 已正确填入（忽略错填与笔记）+ 其候选表——单数判定/浮层/消除型共用
+  function correctBoard(): { g: number[]; cand: number[] } {
     const g = cur.map((v, i) => (given[i] || v === solution[i] ? v : 0));
     const cand = new Array(81).fill(0);
     for (let i = 0; i < 81; i++) {
@@ -406,10 +401,103 @@ function setup(root: HTMLElement): void {
       for (const p of ctx.peers[i]) if (g[p]) m &= ~bit(g[p]);
       cand[i] = m;
     }
+    return { g, cand };
+  }
+  function hint(): void {
+    if (done) return;
+    // 盘面签名变了（落子/撤销/换题）→ 重置到第1级；连点同盘 → 逐级深入（封顶3）
+    const sig = cur.join('');
+    if (sig !== hintSig) { hintLevel = 1; hintSig = sig; } else hintLevel = Math.min(hintLevel + 1, 3);
+    clearHint();
+
+    // ① 错填格优先纠错（不占级别、不算下一步）
+    const wrong: number[] = [];
+    for (let i = 0; i < 81; i++) if (cur[i] !== 0 && !given[i] && cur[i] !== solution[i]) wrong.push(i);
+    if (wrong.length) {
+      for (const i of wrong) hintWrong.add(i);
+      hintMsg.innerHTML = `<b>${wrong.length}マス</b>が間違っています。まず直してみましょう。`;
+      hintMsg.classList.add('on');
+      render();
+      return;
+    }
+
+    const { g, cand } = correctBoard();
+    const single = findSingle(g, cand);
+    if (single) { showSingle(single); return; }
+    const elim = findElimination(g);
+    if (elim) { showElimination(elim); return; }
+
+    // ④ 兜底安全网：引擎意外找不到（本站题理论必可解）→ 揭示第一个空格
+    let empty = -1;
+    for (let i = 0; i < 81; i++) if (cur[i] === 0) { empty = i; break; }
+    if (empty < 0) return;
+    selected = empty;
+    hintFocus.add(empty);
+    setHint(`このマスは <b>${solution[empty]}</b> です（<a href="/guide/how-to-solve/">解き方ガイド</a>）。`);
+    render();
+  }
+
+  // 提示文案 +（未到第3级时）「もう一度で詳しく」尾巴，暗示还能继续深入
+  function setHint(html: string, more = false): void {
+    hintMsg.innerHTML = html + (more ? '<span class="sk-hint-more">（もう一度ヒントで詳しく）</span>' : '');
+    hintMsg.classList.add('on');
+  }
+  // 宫内 9 格（ナッジ段階の範囲ハイライト用）
+  function boxCells(cell: number): number[] {
+    const b = boxOf(cell);
+    const r0 = 3 * ((b / 3) | 0), c0 = 3 * (b % 3);
+    const out: number[] = [];
+    for (let r = r0; r < r0 + 3; r++) for (let c = c0; c < c0 + 3; c++) out.push(r * 9 + c);
+    return out;
+  }
+
+  // —— 単数（裸/隠）三级展开 ——
+  function showSingle(s: { cell: number; digit: number; tech: string; cand: number; unit?: number[] }): void {
+    const t = TECH_JA[s.tech];
+    if (hintLevel <= 1) {
+      for (const i of boxCells(s.cell)) hintRegion.add(i);
+      setHint(`<b>${BOX_JA[boxOf(s.cell)]}</b>のブロックに、次の一手があります。`, true);
+    } else if (hintLevel === 2) {
+      selected = s.cell;
+      hintFocus.add(s.cell);
+      hintCand.set(s.cell, s.cand); // 该格真实候选（裸单数=只剩1个；隐单数=多个，配单元高亮说明为何唯一）
+      if (s.unit) for (const i of s.unit) if (i !== s.cell) hintRegion.add(i);
+      const why = s.tech === 'nakedSingle'
+        ? 'このマスに入れる候補が1つだけです。'
+        : 'この数字を置けるマスは、光っている範囲でここだけです。';
+      setHint(`<b>${t.ja}</b>：${why}（<a href="${t.href}">解き方</a>）`, true);
+    } else {
+      selected = s.cell;
+      hintFocus.add(s.cell);
+      setHint(`このマスは<b>${t.ja}</b>で <b>${s.digit}</b> に決まります（<a href="${t.href}">解き方</a>）。`);
+    }
+    render();
+  }
+
+  // —— 高级技巧（消除型）三级展开 ——
+  function showElimination(e: { tech: string; cells: number[]; digits: number; cand: number[]; remove: Map<number, number> }): void {
+    const t = TECH_JA[e.tech] ?? { ja: e.tech, href: '/guide/how-to-solve/' };
+    const primary = e.cells[0];
+    if (hintLevel <= 1) {
+      for (const i of boxCells(primary)) hintRegion.add(i);
+      setHint(`<b>${BOX_JA[boxOf(primary)]}</b>の周辺に、候補を消せる手筋があります。`, true);
+    } else if (hintLevel === 2) {
+      selected = primary;
+      for (const c of e.cells) { hintFocus.add(c); hintCand.set(c, e.cand[c]); }
+      setHint(`<b>${t.ja}</b>が使えます。ハイライトしたマスの候補の並びに注目（<a href="${t.href}">解き方</a>）。`, true);
+    } else {
+      selected = primary;
+      for (const c of e.cells) { hintFocus.add(c); hintCand.set(c, e.cand[c]); hintX.set(c, e.remove.get(c) ?? 0); }
+      setHint(`<b>${t.ja}</b>で、赤い候補（<b>${digitsOf(e.digits).join('・')}</b>）を消せます（<a href="${t.href}">解き方</a>）。`);
+    }
+    render();
+  }
+
+  function findSingle(g: number[], cand: number[]): { cell: number; digit: number; tech: string; cand: number; unit?: number[] } | null {
     // 裸单数：候选只剩一个
     for (let i = 0; i < 81; i++) {
       if (g[i] === 0 && popcount(cand[i]) === 1) {
-        return { cell: i, digit: digitsOf(cand[i])[0], tech: 'nakedSingle' };
+        return { cell: i, digit: digitsOf(cand[i])[0], tech: 'nakedSingle', cand: cand[i] };
       }
     }
     // 隐单数：某数字在单元内只剩一处（変体では対角線 unit も対象）
@@ -417,10 +505,23 @@ function setup(root: HTMLElement): void {
       for (let d = 1; d <= 9; d++) {
         let spot = -1, n = 0;
         for (const c of u) if (g[c] === 0 && cand[c] & bit(d)) { n++; spot = c; }
-        if (n === 1) return { cell: spot, digit: d, tech: 'hiddenSingle' };
+        if (n === 1) return { cell: spot, digit: d, tech: 'hiddenSingle', cand: cand[spot], unit: u };
       }
     }
     return null;
+  }
+
+  // 消除型：引擎 traceFirstElimination 取「第一个消候选步」+ 执行前候选快照（传 ctx → 対角線兼容）
+  function findElimination(g: number[]): { tech: string; cells: number[]; digits: number; cand: number[]; remove: Map<number, number> } | null {
+    const tr = traceFirstElimination(g as Grid, ctx);
+    if (!tr || !tr.step.eliminations || !tr.step.eliminations.length) return null;
+    const remove = new Map<number, number>();
+    let digits = 0;
+    for (const [cell, d] of tr.step.eliminations) {
+      remove.set(cell, (remove.get(cell) ?? 0) | bit(d));
+      digits |= bit(d);
+    }
+    return { tech: tr.step.technique, cells: [...remove.keys()], digits, cand: tr.candidates, remove };
   }
 
   // —— 题面切换 ——
@@ -527,6 +628,14 @@ function setup(root: HTMLElement): void {
     lines.push(`<div class="sk-r-time">${fmt(finalTime)}</div>`);
     if (isRecord) lines.push(`<div class="sk-r-rec">✦ 自己ベスト更新！</div>`);
     else if (prevBest) lines.push(`<div class="sk-r-best">自己ベスト ${fmt(prevBest)}</div>`);
+    // ③ 学习导线：解完这题时，用引擎解析本题**真实用到的技巧**，做成 chip 链到攻略页。
+    // 通关成就感最高的时刻 → 把玩家导向技巧学习页（教学闭环 + SEO 内链）。TECH_JA 未覆盖的技巧跳过。
+    const techCounts = logicalSolve(puzzleGrid, ctx).techniqueCounts;
+    const usedTechs = TECH_ORDER.filter((t) => techCounts[t] && TECH_JA[t]);
+    if (usedTechs.length) {
+      const chips = usedTechs.map((t) => `<a class="sk-r-tech" href="${TECH_JA[t].href}">${TECH_JA[t].ja}</a>`).join('');
+      lines.push(`<div class="sk-r-learn"><div class="sk-r-learn-h">この問題で使ったテクニック</div><div class="sk-r-techs">${chips}</div></div>`);
+    }
     result.innerHTML = lines.join('');
     const hasNext = !daily && set.length > 1;
     if (hasNext) {
@@ -580,15 +689,19 @@ function setup(root: HTMLElement): void {
     const counts = new Array(10).fill(0);
     for (let i = 0; i < 81; i++) {
       const c = cells[i];
-      const keep = c.className.match(/sk-(hint-cell|wrong-cell|area-done)/g) || [];
+      // area-done は render 外（flashArea の setTimeout）で付くため毎フレーム保持。hint 系は下の Set が唯一の真実源。
+      const keep = c.className.match(/sk-area-done/g) || [];
       c.className = ['sk-cell', ...keep].join(' ');
       if (colOf(i) % 3 === 2 && colOf(i) !== 8) c.classList.add('sk-br');
       if (rowOf(i) % 3 === 2 && rowOf(i) !== 8) c.classList.add('sk-bb');
       if (diagCells.has(i)) c.classList.add('sk-diag'); // 対角線変体：対角線マスの色分け（毎フレーム再付与）
       if (given[i]) c.classList.add('sk-given');
+      if (hintRegion.has(i)) c.classList.add('sk-hint-region'); // 提示第1级：范围提示
       if (i === selected) c.classList.add('sk-sel');
       else if (peerSet.has(i)) c.classList.add('sk-peer');
       if (hlVal && cur[i] === hlVal) c.classList.add('sk-same');
+      if (hintFocus.has(i)) c.classList.add('sk-hint-cell'); // 提示目标格 / 消除格
+      if (hintWrong.has(i)) c.classList.add('sk-wrong-cell'); // 提示纠错：错填格
       if (checkErrors && cur[i] !== 0 && !given[i] && cur[i] !== solution[i]) c.classList.add('sk-err');
       // 规则冲突：与同 unit（行/列/宫，変体では対角線も）的相同数字重复 → 即时粉红高亮（客观、不剧透答案）
       if (cur[i] !== 0) {
@@ -598,6 +711,20 @@ function setup(root: HTMLElement): void {
       if (cur[i] !== 0) {
         c.textContent = String(cur[i]);
         counts[cur[i]]++;
+      } else if (hintCand.has(i)) {
+        // 提示候选浮层：引擎现算候选，与玩家笔记视觉区分（sk-hint-notes）；被消候选标红（sk-hx）
+        c.textContent = '';
+        const mask = hintCand.get(i)!;
+        const xmask = hintX.get(i) ?? 0;
+        const n = el('span', 'sk-notes sk-hint-notes');
+        for (let d = 1; d <= 9; d++) {
+          const s = el('i');
+          if (mask & bit(d)) { s.textContent = String(d); if (xmask & bit(d)) s.className = 'sk-hx'; }
+          else s.textContent = '';
+          n.append(s);
+        }
+        c.append(n);
+        rem++;
       } else if (notes[i]) {
         c.textContent = '';
         const n = el('span', 'sk-notes');
