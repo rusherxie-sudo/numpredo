@@ -18,11 +18,23 @@ const faq = [
 const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ無料プリント問題集（PDF印刷）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: '問題集・印刷', item: url }] };
+const howToSchema = {
+  '@context': 'https://schema.org', '@type': 'HowTo',
+  name: '数独・ナンプレを無料で印刷（PDF保存）する方法',
+  description: '難易度と問題数を選ぶだけで、検証済みの数独・ナンプレ問題集を無料で印刷、またはPDFとして保存する手順。',
+  inLanguage: 'ja', totalTime: 'PT1M',
+  step: [
+    { '@type': 'HowToStep', position: 1, name: '難易度と問題数を選ぶ', text: '初級〜超難問から難易度を選び、1枚に入れる問題数（4問・6問・12問）を指定します。' },
+    { '@type': 'HowToStep', position: 2, name: '「作成して印刷」を押す', text: '数百問の検証済みプールからランダムに問題集を組み立て、印刷ダイアログが開きます。解答も一緒に印刷されます。' },
+    { '@type': 'HowToStep', position: 3, name: '印刷またはPDFに保存', text: 'プリンターで印刷するか、「PDFに保存」を選べばPDFファイルとして保存できます。用紙サイズはA4がおすすめです。', url: url },
+  ],
+};
 ---
 
 <Base title={title} description={description} wide>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>
@@ -66,6 +78,9 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 
     <h2>難易度の選び方</h2>
     <p>はじめての方や答え合わせ用なら<strong>初級・中級</strong>、歯ごたえが欲しい方は<strong>上級〜超難問</strong>がおすすめです。すべて唯一解・論理だけで解けるので、印刷した問題は当てずっぽうなしで必ず解けます。難易度ごとの特徴は<a href="/play/">プレイ一覧</a>で確認できます。</p>
+
+    <h2>ナンプレをPDFでダウンロード・保存する方法</h2>
+    <p>プリンターがなくてもPDFで保存できます。「作成して印刷」を押して印刷ダイアログが開いたら、プリンターの代わりに「<strong>PDFに保存</strong>」を選ぶだけ。スマホやタブレットに数独・ナンプレのPDFを保存しておけば、コンビニ印刷やあとで解く用に使えます。<strong>数独・ナンプレのPDF無料ダウンロード</strong>としてもお使いください。用紙はA4がおすすめです。</p>
 
     <h2>毎回ちがう組み合わせで刷れる｜固定の問題集との違い</h2>
     <p>市販の数独問題集は<strong>ページ順に解き進めるだけ</strong>ですが、numpredo のプリントは<strong>数百問の検証済み問題プールから、押すたびにランダムな組み合わせ</strong>で問題集を作ります。何度でも・何枚でも刷れるので、家族で同じ難易度を別々に解いたり、毎日ちがう一枚を続けたりと、自分だけの問題集として使えます。</p>
