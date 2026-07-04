@@ -59,7 +59,7 @@ const breadcrumbSchema = {
   <h1>{g.h1}</h1>
   <p class="lead">{g.lead}</p>
 
-  {g.sections.map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => <p set:html={p} />)}</>))}
+  {g.sections.map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => (/^\s*<(table|div|ul|ol|figure)/.test(p) ? <Fragment set:html={p} /> : <p set:html={p} />))}</>))}
 
   <h2>解き方ガイドに戻る</h2>
   <ul>
@@ -77,5 +77,10 @@ const breadcrumbSchema = {
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 16px; }
     main ul { line-height: 2; } main ul a { color: var(--accent); }
     .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 16px; } .faq dd { margin: 5px 0 0; color: var(--ink-3); }
+    .gtable-wrap { overflow-x: auto; margin: 10px 0 4px; }
+    .gtable { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .gtable th, .gtable td { border: 1px solid var(--line-2); padding: 8px 11px; text-align: left; vertical-align: top; }
+    .gtable th { background: var(--surface-2); font-weight: 700; color: var(--ink); }
+    .gtable td:first-child { color: var(--ink-2); font-weight: 600; white-space: nowrap; }
   </style>
 </Base>
