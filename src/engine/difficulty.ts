@@ -10,6 +10,8 @@ export const TECH_WEIGHT: Record<string, number> = {
   hiddenPair: 5, // 隐对
   nakedTriple: 6, // 裸三
   xWing: 9, // X-Wing（鱼）
+  swordfish: 10, // Swordfish（三阶鱼，比 X-Wing 更难）——>6 同映射 extreme
+  skyscraper: 8, // Skyscraper（单数字链）——>6 同映射 extreme
 };
 
 export const LEVELS: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];

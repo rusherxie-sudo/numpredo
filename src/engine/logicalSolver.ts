@@ -217,6 +217,105 @@ function xWing(s: State): SolveStep | null {
   return null;
 }
 
+/**
+ * Swordfish：X-Wing 的三阶推广。某数在三条基线（行 or 列）各落在 2〜3 处，且其跨线的
+ * 列（行）并集**恰为 3**（无鳍 finless）→ 这三条覆盖线的其他格消除该数。
+ * 正确性：三基行的该数候选全落在 3 列内，列唯一性 ⇒ 三行的三个该数一一占满这 3 列 →
+ * 其他行的这 3 列不可能再放该数。基线取 2〜3 处（1 处已被 hiddenSingle 处理、且并集必<3 无意义）。
+ */
+function swordfish(s: State): SolveStep | null {
+  for (let d = 1; d <= 9; d++) {
+    // 行向：每行该数的候选列；取候选数 2〜3 的行做基线，找并集恰为 3 列的三行
+    const rowCols: number[][] = [];
+    for (let r = 0; r < 9; r++) {
+      const cols: number[] = [];
+      for (let c = 0; c < 9; c++) if (s.g[r * 9 + c] === 0 && s.cand[r * 9 + c] & bit(d)) cols.push(c);
+      rowCols[r] = cols;
+    }
+    const baseRows: number[] = [];
+    for (let r = 0; r < 9; r++) if (rowCols[r].length === 2 || rowCols[r].length === 3) baseRows.push(r);
+    for (let i = 0; i < baseRows.length; i++)
+      for (let j = i + 1; j < baseRows.length; j++)
+        for (let k = j + 1; k < baseRows.length; k++) {
+          const rs = [baseRows[i], baseRows[j], baseRows[k]];
+          const cols = new Set<number>([...rowCols[rs[0]], ...rowCols[rs[1]], ...rowCols[rs[2]]]);
+          if (cols.size !== 3) continue;
+          const rowsSet = new Set(rs);
+          const acc: Array<[number, number]> = [];
+          for (const c of cols) for (let r = 0; r < 9; r++) if (!rowsSet.has(r)) eliminate(s, r * 9 + c, d, acc);
+          if (acc.length) return { technique: 'swordfish', eliminations: acc };
+        }
+    // 列向对称
+    const colRows: number[][] = [];
+    for (let c = 0; c < 9; c++) {
+      const rows: number[] = [];
+      for (let r = 0; r < 9; r++) if (s.g[r * 9 + c] === 0 && s.cand[r * 9 + c] & bit(d)) rows.push(r);
+      colRows[c] = rows;
+    }
+    const baseCols: number[] = [];
+    for (let c = 0; c < 9; c++) if (colRows[c].length === 2 || colRows[c].length === 3) baseCols.push(c);
+    for (let i = 0; i < baseCols.length; i++)
+      for (let j = i + 1; j < baseCols.length; j++)
+        for (let k = j + 1; k < baseCols.length; k++) {
+          const cs = [baseCols[i], baseCols[j], baseCols[k]];
+          const rows = new Set<number>([...colRows[cs[0]], ...colRows[cs[1]], ...colRows[cs[2]]]);
+          if (rows.size !== 3) continue;
+          const colsSet = new Set(cs);
+          const acc: Array<[number, number]> = [];
+          for (const r of rows) for (let c = 0; c < 9; c++) if (!colsSet.has(c)) eliminate(s, r * 9 + c, d, acc);
+          if (acc.length) return { technique: 'swordfish', eliminations: acc };
+        }
+  }
+  return null;
+}
+
+/**
+ * Skyscraper（单数字链）：某数在两条线（行 or 列）各恰 2 处，一端共享同一「交叉线」(base)、
+ * 另一端(roof)落在不同交叉线上 → base 交叉线最多容一个该数 ⇒ 两个 roof 至少一真 ⇒
+ * 同时能「看到」两个 roof 的格(共同 peer)不可能是该数，消除之。
+ * 用 ctx.peers 求共同可见格 → 対角線変体でも sound（対角線越しに両 roof を見るマスも消せる）。
+ */
+function skyscraper(s: State): SolveStep | null {
+  const cross = (byRow: boolean, i: number): number => (byRow ? colOf(i) : rowOf(i));
+  for (const byRow of [true, false]) {
+    for (let d = 1; d <= 9; d++) {
+      // 每条线上该数恰 2 个候选的，记录其两端坐标
+      const lines: number[][] = [];
+      for (let a = 0; a < 9; a++) {
+        const cs: number[] = [];
+        for (let b = 0; b < 9; b++) {
+          const i = byRow ? a * 9 + b : b * 9 + a;
+          if (s.g[i] === 0 && s.cand[i] & bit(d)) cs.push(i);
+        }
+        if (cs.length === 2) lines.push(cs);
+      }
+      for (let x = 0; x < lines.length; x++)
+        for (let y = x + 1; y < lines.length; y++) {
+          const L1 = lines[x];
+          const L2 = lines[y];
+          // 两端各试作 base：一端共享交叉线(base)、另一端不共享(roof)
+          for (const e1 of [0, 1])
+            for (const e2 of [0, 1]) {
+              const base1 = L1[e1];
+              const roof1 = L1[1 - e1];
+              const base2 = L2[e2];
+              const roof2 = L2[1 - e2];
+              if (cross(byRow, base1) !== cross(byRow, base2)) continue; // base 必须同一交叉线
+              if (cross(byRow, roof1) === cross(byRow, roof2)) continue; // roof 必须不同交叉线（否则退化为 X-Wing）
+              const p1 = new Set(s.ctx.peers[roof1]);
+              const acc: Array<[number, number]> = [];
+              for (const t of s.ctx.peers[roof2]) {
+                if (t === roof1 || t === roof2) continue;
+                if (p1.has(t)) eliminate(s, t, d, acc);
+              }
+              if (acc.length) return { technique: 'skyscraper', eliminations: acc };
+            }
+        }
+    }
+  }
+  return null;
+}
+
 /** 技巧链：易 → 难 */
 const TECHNIQUES: Array<(s: State) => SolveStep | null> = [
   nakedSingle,
@@ -226,6 +325,8 @@ const TECHNIQUES: Array<(s: State) => SolveStep | null> = [
   hiddenPair,
   nakedTriple,
   xWing,
+  swordfish,
+  skyscraper,
 ];
 
 /**
@@ -233,7 +334,7 @@ const TECHNIQUES: Array<(s: State) => SolveStep | null> = [
  * demo.ts 用它断言 TECH_WEIGHT / TECH_INFO 键完备——缺键会被静默兜底成权重 1（初級），必须有守卫。
  */
 export const TECHNIQUE_NAMES: readonly string[] = [
-  'nakedSingle', 'hiddenSingle', 'lockedCandidates', 'nakedPair', 'hiddenPair', 'nakedTriple', 'xWing',
+  'nakedSingle', 'hiddenSingle', 'lockedCandidates', 'nakedPair', 'hiddenPair', 'nakedTriple', 'xWing', 'swordfish', 'skyscraper',
 ];
 // 双数组脱节即时爆炸（不能用 fn.name 派生——客户端 minify 会改函数名；length 比较不受影响）
 if (TECHNIQUES.length !== TECHNIQUE_NAMES.length) {

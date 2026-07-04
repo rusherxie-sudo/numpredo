@@ -81,6 +81,24 @@ export const TECH_INFO: Record<string, { ja: string; slug?: string; desc: (s: So
         (el) => `2本の行（列）で候補の位置がそろうX-Wing。挟まれたラインの${elimTarget(el)}を消去できます。`,
       ]),
   },
+  swordfish: {
+    ja: 'スワードフィッシュ',
+    slug: 'swordfish',
+    desc: (s) =>
+      pick(s, [
+        (el) => `ある数字の候補が3本の行（列）で3列（3行）に収まるスワードフィッシュ（X-Wingの3階版）です。その3列（3行）に沿って、${elimTarget(el)}を消去できます。`,
+        (el) => `3本のラインで候補が3列（3行）に閉じ込められる形。スワードフィッシュにより${elimTarget(el)}を消去できます。`,
+      ]),
+  },
+  skyscraper: {
+    ja: 'スカイスクレイパー',
+    slug: 'skyscraper',
+    desc: (s) =>
+      pick(s, [
+        (el) => `ある数字が2本のラインでつながるスカイスクレイパーです。どちらか一方の端が必ず埋まるので、両方の端から見える${elimTarget(el)}を消去できます。`,
+        (el) => `2つの強リンクが1本の土台でつながる形（スカイスクレイパー）。二つの先端の両方から見える${elimTarget(el)}を消去できます。`,
+      ]),
+  },
 };
 
 export interface StepFigure {
