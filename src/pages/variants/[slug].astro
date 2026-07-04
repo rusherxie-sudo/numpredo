@@ -39,6 +39,14 @@ const faqSchema = {
   '@type': 'FAQPage',
   mainEntity: v.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
 };
+const howToSchema = v.howTo && {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: v.howTo.name,
+  description: v.howTo.description,
+  inLanguage: 'ja',
+  step: v.howTo.steps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.name, text: s.text })),
+};
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -53,6 +61,7 @@ const breadcrumbSchema = {
 <Base title={v.title} description={v.description} canonical={url}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+    {howToSchema && <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />}
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>

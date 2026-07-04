@@ -27,10 +27,12 @@ const techLinks = (LEVEL_TECHS[meta.slug] ?? [])
   .map((s) => TECHNIQUES.find((t) => t.slug === s))
   .filter((t): t is (typeof TECHNIQUES)[number] => Boolean(t));
 
-const title = `${meta.ja}の数独・ナンプレを無料でプレイ｜numpredo`;
+const title = `数独${meta.ja}の無料問題｜ナンプレ${meta.ja}を今すぐプレイ - numpredo`;
 const description = meta.metaDesc;
 const url = `https://numpredo.com/play/${meta.slug}/`;
 
+const idx = LEVELS.findIndex((l) => l.slug === meta.slug);
+const nextLv = LEVELS[idx + 1]; // 档间进阶内链（初級→中級→…→超難問）
 const others = LEVELS.filter((l) => l.slug !== meta.slug);
 
 // 构建期 SVG 图解（题面 + 引擎真实推理の消去）→ 内容丰富度 + image pack
@@ -82,7 +84,8 @@ const breadcrumbSchema = {
   <div class="px-text">
     <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › {meta.ja}</nav>
 
-    <h1>{meta.ja}の数独・ナンプレ</h1>
+    <h1>数独{meta.ja}の無料問題（ナンプレ{meta.ja}）</h1>
+    <p class="lv-intro">{meta.intro}</p>
 
     <div class="diff-badges">
       {LEVELS.map((l) => <a href={`/play/${l.slug}/`} class={l.slug === meta.slug ? 'diff-bdg on' : 'diff-bdg'}>{l.ja}</a>)}
@@ -124,6 +127,7 @@ const breadcrumbSchema = {
   <ul class="setlist">{Array.from({ length: Math.min(30, meta.puzzles.length) }, (_, i) => i + 1).map((i) => <li><a href={`/play/${meta.slug}/${i}/`}>数独{meta.ja} No.{i} の解き方図解</a></li>)}</ul>
 
   <h2>他の難易度で遊ぶ</h2>
+  {nextLv && <p class="next-lv"><a href={`/play/${nextLv.slug}/`}>次のレベルへ：{nextLv.ja}に挑戦する →</a></p>}
   <ul>{others.map((l) => <li><a href={`/play/${l.slug}/`}>{l.ja}（{l.en}）</a></li>)}</ul>
 
   <h2>印刷して解く</h2>
@@ -138,6 +142,9 @@ const breadcrumbSchema = {
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; }
     .crumb a { color: var(--ink-3); text-decoration: none; }
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 16px; }
+    .lv-intro { color: var(--ink-2); font-size: 13px; margin: 0 0 12px; }
+    .next-lv { margin: 0 0 8px; }
+    .next-lv a { font-weight: 700; }
     .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 16px; }
     .faq dd { margin: 5px 0 0; color: var(--ink-3); }
     main ul { line-height: 2; }
