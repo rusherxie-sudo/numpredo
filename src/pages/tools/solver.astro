@@ -1,8 +1,16 @@
 ---
 import Base from '../../layouts/Base.astro';
+import lastmodJson from '../../data/sitemap-lastmod.json';
+import publishedJson from '../../data/published.json';
+const lastmod: Record<string, string> = lastmodJson;
+const published: Record<string, string> = publishedJson;
+
 const title = '数独・ナンプレ自動解答｜写真で答え合わせ（無料）- numpredo';
 const description = '新聞・雑誌の数独・ナンプレが解けないときに。写真を撮る・画像を選ぶだけで盤面を自動読み取りし、答えを瞬時に自動計算。手入力にも対応。9×9標準数独の答え合わせ・自動解答ソルバーが無料・登録不要、スマホでもPCでも使えます。';
 const url = 'https://numpredo.com/tools/solver/';
+const datePublished = published['/tools/solver/'];
+const dateModified = lastmod['/tools/solver/'];
+const dateModifiedLabel = dateModified?.slice(0, 10).replace(/-/g, '/');
 const faq = [
   { q: '写真から問題を読み取れますか？', a: 'はい。新聞や雑誌の数独・ナンプレを撮影、またはスクリーンショットを選ぶと、盤面のマス目を自動で読み取り、上の盤面に反映します。明るく、なるべく正面から撮るときれいに読み取れます。' },
   { q: '読み取りが間違っていたら？', a: '読み取りは完璧ではありません。反映された盤面を見て、間違っているマスをタップ（クリック）して数字キーで直してから「解く」を押してください。最初から手入力で使うこともできます。' },
@@ -12,7 +20,15 @@ const faq = [
   { q: '6×6 や変則ルール（キラー・対角線など）も解けますか？', a: 'このソルバーが対応しているのは 9×9 の標準的な数独（ナンプレ）です。6×6 などのサイズ違いや、キラー数独・対角線数独といった変則ルールには現在対応していません。各バリエーションのルールは<a href="/variants/6x6/">6×6数独</a>や<a href="/variants/killer/">キラー数独</a>の解説ページでご紹介しています。' },
   { q: 'このソルバーは数独の解き方も教えてくれますか？', a: 'はい。「解く」を押すと、答えだけでなく論理だけで解く手順を一手ずつ図解で表示します。どの手筋を使うか、どのマスから埋まるかが分かるので、解き方の練習になります。手筋ごとのくわしい解説は<a href="/guide/how-to-solve/">解き方完全ガイド</a>をどうぞ。' },
 ];
-const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ自動解答ツール（写真ソルバー）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
+const webAppSchema = {
+  '@context': 'https://schema.org', '@type': 'WebApplication',
+  name: '数独・ナンプレ自動解答ツール（写真ソルバー）', description, url,
+  applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
+  ...(datePublished ? { datePublished } : {}),
+  ...(dateModified ? { dateModified } : {}),
+};
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: 'プレイ', item: 'https://numpredo.com/play/' }, { '@type': 'ListItem', position: 3, name: 'ソルバー', item: url }] };
 // HowTo：ページ内の「写真で解く手順」を構造化データ化（写真/カメラで解く方法の意図に対応、リッチリザルト対象）
@@ -41,6 +57,7 @@ const howToSchema = {
   <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › ソルバー</nav>
   <h1>数独・ナンプレ自動解答ツール（写真でかんたん答え合わせ）</h1>
   <p class="lead"><strong>9×9 の標準的な数独（ナンプレ）</strong>専用。新聞・雑誌の数独が解けないとき、<strong>写真を撮る／画像を選ぶ</strong>だけで盤面を読み取り、答えを自動計算します。読み取り後は盤面で確認・修正してから「解く」を押してください。手入力だけでもOKです。</p>
+  {dateModifiedLabel && <p class="sv-updated">最終更新：{dateModifiedLabel}</p>}
 
   <div class="sv-photo">
     <label class="sv-photo-btn sv-photo-cam"><input type="file" accept="image/*" capture="environment" data-photo hidden />カメラで撮影</label>
@@ -57,9 +74,18 @@ const howToSchema = {
   <p>このソルバーは答えを出すだけではありません。「解く」を押すと、その問題を<strong>論理だけで解く手順</strong>を一手ずつ図解（解き方の手順）で表示します。どのマスから埋まるのか、どの手筋（テクニック）を使うのかを盤面付きで確認できるので、新聞・雑誌の答え合わせをしながら<strong>数独・ナンプレの解き方そのものを学べます</strong>。難易度の目安（初級〜超難問）も自動で判定します。</p>
   <p>判定できる手筋は<a href="/guide/techniques/naked-pair/">ペア（二国同盟）</a>・<a href="/guide/techniques/x-wing/">X-Wing</a>・<a href="/guide/techniques/swordfish/">スワードフィッシュ</a>・<a href="/guide/techniques/skyscraper/">スカイスクレイパー</a>など、上級者向けの手筋まで対応。難問・超難問の答え合わせでも、どの手筋で解けるのかを図解します。一つひとつの解き方は<a href="/guide/how-to-solve/">解き方完全ガイド</a>でくわしく解説しています。当てずっぽうなしで、論理だけで解けるのが数独の魅力です。</p>
 
+  <h2>新聞の数独が写真で解けない時は？</h2>
+  <p>盤面が画面いっぱいになるよう正面から明るい場所で撮影し、読み取り後に盤面を確認・修正してから「解く」を押せば解けます。うまく読み取れないマスは、タップして数字キーで手直しできます。</p>
+
   <h2>写真・カメラで数独・ナンプレを解く方法（スマホ対応）</h2>
   <p>スマホのカメラで撮影、または画像・スクリーンショットを選ぶだけで、数独・ナンプレの盤面を自動で読み取ります。読み取った数字は上の盤面に反映されるので、間違っているマスをタップして直し、「解く」を押すだけ。新聞や雑誌の数独を写真に撮って答え合わせするのに便利です。</p>
-  <p>きれいに読み取るコツ：① 盤面が画面いっぱいになるよう、なるべく正面から撮る ② 明るい場所で、影や反射が入らないようにする ③ 9×9 の標準的な数独に対応。読み取りは完璧ではないため、反映された盤面を確認・修正してから「解く」を押してください。<strong>画像はお使いの端末内だけで処理され、サーバーには送信されません。</strong></p>
+  <p>きれいに読み取るコツ：</p>
+  <ul>
+    <li>盤面が画面いっぱいになるよう、なるべく正面から撮る</li>
+    <li>明るい場所で、影や反射が入らないようにする</li>
+    <li>対応しているのは 9×9 の標準的な数独のみ</li>
+  </ul>
+  <p>読み取りは完璧ではないため、反映された盤面を確認・修正してから「解く」を押してください。<strong>画像はお使いの端末内だけで処理され、サーバーには送信されません。</strong></p>
 
   <h2>新聞・雑誌の数独／ナンプレの答え合わせに</h2>
   <p>新聞（読売・毎日・朝日など）や雑誌のナンプレ・数独が解けないとき、紙面の答え発表を待たずに答え合わせができます。問題を撮影するか、マス目を入力して「解く」を押すだけ。唯一解かどうかも判定します。くわしくは<a href="/guide/newspaper/">新聞の数独・ナンプレが解けないときの答え合わせ方法</a>をどうぞ。</p>
@@ -81,6 +107,7 @@ const howToSchema = {
   <style is:global>
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 16px; }
+    .sv-updated { color: var(--ink-4); font-size: 12px; margin: -10px 0 16px; }
     main ul { line-height: 2; } main ul a { color: var(--accent); }
     .faq dt { font-weight: 700; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--ink-3); font-size: 14px; } .faq a { color: var(--accent); }
 

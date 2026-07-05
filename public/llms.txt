@@ -1,0 +1,47 @@
+# numpredo
+
+> 日本語の数独・ナンプレ無料学習サイト。ブラウザで遊べる数独（5段階難易度）と、写真で答え合わせできる自動解答ツールを提供。すべての問題は生成時に唯一解・論理だけで解けることを検証済み。
+
+## 主要ページ
+
+- [トップページ](https://numpredo.com/): サイト概要とレベル別導線
+- [数独を解く（自動解答ソルバー）](https://numpredo.com/tools/solver/): 写真を撮る・画像を選ぶだけで盤面を自動読み取りし解答、解き方も一手ずつ表示
+- [解き方完全ガイド](https://numpredo.com/guide/how-to-solve/): ナンプレの基本手順と手筋（テクニック）を図解で解説
+- [難易度一覧](https://numpredo.com/play/): 初級・中級・上級・難問・超難問の5段階
+- [毎日の数独](https://numpredo.com/daily/): 日替わりのデイリー問題
+- [無料印刷用PDF](https://numpredo.com/print/): 難易度と問題数を選んでダウンロード・印刷
+
+## 手筋（テクニック）解説
+
+- [ペア（二国同盟）](https://numpredo.com/guide/techniques/naked-pair/)
+- [区画の絞り込み](https://numpredo.com/guide/techniques/pointing/)
+- [X-Wing](https://numpredo.com/guide/techniques/x-wing/)
+- [隠れたペア](https://numpredo.com/guide/techniques/hidden-pair/)
+- [裸の三数](https://numpredo.com/guide/techniques/naked-triple/)
+- [スワードフィッシュ](https://numpredo.com/guide/techniques/swordfish/)
+- [スカイスクレイパー](https://numpredo.com/guide/techniques/skyscraper/)
+
+## 攻略・情報ガイド
+
+- [ルール・遊び方](https://numpredo.com/guide/rules/)
+- [初心者のコツ](https://numpredo.com/guide/beginner/)
+- [子供向け・簡単な数独](https://numpredo.com/guide/for-kids/)
+- [上級テクニック](https://numpredo.com/guide/advanced/)
+- [上達のコツ](https://numpredo.com/guide/tips/)
+- [行き詰まったときは](https://numpredo.com/guide/when-stuck/)
+- [数独とナンプレの違い](https://numpredo.com/guide/sudoku-vs-numpre/)
+- [数独の歴史](https://numpredo.com/guide/sudoku-history/)
+- [数独用語集](https://numpredo.com/guide/glossary/)
+- [数独と脳トレ](https://numpredo.com/guide/brain-training/)
+- [新聞の数独・ナンプレが解けないとき](https://numpredo.com/guide/newspaper/)
+
+## バリエーション（変体数独）
+
+- [キラー数独](https://numpredo.com/variants/killer/)
+- [6×6数独](https://numpredo.com/variants/6x6/)
+- [不等号ナンプレ](https://numpredo.com/variants/inequality/)
+- [対角線数独（プレイ可）](https://numpredo.com/variants/diagonal/)
+
+## Optional
+
+- [このサイトについて](https://numpredo.com/about/)

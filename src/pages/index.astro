@@ -3,9 +3,9 @@ import Base from '../layouts/Base.astro';
 import advanced from '../data/puzzles/advanced.json';
 import { gridFromString, renderBoardSvg } from '../engine/index.ts';
 
-const title = '数独・ナンプレ｜無料・唯一解・論理で解ける - numpredo';
+const title = 'ナンプレ・数独｜無料・唯一解・論理で解ける - numpredo';
 const description =
-  '数独（ナンプレ）を無料でオンラインプレイ。初級から超難問まで、すべて唯一解・論理だけで解ける高品質問題を毎日更新。解き方ガイド・自動解答ソルバー・印刷問題集もすべて無料・登録不要。スマホ・PCで今すぐ遊べます。';
+  'ナンプレ（数独）が無料で今すぐ遊べる。初級から超難問まで、すべて唯一解・論理だけで解ける高品質問題を毎日更新。解き方ガイド・自動解答ソルバー・印刷問題集も無料・登録不要。スマホ・PCに対応。';
 
 // hero の盤面：実題を構築期に SVG 化（CSS 変数主題で明暗自動追随）
 const heroGrid = gridFromString(advanced.puzzles[0].puzzle);
@@ -37,20 +37,37 @@ const why: [string, string, string][] = [
   ['✓', '自動でこたえ合わせ', 'まちがいはその場で表示。ソルバーで紙の問題も照合できます。'],
 ];
 
+const homeFaq: [string, string][] = [
+  ['数独とナンプレは違うものですか？', '同じパズルの別名です。「ナンバープレース（ナンプレ）」と「数独」は呼び方が違うだけで、ルールも解き方も同じです。'],
+  ['無料で使えますか？', 'はい。会員登録もアプリのインストールも不要で、プレイ・解き方ガイド・自動解答ソルバー・印刷用PDFすべて無料でお使いいただけます。'],
+  ['スマホでも遊べますか？', 'はい。スマホ・タブレット・PCのブラウザでそのまま遊べます。押しやすい数字キーボードと候補メモ機能で、小さな画面でも快適に解けます。'],
+  ['問題はすべて論理だけで解けますか？', 'はい。numpredoの問題は生成時に唯一解であることと、当てずっぽうなしで論理だけで解けることを検証しています。'],
+];
+
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
+  '@id': 'https://numpredo.com/#website',
   name: 'numpredo',
   alternateName: 'ナンプレdo',
   url: 'https://numpredo.com/',
   inLanguage: 'ja',
+  publisher: { '@id': 'https://numpredo.com/#organization' },
 };
 const orgSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': 'https://numpredo.com/#organization',
   name: 'numpredo',
   url: 'https://numpredo.com/',
   logo: 'https://numpredo.com/og-image.png',
+  description: '日本語の数独・ナンプレ無料学習サイト。5段階難易度のブラウザプレイ、写真で答え合わせできる自動解答ソルバー、解き方ガイド、印刷用PDFを提供。',
+  knowsAbout: ['数独', 'ナンプレ', 'パズルゲーム', '論理パズル'],
+};
+const homeFaqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: homeFaq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
 };
 ---
 
@@ -58,12 +75,13 @@ const orgSchema = {
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(homeFaqSchema)} />
   </Fragment>
 
   <section class="hp-hero">
     <div class="hp-hero-l">
       <span class="hp-badge">登録不要・完全無料</span>
-      <h1 class="hp-h1">毎日とける、<br />無料の数独・ナンプレ。</h1>
+      <h1 class="hp-h1">毎日とける、<br />無料のナンプレ・数独。</h1>
       <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで5段階、毎日あたらしいデイリー問題も。解き方ガイドと、自動でこたえ合わせできるソルバーつき。</p>
       <div class="hp-cta">
         <a href="/play/beginner/" class="hp-btn hp-btn-p">初級をはじめる</a>
@@ -140,6 +158,18 @@ const orgSchema = {
     </div>
   </section>
 
+  <section class="hp-sec">
+    <h2 class="hp-h2 hp-center">よくある質問</h2>
+    <dl class="hp-faq">
+      {homeFaq.map(([q, a]) => (
+        <>
+          <dt>{q}</dt>
+          <dd>{a}</dd>
+        </>
+      ))}
+    </dl>
+  </section>
+
   <style is:global>
     .hp-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; align-items: center; padding: 32px 0 44px; }
     .hp-badge { display: inline-flex; align-items: center; gap: 8px; font-size: var(--text-sm); font-weight: 700; color: var(--accent); background: var(--accent-tint); border-radius: 7px; padding: 6px 12px; margin-bottom: 22px; }
@@ -208,6 +238,10 @@ const orgSchema = {
     .hp-var-p { font-size: var(--text-sm); color: var(--ink-3); line-height: 1.7; max-width: 520px; margin: 0; }
     .hp-var-btn { background: var(--surface); border: 1px solid var(--line-2); color: var(--ink); font-size: var(--text-base); font-weight: 700; padding: 13px 24px; border-radius: var(--radius); white-space: nowrap; text-decoration: none; transition: all .15s; }
     .hp-var-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .hp-faq { max-width: 760px; margin: 0 auto; }
+    .hp-faq dt { font-weight: 700; margin-top: 18px; }
+    .hp-faq dd { margin: 6px 0 0; color: var(--ink-3); font-size: var(--text-sm); line-height: 1.8; }
 
     @media (max-width: 760px) {
       .hp-sec-head { flex-direction: column; align-items: flex-start; gap: 8px; }

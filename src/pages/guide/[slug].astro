@@ -28,7 +28,7 @@ const articleSchema = {
   mainEntityOfPage: url,
   image: 'https://numpredo.com/og-image.png',
   author: { '@type': 'Organization', name: 'numpredo', url: 'https://numpredo.com/' },
-  publisher: { '@type': 'Organization', name: 'numpredo', logo: { '@type': 'ImageObject', url: 'https://numpredo.com/og-image.png' } },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
   ...(datePublished ? { datePublished } : {}),
   ...(dateModified ? { dateModified } : {}),
 };
