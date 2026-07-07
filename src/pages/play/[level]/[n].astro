@@ -8,10 +8,10 @@ import publishedJson from '../../../data/published.json';
 const lastmod: Record<string, string> = lastmodJson;
 const published: Record<string, string> = publishedJson;
 
-const SETS_PER_LEVEL = 30; // 题目集出页数/档(题库更大,余下作 daily 池+储备)。新站渐进放量,收录稳了再调高。
+const SETS_PER_LEVEL = 45; // 题目集出页数/档(题库更大,余下作 daily 池+储备)。2026-06-27収敛到30后GSC实测17天仍近半未索引，2026-07-07小步试水30→45，暂缓134道储备。
 
 export function getStaticPaths() {
-  const cap = 30; // = SETS_PER_LEVEL(getStaticPaths 独立作用域,改时同步;同步点:本文件 sameLevelNs、play/[level].astro 的 setlist 与嵌入 set(slice 30, ?n= 直达)、gen-sitemap-lastmod.ts)
+  const cap = 45; // = SETS_PER_LEVEL(getStaticPaths 独立作用域,改时同步;同步点:本文件 sameLevelNs、play/[level].astro 的 setlist 与嵌入 set(slice 45, ?n= 直达)、gen-sitemap-lastmod.ts)
   return LEVELS.flatMap((meta) =>
     Array.from({ length: Math.min(cap, meta.puzzles.length) }, (_, i) => i + 1).map((n) => ({
       params: { level: meta.slug, n: String(n) },
