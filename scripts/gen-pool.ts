@@ -33,14 +33,16 @@ const ORDER: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'hard'
 // 各档配置：题数 + score 上限（抑制同档极端难题）。提示下限 minClues 统一取自引擎的
 // LEVEL_MIN_CLUES（单一来源，与 generateByLevel 共用，避免两份常量漂移）。
 const CFG: Record<DifficultyLevel, { count: number; maxScore: number }> = {
-  // 2026-07-08 扩库：各档 195（净储备150）→ 再各 +200 到 395。追加模式只补新题、存量不动。
-  beginner: { count: 395, maxScore: Infinity }, // 38提示·纯single·新手友好
-  intermediate: { count: 395, maxScore: Infinity },
-  advanced: { count: 395, maxScore: 92 }, // 排除用过多pair的"伪难"题
+  // 2026-07-08 扩库：195→395→各档1000（净储备955）。追加模式只补新题、存量不动。
+  beginner: { count: 1000, maxScore: Infinity }, // 38提示·纯single·新手友好
+  intermediate: { count: 1000, maxScore: Infinity },
+  advanced: { count: 1000, maxScore: 92 }, // 排除用过多pair的"伪难"题
   // hard 上限压 score 尾部倒挂（2026-07 重建后 hard max=141 > extreme max=114）。
   // 追加模式下只约束**未来新增题**（存量不裁，避免为调参再全站换题面）——扩库时逐步稀释尾部。
+  // ★hard 例外保持 395：maxScore112 过滤严、命中率≈0.16%，到1000需约38万次尝试 >
+  //   MAX_ATTEMPTS_PER_LEVEL=200000 会 fail-fast。要扩 hard 须先放宽 maxScore 或提高保险丝。
   hard: { count: 395, maxScore: 112 },
-  extreme: { count: 395, maxScore: Infinity },
+  extreme: { count: 1000, maxScore: Infinity },
 };
 
 // 追加模式：读入现有题库作基础（保留已出页/已收录的题，顺序不变），只补到新 count。
