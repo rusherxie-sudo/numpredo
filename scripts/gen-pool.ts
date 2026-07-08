@@ -33,13 +33,14 @@ const ORDER: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'hard'
 // 各档配置：题数 + score 上限（抑制同档极端难题）。提示下限 minClues 统一取自引擎的
 // LEVEL_MIN_CLUES（单一来源，与 generateByLevel 共用，避免两份常量漂移）。
 const CFG: Record<DifficultyLevel, { count: number; maxScore: number }> = {
-  beginner: { count: 85, maxScore: Infinity }, // 38提示·纯single·新手友好
-  intermediate: { count: 120, maxScore: Infinity },
-  advanced: { count: 135, maxScore: 92 }, // 排除用过多pair的"伪难"题
+  // 2026-07-08 扩库到各档 195（=已发布45 + 净储备150）。追加模式只补新题、存量不动。
+  beginner: { count: 195, maxScore: Infinity }, // 38提示·纯single·新手友好
+  intermediate: { count: 195, maxScore: Infinity },
+  advanced: { count: 195, maxScore: 92 }, // 排除用过多pair的"伪难"题
   // hard 上限压 score 尾部倒挂（2026-07 重建后 hard max=141 > extreme max=114）。
   // 追加模式下只约束**未来新增题**（存量不裁，避免为调参再全站换题面）——扩库时逐步稀释尾部。
-  hard: { count: 95, maxScore: 112 },
-  extreme: { count: 50, maxScore: Infinity },
+  hard: { count: 195, maxScore: 112 },
+  extreme: { count: 195, maxScore: Infinity },
 };
 
 // 追加模式：读入现有题库作基础（保留已出页/已收录的题，顺序不变），只补到新 count。
