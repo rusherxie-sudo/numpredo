@@ -102,8 +102,8 @@ for (const rel of listPages()) {
     // 嵌套双参数路由 play/[level]/[n]：发布日 = 题目页路由文件的首次提交日（不含 puzzles，避免偏早）。
     if (rel === 'play/[level]/[n].astro') {
       const d = gitPublished([`${PAGES}/${rel}`]);
-      // 45 = SETS_PER_LEVEL（同步点：play/[level]/[n].astro、gen-sitemap-lastmod.ts；曾因硬编码 12 漏掉 90 页的 datePublished）
-      if (d) for (const lv of slugsFromData('src/data/levels.ts')) for (let nn = 1; nn <= 45; nn++) map[`/play/${lv}/${nn}/`] = d;
+      // 55 = SETS_PER_LEVEL（同步点：play/[level]/[n].astro、gen-sitemap-lastmod.ts；曾因硬编码 12 漏掉 90 页的 datePublished）
+      if (d) for (const lv of slugsFromData('src/data/levels.ts')) for (let nn = 1; nn <= 55; nn++) map[`/play/${lv}/${nn}/`] = d;
       continue;
     }
     // 动态路由：每个 slug 一个 URL；内容源 = 模板文件 + 数据文件，组内共用同一日期（git 按文件粒度）
