@@ -38,6 +38,11 @@ function setup(): void {
   let count = 6;
   let cand = false;
 
+  // 難易度別ページ（/print/[level]/）はサーバー側で data-lv-default に初期難易度を埋める。
+  // hasOwn で自有キーのみ許可（原型链キー穿透対策、?lv= と同じ守り）
+  const defLv = root.dataset.lvDefault ?? '';
+  if (defLv && Object.prototype.hasOwnProperty.call(LEVEL_JA, defLv)) level = defLv;
+
   const status = document.getElementById('print-status')!;
   const mount = document.getElementById('print-mount')!;
 

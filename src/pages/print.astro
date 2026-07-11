@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import ShareBar from '../components/ShareBar.astro';
-import { LEVELS } from '../data/levels.ts';
+import PrintTool from '../components/PrintTool.astro';
 const title = '数独・ナンプレ印刷｜答え付き無料プリント問題集（初級〜超難問・PDF保存）- numpredo';
 const description = '数独・ナンプレを無料で印刷（プリント）。初級・中級・上級・難問・超難問から難易度と問題数を選んですぐ印刷、解答付きでPDF保存も可能。唯一解・論理だけで解ける検証済みの高品質問題を、自宅やオフィスで何度でも印刷できます。';
 const url = 'https://numpredo.com/print/';
@@ -20,13 +20,14 @@ const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplicatio
 const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })) };
 
-// 難易度別の印刷ガイド（「超難問 印刷」等の難易度×印刷クエリの着地点。h3 に id アンカー）
-const printByLevel: Array<{ slug: string; h: string; body: string }> = [
-  { slug: 'beginner', h: '初級の数独を印刷する', body: 'ヒントが多く、裸の単数・隠れた単数だけで解ける入門向け。お子さまの練習や、数独がはじめての方のウォーミングアップに。まとめて刷るなら12問がおすすめです。' },
-  { slug: 'intermediate', h: '中級の数独を印刷する', body: '「区画の絞り込み」で一段深く考える定番の歯ごたえ。毎日の脳トレ・通勤のおともにちょうどよい難しさで、繰り返し印刷して日課にするのに向いています。' },
-  { slug: 'advanced', h: '上級の数独を印刷する', body: 'ペア（二国同盟）を使いこなす本格派。候補メモを書き込みながらじっくり解くタイプなので、マス目に書き込める紙との相性が抜群です。' },
-  { slug: 'hard', h: '難問の数独を印刷する', body: '複数のテクニックを組み合わせて解く手強い一問。1枚4問のゆったりレイアウトで印刷して、腰を据えて挑むのがおすすめです。' },
-  { slug: 'extreme', h: '超難問の数独を印刷する', body: 'スカイスクレイパー・X-Wing級の最難関。超難問のナンプレを無料で印刷できるサイトは少なく、しかも全問が唯一解・論理だけで解けることを検証済み。上級者の挑戦用にどうぞ。' },
+// 難易度別の印刷ガイド（「超難問 印刷」等の難易度×印刷クエリの着地点。h3 に id アンカー、
+// 本文の受け皿は難易度別専用ページ /print/[level]/ ——ここからリンクで内部リンク加権）
+const printByLevel: Array<{ slug: string; ja: string; h: string; body: string }> = [
+  { slug: 'beginner', ja: '初級', h: '初級の数独を印刷する', body: 'ヒントが多く、裸の単数・隠れた単数だけで解ける入門向け。お子さまの練習や、数独がはじめての方のウォーミングアップに。まとめて刷るなら12問がおすすめです。' },
+  { slug: 'intermediate', ja: '中級', h: '中級の数独を印刷する', body: '「区画の絞り込み」で一段深く考える定番の歯ごたえ。毎日の脳トレ・通勤のおともにちょうどよい難しさで、繰り返し印刷して日課にするのに向いています。' },
+  { slug: 'advanced', ja: '上級', h: '上級の数独を印刷する', body: 'ペア（二国同盟）を使いこなす本格派。候補メモを書き込みながらじっくり解くタイプなので、マス目に書き込める紙との相性が抜群です。' },
+  { slug: 'hard', ja: '難問', h: '難問の数独を印刷する', body: '複数のテクニックを組み合わせて解く手強い一問。1枚4問のゆったりレイアウトで印刷して、腰を据えて挑むのがおすすめです。' },
+  { slug: 'extreme', ja: '超難問', h: '超難問の数独を印刷する', body: 'スカイスクレイパー・X-Wing級の最難関。超難問のナンプレを無料で印刷できるサイトは少なく、しかも全問が唯一解・論理だけで解けることを検証済み。上級者の挑戦用にどうぞ。' },
 ];
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: '問題集・印刷', item: url }] };
 const howToSchema = {
@@ -54,25 +55,7 @@ const howToSchema = {
   <h1>無料の数独・ナンプレ問題集｜答え付きプリント・印刷（PDF保存）</h1>
   <p class="lead">難易度と問題数を選んで「作成して印刷」を押すと、検証済みの問題プールからランダムに問題集を組み立てて、印刷ダイアログが開きます。PDFとして保存も可能。解答付き、すべて唯一解・論理だけで解ける高品質問題です。</p>
 
-  <div id="print-tool" class="print-controls">
-    <div class="pc-row">
-      <span class="pc-label">難易度</span>
-      <div class="chips">
-        {LEVELS.map((l) => <button type="button" class={l.slug === 'advanced' ? 'chip on' : 'chip'} data-lv={l.slug}>{l.ja}</button>)}
-      </div>
-    </div>
-    <div class="pc-row">
-      <span class="pc-label">問題数</span>
-      <div class="chips">
-        {[4, 6, 12].map((n) => <button type="button" class={n === 6 ? 'chip on' : 'chip'} data-ct={n}>{n}問</button>)}
-      </div>
-    </div>
-    <label class="pc-check"><input type="checkbox" id="print-cand" /> 候補数字のマスを薄く印刷する</label>
-    <button id="print-go" type="button" class="print-go">作成して印刷</button>
-    <p id="print-status" class="print-status"></p>
-  </div>
-
-  <div id="print-mount" class="print-mount"></div>
+  <PrintTool />
 
   <ShareBar url="https://numpredo.com/print/" title="ナンプレ・数独 無料プリント問題集（PDF保存）｜numpredo" cta="問題集をシェア" />
 
@@ -91,12 +74,12 @@ const howToSchema = {
     <p>はじめての方や答え合わせ用なら<strong>初級・中級</strong>、歯ごたえが欲しい方は<strong>上級〜超難問</strong>がおすすめです。すべて唯一解・論理だけで解けるので、印刷した問題は当てずっぽうなしで必ず解けます。難易度ごとの特徴は<a href="/play/">プレイ一覧</a>で確認できます。</p>
 
     <h2>難易度別に印刷する（初級〜超難問）</h2>
-    <p>ページ上部の難易度ボタンで選んで「作成して印刷」を押すだけ。各難易度の特徴は次のとおりです。</p>
+    <p>ページ上部の難易度ボタンで選んで「作成して印刷」を押すだけ。難易度ごとの専用ページでは、その難易度の特徴・おすすめの刷り方・よくある質問もまとめています。</p>
     {printByLevel.map((x) => (
       <>
         <h3 id={x.slug}>{x.h}</h3>
         <p>{x.body}</p>
-        <p class="plv-go"><a href={`/print/?lv=${x.slug}`}>この難易度でいますぐ作成 →</a></p>
+        <p class="plv-go"><a href={`/print/${x.slug}/`}>{x.ja}の印刷専用ページへ（おすすめの刷り方・FAQ）→</a></p>
       </>
     ))}
 
@@ -121,45 +104,11 @@ const howToSchema = {
     <li><a href="/tools/solver/">自動解答ソルバーで答え合わせ</a></li>
   </ul>
 
-  <script>
-    import '../client/print.ts';
-  </script>
-
   <style is:global>
+    /* 印刷ツール本体・@media print のスタイルは PrintTool.astro に集約（難易度別ページと共用） */
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 18px; }
     main ul { line-height: 2; } main ul a { color: var(--accent); }
     .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--ink-3); font-size: 14px; } .faq a { color: var(--accent); }
-
-    .print-controls { background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 18px; }
-    .pc-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-    .pc-label { font-size: 13px; color: var(--ink-3); min-width: 48px; }
-    .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-    .chip { font-family: var(--font-mincho); font-size: 13px; padding: 5px 13px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); cursor: pointer; }
-    .chip.on { background: var(--accent); color: var(--surface); border-color: var(--accent); }
-    .pc-check { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-3); margin: 4px 0 14px; }
-    .print-go { background: var(--accent); color: var(--surface); border: 0; font-size: 14px; padding: 11px 22px; border-radius: 6px; cursor: pointer; font-family: var(--font-sans); }
-    .print-status { font-size: 13px; color: var(--ink-3); margin: 10px 0 0; }
-
-    .print-mount { margin-top: 20px; }
-    .print-head { display: none; align-items: center; justify-content: space-between; margin-bottom: 12px; font-family: var(--font-mincho); }
-    .ph-logo b { color: var(--accent); }
-    .pz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .pz figcaption, .az figcaption { font-family: var(--font-mincho); font-size: 12px; color: var(--ink-3); margin-bottom: 5px; }
-    .pz svg, .az svg { width: 100%; border: 1px solid var(--line); }
-    .answer-page { margin-top: 24px; }
-    .answer-page h3 { font-family: var(--font-mincho); }
-    .az-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-
-    @media print {
-      .snav, .sfoot, .fsh, .print-controls, .screen-only, .crumb, h1, .lead { display: none !important; }
-      main { max-width: none; padding: 0; }
-      body { background: #fff; }
-      .print-head { display: flex; }
-      .pz { page-break-inside: avoid; }
-      .answer-page { page-break-before: always; }
-      .pz svg, .az svg { border: 1px solid #ccc; }
-    }
-    @media (max-width: 560px) { .pz-grid { grid-template-columns: 1fr; } .az-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </Base>

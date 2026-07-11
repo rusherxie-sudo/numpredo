@@ -1,0 +1,92 @@
+---
+// 难度专属印刷落地页(/print/beginner/ ~ /print/extreme/)。
+// 「ナンプレ 超難問 印刷」等「难度×印刷」查询的专用承接页(Bing 实测印刷簇是最强需求)。
+// 工具本体是 PrintTool(与枢纽 /print/ 共用),文案在 print-levels.ts 按难度独立撰写。
+import Base from '../../layouts/Base.astro';
+import PrintTool from '../../components/PrintTool.astro';
+import { PRINT_LEVELS } from '../../data/print-levels.ts';
+
+export function getStaticPaths() {
+  return PRINT_LEVELS.map((doc) => ({ params: { level: doc.slug }, props: { doc } }));
+}
+
+const { doc } = Astro.props;
+const url = `https://numpredo.com/print/${doc.slug}/`;
+const others = PRINT_LEVELS.filter((p) => p.slug !== doc.slug);
+
+const webAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: `${doc.ja}の数独・ナンプレ無料プリント問題集（PDF印刷）`,
+  description: doc.description,
+  url,
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'ja',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
+};
+// JSON-LD 内リンクは絶対 URL に（ページ文脈から切り離して消費されても辿れるように）
+const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: doc.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '問題集・印刷', item: 'https://numpredo.com/print/' },
+    { '@type': 'ListItem', position: 3, name: doc.ja, item: url },
+  ],
+};
+---
+
+<Base title={doc.title} description={doc.description} canonical={url} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › <a href="/print/">問題集・印刷</a> › {doc.ja}</nav>
+  <h1>{doc.h1}</h1>
+  <p class="lead">{doc.lead}</p>
+
+  <PrintTool defaultLevel={doc.slug} />
+
+  <div class="screen-only">
+    {doc.sections.map((s) => (
+      <>
+        <h2>{s.h}</h2>
+        {s.body.map((p) => <p set:html={p} />)}
+      </>
+    ))}
+
+    <h2>{doc.ja}のナンプレ印刷でよくある質問</h2>
+    <dl class="faq">{doc.faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
+
+    <h2>ほかの難易度を印刷する</h2>
+    <ul>
+      {others.map((p) => <li><a href={`/print/${p.slug}/`}>{p.ja}の数独・ナンプレを印刷</a></li>)}
+      <li><a href="/print/">問題集・印刷トップ（全難易度）</a></li>
+    </ul>
+
+    <h2>関連</h2>
+    <ul>
+      <li><a href={`/play/${doc.slug}/`}>{doc.ja}をオンラインでプレイ</a></li>
+      <li><a href="/tools/solver/">自動解答ソルバーで答え合わせ（写真対応）</a></li>
+      <li><a href="/guide/how-to-solve/">数独・ナンプレの解き方ガイド</a></li>
+    </ul>
+  </div>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
+    .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 18px; }
+    main ul { line-height: 2; } main ul a { color: var(--accent); }
+    main .screen-only a { color: var(--accent); }
+    .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--ink-3); font-size: 14px; } .faq a { color: var(--accent); }
+  </style>
+</Base>

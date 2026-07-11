@@ -27,6 +27,7 @@ const DYNAMIC_DATA: Record<string, string> = {
   'guide/[slug].astro': 'src/data/guides.ts',
   'guide/techniques/[slug].astro': 'src/data/techniques.ts',
   'variants/[slug].astro': 'src/data/variants.ts',
+  'print/[level].astro': 'src/data/print-levels.ts',
 };
 
 // 递归列出 src/pages 下所有 .astro（返回相对 PAGES 的 posix 路径）
@@ -130,7 +131,7 @@ for (const rel of listPages()) {
       console.warn(`⚠ 未映射数据文件的动态路由：${rel}（已跳过，请在 DYNAMIC_DATA 补齐）`);
       continue;
     }
-    const dir = rel.replace(/\/?\[[^/]+\]\.astro$/, ''); // play / guide / guide/techniques / variants
+    const dir = rel.replace(/\/?\[[^/]+\]\.astro$/, ''); // play / guide / guide/techniques / variants / print
     const date = gitPublished([`${PAGES}/${rel}`, dataFile]);
     if (!date) continue;
     for (const slug of slugsFromData(dataFile)) {
