@@ -1,6 +1,5 @@
-// GA4 自定义事件上报。GA4 经 Partytown 在 web worker 运行，主线程通过 dataLayer.push
-// 转发到 worker（astro.config.mjs 已配 forward: ['dataLayer.push']）。
-// 上报失败绝不影响功能——分析是锦上添花，不能拖累交互。
+// GA4 自定义事件上报。gtag.js 直接跑在主线程（Partytown 转发通道实测失效已下线，
+// 详见 astro.config.mjs / Base.astro）。上报失败绝不影响功能——分析是锦上添花，不能拖累交互。
 declare global {
   interface Window {
     dataLayer?: unknown[];
