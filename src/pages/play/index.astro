@@ -1,8 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { LEVELS } from '../../data/levels.ts';
-const title = '数独・ナンプレを無料でプレイ｜難易度一覧 - numpredo';
-const description = '初級から超難問まで、無料の数独（ナンプレ）を難易度別にプレイ。すべて唯一解・論理だけで解ける高品質問題。登録不要、スマホ対応。';
+// 収録総数は題庫から実測（「問題集」系クエリの受け皿：数字は本物、扩库自動追随）
+const totalPuzzles = LEVELS.reduce((s, l) => s + l.puzzles.length, 0);
+const title = `数独・ナンプレ無料問題集｜全${totalPuzzles}問を難易度別にプレイ - numpredo`;
+const description = `初級から超難問まで全${totalPuzzles}問収録の無料数独（ナンプレ）問題集。難易度別にオンラインでプレイでき、すべて唯一解・論理だけで解ける検証済みの高品質問題。図解つき解説・印刷にも対応、登録不要でスマホでも遊べます。`;
 const url = 'https://numpredo.com/play/';
 
 // 難易度比較表：ヒント数は題庫全量から実測平均（構築期に計算、データと乖離しない）
@@ -46,8 +48,8 @@ const itemListSchema = {
   </Fragment>
 
   <nav class="crumb"><a href="/">ホーム</a> › プレイ</nav>
-  <h1>数独・ナンプレを無料でプレイ</h1>
-  <p class="lead">難易度を選んでプレイ。すべて唯一解・論理だけで解ける高品質問題です。</p>
+  <h1>数独・ナンプレ無料問題集｜難易度別にプレイ</h1>
+  <p class="lead">初級から超難問まで全{totalPuzzles}問を収録。難易度を選んでプレイ、すべて唯一解・論理だけで解ける高品質問題です。</p>
 
   <div class="play-list">
     {LEVELS.map((l) => (
