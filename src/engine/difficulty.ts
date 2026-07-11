@@ -12,6 +12,7 @@ export const TECH_WEIGHT: Record<string, number> = {
   xWing: 9, // X-Wing（鱼）
   swordfish: 10, // Swordfish（三阶鱼，比 X-Wing 更难）——>6 同映射 extreme
   skyscraper: 8, // Skyscraper（单数字链）——>6 同映射 extreme
+  cageCombo: 3, // killer 変体：cage 内合法组合枚举消去（キラーの日常手筋，与区块同档；仅 killer 上下文出现）
 };
 
 export const LEVELS: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];

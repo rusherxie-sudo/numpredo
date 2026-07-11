@@ -15,13 +15,17 @@ npm run demo   # node v24 原生跑 .ts，无需编译/依赖
 | `types.ts` | 核心类型（Grid / SolveResult / Puzzle / DifficultyLevel） |
 | `board.ts` | 位掩码候选、units/peers 预计算（BoardContext 上下文化：标准 27 units 或変体附加 units，如 DIAGONAL_CONTEXT）、序列化 |
 | `countSolver.ts` | 唯一解校验（MRV 回溯，数到 2 即停）+ solveOne |
-| `logicalSolver.ts` | 人类技巧链 + 难度评分（提示/攻略演示共用核心）。**新增 unit 类技巧必须遍历 `s.ctx.units` 而非全局 `UNITS`**，否则変体求解静默少推理 |
+| `logicalSolver.ts` | 人类技巧链 + 难度评分（提示/攻略演示共用核心）。**新增 unit 类技巧必须遍历 `s.ctx.units` 而非全局 `UNITS`**，否则変体求解静默少推理。`logicalSolve` 第三参 `extraTechniques` 供変体注入专用技巧（如 killer 的 cageCombo），空时链与标准严格一致 |
 | `difficulty.ts` | 技巧权重 → 难度等级（初級/中級/上級/難問/超難問） |
 | `generator.ts` | 完整解 → 对称挖空（每步保证唯一解 + 逻辑可解） |
+| `killer.ts` | キラー数独変体：cage 约束模型（**cage 走 peers 注入而非 units**——unit 语义要求集齐 1..9，2〜4 格的 cage 不满足）、cageCombo 组合枚举技巧、专用解数统计（cage 剪枝）、连通 cage 划分 + 生成 |
+| `svg.ts` / `stepFigures.ts` | 和风 SVG 渲染（盘面/候选/高亮）+ 技巧分步图解 |
 
 ## 技巧链（难度递增）
 
-`nakedSingle → hiddenSingle → lockedCandidates → nakedPair → hiddenPair → nakedTriple → xWing`
+`nakedSingle → hiddenSingle → lockedCandidates → nakedPair → hiddenPair → nakedTriple → skyscraper → xWing → swordfish`
+
+変体注入技巧：`cageCombo`（killer 专用，经 `extraTechniques` 插在两 single 之后，不进标准链）。
 
 难度 = 求解所用「最难技巧」（主）+ 加权步数（次）—— **按认知难度，不是挖空数**。
 

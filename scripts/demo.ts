@@ -11,13 +11,18 @@ import {
   TECHNIQUE_NAMES,
   TECH_INFO,
   TECH_WEIGHT,
+  buildKillerContext,
+  cagesSatisfied,
+  countSolutionsKiller,
   generateByLevel,
+  generateKillerPuzzle,
   generatePuzzle,
   gridFromString,
   hasUniqueSolution,
   isSolved,
   levelOf,
   logicalSolve,
+  logicalSolveKiller,
 } from '../src/engine/index.ts';
 
 function render(g: Grid): string {
@@ -188,6 +193,49 @@ if (existsSync(`${POOL_DIR}/diagonal.json`)) {
   console.log(`    ✓ ${rows.length} 题复核通过，用时 ${Date.now() - t7}ms`);
 } else {
   console.log('\n[7] （diagonal.json 不存在，跳过——変体题库生成前属正常）');
+}
+
+// ---- 8. キラー変体：生成断言（cage 约束模型的实证）----
+// 三断言在 killer 上下文下执行;另两条 killer 专属:①解满足全部 cage(和相等+组内不重复)
+// ②cage 恰好划分 81 格(buildKillerContext 内部校验,划分坏则 throw 直接红)。
+console.log('\n[8] キラー変体：生成 2 题，逐题断言（cage 上下文）…');
+const t8 = Date.now();
+for (let i = 0; i < 2; i++) {
+  const p = generateKillerPuzzle(20);
+  const kctx = buildKillerContext(p.cages); // 划分完整性在此校验
+  assert(countSolutionsKiller(p.puzzle, kctx, 2) === 1, `キラー#${i} 唯一解（cage 规则下）`);
+  const res = logicalSolveKiller(p.puzzle, kctx);
+  assert(res.solved, `キラー#${i} 纯逻辑可解(no-guessing)`);
+  assert(res.grid.join('') === p.solution.join(''), `キラー#${i} 逻辑解==生成解`);
+  assert(isSolved(p.solution) && cagesSatisfied(p.solution, kctx), `キラー#${i} 解满足标准+cage 全部约束`);
+  assert(p.cages.every((c) => c.cells.length >= 1 && c.cells.length <= 5), `キラー#${i} cage 尺寸在 1〜5 内`);
+}
+console.log(`    ✓ 2 题全过（唯一解+逻辑可解+cage 约束），用时 ${Date.now() - t8}ms`);
+
+// ---- 9. キラー题库全量复核（与 [5][7] 同一防线：引擎改动后忘跑 gen:pool 即红）----
+if (existsSync(`${POOL_DIR}/killer.json`)) {
+  console.log('\n[9] 复核キラー题库全部题目…');
+  const t9 = Date.now();
+  const rows = JSON.parse(readFileSync(`${POOL_DIR}/killer.json`, 'utf-8')).puzzles as Array<{
+    puzzle: string; solution: string; level: string; tier: string; cages: Array<{ cells: number[]; sum: number }>;
+  }>;
+  for (const [i, row] of rows.entries()) {
+    const g = gridFromString(row.puzzle);
+    const sol = gridFromString(row.solution);
+    const kctx = buildKillerContext(row.cages);
+    // 数据完整性：cage 尺寸与 tier 枚举（手改损坏不静默通过）；划分覆盖/重叠由 buildKillerContext 校验
+    assert(row.cages.every((c) => c.cells.length >= 1 && c.cells.length <= 5), `キラー题库#${i + 1} cage 尺寸在 1〜5 内`);
+    assert(['easy', 'normal', 'hard'].includes(row.tier), `キラー题库#${i + 1} tier 合法(存储=${row.tier})`);
+    assert(countSolutionsKiller(g, kctx, 2) === 1, `キラー题库#${i + 1} 唯一解`);
+    const res = logicalSolveKiller(g, kctx);
+    assert(res.solved, `キラー题库#${i + 1} 纯逻辑可解`);
+    assert(res.grid.join('') === sol.join(''), `キラー题库#${i + 1} 逻辑解==入库解`);
+    assert(isSolved(sol) && cagesSatisfied(sol, kctx), `キラー题库#${i + 1} 解满足标准+cage 约束`);
+    assert(levelOf(res) === row.level, `キラー题库#${i + 1} 难度标签脱节: 存储=${row.level} 现算=${levelOf(res)}`);
+  }
+  console.log(`    ✓ ${rows.length} 题复核通过，用时 ${Date.now() - t9}ms`);
+} else {
+  console.log('\n[9] （killer.json 不存在，跳过——変体题库生成前属正常）');
 }
 
 // ---- 结果 ----

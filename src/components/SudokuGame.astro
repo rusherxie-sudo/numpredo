@@ -1,14 +1,15 @@
 ---
-// 可玩数独岛（和モダン）。play/[level]・daily・変体页（variants/diagonal）共用，避免样式/脚本重复。
+// 可玩数独岛（和モダン）。play/[level]・daily・変体页（variants/diagonal・variants/killer）共用，避免样式/脚本重复。
 interface Props {
   level: string;
   levelJa: string;
   daily?: boolean;
   url?: string;
-  set: Array<{ puzzle: string; solution?: string; level?: string }>;
+  /** cages は killer 変体のみ（题面级数据,逐题不同;killer は solution 必須——クライアント現算不可） */
+  set: Array<{ puzzle: string; solution?: string; level?: string; cages?: Array<{ cells: number[]; sum: number }> }>;
   /** daily 专用：嵌入窗口首日的 JST 日序号（见 daily.astro 的窗口裁剪注释） */
   daystart?: number;
-  /** 変体规则：'diagonal' = 対角線数独（units/peers 换成对角线上下文 + 対角線マス色分け） */
+  /** 変体规则：'diagonal' = 対角線数独（对角线上下文+対角線マス色分け）;'killer' = キラー（cage 点線+合計） */
   variant?: string;
   /** アーカイブ：過去デイリーを解くモード（?d= 指定、ストリーク非加算。/daily/archive/ 专用） */
   archive?: boolean;
@@ -59,6 +60,17 @@ const setJson = JSON.stringify(set);
   /* 対角線変体：対角線マスに淡い朱をのせる。background-image の重ね層なので
      peer/same/sel の background(-color) 状態と共存する（conflict/sel は shorthand で上書き＝強調優先） */
   .sk-cell.sk-diag { background-image: linear-gradient(rgba(200, 70, 60, 0.09), rgba(200, 70, 60, 0.09)); }
+  /* killer 変体：cage 点線（::before 内嵌 2px——隣接セルとの間が空くのが伝統的なキラーの見た目。
+     ::after は sk-area-done が使用済みのため ::before を使う）。sk-kt/kb/kl/kr = cage 境界サイド */
+  .sk-cell:is(.sk-kt, .sk-kb, .sk-kl, .sk-kr)::before { content: ''; position: absolute; inset: 2px; pointer-events: none; border: 0 dashed var(--ink-4); opacity: 0.75; }
+  .sk-cell.sk-kt::before { border-top-width: 1.5px; }
+  .sk-cell.sk-kb::before { border-bottom-width: 1.5px; }
+  .sk-cell.sk-kl::before { border-left-width: 1.5px; }
+  .sk-cell.sk-kr::before { border-right-width: 1.5px; }
+  /* cage 合計ラベル（cage 左上セル・render が毎フレーム付け直す）：z-index でメモ/数字の上に */
+  .sk-ksum { position: absolute; top: 2px; left: 4px; z-index: 2; font-size: clamp(8px, 1.6vw, 11px); line-height: 1; font-style: normal; font-weight: 700; color: var(--ink-2); font-family: var(--font-sans); pointer-events: none; }
+  /* ラベルセルのメモ 3×3 はラベルと重なる（メモ「1」の位置が左上）→ 下に逃がす（:has 非対応でも致命ではない） */
+  .sk-cell:has(.sk-ksum) .sk-notes { padding-top: 11px; }
   .sk-hint-cell { box-shadow: inset 0 0 0 2px var(--accent); background: rgba(43, 91, 122, 0.12); }
   .sk-wrong-cell { box-shadow: inset 0 0 0 2px var(--num-error); background: rgba(181, 48, 42, 0.12); }
   .sk-notes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; height: 100%; font-size: clamp(8px, 2vw, 11px); color: var(--ink-4); line-height: 1; }

@@ -33,6 +33,7 @@ const DYNAMIC_DATA: Record<string, string> = {
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
   'variants/diagonal.astro': ['src/data/variants.ts', 'src/data/puzzles/diagonal.json'],
+  'variants/killer.astro': ['src/data/variants.ts', 'src/data/puzzles/killer.json'],
 };
 
 // 递归列出 src/pages 下所有 .astro（返回相对 PAGES 的 posix 路径）

@@ -4,11 +4,14 @@ import type { Grid, SolveResult, SolveStep } from './types.ts';
 import { type BoardContext, CELLS, MASK_ALL, STANDARD_CONTEXT, bit, boxOf, colOf, digitsOf, isSolved, popcount, rowOf } from './board.ts';
 import { TECH_WEIGHT } from './difficulty.ts';
 
-interface State {
+export interface State {
   g: Grid;
   cand: number[]; // 每空格候选位掩码；已填格为 0
   ctx: BoardContext; // units/peers 来源（标准 or 变体）——unit 内推理对任意 unit 集合 sound
 }
+
+/** 技巧函数签名：执行一次推理，成功返回 step 否则 null。变体（killer 等）可注入自定义技巧。 */
+export type TechniqueFn = (s: State) => SolveStep | null;
 
 /** 落子并联动消除关联格候选 */
 function place(s: State, i: number, d: number): void {
@@ -17,8 +20,8 @@ function place(s: State, i: number, d: number): void {
   for (const p of s.ctx.peers[i]) s.cand[p] &= ~bit(d);
 }
 
-/** 真正消除一个候选位时返回 true（已消除则 false），用于避免空转 */
-function eliminate(s: State, i: number, d: number, acc: Array<[number, number]>): boolean {
+/** 真正消除一个候选位时返回 true（已消除则 false），用于避免空转。killer 等变体技巧也复用。 */
+export function eliminate(s: State, i: number, d: number, acc: Array<[number, number]>): boolean {
   if (s.g[i] === 0 && s.cand[i] & bit(d)) {
     s.cand[i] &= ~bit(d);
     acc.push([i, d]);
@@ -344,9 +347,15 @@ if (TECHNIQUES.length !== TECHNIQUE_NAMES.length) {
 /**
  * 仅用已实现的人类技巧求解（不猜测）。
  * solved=false 表示需要比 X-Wing 更高级的技巧或猜测 → 视为超出当前可保障范围。
+ * extraTechniques：变体专用技巧（如 killer 的 cage 组合枚举），插在两个 single 之后——
+ * 变体的基础消去要先于高级技巧尝试，才能得到自然的解题路径。extras 为空时链与标准完全一致。
+ * 注意：isSolved 只校验 ctx.units；带附加约束的变体（如 cage 的和）由变体侧包装函数复核。
  */
-export function logicalSolve(grid: Grid, ctx: BoardContext = STANDARD_CONTEXT): SolveResult {
+export function logicalSolve(grid: Grid, ctx: BoardContext = STANDARD_CONTEXT, extraTechniques: TechniqueFn[] = []): SolveResult {
   const s = initState(grid, ctx);
+  const chain = extraTechniques.length
+    ? [...TECHNIQUES.slice(0, 2), ...extraTechniques, ...TECHNIQUES.slice(2)]
+    : TECHNIQUES;
 
   const steps: SolveStep[] = [];
   const techniqueCounts: Record<string, number> = {};
@@ -362,7 +371,7 @@ export function logicalSolve(grid: Grid, ctx: BoardContext = STANDARD_CONTEXT): 
 
   outer: while (s.g.includes(0)) {
     if (contradiction()) break;
-    for (const tech of TECHNIQUES) {
+    for (const tech of chain) {
       const step = tech(s);
       if (step) {
         steps.push(step);
@@ -396,16 +405,21 @@ function initState(grid: Grid, ctx: BoardContext): State {
 
 /**
  * 沿技巧链推进，捕获「第一个产生候选消除的步骤」及其**执行前**的盘面/候选快照。
- * 供攻略图解使用：渲染消除前的候选盘 + 高亮该技巧消除的候选 → 精确演示，且来自引擎真实推理。
+ * 供攻略图解与游戏提示使用：渲染消除前的候选盘 + 高亮该技巧消除的候选 → 精确演示，且来自引擎真实推理。
+ * extraTechniques 与 logicalSolve 同款（killer 提示需要 cageCombo 进链，否则一半题目提示直接退化为兜底揭示）。
  */
 export function traceFirstElimination(
   grid: Grid,
   ctx: BoardContext = STANDARD_CONTEXT,
+  extraTechniques: TechniqueFn[] = [],
 ): { grid: Grid; candidates: number[]; step: SolveStep } | null {
   const s = initState(grid, ctx);
+  const chain = extraTechniques.length
+    ? [...TECHNIQUES.slice(0, 2), ...extraTechniques, ...TECHNIQUES.slice(2)]
+    : TECHNIQUES;
   while (s.g.includes(0)) {
     let advanced = false;
-    for (const tech of TECHNIQUES) {
+    for (const tech of chain) {
       const candPrev = s.cand.slice();
       const gPrev = s.g.slice();
       const step = tech(s);

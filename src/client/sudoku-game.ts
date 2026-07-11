@@ -4,8 +4,8 @@
 // daily 模式：按 JST 日序号顺序选题（data-daystart 窗口偏移，全员同日同題），显示日期 + 连续记录(streak)。
 // 进度自动保存(localStorage，刷新不丢)、撤销、数字剩余计数、メモ自动清除、方向键、提示、胜利演出。
 import {
-  DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf, boxOf,
-  gridFromString, solveOne, traceFirstElimination, logicalSolve, computeCandidates, type Grid,
+  DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, buildKillerContext, makeCageComboTechnique, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf, boxOf,
+  gridFromString, solveOne, traceFirstElimination, logicalSolve, computeCandidates, type Grid, type TechniqueFn,
 } from '../engine/index.ts';
 import { track } from './track.ts';
 import { ACHIEVEMENTS, computeUnlocked, readStats, readDailyLog, readDailyLog5, readStreak } from './achievements.ts';
@@ -14,6 +14,7 @@ interface PuzzlePair {
   puzzle: string;
   solution?: string; // daily は未配信（瘦身）→ クライアントで solveOne 現算。play は予生成解を同梱。
   level?: string;
+  cages?: Array<{ cells: number[]; sum: number }>; // killer 変体のみ：cage 划分(题面级数据,逐题不同)
 }
 
 // 难度等级 → 日语标签（daily 显示当天难度）
@@ -103,11 +104,12 @@ const TECH_JA: Record<string, { ja: string; href: string }> = {
   xWing: { ja: 'X-Wing（エックスウイング）', href: '/guide/techniques/x-wing/' },
   swordfish: { ja: 'スワードフィッシュ', href: '/guide/techniques/swordfish/' },
   skyscraper: { ja: 'スカイスクレイパー', href: '/guide/techniques/skyscraper/' },
+  cageCombo: { ja: 'ケージの組み合わせ絞り込み', href: '/variants/killer/' }, // killer 変体専用（extraTechniques 注入）
 };
 // ブロックの日本語ラベル（ナッジ段階の位置指示）
 const BOX_JA = ['左上', '中央上', '右上', '左中', '中央', '右中', '左下', '中央下', '右下'];
 // 认知难度递增序（成绩卡「使ったテクニック」按此排序展示）
-const TECH_ORDER = ['nakedSingle', 'hiddenSingle', 'lockedCandidates', 'nakedPair', 'hiddenPair', 'nakedTriple', 'xWing'];
+const TECH_ORDER = ['nakedSingle', 'hiddenSingle', 'cageCombo', 'lockedCandidates', 'nakedPair', 'hiddenPair', 'nakedTriple', 'xWing'];
 
 function setup(root: HTMLElement): void {
   const set: PuzzlePair[] = JSON.parse(root.dataset.set ?? '[]');
@@ -123,10 +125,44 @@ function setup(root: HTMLElement): void {
   const multi = root.dataset.multi === '1';
   const shareUrl = root.dataset.url ?? 'https://numpredo.com/';
   // 変体上下文：data-variant="diagonal" で units/peers を対角線入りに差し替え——
-  // 衝突チェック・メモ自動消去・ヒント・エリア完成が全部対角線制約込みで動く
+  // 衝突チェック・メモ自動消去・ヒント・エリア完成が全部対角線制約込みで動く。
+  // killer は cage が**題面ごと**に違う → ctx は載題時に applyCages で都度再構築（let）。
   const variant = root.dataset.variant ?? '';
-  const ctx = variant === 'diagonal' ? buildContext(DIAGONAL_UNITS) : STANDARD_CONTEXT;
+  const baseCtx = variant === 'diagonal' ? buildContext(DIAGONAL_UNITS) : STANDARD_CONTEXT;
+  let ctx = baseCtx;
   const diagCells = variant === 'diagonal' ? new Set(DIAGONAL_UNITS.flat()) : new Set<number>();
+  // killer 描画状態：セルごとの cage 境界クラス + ラベルセル（cage 左上）→ 合計値
+  let cageSides: string[][] = [];
+  let cageSumAt = new Map<number, number>();
+  let curCages: NonNullable<PuzzlePair['cages']> = []; // render の cage 験算用
+  // killer 専用技巧（cageCombo）——提示(traceFirstElimination)と成績カード(logicalSolve)に注入。
+  // 注入しないと 30 題中 16 題が開局から標準チェーンで一歩も進めず、提示が即「答え開示」に退化する
+  let killerExtras: TechniqueFn[] = [];
+  /** killer：載題時に cage から ctx（peers に cage 同僚を注入）と描画状態を再構築。他変体では no-op */
+  function applyCages(cages: PuzzlePair['cages']): void {
+    cageSides = [];
+    cageSumAt = new Map();
+    curCages = [];
+    killerExtras = [];
+    if (variant !== 'killer' || !cages) { ctx = baseCtx; return; }
+    const kctx = buildKillerContext(cages);
+    ctx = kctx.ctx;
+    curCages = cages;
+    killerExtras = [makeCageComboTechnique(kctx)];
+    const cageOf = new Array<number>(81).fill(-1);
+    cages.forEach((cg, ci) => cg.cells.forEach((c) => (cageOf[c] = ci)));
+    cageSides = Array.from({ length: 81 }, () => []);
+    for (let i = 0; i < 81; i++) {
+      const r = rowOf(i);
+      const c = colOf(i);
+      const me = cageOf[i];
+      if (r === 0 || cageOf[i - 9] !== me) cageSides[i].push('sk-kt');
+      if (r === 8 || cageOf[i + 9] !== me) cageSides[i].push('sk-kb');
+      if (c === 0 || cageOf[i - 1] !== me) cageSides[i].push('sk-kl');
+      if (c === 8 || cageOf[i + 1] !== me) cageSides[i].push('sk-kr');
+    }
+    for (const cg of cages) cageSumAt.set(Math.min(...cg.cells), cg.sum);
+  }
   if (!set.length) return;
 
   let puzzleGrid: Grid = [];
@@ -211,7 +247,10 @@ function setup(root: HTMLElement): void {
 
   // —— 棋盘格（role=grid > role=row > role=gridcell 合规层级；行容器 display:contents 不影响 CSS grid 布局）——
   board.setAttribute('role', 'grid');
-  board.setAttribute('aria-label', variant === 'diagonal' ? '数独の盤面（9×9・対角線ルール）' : '数独の盤面（9×9）');
+  board.setAttribute('aria-label',
+    variant === 'diagonal' ? '数独の盤面（9×9・対角線ルール）'
+      : variant === 'killer' ? '数独の盤面（9×9・キラールール：点線ケージ内の合計が左上の数字）'
+        : '数独の盤面（9×9）');
   const cells: HTMLButtonElement[] = [];
   for (let r = 0; r < 9; r++) {
     const rowEl = el('div', 'sk-rowg');
@@ -594,9 +633,10 @@ function setup(root: HTMLElement): void {
     return null;
   }
 
-  // 消除型：引擎 traceFirstElimination 取「第一个消候选步」+ 执行前候选快照（传 ctx → 対角線兼容）
+  // 消除型：引擎 traceFirstElimination 取「第一个消候选步」+ 执行前候选快照（传 ctx → 対角線兼容;
+  // killer は killerExtras(cageCombo) 注入——無いと合計推理が必要な局面で即答え開示に退化）
   function findElimination(g: number[]): { tech: string; cells: number[]; digits: number; cand: number[]; remove: Map<number, number> } | null {
-    const tr = traceFirstElimination(g as Grid, ctx);
+    const tr = traceFirstElimination(g as Grid, ctx, killerExtras);
     if (!tr || !tr.step.eliminations || !tr.step.eliminations.length) return null;
     const remove = new Map<number, number>();
     let digits = 0;
@@ -653,8 +693,10 @@ function setup(root: HTMLElement): void {
     store.remove(progKey());
     poolIdx = (poolIdx + 1) % set.length;
     const nx = set[poolIdx];
+    applyCages(nx.cages); // killer：ctx/cage 描画を新しい題面に切替（他変体では no-op）
     const pz = gridFromString(nx.puzzle);
-    const sol = nx.solution ? gridFromString(nx.solution) : solveOne(pz, ctx);
+    // killer は solution 必須：solveOne は cage の和を知らないため誤った解を返しうる（守卫）
+    const sol = nx.solution ? gridFromString(nx.solution) : variant === 'killer' ? null : solveOne(pz, ctx);
     if (sol) apply(pz, sol);
   }
 
@@ -792,7 +834,7 @@ function setup(root: HTMLElement): void {
       if (done) renderResult(Number(store.get(bestKey()) || '0'));
     } else {
       const pz = gridFromString(t.puzzle);
-      const sol = t.solution ? gridFromString(t.solution) : solveOne(pz, ctx);
+      const sol = t.solution ? gridFromString(t.solution) : solveOne(pz, ctx); // daily/multi 専用路径,killer は通らない
       if (sol) apply(pz, sol);
     }
     fillDaily();
@@ -832,7 +874,7 @@ function setup(root: HTMLElement): void {
     else if (prevBest) lines.push(`<div class="sk-r-best">自己ベスト ${fmt(prevBest)}</div>`);
     // ③ 学习导线：解完这题时，用引擎解析本题**真实用到的技巧**，做成 chip 链到攻略页。
     // 通关成就感最高的时刻 → 把玩家导向技巧学习页（教学闭环 + SEO 内链）。TECH_JA 未覆盖的技巧跳过。
-    const techCounts = logicalSolve(puzzleGrid, ctx).techniqueCounts;
+    const techCounts = logicalSolve(puzzleGrid, ctx, killerExtras).techniqueCounts;
     const usedTechs = TECH_ORDER.filter((t) => techCounts[t] && TECH_JA[t]);
     if (usedTechs.length) {
       const chips = usedTechs.map((t) => `<a class="sk-r-tech" href="${TECH_JA[t].href}">${TECH_JA[t].ja}</a>`).join('');
@@ -887,6 +929,18 @@ function setup(root: HTMLElement): void {
     const selVal = selected >= 0 ? cur[selected] : 0;
     const hlVal = highlightDigit > 0 ? highlightDigit : selVal; // 高亮：数字键扫描优先，否则随选中格值
     const peerSet = selected >= 0 ? new Set(ctx.peers[selected]) : new Set<number>();
+    // killer：cage が埋まったのに合計が合わない → 客観的ルール違反として全セル conflict 表示
+    // （重複と同格の即時フィードバック。答えは漏らさない——和はラベルに公開済みの情報）
+    const cageSumBad = new Set<number>();
+    for (const cg of curCages) {
+      let sum = 0;
+      let full = true;
+      for (const c of cg.cells) {
+        if (cur[c] === 0) { full = false; break; }
+        sum += cur[c];
+      }
+      if (full && sum !== cg.sum) for (const c of cg.cells) cageSumBad.add(c);
+    }
     board.classList.toggle('sk-pencil-on', pencil); // 笔记模式 → 盘面状态反馈
     let rem = 0;
     const counts = new Array(10).fill(0);
@@ -898,6 +952,7 @@ function setup(root: HTMLElement): void {
       if (colOf(i) % 3 === 2 && colOf(i) !== 8) c.classList.add('sk-br');
       if (rowOf(i) % 3 === 2 && rowOf(i) !== 8) c.classList.add('sk-bb');
       if (diagCells.has(i)) c.classList.add('sk-diag'); // 対角線変体：対角線マスの色分け（毎フレーム再付与）
+      if (cageSides[i]?.length) for (const k of cageSides[i]) c.classList.add(k); // killer：cage 境界（毎フレーム再付与）
       if (given[i]) c.classList.add('sk-given');
       if (hintRegion.has(i)) c.classList.add('sk-hint-region'); // 提示第1级：范围提示
       if (i === selected) c.classList.add('sk-sel');
@@ -906,10 +961,11 @@ function setup(root: HTMLElement): void {
       if (hintFocus.has(i)) c.classList.add('sk-hint-cell'); // 提示目标格 / 消除格
       if (hintWrong.has(i)) c.classList.add('sk-wrong-cell'); // 提示纠错：错填格
       if (checkErrors && cur[i] !== 0 && !given[i] && cur[i] !== solution[i]) c.classList.add('sk-err');
-      // 规则冲突：与同 unit（行/列/宫，変体では対角線も）的相同数字重复 → 即时粉红高亮（客观、不剧透答案）
+      // 规则冲突：与同 unit（行/列/宫，変体では対角線・cage も）的相同数字重复 → 即时粉红高亮（客观、不剧透答案）
       if (cur[i] !== 0) {
         for (const p of ctx.peers[i]) if (cur[p] === cur[i]) { c.classList.add('sk-conflict'); break; }
       }
+      if (cageSumBad.has(i)) c.classList.add('sk-conflict'); // killer：cage 満杯だが合計不一致
 
       if (cur[i] !== 0) {
         c.textContent = String(cur[i]);
@@ -942,8 +998,15 @@ function setup(root: HTMLElement): void {
         c.textContent = '';
         rem++;
       }
+      // killer：cage 左上セルに合計ラベル（textContent 書換の後に append——毎フレーム再付与）
+      const ksum = cageSumAt.get(i);
+      if (ksum !== undefined) {
+        const kEl = el('i', 'sk-ksum');
+        kEl.textContent = String(ksum);
+        c.append(kEl);
+      }
       // スクリーンリーダー向け：位置＋内容＋状態を aria に反映
-      const pos = `${rowOf(i) + 1}行${colOf(i) + 1}列`;
+      const pos = `${rowOf(i) + 1}行${colOf(i) + 1}列${ksum !== undefined ? `（ケージ合計${ksum}）` : ''}`;
       const bad = checkErrors && cur[i] !== 0 && !given[i] && cur[i] !== solution[i];
       c.setAttribute('aria-label',
         cur[i] !== 0 ? `${pos} ${cur[i]}${given[i] ? '（固定）' : ''}${bad ? '（誤り）' : ''}`
@@ -1034,18 +1097,23 @@ function setup(root: HTMLElement): void {
   poolIdx = initIdx;
   const target = set[initIdx];
   const saved = load();
-  // ?n= 明示指定且与存档不是同一题时，以指定题开新局（首次落子会覆盖旧存档——用户主动选择）
-  const savedUsable = saved && (initIdx === 0 || daily || normP(saved.p) === normP(target.puzzle));
+  const savedIdx = saved ? set.findIndex((s) => normP(s.puzzle) === normP(saved.p)) : -1;
+  // ?n= 明示指定且与存档不是同一题时，以指定题开新局（首次落子会覆盖旧存档——用户主动选择）。
+  // killer は cage が題面データに紐づく → 存档题が池内で見つからないと cage 不明,その場合は開新局
+  const savedUsable = saved && (initIdx === 0 || daily || normP(saved.p) === normP(target.puzzle))
+    && (variant !== 'killer' || savedIdx >= 0);
   if (saved && savedUsable) {
-    const i = set.findIndex((s) => normP(s.puzzle) === normP(saved.p));
-    if (i >= 0) poolIdx = i; // 存档题在池内 → 「別の問題」从它继续往后循环
+    if (savedIdx >= 0) poolIdx = savedIdx; // 存档题在池内 → 「別の問題」从它继续往后循环
+    applyCages(set[poolIdx]?.cages);
     apply(gridFromString(saved.p), gridFromString(saved.s), saved);
     // 完成局照样恢复：盘面保持完成态 + 成绩卡（无彩屑/不重复上报），并给「次の問題へ」入口
     if (done) renderResult(Number(store.get(bestKey()) || '0'));
   } else {
+    applyCages(target.cages);
     const fpz = gridFromString(target.puzzle);
-    // daily は solution 未配信 → solveOne で現算（play は予生成 solution をそのまま使う）
-    const fsol = target.solution ? gridFromString(target.solution) : solveOne(fpz, ctx);
+    // daily は solution 未配信 → solveOne で現算（play は予生成 solution をそのまま使う）。
+    // killer は solution 必須：solveOne は cage の和を知らないため誤った解を返しうる（守卫）
+    const fsol = target.solution ? gridFromString(target.solution) : variant === 'killer' ? null : solveOne(fpz, ctx);
     if (fsol) apply(fpz, fsol);
   }
   if (daily) fillDaily();

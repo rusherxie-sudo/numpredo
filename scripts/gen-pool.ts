@@ -8,11 +8,16 @@ import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import {
   type DifficultyLevel,
   DIAGONAL_CONTEXT,
+  buildKillerContext,
+  cagesSatisfied,
+  countSolutionsKiller,
+  generateKillerPuzzle,
   generatePuzzle,
   gridToString,
   hasUniqueSolution,
   isSolved,
   logicalSolve,
+  logicalSolveKiller,
   levelOf,
   LEVEL_META,
   LEVEL_MIN_CLUES,
@@ -156,6 +161,68 @@ writeFileSync(
 );
 const diagDist = Object.entries(diagLevelCount).map(([k, v]) => `${k}=${v}`).join(' ');
 console.log(`  ✓ 対角線 ${diagPool.length}題（新${diagFresh.length}・${diagAttempts}次尝试・${diagDist}）→ 不进 daily`);
+
+// ---- キラー変体池（/variants/killer/ 可玩页专用；独立 JSON、不进 daily）----
+// cage 和是强力隐形提示：minClues=0 实测可挖到 2〜6 提示（近正统 killer,单题 ~20s）、
+// minClues=26 秒级生成且解题以 cageCombo+single 为主。三档 tier 梯度让可玩页由浅入深:
+//   easy(26提示下限) → normal(12) → hard(0,近无提示)。难度标签(level)因 cageCombo 权重
+//   恒 ≥ intermediate,页面分层直接用 tier 字段而非 level。
+// 三断言（killer 上下文:唯一解/纯逻辑可解/逻辑解==生成解）+ cage 划分与和校验,与标准档同一标准。
+// 追加模式:既存前缀不重排,新题按 tier 顺序续尾。
+const KILLER_TIERS: Array<{ tier: string; minClues: number; count: number }> = [
+  { tier: 'easy', minClues: 26, count: 10 },
+  { tier: 'normal', minClues: 12, count: 10 },
+  { tier: 'hard', minClues: 0, count: 10 },
+];
+interface KillerRecord extends PuzzleRecord {
+  tier: string;
+  cages: Array<{ cells: number[]; sum: number }>;
+}
+const killerFile = `${OUT}/killer.json`;
+const killerPool: KillerRecord[] = existsSync(killerFile)
+  ? ((JSON.parse(readFileSync(killerFile, 'utf-8')).puzzles ?? []) as KillerRecord[])
+  : [];
+const killerSeen = new Set(killerPool.map((r) => r.puzzle));
+const killerTierCount: Record<string, number> = {};
+for (const r of killerPool) killerTierCount[r.tier] = (killerTierCount[r.tier] ?? 0) + 1;
+let killerFreshCount = 0;
+let killerAttempts = 0;
+for (const { tier, minClues, count } of KILLER_TIERS) {
+  while ((killerTierCount[tier] ?? 0) < count) {
+    // hard tier 单题 ~20s,保险丝阈值远低于标准档(生成本身几乎必中,防的是断言异常空转)
+    if (++killerAttempts > 300) {
+      throw new Error(`キラー 尝试 ${killerAttempts} 次仍未集齐——命中率异常,检查 killer 生成/断言`);
+    }
+    const p = generateKillerPuzzle(minClues);
+    const ps = gridToString(p.puzzle);
+    if (killerSeen.has(ps)) continue;
+    // 入库前完整过三大品质断言（killer 上下文）+ 解满足全部 cage——与各档 bucket 同一标准
+    const kctx = buildKillerContext(p.cages);
+    const res = logicalSolveKiller(p.puzzle, kctx);
+    if (countSolutionsKiller(p.puzzle, kctx, 2) !== 1 || !res.solved) continue;
+    if (res.grid.join('') !== p.solution.join('')) continue;
+    if (!isSolved(p.solution) || !cagesSatisfied(p.solution, kctx)) continue;
+    killerSeen.add(ps);
+    killerTierCount[tier] = (killerTierCount[tier] ?? 0) + 1;
+    killerFreshCount++;
+    killerPool.push({
+      tier,
+      clues: p.clues,
+      hardest: p.hardest,
+      score: p.score,
+      puzzle: ps,
+      solution: gridToString(p.solution),
+      level: p.level,
+      cages: p.cages,
+    });
+  }
+}
+writeFileSync(
+  killerFile,
+  JSON.stringify({ variant: 'killer', ja: 'キラー', count: killerPool.length, puzzles: killerPool }, null, 2),
+);
+const killerDist = Object.entries(killerTierCount).map(([k, v]) => `${k}=${v}`).join(' ');
+console.log(`  ✓ キラー ${killerPool.length}題（新${killerFreshCount}・${killerAttempts}次尝试・${killerDist}）→ 不进 daily`);
 
 // daily.json = 前缀稳定的追加模式：既存 daily 的顺序保持不变，只把「池里新增的题」打乱后追加到末尾。
 // 消费方（daily.astro）按「EPOCH 起算日序号 → 池内序号」顺序索引——前缀不重排 ⇒ 扩库部署不会改变
