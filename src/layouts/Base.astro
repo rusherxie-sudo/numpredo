@@ -10,6 +10,23 @@ interface Props {
 }
 const { title, description, canonical, wide = false } = Astro.props;
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+
+// サイト実体（Organization）を全ページに注入：各テンプレの author/publisher は
+// {'@id': 'https://numpredo.com/#organization'} で本ノードを参照する（単一実体に集約、
+// ページ単位で JSON-LD を読む Google/AI クローラでも参照が解決できる）。
+// sameAs は公式 SNS アカウント開設後にここへ追加する（外部実体アンカー）。
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': 'https://numpredo.com/#organization',
+  name: 'numpredo',
+  url: 'https://numpredo.com/',
+  logo: { '@type': 'ImageObject', url: 'https://numpredo.com/logo.png', width: 512, height: 512 },
+  description:
+    '日本語の数独・ナンプレ無料学習サイト。5段階難易度のブラウザプレイ、写真で答え合わせできる自動解答ソルバー、解き方ガイド、印刷用PDFを提供。',
+  knowsAbout: ['数独', 'ナンプレ', 'パズルゲーム', '論理パズル'],
+  contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', email: 'contact@numpredo.com', availableLanguage: 'ja' },
+};
 // 内容长文（/guide/xxx・/variants/xxx）用 article；hub 索引页（/guide/）与其余用 website
 const pathname = Astro.url.pathname;
 const ogType =
@@ -113,6 +130,7 @@ const footerCols = [
     <meta name="twitter:image" content="https://numpredo.com/og-image.png" />
     <meta name="twitter:image:alt" content="numpredo — 無料の数独・ナンプレ" />
     <meta name="robots" content="index,follow" />
+    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
     <slot name="head" />
 
     <!-- Google Analytics 4 — 经 Partytown 在 web worker 运行，不占主线程（保 CWV） -->
@@ -150,7 +168,8 @@ const footerCols = [
         {
           footerCols.map((col) => (
             <div class="sfoot-col">
-              <h2>{col.h}</h2>
+              {/* 見出しタグにしない：全 313 ページに定型 h2 が 4 つ並ぶと本文の見出し構造が薄まる（a11y/SEO） */}
+              <p class="sfoot-h">{col.h}</p>
               {col.links.map(([label, href]) => (
                 <a href={href}>{label}</a>
               ))}
@@ -215,7 +234,7 @@ const footerCols = [
       /* ---------- SiteFooter ---------- */
       .sfoot { background: var(--surface); border-top: 1px solid var(--line); padding: var(--space-8) var(--space-5) var(--space-5); margin-top: var(--space-10); }
       .sfoot-cols { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-5); }
-      .sfoot-col h2 { font-weight: 700; font-size: var(--text-sm); margin: 0 0 var(--space-3); color: var(--ink); }
+      .sfoot-col .sfoot-h { font-weight: 700; font-size: var(--text-sm); margin: 0 0 var(--space-3); color: var(--ink); }
       .sfoot-col a { display: block; font-size: var(--text-sm); color: var(--ink-3); text-decoration: none; padding: 4px 0; }
       .sfoot-col a:hover { color: var(--accent); }
       .sfoot-friend { max-width: 1080px; margin: var(--space-5) auto 0; padding-top: var(--space-4); border-top: 1px solid var(--line); font-size: var(--text-xs); color: var(--ink-3); line-height: 1.7; }

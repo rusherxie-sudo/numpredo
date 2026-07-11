@@ -1,0 +1,13 @@
+# Cloudflare Pages カスタムレスポンスヘッダ
+# ・セキュリティヘッダ（PSI/Lighthouse Best Practices 指摘分）
+# ・camera は solver（写真読み取り）が使うため self を許可
+# ・CSP は inline script + Partytown 構成のため未設定（導入するなら Report-Only で観察してから）
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: camera=(self), microphone=(), geolocation=()
+
+# ハッシュ付き静的アセットは不変 → 1 年キャッシュ（既定の 4h では再訪ごとに再検証が走る）
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -5,6 +5,19 @@ const title = '数独・ナンプレを無料でプレイ｜難易度一覧 - nu
 const description = '初級から超難問まで、無料の数独（ナンプレ）を難易度別にプレイ。すべて唯一解・論理だけで解ける高品質問題。登録不要、スマホ対応。';
 const url = 'https://numpredo.com/play/';
 
+// 難易度比較表：ヒント数は題庫全量から実測平均（構築期に計算、データと乖離しない）
+const SETS = 55; // = play/[level]/[n].astro の SETS_PER_LEVEL（同期点）
+const SHORT_TECH: Record<string, string> = {
+  beginner: '裸の単数・隠れた単数',
+  intermediate: '区画の絞り込み',
+  advanced: 'ペア（二国同盟）',
+  hard: '三国同盟（ネイキッドトリプル）',
+  extreme: 'スカイスクレイパー・X-Wingなど',
+};
+// 空マスは題庫 JSON で '.'（gridToString 出力）——数字だけを数える（'0' 表記にも頑健）
+const avgClues = (puzzles: Array<{ puzzle: string }>): number =>
+  Math.round(puzzles.reduce((s, p) => s + [...p.puzzle].filter((c) => c >= '1' && c <= '9').length, 0) / puzzles.length);
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -45,10 +58,29 @@ const itemListSchema = {
     ))}
   </div>
 
+  <h2>難易度の比較（早見表）</h2>
+  <p class="lead">どの難易度から始めるか迷ったら。必要なテクニックとヒント数のめやすで選べます。</p>
+  <div class="gtable-wrap">
+    <table class="gtable">
+      <thead><tr><th>難易度</th><th>解くのに必要な主なテクニック</th><th>ヒント数（平均）</th><th>収録問題数</th></tr></thead>
+      <tbody>
+        {LEVELS.map((l) => (
+          <tr>
+            <td><a href={`/play/${l.slug}/`}>{l.ja}（{l.en}）</a></td>
+            <td>{SHORT_TECH[l.slug]}</td>
+            <td>約{avgClues(l.puzzles)}個</td>
+            <td>{l.puzzles.length}問</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="tnote">※ ブラウザでの出題は各難易度55問を順繰りに、<a href="/print/">印刷ページ</a>では収録全問からランダムに出題します。</p>
+
   <h2>問題集・一手ずつ図解で解き方</h2>
   <p class="lead">各難易度の問題を、解答エンジンの手順どおりに一手ずつ図解。詰まったときの「次の一手」と、その難易度で使うテクニックがわかります。</p>
   <ul>
-    {LEVELS.map((l) => <li><a href={`/play/${l.slug}/1/`}>数独{l.ja}の問題を図解で解く（No.1〜12）</a></li>)}
+    {LEVELS.map((l) => <li><a href={`/play/${l.slug}/1/`}>数独{l.ja}の問題を図解で解く（No.1〜{SETS}）</a></li>)}
   </ul>
 
   <h2>バリエーション数独</h2>
@@ -77,5 +109,11 @@ const itemListSchema = {
     .pc-j { font-family: var(--font-mincho); font-size: 17px; font-weight: 600; }
     .pc-e { font-size: 12px; color: var(--ink-3); font-weight: 400; }
     .pc-d { display: block; font-size: 13px; color: var(--ink-3); margin-top: 4px; }
+    .gtable-wrap { overflow-x: auto; margin: 10px 0 4px; }
+    .gtable { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .gtable th, .gtable td { border: 1px solid var(--line-2); padding: 8px 11px; text-align: left; vertical-align: top; }
+    .gtable th { background: var(--surface-2); font-weight: 700; color: var(--ink); }
+    .gtable td:first-child { white-space: nowrap; }
+    .tnote { font-size: 12px; color: var(--ink-4); margin: 6px 0 0; }
   </style>
 </Base>

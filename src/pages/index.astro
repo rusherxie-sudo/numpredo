@@ -54,16 +54,7 @@ const websiteSchema = {
   inLanguage: 'ja',
   publisher: { '@id': 'https://numpredo.com/#organization' },
 };
-const orgSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  '@id': 'https://numpredo.com/#organization',
-  name: 'numpredo',
-  url: 'https://numpredo.com/',
-  logo: 'https://numpredo.com/og-image.png',
-  description: '日本語の数独・ナンプレ無料学習サイト。5段階難易度のブラウザプレイ、写真で答え合わせできる自動解答ソルバー、解き方ガイド、印刷用PDFを提供。',
-  knowsAbout: ['数独', 'ナンプレ', 'パズルゲーム', '論理パズル'],
-};
+// Organization 完全ノードは Base.astro が全ページに注入（@id: #organization）——ここでは重複定義しない
 const homeFaqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -74,7 +65,6 @@ const homeFaqSchema = {
 <Base title={title} description={description} wide>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
-    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(homeFaqSchema)} />
   </Fragment>
 

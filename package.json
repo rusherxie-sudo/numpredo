@@ -12,7 +12,8 @@
     "gen:published": "node scripts/gen-published.ts",
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "gen:llms": "node scripts/gen-llms-full.ts"
   },
   "engines": {
     "node": ">=22.6"

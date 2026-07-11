@@ -2,9 +2,22 @@
 import Base from '../layouts/Base.astro';
 const title = 'お問い合わせ - numpredo';
 const description = 'numpredo へのお問い合わせは contact@numpredo.com まで。ご意見・ご要望、不具合のご報告、著作権に関するお問い合わせを受け付けています。';
+
+const contactSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: title,
+  description,
+  url: 'https://numpredo.com/contact/',
+  inLanguage: 'ja',
+  mainEntity: { '@id': 'https://numpredo.com/#organization' },
+};
 ---
 
 <Base title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(contactSchema)} />
+  </Fragment>
   <nav class="crumb"><a href="/">ホーム</a> › お問い合わせ</nav>
   <h1>お問い合わせ</h1>
   <p>numpredo に関するご意見・ご要望、不具合のご報告、著作権・取材などのお問い合わせは、下記のメールアドレスまでお気軽にご連絡ください。</p>

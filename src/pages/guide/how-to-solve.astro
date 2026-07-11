@@ -2,7 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import advanced from '../../data/puzzles/advanced.json';
-import { renderBoardSvg, gridFromString, traceFirstElimination, TOKEN_THEME, type CandidateMark } from '../../engine/index.ts';
+import { renderBoardSvg, gridFromString, traceFirstElimination, TECH_INFO, TOKEN_THEME, type CandidateMark } from '../../engine/index.ts';
+import { TECHNIQUES } from '../../data/techniques.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
 import publishedJson from '../../data/published.json';
 const lastmod: Record<string, string> = lastmodJson;
@@ -21,7 +22,8 @@ const trace = traceFirstElimination(sample);
 let svgTech = '';
 let techName = '';
 if (trace) {
-  techName = trace.step.technique;
+  // 内部技巧キー（lockedCandidates 等）を日本語名に変換して表示（英字キーの生渲染を防ぐ）
+  techName = TECH_INFO[trace.step.technique]?.ja ?? 'テクニック';
   const marks: CandidateMark[] = (trace.step.eliminations ?? []).map(([cell, digit]) => ({ cell, digit, type: 'eliminate' }));
   const cells = [...new Set((trace.step.eliminations ?? []).map(([c]) => c))].map((cell) => ({ cell }));
   svgTech = renderBoardSvg(trace.grid, {
@@ -46,6 +48,8 @@ const faq = [
 ];
 const datePublished = published['/guide/how-to-solve/'];
 const dateModified = lastmod['/guide/how-to-solve/'];
+// JSON-LD 内リンクは絶対 URL に（ページ文脈から切り離して消費されても辿れるように）
+const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -54,8 +58,9 @@ const articleSchema = {
   inLanguage: 'ja',
   mainEntityOfPage: url,
   image: 'https://numpredo.com/og-image.png',
-  author: { '@type': 'Organization', name: 'numpredo', url: 'https://numpredo.com/' },
+  author: { '@id': 'https://numpredo.com/#organization' },
   publisher: { '@id': 'https://numpredo.com/#organization' },
+  speakable: { '@type': 'SpeakableSpecification', cssSelector: ['.lead', '.faq'] },
   ...(datePublished ? { datePublished } : {}),
   ...(dateModified ? { dateModified } : {}),
 };
@@ -73,7 +78,7 @@ const howToSchema = {
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })),
 };
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -95,6 +100,7 @@ const breadcrumbSchema = {
 
   <nav class="crumb"><a href="/">ホーム</a> › 解き方</nav>
   <h1>ナンプレ・数独の解き方完全ガイド</h1>
+  {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
   <p class="lead">単数の発見から上級テクニックまで、図解でわかりやすく。すべて唯一解・論理だけで解ける考え方です。</p>
 
   <h2>数独・ナンプレとは</h2>
@@ -120,16 +126,22 @@ const breadcrumbSchema = {
     <li><a href="/guide/sudoku-vs-numpre/">数独とナンプレの違い</a></li>
   </ul>
 
-  <h2>テクニック別の詳しい解説（図解）</h2>
-  <ul>
-    <li><a href="/guide/techniques/naked-pair/">ネイキッドペア（二国同盟）の解き方</a></li>
-    <li><a href="/guide/techniques/pointing/">区画の絞り込み（ポインティング）の解き方</a></li>
-    <li><a href="/guide/techniques/x-wing/">X-Wing（エックスウイング）の解き方</a></li>
-    <li><a href="/guide/techniques/hidden-pair/">隠れたペア（ヒドゥンペア）の解き方</a></li>
-    <li><a href="/guide/techniques/naked-triple/">三国同盟（ネイキッドトリプル）の解き方</a></li>
-    <li><a href="/guide/techniques/swordfish/">スワードフィッシュの解き方</a></li>
-    <li><a href="/guide/techniques/skyscraper/">スカイスクレイパーの解き方</a></li>
-  </ul>
+  <h2>テクニック別の詳しい解説（図解・早見表）</h2>
+  <p>どの手筋をいつ使うかの早見表です。名前をクリックすると、図解つきの詳しい解説に進めます。</p>
+  <div class="gtable-wrap">
+    <table class="gtable">
+      <thead><tr><th>テクニック</th><th>適用難易度</th><th>どんな場面で使うか</th></tr></thead>
+      <tbody>
+        {TECHNIQUES.map((t) => (
+          <tr>
+            <td><a href={`/guide/techniques/${t.slug}/`}>{t.name}</a></td>
+            <td>{t.level}</td>
+            <td>{t.lead}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 
   <h2>解き方のコツまとめ</h2>
   <p>基本から中級まで、コツを段階的に学びたい方は<a href="/guide/tips/">解き方のコツまとめページ</a>へ。消去法・候補メモの書き方・ペアの見つけ方をわかりやすく解説しています。</p>
@@ -150,7 +162,13 @@ const breadcrumbSchema = {
   <style is:global>
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 16px; }
+    .upd { color: var(--ink-4); font-size: 12px; margin: -4px 0 10px; }
     main ul, main ol { line-height: 2; } main ul a, main p a { color: var(--accent); }
+    .gtable-wrap { overflow-x: auto; margin: 10px 0 4px; }
+    .gtable { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .gtable th, .gtable td { border: 1px solid var(--line-2); padding: 8px 11px; text-align: left; vertical-align: top; }
+    .gtable th { background: var(--surface-2); font-weight: 700; color: var(--ink); }
+    .gtable td:first-child { white-space: nowrap; }
     .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 16px; } .faq dd { margin: 5px 0 0; color: var(--ink-3); }
     .guide-fig { margin: 16px 0; text-align: center; }
     .guide-fig svg { max-width: 360px; width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }

@@ -99,11 +99,29 @@ const map: Record<string, string> = {};
 
 for (const rel of listPages()) {
   if (rel.includes('[')) {
-    // 嵌套双参数路由 play/[level]/[n]：发布日 = 题目页路由文件的首次提交日（不含 puzzles，避免偏早）。
+    // 嵌套双参数路由 play/[level]/[n]：发布日 = 该 No. 实际开始出页的那次「扩容提交」日。
+    // 不能一律用模板首次提交日——后来才放量的 No.（13+/31+/46+）会被虚报数周页龄，
+    // 与本站「日期取真实 git 提交、绝不虚报」的原则相悖。
     if (rel === 'play/[level]/[n].astro') {
-      const d = gitPublished([`${PAGES}/${rel}`]);
-      // 55 = SETS_PER_LEVEL（同步点：play/[level]/[n].astro、gen-sitemap-lastmod.ts；曾因硬编码 12 漏掉 90 页的 datePublished）
-      if (d) for (const lv of slugsFromData('src/data/levels.ts')) for (let nn = 1; nn <= 55; nn++) map[`/play/${lv}/${nn}/`] = d;
+      const tmplFirst = gitPublished([`${PAGES}/${rel}`]); // No.1-12（初期 PER_LEVEL=12 时代）
+      // [该区间最大 No., 公开日]。放量时在此追加一行（同步点：SETS_PER_LEVEL）。
+      const EXPANSIONS: Array<[number, string]> = [
+        [12, tmplFirst], // 2026-06-20 模板初次提交
+        [30, '2026-06-27T09:07:25+07:00'], // 999400b 去上限（后收敛 SETS=30）
+        [45, '2026-07-07T11:47:41+07:00'], // d3022ba 30→45
+        [55, '2026-07-09T11:05:09+07:00'], // 2c6d3fe 45→55
+      ];
+      const pubForN = (nn: number): string => {
+        const hit = EXPANSIONS.find(([max]) => nn <= max);
+        // 显式失败而非静默兜底：放量后忘记追加 EXPANSIONS 行会把新页 datePublished 虚报偏早
+        if (!hit) throw new Error(`n=${nn} 超出 EXPANSIONS 区间——SETS_PER_LEVEL 放量后请在 EXPANSIONS 追加一行(扩容提交日)`);
+        return hit[1];
+      };
+      for (const lv of slugsFromData('src/data/levels.ts'))
+        for (let nn = 1; nn <= 55; nn++) {
+          const d = pubForN(nn);
+          if (d) map[`/play/${lv}/${nn}/`] = d;
+        }
       continue;
     }
     // 动态路由：每个 slug 一个 URL；内容源 = 模板文件 + 数据文件，组内共用同一日期（git 按文件粒度）

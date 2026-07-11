@@ -8,6 +8,11 @@
 - [数独を解く（自動解答ソルバー）](https://numpredo.com/tools/solver/): 写真を撮る・画像を選ぶだけで盤面を自動読み取りし解答、解き方も一手ずつ表示
 - [解き方完全ガイド](https://numpredo.com/guide/how-to-solve/): ナンプレの基本手順と手筋（テクニック）を図解で解説
 - [難易度一覧](https://numpredo.com/play/): 初級・中級・上級・難問・超難問の5段階
+- [初級の数独](https://numpredo.com/play/beginner/): ヒント多め、裸の単数・隠れた単数だけで解ける入門向け
+- [中級の数独](https://numpredo.com/play/intermediate/): 区画の絞り込みを使う定番の歯ごたえ
+- [上級の数独](https://numpredo.com/play/advanced/): ペア（二国同盟）を使いこなす本格派
+- [難問の数独](https://numpredo.com/play/hard/): 三国同盟（ネイキッドトリプル）でじっくり解く手強い問題
+- [超難問の数独](https://numpredo.com/play/extreme/): スカイスクレイパー・X-Wing級の最難関
 - [毎日の数独](https://numpredo.com/daily/): 日替わりのデイリー問題
 - [無料印刷用PDF](https://numpredo.com/print/): 難易度と問題数を選んでダウンロード・印刷
 
@@ -17,7 +22,7 @@
 - [区画の絞り込み](https://numpredo.com/guide/techniques/pointing/)
 - [X-Wing](https://numpredo.com/guide/techniques/x-wing/)
 - [隠れたペア](https://numpredo.com/guide/techniques/hidden-pair/)
-- [裸の三数](https://numpredo.com/guide/techniques/naked-triple/)
+- [三国同盟（ネイキッドトリプル）](https://numpredo.com/guide/techniques/naked-triple/)
 - [スワードフィッシュ](https://numpredo.com/guide/techniques/swordfish/)
 - [スカイスクレイパー](https://numpredo.com/guide/techniques/skyscraper/)
 
@@ -45,3 +50,4 @@
 ## Optional
 
 - [このサイトについて](https://numpredo.com/about/)
+- [解説コンテンツ全文](https://numpredo.com/llms-full.txt): データ駆動の解説ページ（攻略ガイド・テクニック・バリエーション）本文をまとめた markdown

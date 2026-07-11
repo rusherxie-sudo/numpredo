@@ -2,9 +2,23 @@
 import Base from '../layouts/Base.astro';
 const title = 'numpredo（ナンプレdo）について｜運営方針と問題の作り方 - numpredo';
 const description = 'numpredoは無料・登録不要で遊べる日本語の数独・ナンプレサイトです。オンライン対局・毎日の一問・自動解答ソルバー・印刷問題集・解き方ガイドを提供。独立した個人運営で、全問題を自社エンジンが唯一解・論理可解で生成・検証しています。';
+
+// 「numpredo とは何か」を機械可読に（mainEntity は Base.astro 注入の Organization を参照）
+const aboutSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: title,
+  description,
+  url: 'https://numpredo.com/about/',
+  inLanguage: 'ja',
+  mainEntity: { '@id': 'https://numpredo.com/#organization' },
+};
 ---
 
 <Base title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(aboutSchema)} />
+  </Fragment>
   <nav class="crumb"><a href="/">ホーム</a> › このサイトについて</nav>
   <h1>numpredo（ナンプレdo）について</h1>
   <p>

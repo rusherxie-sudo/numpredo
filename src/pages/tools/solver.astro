@@ -29,7 +29,9 @@ const webAppSchema = {
   ...(datePublished ? { datePublished } : {}),
   ...(dateModified ? { dateModified } : {}),
 };
-const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
+// JSON-LD 内リンクは絶対 URL に（ページ文脈から切り離して消費されても辿れるように）
+const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
+const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })) };
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: 'プレイ', item: 'https://numpredo.com/play/' }, { '@type': 'ListItem', position: 3, name: 'ソルバー', item: url }] };
 // HowTo：ページ内の「写真で解く手順」を構造化データ化（写真/カメラで解く方法の意図に対応、リッチリザルト対象）
 const howToSchema = {
@@ -57,7 +59,7 @@ const howToSchema = {
   <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › ソルバー</nav>
   <h1>数独・ナンプレ自動解答ツール（写真でかんたん答え合わせ）</h1>
   <p class="lead"><strong>9×9 の標準的な数独（ナンプレ）</strong>専用。新聞・雑誌の数独が解けないとき、<strong>写真を撮る／画像を選ぶ</strong>だけで盤面を読み取り、答えを自動計算します。読み取り後は盤面で確認・修正してから「解く」を押してください。手入力だけでもOKです。</p>
-  {dateModifiedLabel && <p class="sv-updated">最終更新：{dateModifiedLabel}</p>}
+  {dateModifiedLabel && <p class="sv-updated"><time datetime={dateModified}>最終更新日：{dateModifiedLabel}</time></p>}
 
   <div class="sv-photo">
     <label class="sv-photo-btn sv-photo-cam"><input type="file" accept="image/*" capture="environment" data-photo hidden />カメラで撮影</label>
@@ -89,6 +91,12 @@ const howToSchema = {
 
   <h2>新聞・雑誌の数独／ナンプレの答え合わせに</h2>
   <p>新聞（読売・毎日・朝日など）や雑誌のナンプレ・数独が解けないとき、紙面の答え発表を待たずに答え合わせができます。問題を撮影するか、マス目を入力して「解く」を押すだけ。唯一解かどうかも判定します。くわしくは<a href="/guide/newspaper/">新聞の数独・ナンプレが解けないときの答え合わせ方法</a>をどうぞ。</p>
+  <p>答え合わせのやり方は3ステップです：</p>
+  <ol>
+    <li>紙面の<strong>問題</strong>（自分の答えではなく、最初から印刷されている数字）を撮影するか、上の盤面に入力する。</li>
+    <li>読み取り結果を確認し、間違っているマスをタップして修正する。</li>
+    <li>「解く」を押して正しい解答を表示し、自分の答えと見比べる。違うマスがあれば、そこが間違いです。</li>
+  </ol>
 
   <h2>ナンプレ・数独の自動解答について</h2>
   <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a}></dd></>))}</dl>

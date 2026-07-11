@@ -20,6 +20,11 @@ const set = Array.from({ length: WINDOW }, (_, o) => {
   const p = pool[idxFor(dayStart + o)];
   return { puzzle: p.puzzle, level: p.level };
 });
+// 難易度の内訳（題庫全量から実測。構築日に依存しない確定値＝静的本文として安全）
+const LEVEL_JA: Record<string, string> = { beginner: '初級', intermediate: '中級', advanced: '上級', hard: '難問', extreme: '超難問' };
+const levelCounts = pool.reduce<Record<string, number>>((m, p) => ((m[p.level] = (m[p.level] ?? 0) + 1), m), {});
+const levelOrder = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
+
 const title = '毎日の数独・ナンプレ｜日替わり問題で記録に挑戦 - numpredo';
 const description = '毎日0時に更新、その日の数独（ナンプレ）の一問に挑戦。全員が同じ問題でタイムを競い、連続日数（ストリーク）を伸ばせます。すべて唯一解・論理だけで解ける高品質問題。メモ・自動チェックつき、無料・登録不要でスマホ・PCに対応。';
 const url = 'https://numpredo.com/daily/';
@@ -42,11 +47,14 @@ const webAppSchema = {
   operatingSystem: 'Web',
   inLanguage: 'ja',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
 };
+// JSON-LD 内リンクは絶対 URL に（ページ文脈から切り離して消費されても辿れるように）
+const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })),
 };
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -78,6 +86,11 @@ const breadcrumbSchema = {
     <h2>毎日の数独・ナンプレについて</h2>
     <p>毎日0時に、新しい数独（ナンプレ）の一問が出題されます。全員に同じ問題が配られるので、タイムを記録して自己ベストや連続記録（ストリーク）に挑戦できます。難易度は日替わりで、やさしい日もあれば手強い日もあります。</p>
     <p>出題されるのはすべて「解が一つだけ」「論理だけで解ける」ことを検証済みの高品質問題です。当てずっぽうは一切不要——毎日の一問で、無理なく論理的思考のトレーニングを続けられます。登録もアプリも不要、開いたその場で遊べます。</p>
+
+    <h2>出題の仕組みと難易度の内訳</h2>
+    <p>デイリー問題は、公開日順に並べた出題リストを毎日一問ずつ順番に消化していく方式です。乱数ではなく日付から一意に決まるため、<strong>世界中の誰が開いても、同じ日にはかならず同じ問題</strong>になります。日付の切り替えは日本標準時（JST）の0時です。</p>
+    <p>出題リストには現在<strong>{pool.length}問</strong>が登録されており、内訳は{levelOrder.map((lv, i) => `${LEVEL_JA[lv]}${levelCounts[lv] ?? 0}問`).join('・')}。約{Math.round((pool.length / 365) * 10) / 10}年ぶんの日替わり問題が、重複なしで用意されています。すべて自社エンジンが生成し、唯一解・論理だけで解けることを機械検証済みです。</p>
+    <p>ストリーク（連続日数）を伸ばすコツ：難しい日は<a href="/guide/when-stuck/">行き詰まったときのチェックリスト</a>で候補メモを見直すこと。それでも解けない日は<a href="/tools/solver/">ソルバー</a>で一手だけ確認して、翌日また挑戦しましょう。</p>
 
     <h2>もっと遊ぶ</h2>
     <ul>

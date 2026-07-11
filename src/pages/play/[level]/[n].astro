@@ -11,7 +11,7 @@ const published: Record<string, string> = publishedJson;
 const SETS_PER_LEVEL = 55; // 题目集出页数/档(题库更大,余下作 daily 池+储备)。2026-06-27収敛到30后GSC实测17天仍近半未索引，2026-07-07小步试水30→45，2026-07-09再扩10道到55。
 
 export function getStaticPaths() {
-  const cap = 55; // = SETS_PER_LEVEL(getStaticPaths 独立作用域,改时同步;同步点:本文件 sameLevelNs、play/[level].astro 的 setlist 与嵌入 set(slice 55, ?n= 直达)、gen-sitemap-lastmod.ts)
+  const cap = 55; // = SETS_PER_LEVEL(getStaticPaths 独立作用域,改时同步;同步点:本文件 sameLevelNs、play/[level].astro 的 setlist 与嵌入 set(slice 55, ?n= 直达)、play/index.astro 的 SETS、gen-sitemap-lastmod.ts、gen-published.ts 的 EXPANSIONS(放量时追加一行))
   return LEVELS.flatMap((meta) =>
     Array.from({ length: Math.min(cap, meta.puzzles.length) }, (_, i) => i + 1).map((n) => ({
       params: { level: meta.slug, n: String(n) },
@@ -46,8 +46,13 @@ const stepFigs = renderStepFigures(keySteps, given);
 const sameLevelNs = Array.from({ length: Math.min(SETS_PER_LEVEL, meta.puzzles.length) }, (_, i) => i + 1).filter((x) => x !== n && Math.abs(x - n) <= 6);
 const otherLevels = LEVELS.filter((l) => l.slug !== meta.slug);
 
+// ページ固有の実測パラメータ（description/本文の差別化：同档で clues/hardest が定数に潰れる档＝初級でも毎題変わる）
+const hiddenN = sol.steps.filter((s) => s.technique === 'hiddenSingle').length;
+const firstCell = sol.steps.find((s) => s.cell !== undefined)?.cell;
+const firstPos = firstCell !== undefined ? `${Math.floor(firstCell / 9) + 1}行${(firstCell % 9) + 1}列` : '';
+
 const title = `数独${meta.ja} No.${n}｜一手ずつ図解で解き方 - numpredo`;
-const description = `数独（ナンプレ）${meta.ja}の問題 No.${n}を一手ずつ図解で解説。ヒント${clues}個・論理で解ける手数は全${sol.steps.length}手、最難テクニックは${hardestInfo.ja}。当てずっぽうなしで解ける手順を盤面付きで。`;
+const description = `数独（ナンプレ）${meta.ja}の問題 No.${n}を一手ずつ図解で解説。ヒント${clues}個・全${sol.steps.length}手${hiddenN > 0 ? `（隠れた単数${hiddenN}回）` : ''}、最難テクニックは${hardestInfo.ja}${firstPos ? `。最初の一手は${firstPos}から` : ''}。当てずっぽうなしで解ける手順を盤面付きで。`;
 const h1 = `数独${meta.ja} No.${n}｜一手ずつ図解で解き方`;
 
 // FAQ 第2・3問は3套措辞按 n%3 轮换：同档30页逐字相同の定型文が FAQPage JSON-LD で並ぶのを避ける
@@ -71,8 +76,10 @@ const faq = [
   { q: 'この問題は当てずっぽうなしで解けますか？', a: faqNoGuess[n % 3] },
 ];
 
-const dateModified = lastmod[`/play/${meta.slug}/${n}/`];
 const datePublished = published[`/play/${meta.slug}/${n}/`];
+// 防御性钳制：扩容直后 sitemap-lastmod 未重跑时可能出现 modified < published 的非法时序
+const rawModified = lastmod[`/play/${meta.slug}/${n}/`];
+const dateModified = rawModified && datePublished && rawModified < datePublished ? datePublished : rawModified;
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -81,8 +88,8 @@ const articleSchema = {
   inLanguage: 'ja',
   mainEntityOfPage: url,
   image: 'https://numpredo.com/og-image.png',
-  author: { '@type': 'Organization', name: 'numpredo', url: 'https://numpredo.com/' },
-  publisher: { '@type': 'Organization', name: 'numpredo', logo: { '@type': 'ImageObject', url: 'https://numpredo.com/og-image.png' } },
+  author: { '@id': 'https://numpredo.com/#organization' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
   ...(datePublished ? { datePublished } : {}),
   ...(dateModified ? { dateModified } : {}),
 };
@@ -94,10 +101,12 @@ const howToSchema = {
   inLanguage: 'ja',
   step: stepFigs.map((f, i) => ({ '@type': 'HowToStep', position: i + 1, name: f.label, text: f.text })),
 };
+// JSON-LD 内リンクは絶対 URL に（ページ文脈から切り離して消費されても辿れるように）
+const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })),
 };
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -129,7 +138,8 @@ const breadcrumbSchema = {
   <ul class="feat">
     <li>ヒントの数：<strong>{clues}個</strong></li>
     <li>最難テクニック：<strong>{hardestInfo.ja}</strong></li>
-    <li>論理で解ける手数：<strong>全{sol.steps.length}手</strong></li>
+    <li>論理で解ける手数：<strong>全{sol.steps.length}手</strong>{hiddenN > 0 && <>（うち隠れた単数 {hiddenN} 回）</>}</li>
+    {firstPos && <li>最初に確定できるマス：<strong>{firstPos}</strong></li>}
   </ul>
 
   <h2>一手ずつ図解で解いてみよう</h2>

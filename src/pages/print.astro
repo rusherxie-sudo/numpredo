@@ -16,7 +16,18 @@ const faq = [
   { q: '印刷した解答ページをなくしてしまったら？', a: '<a href="/tools/solver/">数独ソルバー（自動解答）</a>にマス目を入力すれば、答えをその場で自動表示できます。写真を撮って読み取らせることもできます。' },
 ];
 const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ無料プリント問題集（PDF印刷）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
-const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
+// JSON-LD 内リンクは絶対 URL に（ページ文脈から切り離して消費されても辿れるように）
+const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
+const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })) };
+
+// 難易度別の印刷ガイド（「超難問 印刷」等の難易度×印刷クエリの着地点。h3 に id アンカー）
+const printByLevel: Array<{ slug: string; h: string; body: string }> = [
+  { slug: 'beginner', h: '初級の数独を印刷する', body: 'ヒントが多く、裸の単数・隠れた単数だけで解ける入門向け。お子さまの練習や、数独がはじめての方のウォーミングアップに。まとめて刷るなら12問がおすすめです。' },
+  { slug: 'intermediate', h: '中級の数独を印刷する', body: '「区画の絞り込み」で一段深く考える定番の歯ごたえ。毎日の脳トレ・通勤のおともにちょうどよい難しさで、繰り返し印刷して日課にするのに向いています。' },
+  { slug: 'advanced', h: '上級の数独を印刷する', body: 'ペア（二国同盟）を使いこなす本格派。候補メモを書き込みながらじっくり解くタイプなので、マス目に書き込める紙との相性が抜群です。' },
+  { slug: 'hard', h: '難問の数独を印刷する', body: '複数のテクニックを組み合わせて解く手強い一問。1枚4問のゆったりレイアウトで印刷して、腰を据えて挑むのがおすすめです。' },
+  { slug: 'extreme', h: '超難問の数独を印刷する', body: 'スカイスクレイパー・X-Wing級の最難関。超難問のナンプレを無料で印刷できるサイトは少なく、しかも全問が唯一解・論理だけで解けることを検証済み。上級者の挑戦用にどうぞ。' },
+];
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: '問題集・印刷', item: url }] };
 const howToSchema = {
   '@context': 'https://schema.org', '@type': 'HowTo',
@@ -78,6 +89,15 @@ const howToSchema = {
 
     <h2>難易度の選び方</h2>
     <p>はじめての方や答え合わせ用なら<strong>初級・中級</strong>、歯ごたえが欲しい方は<strong>上級〜超難問</strong>がおすすめです。すべて唯一解・論理だけで解けるので、印刷した問題は当てずっぽうなしで必ず解けます。難易度ごとの特徴は<a href="/play/">プレイ一覧</a>で確認できます。</p>
+
+    <h2>難易度別に印刷する（初級〜超難問）</h2>
+    <p>ページ上部の難易度ボタンで選んで「作成して印刷」を押すだけ。各難易度の特徴は次のとおりです。</p>
+    {printByLevel.map((x) => (
+      <>
+        <h3 id={x.slug}>{x.h}</h3>
+        <p>{x.body}</p>
+      </>
+    ))}
 
     <h2>ナンプレをPDFでダウンロード・保存する方法</h2>
     <p>プリンターがなくてもPDFで保存できます。「作成して印刷」を押して印刷ダイアログが開いたら、プリンターの代わりに「<strong>PDFに保存</strong>」を選ぶだけ。スマホやタブレットに数独・ナンプレのPDFを保存しておけば、コンビニ印刷やあとで解く用に使えます。<strong>数独・ナンプレのPDF無料ダウンロード</strong>としてもお使いください。用紙はA4がおすすめです。</p>
