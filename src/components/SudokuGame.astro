@@ -10,8 +10,10 @@ interface Props {
   daystart?: number;
   /** 変体规则：'diagonal' = 対角線数独（units/peers 换成对角线上下文 + 対角線マス色分け） */
   variant?: string;
+  /** アーカイブ：過去デイリーを解くモード（?d= 指定、ストリーク非加算。/daily/archive/ 专用） */
+  archive?: boolean;
 }
-const { level, levelJa, daily = false, url = 'https://numpredo.com/', set, daystart, variant } = Astro.props;
+const { level, levelJa, daily = false, url = 'https://numpredo.com/', set, daystart, variant, archive = false } = Astro.props;
 const setJson = JSON.stringify(set);
 ---
 
@@ -21,6 +23,7 @@ const setJson = JSON.stringify(set);
   data-levelja={levelJa}
   data-url={url}
   data-daily={daily ? '1' : '0'}
+  data-archive={archive ? '1' : '0'}
   data-daystart={daystart}
   data-variant={variant}
   data-set={setJson}
@@ -69,6 +72,7 @@ const setJson = JSON.stringify(set);
   .sk-d-level { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
   .sk-d-level b { color: var(--accent); font-family: var(--font-mincho); }
   .sk-d-streak { font-family: var(--font-mincho); font-size: 13px; color: var(--accent); margin-top: 2px; }
+  .sk-d-arch { font-size: 10px; color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 3px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
   .sk-timerow { display: flex; align-items: center; justify-content: center; gap: 10px; }
   .sk-timer { font-family: var(--font-mincho); font-size: 26px; color: var(--ink); }
   .sk-pause-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--line-2); border-radius: 50%; background: var(--surface); color: var(--ink-3); cursor: pointer; flex: none; }
@@ -130,6 +134,14 @@ const setJson = JSON.stringify(set);
   /* 成绩卡 */
   .sk-result { display: none; text-align: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
   .sk-result.on { display: block; }
+  /* 実績解除トースト（成绩卡顶部） */
+  .sk-achv { text-align: left; background: var(--accent-tint); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px; }
+  .sk-achv-h { font-family: var(--font-mincho); font-weight: 700; font-size: 13px; color: var(--accent); margin-bottom: 6px; }
+  .sk-achv-i { font-size: 12px; color: var(--ink-2); line-height: 1.7; }
+  .sk-achv-i b { margin-right: 6px; }
+  .sk-achv-ic { margin-right: 5px; }
+  .sk-achv-d { color: var(--ink-3); }
+  .sk-achv-more { display: inline-block; font-size: 12px; color: var(--accent); margin-top: 6px; }
   .sk-r-title { font-family: var(--font-mincho); font-size: 17px; color: var(--accent); }
   .sk-r-time { font-family: var(--font-mincho); font-size: 24px; color: var(--ink); margin: 2px 0; }
   .sk-r-rec { font-size: 12px; color: var(--accent); font-family: var(--font-mincho); }

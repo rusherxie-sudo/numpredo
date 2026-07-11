@@ -7,8 +7,10 @@ interface Props {
   description: string;
   canonical?: string;
   wide?: boolean;
+  /** 個人データページ（/stats/ 等）用：noindex,follow を出す */
+  noindex?: boolean;
 }
-const { title, description, canonical, wide = false } = Astro.props;
+const { title, description, canonical, wide = false, noindex = false } = Astro.props;
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 
 // サイト実体（Organization）を全ページに注入：各テンプレの author/publisher は
@@ -81,6 +83,7 @@ const footerCols = [
     links: [
       ['無料PDF問題集', '/print/'],
       ['毎日の問題', '/daily/'],
+      ['過去のデイリー（アーカイブ）', '/daily/archive/'],
     ],
   },
   {
@@ -88,6 +91,7 @@ const footerCols = [
     links: [
       ['数独ソルバー（解答）', '/tools/solver/'],
       ['新聞の数独の答え合わせ', '/guide/newspaper/'],
+      ['あなたの統計・実績', '/stats/'],
       ['このサイトについて', '/about/'],
     ],
   },
@@ -129,7 +133,7 @@ const footerCols = [
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content="https://numpredo.com/og-image.png" />
     <meta name="twitter:image:alt" content="numpredo — 無料の数独・ナンプレ" />
-    <meta name="robots" content="index,follow" />
+    <meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow'} />
     <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
     <slot name="head" />
 

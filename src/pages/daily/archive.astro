@@ -1,0 +1,98 @@
+---
+// 過去のデイリー問題アーカイブ：EPOCH 起点の確定的選題を静的に復元できる性質を利用し、
+// 単一ページ + ?d= 日付選択で過去日の問題を解けるようにする（日付ごとの静的ルートは
+// 薄内容量産になるため作らない）。クリアは月历(daily.log)へ遡及記入・ストリーク対象外。
+import Base from '../../layouts/Base.astro';
+import SudokuGame from '../../components/SudokuGame.astro';
+import daily from '../../data/puzzles/daily.json';
+
+const EPOCH = Math.floor(Date.UTC(2026, 5, 14) / 86400000); // 2026-06-14（daily.astro と同値・同期点）
+const todayIdx = Math.floor((Date.now() + 9 * 3600 * 1000) / 86400000); // 构建时的 JST 日序号
+const pastCount = Math.max(0, Math.min(todayIdx - EPOCH, daily.puzzles.length));
+// EPOCH〜昨日（構築時点）の全過去題を埋め込み。1日1題≒110B、1年でも約40KB
+const set = daily.puzzles.slice(0, pastCount).map((p) => ({ puzzle: p.puzzle, level: p.level }));
+
+const title = '過去のデイリー数独・ナンプレ｜アーカイブ - numpredo';
+const description = '解き逃した日のデイリー数独（ナンプレ）をアーカイブから選んで挑戦。カレンダーで日付を選ぶだけ、すべて唯一解・論理だけで解ける検証済み問題です。クリアするとカレンダーに記録されます（連続記録の対象外）。';
+const url = 'https://numpredo.com/daily/archive/';
+
+const faq = [
+  { q: '過去の問題を解くと連続記録（ストリーク）は伸びますか？', a: '伸びません。連続記録は「その日のうちに当日の問題を解く」ことで伸びる仕組みです。アーカイブのクリアはカレンダーの記録（✓）にだけ反映されます。' },
+  { q: 'いつの問題まで遡れますか？', a: `公開初日（2026年6月14日）まで全て遡れます。カレンダーまたは URL の ?d=YYYY-MM-DD で日付を指定してください。` },
+  { q: '今日の問題はどこで解けますか？', a: '今日の一問は<a href="/daily/">毎日の数独</a>ページでどうぞ。タイムを競う連続記録はそちらが対象です。' },
+];
+const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '毎日の数独', item: 'https://numpredo.com/daily/' },
+    { '@type': 'ListItem', position: 3, name: 'アーカイブ', item: url },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={url} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <div class="px-text">
+    <nav class="crumb"><a href="/">ホーム</a> › <a href="/daily/">毎日</a> › アーカイブ</nav>
+    <h1>過去のデイリー問題（アーカイブ）</h1>
+    <p class="lead">解き逃した日の一問に、いつでも挑戦できます。カレンダーで日付を選ぶか、下の盤面でそのまま解いてください（既定は昨日の問題）。クリアはカレンダーに✓で記録されます。</p>
+    <div data-daily-cal data-epoch={EPOCH} data-maxday={EPOCH + pastCount - 1} class="dc"></div>
+  </div>
+
+  {set.length > 0 ? (
+    <SudokuGame level="advanced" levelJa="アーカイブ" daily archive url={url} set={set} daystart={EPOCH} />
+  ) : (
+    <p class="px-text">アーカイブはまだありません。<a href="/daily/">今日の一問</a>からどうぞ。</p>
+  )}
+
+  <div class="px-text">
+    <h2>よくある質問</h2>
+    <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
+
+    <h2>関連</h2>
+    <ul>
+      <li><a href="/daily/">今日の一問（連続記録はこちら）</a></li>
+      <li><a href="/stats/">あなたの統計・実績</a></li>
+      <li><a href="/play/">難易度別にプレイ</a></li>
+    </ul>
+  </div>
+
+  <script>
+    import '../../client/daily-calendar.ts';
+  </script>
+
+  <style is:global>
+    .px-text { max-width: 1060px; margin: 0 auto; }
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
+    .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 14px; }
+    main ul { line-height: 2; }
+    .faq dt { font-weight: 700; margin-top: 16px; } .faq dd { margin: 5px 0 0; color: var(--ink-3); } .faq a { color: var(--accent); }
+    .dc { max-width: 380px; margin: 0 0 18px; }
+    .dc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .dc-title { font-family: var(--font-mincho); font-weight: 700; }
+    .dc-nav { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); border-radius: 4px; width: 28px; height: 28px; cursor: pointer; }
+    .dc-nav:disabled { opacity: .35; cursor: default; }
+    .dc-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .dc-w { font-size: 11px; color: var(--ink-4); text-align: center; padding: 2px 0; }
+    .dc-cell { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; font-size: 13px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink-2); text-decoration: none; background: var(--surface); }
+    a.dc-cell:hover { border-color: var(--accent); color: var(--accent); }
+    .dc-void, .dc-out { border: 0; background: transparent; color: var(--ink-4); opacity: .45; }
+    .dc-done { background: var(--accent-tint); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+    .dc-done i { position: absolute; right: 2px; bottom: 0; font-size: 9px; font-style: normal; color: var(--accent); }
+    .dc-today { box-shadow: inset 0 0 0 2px var(--accent); }
+    .dc-sel { outline: 2px dashed var(--accent); outline-offset: 1px; }
+    @media (max-width: 760px) { .px-text { padding: 0; } .crumb { display: none; } }
+  </style>
+</Base>

@@ -8,6 +8,7 @@ import {
   gridFromString, solveOne, traceFirstElimination, logicalSolve, computeCandidates, type Grid,
 } from '../engine/index.ts';
 import { track } from './track.ts';
+import { ACHIEVEMENTS, computeUnlocked, readStats, readDailyLog, readStreak } from './achievements.ts';
 
 interface PuzzlePair {
   puzzle: string;
@@ -27,6 +28,7 @@ interface Saved {
   e: number; // 已用毫秒
   d: number; // 是否完成
   day?: string; // daily 模式的日期校验
+  h?: number; // 本局是否用过提示（1=用过。刷新恢复后ノーヒント実績判定が失真しないように保存）
 }
 
 // localStorage 在部分环境（Safari「すべてのCookieをブロック」/ 一部 WebView）下**访问即抛异常**——
@@ -112,6 +114,9 @@ function setup(root: HTMLElement): void {
   const level = root.dataset.level ?? 'advanced';
   const levelJa = root.dataset.levelja ?? '数独';
   const daily = root.dataset.daily === '1';
+  // archive：過去のデイリーを解くモード（/daily/archive/）。daily の派生だが
+  // ①ストリークは伸びない ②進捗は専用スロット ③月历(daily.log)はその日付に遡及記入
+  const archive = root.dataset.archive === '1';
   const shareUrl = root.dataset.url ?? 'https://numpredo.com/';
   // 変体上下文：data-variant="diagonal" で units/peers を対角線入りに差し替え——
   // 衝突チェック・メモ自動消去・ヒント・エリア完成が全部対角線制約込みで動く
@@ -136,6 +141,8 @@ function setup(root: HTMLElement): void {
   let finalTime = 0;
   let elapsedBase = 0; // 恢复进度时的已用时基准
   let dailyLevel = ''; // daily 当天题的难度档
+  let archiveDay = ''; // archive モードの対象日（YYYY-MM-DD）
+  let hintUsed = false; // 本局是否用过提示（ノーヒント実績の判定素材）
   let poolIdx = 0; // 当前题在嵌入题库 set 中的下标（「別の問題」循环消费用）
   // —— 提示（三级递进）状态：hintSig 记录上次提示时的盘面签名，变了就重置到第1级，连点同盘则升级 ——
   let hintLevel = 0;
@@ -249,7 +256,7 @@ function setup(root: HTMLElement): void {
     ctrl3.append(
       cbtn('search', 'ソルバーで解説', () => {
         if (paused) return; // 停表盯盘対策：一時停止中は答えを見に行けない
-        track('solver_jump', { level: levelJa, daily });
+        track('solver_jump', { level: levelJa, daily, archive });
         const href = '/tools/solver/?grid=' + cur.map((v) => v || '.').join('');
         setTimeout(() => { location.href = href; }, 150); // 直遷移だと dataLayer のイベントが載る前に unload しうる
       }),
@@ -392,7 +399,7 @@ function setup(root: HTMLElement): void {
     save();
     render();
   }
-  const bestKey = (): string => `numpredo.best.${daily ? 'daily' : level}`;
+  const bestKey = (): string => `numpredo.best.${archive ? 'archive' : daily ? 'daily' : level}`;
   function checkDone(): void {
     if (!cur.every((v, i) => v === solution[i])) return;
     done = true;
@@ -401,10 +408,12 @@ function setup(root: HTMLElement): void {
     const prev = Number(store.get(bestKey()) || '0');
     isRecord = prev === 0 || finalTime < prev;
     if (isRecord) store.set(bestKey(), String(finalTime));
-    if (daily) { bumpStreak(); dailyLog(); fillDaily(); }
+    if (daily && !archive) { bumpStreak(); dailyLog(); fillDaily(); }
+    if (archive) { dailyLog(archiveDay); fillDaily(); } // 遡及記入のみ、ストリークは実時間限定
     logStat();
-    track('game_complete', { level: levelJa, daily, record: isRecord });
+    track('game_complete', { level: levelJa, daily, record: isRecord, archive });
     renderResult(prev);
+    showNewAchievements();
     burst();
   }
 
@@ -468,6 +477,7 @@ function setup(root: HTMLElement): void {
   }
   function hint(): void {
     if (done || paused) return;
+    hintUsed = true;
     // 盘面签名变了（落子/撤销/换题）→ 重置到第1级；连点同盘 → 逐级深入（封顶3）
     const sig = cur.join('');
     if (sig !== hintSig) { hintLevel = 1; hintSig = sig; } else hintLevel = Math.min(hintLevel + 1, 3);
@@ -594,6 +604,7 @@ function setup(root: HTMLElement): void {
     given = pz.map((v) => v !== 0);
     history = [];
     redoStack = [];
+    hintUsed = false;
     selected = -1;
     paused = false;
     highlightDigit = 0;
@@ -606,6 +617,7 @@ function setup(root: HTMLElement): void {
       elapsedBase = restore.e || 0;
       done = restore.d === 1;
       finalTime = done ? elapsedBase : 0;
+      hintUsed = restore.h === 1; // 提示使用状態も復元（ノーヒント実績の跨刷新一致性）
     } else {
       cur = pz.slice();
       notes = new Array(81).fill(0);
@@ -637,7 +649,7 @@ function setup(root: HTMLElement): void {
 
   // —— 进度持久化 ——
   function progKey(): string {
-    return `numpredo.prog.${daily ? 'daily' : level}`;
+    return `numpredo.prog.${archive ? 'archive' : daily ? 'daily' : level}`;
   }
   function save(): void {
     const data: Saved = {
@@ -647,8 +659,9 @@ function setup(root: HTMLElement): void {
       n: notes.join(','),
       e: elapsed(),
       d: done ? 1 : 0,
+      h: hintUsed ? 1 : 0,
     };
-    if (daily) data.day = jstDayStr();
+    if (daily) data.day = archive ? archiveDay : jstDayStr();
     store.set(progKey(), JSON.stringify(data)); // store 内部已兜异常（容量超限/不可用 → 静默不保存）
   }
   function load(): Saved | null {
@@ -656,7 +669,7 @@ function setup(root: HTMLElement): void {
       const raw = store.get(progKey());
       if (!raw) return null;
       const o = JSON.parse(raw) as Saved;
-      if (daily && o.day !== jstDayStr()) return null; // 跨日失效（JST 基準）
+      if (daily && o.day !== (archive ? archiveDay : jstDayStr())) return null; // 跨日/別日失效（JST 基準）
       // 三个盘面串都必须 81 位——损坏存档若只查 c，p/s 会在 gridFromString 处抛异常砸掉整个岛
       if (o.p?.length !== 81 || o.s?.length !== 81 || o.c?.length !== 81) return null;
       return o;
@@ -672,22 +685,48 @@ function setup(root: HTMLElement): void {
         const parsed = JSON.parse(store.get('numpredo.stats.v1') ?? '[]');
         if (Array.isArray(parsed)) arr = parsed;
       } catch { /* 損壊 → 空で作り直し */ }
-      arr.push({ t: Date.now(), lv: daily ? dailyLevel || 'daily' : level, ms: finalTime, d: daily ? 1 : 0, day: jstDayStr() });
+      arr.push({
+        t: Date.now(), lv: daily ? dailyLevel || 'daily' : level, ms: finalTime, d: daily ? 1 : 0,
+        day: archive ? archiveDay : jstDayStr(), h: hintUsed ? 1 : 0, r: isRecord ? 1 : 0,
+      });
       if (arr.length > 1000) arr.splice(0, arr.length - 1000);
       store.set('numpredo.stats.v1', JSON.stringify(arr));
     } catch { /* 静默：日志失败不影响游戏 */ }
   }
-  // daily 月历数据：日付 → クリアタイム(ms)。カレンダー打刻の真实源
-  function dailyLog(): void {
+  // daily 月历数据：日付 → クリアタイム(ms)。カレンダー打刻の真实源（archive は対象日へ遡及記入）
+  function dailyLog(dateStr = ''): void {
     try {
       let m: Record<string, number> = {};
       try {
         const parsed = JSON.parse(store.get('numpredo.daily.log') ?? '{}');
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) m = parsed;
       } catch { /* 損壊 → 空で作り直し */ }
-      const today = jstDayStr();
-      if (!m[today]) { m[today] = finalTime; store.set('numpredo.daily.log', JSON.stringify(m)); }
+      const key = dateStr || jstDayStr();
+      if (!m[key]) { m[key] = finalTime; store.set('numpredo.daily.log', JSON.stringify(m)); }
     } catch { /* 静默 */ }
+  }
+  // —— 実績：完成時に新規解放ぶんをトースト表示（判定は achievements.ts の純関数）——
+  function showNewAchievements(): void {
+    try {
+      const unlocked = computeUnlocked(readStats(), readDailyLog(), readStreak());
+      let seen: string[] = [];
+      try {
+        const p = JSON.parse(store.get('numpredo.achv.seen') ?? '[]');
+        if (Array.isArray(p)) seen = p;
+      } catch { /* 損壊 → 全部「新規」として再表示されるだけ（無害） */ }
+      const fresh = [...unlocked].filter((id) => !seen.includes(id));
+      if (!fresh.length) return;
+      // 并集で保存（整表覆盖だと streak 断签等で「回锁」した実績が seen から消え、再達成時に二度目のトーストが出る）
+      store.set('numpredo.achv.seen', JSON.stringify([...new Set([...seen, ...unlocked])]));
+      const defs = fresh.map((id) => ACHIEVEMENTS.find((a) => a.id === id)).filter((a) => !!a);
+      if (!defs.length) return;
+      const box = el('div', 'sk-achv');
+      box.innerHTML =
+        `<div class="sk-achv-h">実績解除！</div>` +
+        defs.map((a) => `<div class="sk-achv-i"><span class="sk-achv-ic">${a!.icon}</span><b>${a!.name}</b><span class="sk-achv-d">${a!.desc}</span></div>`).join('') +
+        `<a class="sk-achv-more" href="/stats/">実績・統計を見る →</a>`;
+      result.prepend(box);
+    } catch { /* 実績表示の失敗は無視 */ }
   }
 
   // —— daily：日期 + 连续记录 ——
@@ -700,6 +739,17 @@ function setup(root: HTMLElement): void {
     store.set('numpredo.daily.streak', String(streak));
   }
   function fillDaily(): void {
+    if (archive) {
+      // アーカイブ表示：対象日 + 完了状況のみ（ストリークは実時間デイリー専用なので出さない）
+      const [, am, ad] = archiveDay.split('-').map(Number);
+      const doneThis = !!readDailyLog()[archiveDay];
+      const lvJaA = LV_JA[dailyLevel] ?? '';
+      dailyEl.innerHTML =
+        `<div class="sk-d-date">${am}月${ad}日の問題<span class="sk-d-arch">アーカイブ</span></div>` +
+        (lvJaA ? `<div class="sk-d-level">難易度: <b>${lvJaA}</b></div>` : '') +
+        `<div class="sk-d-streak">${doneThis ? 'クリア済み ✓' : '過去の一問に挑戦'}</div>`;
+      return;
+    }
     const { m, d } = jstParts();
     // 断签即视为归零：last 不是今天/昨天时，旧 streak 只是历史值，显示会误导（bumpStreak 下次完成会重置）
     const last = store.get('numpredo.daily.last');
@@ -744,7 +794,7 @@ function setup(root: HTMLElement): void {
     result.classList.add('on');
   }
   function share(): void {
-    track('share_click', { from: daily ? 'daily' : 'game', level: levelJa });
+    track('share_click', { from: archive ? 'archive' : daily ? 'daily' : 'game', level: levelJa });
     const text = `numpredoで【${levelJa}】を ${fmt(finalTime)} でクリア！`;
     const nav = navigator as Navigator & { share?: (d: { title?: string; text?: string; url?: string }) => Promise<void> };
     if (nav.share) {
@@ -870,7 +920,27 @@ function setup(root: HTMLElement): void {
 
   // —— 初始化：定位起始题 → 恢复存档（含完成局）或开新局 ——
   let initIdx = 0;
-  if (daily) {
+  if (archive) {
+    // アーカイブ：?d=YYYY-MM-DD の過去日（EPOCH〜昨日）。set は EPOCH 起点で全過去日を埋め込み、
+    // data-daystart = EPOCH の日序号。既定は昨日。窓外(未ビルド分)は最後の埋め込み日へクランプ。
+    const epochIdx = Number(root.dataset.daystart ?? NaN);
+    const todayIdx = jstDayIndex();
+    let idx = todayIdx - 1;
+    const q = new URLSearchParams(location.search).get('d') ?? '';
+    const dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(q);
+    if (dm) {
+      const di = Math.floor(Date.UTC(+dm[1], +dm[2] - 1, +dm[3]) / 86400000);
+      if (di >= epochIdx && di < todayIdx) idx = di;
+    }
+    if (!Number.isFinite(epochIdx)) { root.innerHTML = '<p class="sk-arch-empty">アーカイブを読み込めませんでした。<a href="/daily/">今日の一問へ</a></p>'; return; }
+    idx = Math.min(idx, epochIdx + set.length - 1); // ビルド停滞ぶんのクランプ
+    // 上线首日/时钟异常时无「过去」可解——死壳盘面(undefined 格子)を残さず案内文に差し替え
+    if (idx < epochIdx) { root.innerHTML = '<p class="sk-arch-empty">アーカイブはまだありません。<a href="/daily/">今日の一問へ</a></p>'; return; }
+    initIdx = idx - epochIdx;
+    const ad = new Date(idx * 86400000);
+    archiveDay = `${ad.getUTCFullYear()}-${pad2(ad.getUTCMonth() + 1)}-${pad2(ad.getUTCDate())}`;
+    dailyLevel = set[initIdx].level ?? '';
+  } else if (daily) {
     // JST 日序号 → 嵌入窗口偏移（data-daystart 为窗口首日，见 daily.astro）。
     // 窗口外（构建停滞超过窗口天数）取模兜底——仍是全员一致的确定性选题。
     const dayStart = Number(root.dataset.daystart ?? NaN);

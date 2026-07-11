@@ -16,6 +16,8 @@ export default defineConfig({
   build: { format: 'directory', inlineStylesheets: 'always' },
   integrations: [
     sitemap({
+      // /stats/ 是 noindex 的个人数据页——noindex 页不应进 sitemap(信号自相矛盾)
+      filter: (page) => !page.includes('/stats/'),
       // 给每个 URL 注入真实 <lastmod>；映射表里没有的页（理论上不会有）则不写，绝不用构建日兜底。
       serialize(item) {
         const date = lastmod[new URL(item.url).pathname];
