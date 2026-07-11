@@ -50,7 +50,7 @@ function setup(root: HTMLElement): void {
       } else if (done) {
         cells += `<span class="${cls}" title="クリア ${fmt(log[str])}">${d}<i>✓</i></span>`;
       } else if (isToday) {
-        cells += `<a class="${cls}" href="/daily/" title="今日の一問へ">${d}</a>`;
+        cells += `<a class="${cls}" href="/daily/" title="今日の問題へ">${d}</a>`;
       } else if (archivable) {
         cells += `<a class="${cls}" href="/daily/archive/?d=${str}" title="この日の問題を解く">${d}</a>`;
       } else {

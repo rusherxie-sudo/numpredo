@@ -176,9 +176,18 @@ writeFileSync(`${OUT}/daily.json`, JSON.stringify({ name: 'daily', count: all.le
 
 console.log(`✓ 完成 ${((Date.now() - t0) / 1000).toFixed(1)}s → daily ${all.length} 題`);
 
-// daily 池余量预警：顺序消费（每日 1 题）耗尽后 daily.astro 会走取模回绕（题目复用且扩库会漂移当日选题）。
-// 余量低于窗口天数（daily.astro 的 WINDOW=90）就该扩库了。EPOCH 与 daily.astro 保持一致：2026-06-14。
+// 毎日5問余量预警：daily/archive 现在直接消费五档池 puzzles[55+k]（55=图解页专用前缀,同期点
+// SETS_PER_LEVEL 已冻结）。真实约束 = 各档 (题数-55) - 已消耗天数 的最小值(当前瓶颈是 hard)。
+// 余量低于窗口天数（daily.astro 的 WINDOW=60）+缓冲就该扩库,耗尽会让 daily.astro 构建期直接报错。
+// daily.json 仍生成,但仅供 scripts/demo.ts 全量复核,页面已不消费。
 const EPOCH = Math.floor(Date.UTC(2026, 5, 14) / 86400000);
-const remain = all.length - (Math.floor((Date.now() + 9 * 3600 * 1000) / 86400000) - EPOCH);
-if (remain < 90) console.warn(`⚠ daily 池余量仅 ${remain} 天（<90）——请扩库（调大 CFG count 后重跑），避免回绕复用旧题`);
-else console.log(`  daily 池余量 ${remain} 天`);
+const elapsedDays = Math.floor((Date.now() + 9 * 3600 * 1000) / 86400000) - EPOCH;
+const SETS_SKIP = 55;
+let minRemain = Infinity;
+let minLv = '';
+for (const lv of ORDER) {
+  const r = buckets[lv].length - SETS_SKIP - elapsedDays;
+  if (r < minRemain) { minRemain = r; minLv = lv; }
+}
+if (minRemain < 90) console.warn(`⚠ 毎日5問余量仅 ${minRemain} 天(瓶颈:${minLv})——请调大 CFG.${minLv} 后重跑 gen:pool`);
+else console.log(`  毎日5問余量 ${minRemain} 天(瓶颈:${minLv})`);

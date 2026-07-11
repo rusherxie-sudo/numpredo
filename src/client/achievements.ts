@@ -41,10 +41,11 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'record-5', name: '記録破り', desc: '自己ベストを5回更新する', icon: '📜' },
   { id: 'daily-first', name: '今日の一問デビュー', desc: 'デイリー問題をはじめてクリアする', icon: '🗓️' },
   { id: 'daily-10', name: '通いの常連', desc: 'デイリー問題を合計10日クリアする', icon: '🍵' },
+  { id: 'daily-perfect', name: '一日五冠', desc: '同じ日のデイリー5問（全難易度）をすべてクリアする', icon: '🎇' },
 ];
 
-/** 統計データから解放済み実績 id を計算（純関数） */
-export function computeUnlocked(stats: StatEntry[], dailyLog: Record<string, number>, streak: number): Set<string> {
+/** 統計データから解放済み実績 id を計算（純関数）。log5 = 日付→クリア済み難易度slug配列（毎日5問用） */
+export function computeUnlocked(stats: StatEntry[], dailyLog: Record<string, number>, streak: number, log5: Record<string, string[]> = {}): Set<string> {
   const un = new Set<string>();
   const total = stats.length;
   if (total >= 1) un.add('first-clear');
@@ -67,6 +68,7 @@ export function computeUnlocked(stats: StatEntry[], dailyLog: Record<string, num
   const dailyDays = Object.keys(dailyLog).length;
   if (dailyDays >= 1) un.add('daily-first');
   if (dailyDays >= 10) un.add('daily-10');
+  if (Object.values(log5).some((lvs) => Array.isArray(lvs) && new Set(lvs).size >= 5)) un.add('daily-perfect');
   return un;
 }
 
@@ -84,6 +86,13 @@ export function readDailyLog(): Record<string, number> {
   try {
     const p = JSON.parse(sGet('numpredo.daily.log') ?? '{}');
     return p && typeof p === 'object' && !Array.isArray(p) ? (p as Record<string, number>) : {};
+  } catch { return {}; }
+}
+/** 毎日5問の難易度別クリア記録：日付 → クリア済み難易度 slug 配列 */
+export function readDailyLog5(): Record<string, string[]> {
+  try {
+    const p = JSON.parse(sGet('numpredo.daily.log5') ?? '{}');
+    return p && typeof p === 'object' && !Array.isArray(p) ? (p as Record<string, string[]>) : {};
   } catch { return {}; }
 }
 export function readStreak(): number {

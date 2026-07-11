@@ -12,8 +12,10 @@ interface Props {
   variant?: string;
   /** アーカイブ：過去デイリーを解くモード（?d= 指定、ストリーク非加算。/daily/archive/ 专用） */
   archive?: boolean;
+  /** 毎日5問：set は「1日 = 初級〜超難問の5エントリ」の平坦配列（daily/archive 共通） */
+  multi?: boolean;
 }
-const { level, levelJa, daily = false, url = 'https://numpredo.com/', set, daystart, variant, archive = false } = Astro.props;
+const { level, levelJa, daily = false, url = 'https://numpredo.com/', set, daystart, variant, archive = false, multi = false } = Astro.props;
 const setJson = JSON.stringify(set);
 ---
 
@@ -24,6 +26,7 @@ const setJson = JSON.stringify(set);
   data-url={url}
   data-daily={daily ? '1' : '0'}
   data-archive={archive ? '1' : '0'}
+  data-multi={multi ? '1' : '0'}
   data-daystart={daystart}
   data-variant={variant}
   data-set={setJson}
@@ -73,6 +76,11 @@ const setJson = JSON.stringify(set);
   .sk-d-level b { color: var(--accent); font-family: var(--font-mincho); }
   .sk-d-streak { font-family: var(--font-mincho); font-size: 13px; color: var(--accent); margin-top: 2px; }
   .sk-d-arch { font-size: 10px; color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 3px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+  /* 毎日5問の難易度タブ */
+  .sk-dtabs { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 8px 0 4px; }
+  .sk-dtab { font-family: var(--font-mincho); font-size: 12px; padding: 4px 8px; border: 1px solid var(--line-2); border-radius: 4px; background: var(--bg); color: var(--ink-2); cursor: pointer; }
+  .sk-dtab.on { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+  .sk-dtab i { font-style: normal; margin-left: 2px; color: inherit; }
   .sk-timerow { display: flex; align-items: center; justify-content: center; gap: 10px; }
   .sk-timer { font-family: var(--font-mincho); font-size: 26px; color: var(--ink); }
   .sk-pause-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--line-2); border-radius: 50%; background: var(--surface); color: var(--ink-3); cursor: pointer; flex: none; }

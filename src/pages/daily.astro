@@ -1,46 +1,57 @@
 ---
 import Base from '../layouts/Base.astro';
 import SudokuGame from '../components/SudokuGame.astro';
-import daily from '../data/puzzles/daily.json';
-// —— 日替わり選題：EPOCH（上线日）起算的「日序号 → 池内序号」顺序映射 ——
-// ① 顺序索引（非取模散射）+ daily.json 追加模式前缀稳定（gen-pool.ts）⇒ 扩库部署不再中途换当天的题；
-// ② HTML 只嵌入 [构建日-1, +WINDOW-1] 的窗口（全池 485 题 ≈55KB → 90 题 ≈10KB）；
-//    构建停滞超过窗口时客户端按窗口取模兜底（仍全员一致，只是复用窗口内题目）。
-// solution は配信しない（HTML 肥大化を避ける）——クライアントが solveOne で現算する。
+import beginner from '../data/puzzles/beginner.json';
+import intermediate from '../data/puzzles/intermediate.json';
+import advanced from '../data/puzzles/advanced.json';
+import hard from '../data/puzzles/hard.json';
+import extreme from '../data/puzzles/extreme.json';
+// —— 毎日5問（全難易度）：EPOCH（上线日）起算的「日序号 k → 各档題庫 puzzles[55+k]」——
+// ① 各档跳过前 55 道（= SETS_PER_LEVEL，図解頁 No.1〜55 専用，同期点）避免与图解页重题；
+// ② 顺序索引 + 題庫追加模式前缀稳定（gen-pool.ts）⇒ 扩库部署不再中途换当天的题；
+// ③ HTML 只嵌入 [构建日-1, +WINDOW) 窗口 × 5 档的平坦数组（1 日 = LV_ORDER5 順の 5 エントリ）；
+// ④ solution 不配信（HTML 肥大化回避）——クライアントが solveOne で現算（アクティブタブのみ）。
 const EPOCH = Math.floor(Date.UTC(2026, 5, 14) / 86400000); // 2026-06-14（JST 上线日）的日序号
 const todayIdx = Math.floor((Date.now() + 9 * 3600 * 1000) / 86400000); // 构建时的 JST 日序号
-const WINDOW = 90;
+const WINDOW = 60;
+const SETS_SKIP = 55; // = SETS_PER_LEVEL（同步点：play/[level]/[n].astro）
 const dayStart = todayIdx - 1; // 留 1 天余量：时钟略慢的端末跨日毫秒差也取得到
-const pool = daily.puzzles;
-const idxFor = (d: number): number => {
-  const k = d - EPOCH;
-  return k < pool.length ? Math.max(0, k) : k % pool.length; // 池耗尽（485 天后）才回绕
-};
-const set = Array.from({ length: WINDOW }, (_, o) => {
-  const p = pool[idxFor(dayStart + o)];
-  return { puzzle: p.puzzle, level: p.level };
+const POOLS5 = [beginner, intermediate, advanced, hard, extreme]; // = 客户端 LV_ORDER5 順
+const LV5 = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
+const startK = dayStart - EPOCH;
+// 実効窗口：任一档題庫尽きたらそこまで（hard 是最小池，尽きる前に gen:pool 追加すること）
+const effWindow = Math.max(
+  1,
+  Math.min(WINDOW, ...POOLS5.map((p) => p.puzzles.length - SETS_SKIP - startK)),
+);
+const set = Array.from({ length: effWindow * 5 }, (_, i) => {
+  const o = (i / 5) | 0;
+  const li = i % 5;
+  const p = POOLS5[li].puzzles[SETS_SKIP + startK + o];
+  return { puzzle: p.puzzle, level: LV5[li] };
 });
 // 難易度の内訳（題庫全量から実測。構築日に依存しない確定値＝静的本文として安全）
 const LEVEL_JA: Record<string, string> = { beginner: '初級', intermediate: '中級', advanced: '上級', hard: '難問', extreme: '超難問' };
-const levelCounts = pool.reduce<Record<string, number>>((m, p) => ((m[p.level] = (m[p.level] ?? 0) + 1), m), {});
-const levelOrder = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
+const poolTotal = POOLS5.reduce((s, p) => s + p.puzzles.length, 0);
+const runwayDays = Math.min(...POOLS5.map((p) => p.puzzles.length - SETS_SKIP)); // 最小池基準の連続日数
 
-const title = '毎日の数独・ナンプレ｜日替わり問題で記録に挑戦 - numpredo';
-const description = '毎日0時に更新、その日の数独（ナンプレ）の一問に挑戦。全員が同じ問題でタイムを競い、連続日数（ストリーク）を伸ばせます。すべて唯一解・論理だけで解ける高品質問題。メモ・自動チェックつき、無料・登録不要でスマホ・PCに対応。';
+const title = '毎日の数独・ナンプレ｜日替わり5問（初級〜超難問）無料 - numpredo';
+const description = '毎日0時に更新、初級から超難問まで全難易度の日替わり数独（ナンプレ）5問に挑戦。全員が同じ問題でタイムを競い、連続日数（ストリーク）や一日五冠を目指せます。すべて唯一解・論理だけで解ける高品質問題。無料・登録不要でスマホ・PCに対応。';
 const url = 'https://numpredo.com/daily/';
 
 const faq = [
-  { q: '毎日の問題はいつ更新されますか？', a: '日付が変わるタイミング（毎日0時）で、新しい一問に切り替わります。その日のうちは、何度開いても同じ問題です。' },
+  { q: '毎日の問題はいつ更新されますか？', a: '日付が変わるタイミング（毎日0時・日本時間）で、新しい5問に切り替わります。その日のうちは、何度開いても同じ問題です。' },
+  { q: '難易度は選べますか？', a: 'はい。毎日、初級・中級・上級・難問・超難問の5問が出題され、盤面上のタブで自由に切り替えられます。1問だけでも連続記録は伸びるので、その日の気分に合う難易度からどうぞ。5問すべて解くと「一日五冠」です。' },
   { q: '連続記録（ストリーク）はどこに保存されますか？', a: 'タイムと連続記録は、お使いの端末のブラウザ内（ローカルストレージ）に保存されます。登録不要で、サーバーには送信されません。ブラウザのデータを消すと記録もリセットされます。' },
-  { q: 'なぜ全員に同じ問題なのですか？', a: '毎日、全員が同じ一問に挑戦するので、タイムを比べて腕試しができます。日替わりの一問を習慣にして、論理的思考のトレーニングに最適です。' },
-  { q: '昨日の問題はもう遊べませんか？', a: '遊べます。解き逃した日の問題は<a href="/daily/archive/">アーカイブ</a>からいつでも挑戦できます（連続記録の対象は当日の一問のみ）。たくさん解きたい方は<a href="/play/advanced/">難易度別のプレイ</a>や<a href="/print/">無料PDF問題集</a>もどうぞ。' },
-  { q: '今日の一問で行き詰まったら？', a: '答えがどうしても分からないときは、<a href="/tools/solver/">数独ソルバー（自動解答）</a>に盤面を入力すると答えを自動表示できます。次の一手だけ知りたい方は<a href="/guide/when-stuck/">行き詰まり解決ガイド</a>もどうぞ。' },
+  { q: 'なぜ全員に同じ問題なのですか？', a: '毎日、全員が同じ問題に挑戦するので、タイムを比べて腕試しができます。日替わりの問題を習慣にして、論理的思考のトレーニングに最適です。' },
+  { q: '昨日の問題はもう遊べませんか？', a: '遊べます。解き逃した日の問題は<a href="/daily/archive/">アーカイブ</a>からいつでも挑戦できます（連続記録の対象は当日の問題のみ）。たくさん解きたい方は<a href="/play/advanced/">難易度別のプレイ</a>や<a href="/print/">無料PDF問題集</a>もどうぞ。' },
+  { q: '今日の問題で行き詰まったら？', a: '答えがどうしても分からないときは、<a href="/tools/solver/">数独ソルバー（自動解答）</a>に盤面を入力すると答えを自動表示できます。次の一手だけ知りたい方は<a href="/guide/when-stuck/">行き詰まり解決ガイド</a>もどうぞ。' },
 ];
 
 const webAppSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: '毎日の数独（ナンプレ）',
+  name: '毎日の数独（ナンプレ）日替わり5問',
   description,
   url,
   applicationCategory: 'GameApplication',
@@ -78,14 +89,14 @@ const breadcrumbSchema = {
     <h1>毎日の数独・ナンプレ</h1>
   </div>
 
-  <SudokuGame level="advanced" levelJa="毎日" daily url={url} set={set} daystart={dayStart} />
+  <SudokuGame level="advanced" levelJa="毎日" daily multi url={url} set={set} daystart={dayStart} />
 
   <div class="px-text">
-    <p class="lead">毎日、全員に同じ一問が出題されます。タイムを記録して、連続記録（◯日連続）を伸ばしましょう。すべて唯一解・論理だけで解ける高品質問題です。</p>
+    <p class="lead">毎日、初級から超難問まで<strong>全難易度の5問</strong>が出題されます。どれか1問で連続記録が伸び、5問すべて解けば「一日五冠」。すべて唯一解・論理だけで解ける高品質問題です。</p>
 
     <h2>毎日の数独・ナンプレについて</h2>
-    <p>毎日0時に、新しい数独（ナンプレ）の一問が出題されます。全員に同じ問題が配られるので、タイムを記録して自己ベストや連続記録（ストリーク）に挑戦できます。難易度は日替わりで、やさしい日もあれば手強い日もあります。</p>
-    <p>出題されるのはすべて「解が一つだけ」「論理だけで解ける」ことを検証済みの高品質問題です。当てずっぽうは一切不要——毎日の一問で、無理なく論理的思考のトレーニングを続けられます。登録もアプリも不要、開いたその場で遊べます。</p>
+    <p>毎日0時に、初級・中級・上級・難問・超難問の新しい5問が出題されます。盤面上のタブで難易度を切り替えられ、全員に同じ問題が配られるので、タイムを記録して自己ベストや連続記録（ストリーク）に挑戦できます。今日は気軽に初級だけ、週末は五冠を狙って全難易度——自分のペースでどうぞ。</p>
+    <p>出題されるのはすべて「解が一つだけ」「論理だけで解ける」ことを検証済みの高品質問題です。当てずっぽうは一切不要——毎日の問題で、無理なく論理的思考のトレーニングを続けられます。登録もアプリも不要、開いたその場で遊べます。</p>
 
     <h2>今月のカレンダー</h2>
     <p>クリアした日には ✓ が付きます。解き逃した日をタップすると、<a href="/daily/archive/">アーカイブ</a>でその日の問題に挑戦できます（連続記録の対象外）。記録は<a href="/stats/">統計・実績ページ</a>にまとまっています。</p>
@@ -93,10 +104,10 @@ const breadcrumbSchema = {
         それ以降の過去日はリンクにしない——アーカイブ側でクランプされ別日の題が出る混乱を防ぐ） */}
     <div data-daily-cal data-epoch={EPOCH} data-maxday={todayIdx - 1} class="dc"></div>
 
-    <h2>出題の仕組みと難易度の内訳</h2>
-    <p>デイリー問題は、公開日順に並べた出題リストを毎日一問ずつ順番に消化していく方式です。乱数ではなく日付から一意に決まるため、<strong>世界中の誰が開いても、同じ日にはかならず同じ問題</strong>になります。日付の切り替えは日本標準時（JST）の0時です。</p>
-    <p>出題リストには現在<strong>{pool.length}問</strong>が登録されており、内訳は{levelOrder.map((lv, i) => `${LEVEL_JA[lv]}${levelCounts[lv] ?? 0}問`).join('・')}。約{Math.round((pool.length / 365) * 10) / 10}年ぶんの日替わり問題が、重複なしで用意されています。すべて自社エンジンが生成し、唯一解・論理だけで解けることを機械検証済みです。</p>
-    <p>ストリーク（連続日数）を伸ばすコツ：難しい日は<a href="/guide/when-stuck/">行き詰まったときのチェックリスト</a>で候補メモを見直すこと。それでも解けない日は<a href="/tools/solver/">ソルバー</a>で一手だけ確認して、翌日また挑戦しましょう。</p>
+    <h2>出題の仕組みと題庫の規模</h2>
+    <p>デイリー問題は、各難易度の題庫を公開日順に毎日1問ずつ消化していく方式です。乱数ではなく日付から一意に決まるため、<strong>世界中の誰が開いても、同じ日にはかならず同じ5問</strong>になります。日付の切り替えは日本標準時（JST）の0時です。</p>
+    <p>題庫には現在、{POOLS5.map((p, i) => `${LEVEL_JA[LV5[i]]}${p.puzzles.length}問`).join('・')}の合計<strong>{poolTotal}問</strong>が収録されており、日替わり出題は公開開始から約{Math.round((runwayDays / 365) * 10) / 10}年ぶん重複なしで用意されています。すべて自社エンジンが生成し、唯一解・論理だけで解けることを機械検証済みです。</p>
+    <p>ストリーク（連続日数）を伸ばすコツ：まずはその日の得意な難易度を1問——それだけで記録は伸びます。難しい問題は<a href="/guide/when-stuck/">行き詰まったときのチェックリスト</a>で候補メモを見直し、それでも解けない日は<a href="/tools/solver/">ソルバー</a>で一手だけ確認して、翌日また挑戦しましょう。</p>
 
     <h2>もっと遊ぶ</h2>
     <ul>

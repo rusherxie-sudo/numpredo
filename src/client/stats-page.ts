@@ -1,6 +1,6 @@
 // /stats/ ページの島：ローカル統計（stats.v1 / daily.log / streak / best）を読んで
 // 集計・実績一覧を描画する。データは端末内のみ（登録不要・サーバー送信なし）。
-import { ACHIEVEMENTS, computeUnlocked, readStats, readDailyLog, readStreak, readSeen } from './achievements.ts';
+import { ACHIEVEMENTS, computeUnlocked, readStats, readDailyLog, readDailyLog5, readStreak, readSeen } from './achievements.ts';
 
 const LV_ORDER = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
 const LV_JA: Record<string, string> = {
@@ -20,7 +20,7 @@ function setup(root: HTMLElement): void {
   const dailyLog = readDailyLog();
   const streak = readStreak();
   // 表示は unlocked ∪ seen：一度獲得した実績は streak 断签等で「回锁」せず保持
-  const unlocked = new Set([...computeUnlocked(stats, dailyLog, streak), ...readSeen()]);
+  const unlocked = new Set([...computeUnlocked(stats, dailyLog, streak, readDailyLog5()), ...readSeen()]);
 
   const total = stats.length;
   const totalMs = stats.reduce((s, e) => s + (e.ms || 0), 0);

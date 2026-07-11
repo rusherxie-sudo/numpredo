@@ -53,7 +53,7 @@ npm run render-demo # 导出示例 SVG 到 engine-demo/
 
 ### 题库：预生成进 git，不在构建时生成
 
-`src/data/puzzles/*.json`（五档 + `daily.json`）由 `npm run gen:pool` 手动生成并**提交进 git**。构建时**不**生成题库——这是刻意决策（部署稳定、可复现）。`gen-pool.ts` 里 `CFG` 控制各档题数、提示数下限（`minClues`，越低挖得越稀疏越难）、`maxScore`（抑制同档极端难题、缓解跨档难度倒挂）。`daily.json` 是**前缀稳定的追加模式**（旧序永不重排、新题乱序续尾）；daily 页按「上线日 EPOCH（2026-06-14）起算日序号」顺序消费（`daily.astro` 只嵌 90 天窗口），扩库部署不会改变当天选题。全量重生题库时必须连 `daily.json` 一起删除重建。
+`src/data/puzzles/*.json`（五档 + `daily.json`）由 `npm run gen:pool` 手动生成并**提交进 git**。构建时**不**生成题库——这是刻意决策（部署稳定、可复现）。`gen-pool.ts` 里 `CFG` 控制各档题数、提示数下限（`minClues`，越低挖得越稀疏越难）、`maxScore`（抑制同档极端难题、缓解跨档难度倒挂）。五档题库全部是**前缀稳定的追加模式**（旧序永不重排、新题续尾）。**毎日5問**（`daily.astro`/`archive.astro`）按「上线日 EPOCH（2026-06-14）起算日序号 k」直接消费五档池 `puzzles[55+k]`（55=`SETS_PER_LEVEL`，图解页专用前缀，**双双冻结不可再动**——动 55 或重排池序都会换掉全部 daily/archive 历史与当日题面）；daily 页只嵌 60 天窗口，扩库部署不会改变当天选题。`daily.json` 仍由 gen:pool 生成但页面已不消费，仅供 `demo.ts` 全量复核。**严禁全量重生五档题库**（等于换掉全部 daily 历史）——扩库只能走追加；gen:pool 末尾会按瓶颈档（当前 hard）预警毎日5問余量。
 
 **运行时不做客户端生成题目**：`play/[level]` 嵌入池内前 55 道（`SETS_PER_LEVEL`，与图解页 No.1〜55 对应，`?n=` 直达），「別の問題」池内循环；打印页按档动态 import 题库 JSON 随机抽样。`generateByLevel` 只用于离线脚本——它未命中目标难度时返回最接近档（hard 实测命中 0/5），不能拿给用户当指定难度用。**SETS_PER_LEVEL 同步点**（放量时全部改）：`play/[level]/[n].astro`（常量+cap+sameLevelNs）、`play/[level].astro`（嵌入 set slice 与 setlist）、`play/index.astro`（SETS 与文案）、`gen-sitemap-lastmod.ts`、`gen-published.ts`（EXPANSIONS 追加一行扩容提交日，越界会显式报错）。
 

@@ -4,22 +4,33 @@
 // 薄内容量産になるため作らない）。クリアは月历(daily.log)へ遡及記入・ストリーク対象外。
 import Base from '../../layouts/Base.astro';
 import SudokuGame from '../../components/SudokuGame.astro';
-import daily from '../../data/puzzles/daily.json';
+import beginner from '../../data/puzzles/beginner.json';
+import intermediate from '../../data/puzzles/intermediate.json';
+import advanced from '../../data/puzzles/advanced.json';
+import hard from '../../data/puzzles/hard.json';
+import extreme from '../../data/puzzles/extreme.json';
 
 const EPOCH = Math.floor(Date.UTC(2026, 5, 14) / 86400000); // 2026-06-14（daily.astro と同値・同期点）
 const todayIdx = Math.floor((Date.now() + 9 * 3600 * 1000) / 86400000); // 构建时的 JST 日序号
-const pastCount = Math.max(0, Math.min(todayIdx - EPOCH, daily.puzzles.length));
-// EPOCH〜昨日（構築時点）の全過去題を埋め込み。1日1題≒110B、1年でも約40KB
-const set = daily.puzzles.slice(0, pastCount).map((p) => ({ puzzle: p.puzzle, level: p.level }));
+const SETS_SKIP = 55; // = SETS_PER_LEVEL（daily.astro と同期点：図解頁 No.1〜55 は消費しない）
+const POOLS5 = [beginner, intermediate, advanced, hard, extreme]; // = 客户端 LV_ORDER5 順
+const LV5 = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
+const pastDays = Math.max(0, Math.min(todayIdx - EPOCH, ...POOLS5.map((p) => p.puzzles.length - SETS_SKIP)));
+// EPOCH〜昨日（構築時点）の全過去日 × 5 難易度を埋め込み。1日5題≒550B、1年でも約200KB
+const set = Array.from({ length: pastDays * 5 }, (_, i) => {
+  const k = (i / 5) | 0;
+  const li = i % 5;
+  return { puzzle: POOLS5[li].puzzles[SETS_SKIP + k].puzzle, level: LV5[li] };
+});
 
-const title = '過去のデイリー数独・ナンプレ｜アーカイブ - numpredo';
-const description = '解き逃した日のデイリー数独（ナンプレ）をアーカイブから選んで挑戦。カレンダーで日付を選ぶだけ、すべて唯一解・論理だけで解ける検証済み問題です。クリアするとカレンダーに記録されます（連続記録の対象外）。';
+const title = '過去のデイリー数独・ナンプレ｜アーカイブ（全難易度5問） - numpredo';
+const description = '解き逃した日のデイリー数独（ナンプレ）5問（初級〜超難問）をアーカイブから選んで挑戦。カレンダーで日付を選ぶだけ、すべて唯一解・論理だけで解ける検証済み問題です。クリアするとカレンダーに記録されます（連続記録の対象外）。';
 const url = 'https://numpredo.com/daily/archive/';
 
 const faq = [
   { q: '過去の問題を解くと連続記録（ストリーク）は伸びますか？', a: '伸びません。連続記録は「その日のうちに当日の問題を解く」ことで伸びる仕組みです。アーカイブのクリアはカレンダーの記録（✓）にだけ反映されます。' },
   { q: 'いつの問題まで遡れますか？', a: `公開初日（2026年6月14日）まで全て遡れます。カレンダーまたは URL の ?d=YYYY-MM-DD で日付を指定してください。` },
-  { q: '今日の問題はどこで解けますか？', a: '今日の一問は<a href="/daily/">毎日の数独</a>ページでどうぞ。タイムを競う連続記録はそちらが対象です。' },
+  { q: '今日の問題はどこで解けますか？', a: '今日の5問は<a href="/daily/">毎日の数独</a>ページでどうぞ。タイムを競う連続記録はそちらが対象です。' },
 ];
 const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
 const faqSchema = {
@@ -47,14 +58,14 @@ const breadcrumbSchema = {
   <div class="px-text">
     <nav class="crumb"><a href="/">ホーム</a> › <a href="/daily/">毎日</a> › アーカイブ</nav>
     <h1>過去のデイリー問題（アーカイブ）</h1>
-    <p class="lead">解き逃した日の一問に、いつでも挑戦できます。カレンダーで日付を選ぶか、下の盤面でそのまま解いてください（既定は昨日の問題）。クリアはカレンダーに✓で記録されます。</p>
-    <div data-daily-cal data-epoch={EPOCH} data-maxday={EPOCH + pastCount - 1} class="dc"></div>
+    <p class="lead">解き逃した日の5問（初級〜超難問）に、いつでも挑戦できます。カレンダーで日付を選び、盤面上のタブで難易度を切り替えてください（既定は昨日の問題）。クリアはカレンダーに✓で記録されます。</p>
+    <div data-daily-cal data-epoch={EPOCH} data-maxday={EPOCH + pastDays - 1} class="dc"></div>
   </div>
 
   {set.length > 0 ? (
-    <SudokuGame level="advanced" levelJa="アーカイブ" daily archive url={url} set={set} daystart={EPOCH} />
+    <SudokuGame level="advanced" levelJa="アーカイブ" daily archive multi url={url} set={set} daystart={EPOCH} />
   ) : (
-    <p class="px-text">アーカイブはまだありません。<a href="/daily/">今日の一問</a>からどうぞ。</p>
+    <p class="px-text">アーカイブはまだありません。<a href="/daily/">今日の問題</a>からどうぞ。</p>
   )}
 
   <div class="px-text">
@@ -63,7 +74,7 @@ const breadcrumbSchema = {
 
     <h2>関連</h2>
     <ul>
-      <li><a href="/daily/">今日の一問（連続記録はこちら）</a></li>
+      <li><a href="/daily/">今日の問題（連続記録はこちら）</a></li>
       <li><a href="/stats/">あなたの統計・実績</a></li>
       <li><a href="/play/">難易度別にプレイ</a></li>
     </ul>

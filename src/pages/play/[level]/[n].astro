@@ -12,6 +12,8 @@ const SETS_PER_LEVEL = 55; // 题目集出页数/档(题库更大,余下作 dail
 
 export function getStaticPaths() {
   const cap = 55; // = SETS_PER_LEVEL(getStaticPaths 独立作用域,改时同步;同步点:本文件 sameLevelNs、play/[level].astro 的 setlist 与嵌入 set(slice 55, ?n= 直达)、play/index.astro 的 SETS、gen-sitemap-lastmod.ts、gen-published.ts 的 EXPANSIONS(放量时追加一行))
+  // ⚠️ 55 已冻结,不可再放量:daily.astro/archive.astro 的毎日5問消费各档 puzzles[55+k] 的前缀稳定序列。
+  //    只涨 cap → 图解页 No.56+ 与 daily 已出/将出题重复且公开答案;连动涨 SKIP → 历史 archive 全部换题。
   return LEVELS.flatMap((meta) =>
     Array.from({ length: Math.min(cap, meta.puzzles.length) }, (_, i) => i + 1).map((n) => ({
       params: { level: meta.slug, n: String(n) },
