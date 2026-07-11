@@ -275,9 +275,17 @@ function setup(app: HTMLElement): void {
   }
 
   // 初期表示：空盤面から（サンプルを預填すると、自分の問題を打ち込む際に混ざる罠になる。
-  // 動作を試したい人は「サンプル」ボタンで読み込める）
-  render();
-  setMsg('写真を読み込むか、盤面に直接入力して「解く」を押してください。', '');
+  // 動作を試したい人は「サンプル」ボタンで読み込める）。
+  // 例外：?grid=（ゲーム側「ソルバーで解説」動線の持ち込み盤面、81桁の 1-9/./0）は預填する。
+  const urlGrid = (new URLSearchParams(location.search).get('grid') ?? '').replace(/[^0-9.]/g, '');
+  if (urlGrid.length === 81 && /[1-9]/.test(urlGrid)) {
+    grid = strToGrid(urlGrid);
+    render();
+    setMsg('プレイ中の盤面を読み込みました。「解く」を押すと、答えとここからの解き方手順を表示します。', 'ok');
+  } else {
+    render();
+    setMsg('写真を読み込むか、盤面に直接入力して「解く」を押してください。', '');
+  }
 }
 
 // ---- ユーティリティ ----

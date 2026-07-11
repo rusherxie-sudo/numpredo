@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ShareBar from '../components/ShareBar.astro';
 import { LEVELS } from '../data/levels.ts';
-const title = '数独・ナンプレ印刷｜無料プリント問題集（初級〜超難問・PDF保存）- numpredo';
+const title = '数独・ナンプレ印刷｜答え付き無料プリント問題集（初級〜超難問・PDF保存）- numpredo';
 const description = '数独・ナンプレを無料で印刷（プリント）。初級・中級・上級・難問・超難問から難易度と問題数を選んですぐ印刷、解答付きでPDF保存も可能。唯一解・論理だけで解ける検証済みの高品質問題を、自宅やオフィスで何度でも印刷できます。';
 const url = 'https://numpredo.com/print/';
 const faq = [
@@ -51,7 +51,7 @@ const howToSchema = {
   </Fragment>
 
   <nav class="crumb"><a href="/">ホーム</a> › 問題集・印刷</nav>
-  <h1>無料の数独・ナンプレ問題集｜プリント・印刷（PDF保存）</h1>
+  <h1>無料の数独・ナンプレ問題集｜答え付きプリント・印刷（PDF保存）</h1>
   <p class="lead">難易度と問題数を選んで「作成して印刷」を押すと、検証済みの問題プールからランダムに問題集を組み立てて、印刷ダイアログが開きます。PDFとして保存も可能。解答付き、すべて唯一解・論理だけで解ける高品質問題です。</p>
 
   <div id="print-tool" class="print-controls">
@@ -96,6 +96,7 @@ const howToSchema = {
       <>
         <h3 id={x.slug}>{x.h}</h3>
         <p>{x.body}</p>
+        <p class="plv-go"><a href={`/print/?lv=${x.slug}`}>この難易度でいますぐ作成 →</a></p>
       </>
     ))}
 

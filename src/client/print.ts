@@ -47,6 +47,13 @@ function setup(): void {
       root.querySelectorAll('[data-lv]').forEach((x) => x.classList.toggle('on', x === c));
     }),
   );
+  // ?lv= 深链：難易度別セクション/難易度ページから難易度を預選して直達（例 /print/?lv=extreme）。
+  // hasOwn で自有キーのみ許可（?lv=constructor 等の原型链キー穿透で level が汚染されるのを防ぐ）
+  const urlLv = new URLSearchParams(location.search).get('lv') ?? '';
+  if (urlLv && Object.prototype.hasOwnProperty.call(LEVEL_JA, urlLv)) {
+    level = urlLv;
+    root.querySelectorAll<HTMLElement>('[data-lv]').forEach((x) => x.classList.toggle('on', x.dataset.lv === urlLv));
+  }
   root.querySelectorAll<HTMLElement>('[data-ct]').forEach((c) =>
     c.addEventListener('click', () => {
       count = Number(c.dataset.ct);

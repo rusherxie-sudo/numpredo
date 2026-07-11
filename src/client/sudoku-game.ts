@@ -5,7 +5,7 @@
 // 进度自动保存(localStorage，刷新不丢)、撤销、数字剩余计数、メモ自动清除、方向键、提示、胜利演出。
 import {
   DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf, boxOf,
-  gridFromString, solveOne, traceFirstElimination, logicalSolve, type Grid,
+  gridFromString, solveOne, traceFirstElimination, logicalSolve, computeCandidates, type Grid,
 } from '../engine/index.ts';
 import { track } from './track.ts';
 
@@ -71,6 +71,9 @@ function el(tag: string, cls = ''): HTMLElement {
 const CTRL_ICONS: Record<string, string> = {
   pencil: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
   undo: '<path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7.7L3 8"/>',
+  redo: '<path d="M21 7v6h-6"/><path d="M21 13a9 9 0 1 1-3-7.7L21 8"/>',
+  wand: '<path d="m21.6 3.6-1.2-1.2a1.2 1.2 0 0 0-1.7 0L2.4 18.6a1.2 1.2 0 0 0 0 1.7l1.2 1.2a1.2 1.2 0 0 0 1.7 0L21.6 5.4a1.2 1.2 0 0 0 0-1.7Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
   bulb: '<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.8 10.8c.5.5.8 1.1.8 2.2h6c0-1.1.3-1.7.8-2.2A6 6 0 0 0 12 3Z"/>',
   refresh: '<path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/>',
   shuffle: '<path d="M12 5v14"/><path d="M5 12h14"/>',
@@ -123,6 +126,7 @@ function setup(root: HTMLElement): void {
   let cur: number[] = [];
   let notes: number[] = [];
   let history: Array<{ c: number[]; n: number[] }> = [];
+  let redoStack: Array<{ c: number[]; n: number[] }> = []; // undo で積み、通常の新規操作で空になる
   let selected = -1;
   let pencil = false;
   let paused = false;
@@ -173,6 +177,7 @@ function setup(root: HTMLElement): void {
   const hintMsg = el('div', 'sk-hint');
   const ctrl = el('div', 'sk-ctrl');
   const ctrl2 = el('div', 'sk-ctrl2');
+  const ctrl3 = el('div', 'sk-ctrl2');
   const checkRow = el('label', 'sk-check');
   // 信任标语（②「無需猜測保証」卖点化）：常驻侧栏，声明本站题「論理だけで必ず解ける・唯一解」——
   // 这是 sudoku.com 上级题(含推测局面)结构上给不了的品质承诺，兼一条到解き方ガイドの内链。
@@ -187,7 +192,7 @@ function setup(root: HTMLElement): void {
   board.append(pauseOverlay);
   pauseOverlay.addEventListener('click', () => resume()); // 整层可点，触达更大
   if (daily) side.append(dailyEl);
-  side.append(timeRow, badge, pad, hintMsg, ctrl, ctrl2, checkRow, guarantee, result);
+  side.append(timeRow, badge, pad, hintMsg, ctrl, ctrl2, ctrl3, checkRow, guarantee, result);
 
   // —— 棋盘格（role=grid > role=row > role=gridcell 合规层级；行容器 display:contents 不影响 CSS grid 布局）——
   board.setAttribute('role', 'grid');
@@ -222,7 +227,7 @@ function setup(root: HTMLElement): void {
   }
   // 「消す」已移到工具栏（橡皮擦），数字键盘只保留 1-9（移动端单行 9 键）
 
-  // —— 控制按钮 ——（核心4：消す/メモ/元に戻す/ヒント 进工具栏；やり直す/別の問題 放次级行）
+  // —— 控制按钮 ——（核心5：消す/メモ/元に戻す/やり直し/ヒント；次级行：最初から/別の問題；三级行：自動メモ/ソルバー）
   const eraseBtn = cbtn('eraser', '消す', () => clearCell());
   const penBtn = cbtn('pencil', 'メモ', () => {
     pencil = !pencil;
@@ -230,11 +235,26 @@ function setup(root: HTMLElement): void {
     render();
   });
   const undoBtn = cbtn('undo', '元に戻す', () => undo());
+  const redoBtn = cbtn('redo', 'やり直し', () => redo()); // redo（Windows 標準の対語）。リスタートは「最初から」に改名し衝突回避
   const hintBtn = cbtn('bulb', 'ヒント', () => hint());
   hintBtn.classList.add('sk-hintbtn');
-  ctrl.append(eraseBtn, penBtn, undoBtn, hintBtn);
-  ctrl2.append(cbtn('refresh', 'やり直す', () => restart()));
+  ctrl.append(eraseBtn, penBtn, undoBtn, redoBtn, hintBtn);
+  ctrl2.append(cbtn('refresh', '最初から', () => restart()));
   if (!daily) ctrl2.append(cbtn('shuffle', '別の問題', () => newPuzzle()));
+  // 三级行：自動メモ（全空きマスに候補を一括メモ）+ ソルバー動線（この盤面の解き方手順へ）。
+  // ソルバーは標準ルール専用——変体（対角線等）の盤面を持ち込むと「解が複数」と誤報して
+  // 「唯一解」の信頼標語を裏切るため、変体ページではボタン自体を出さない。
+  ctrl3.append(cbtn('wand', '自動メモ', () => autoNotes()));
+  if (!variant) {
+    ctrl3.append(
+      cbtn('search', 'ソルバーで解説', () => {
+        if (paused) return; // 停表盯盘対策：一時停止中は答えを見に行けない
+        track('solver_jump', { level: levelJa, daily });
+        const href = '/tools/solver/?grid=' + cur.map((v) => v || '.').join('');
+        setTimeout(() => { location.href = href; }, 150); // 直遷移だと dataLayer のイベントが載る前に unload しうる
+      }),
+    );
+  }
 
   // —— 间違いチェック开关 ——
   const checkBox = el('input') as HTMLInputElement;
@@ -270,7 +290,13 @@ function setup(root: HTMLElement): void {
     }
     if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
-      undo();
+      if (e.shiftKey) redo(); // Ctrl/Cmd+Shift+Z = やり直し
+      else undo();
+      return;
+    }
+    if ((e.key === 'y' || e.key === 'Y') && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      redo(); // Ctrl+Y = やり直し（Windows 標準）
       return;
     }
     if (selected < 0) return;
@@ -282,6 +308,7 @@ function setup(root: HTMLElement): void {
   function pushHistory(): void {
     history.push({ c: cur.slice(), n: notes.slice() });
     if (history.length > 200) history.shift();
+    redoStack = []; // 新規の操作が入ったら「やり直し」系譜は無効（標準的な undo/redo 意味論）
   }
   function input(d: number): void {
     if (done || paused) return;
@@ -293,6 +320,17 @@ function setup(root: HTMLElement): void {
     }
     clearHint();
     if (pencil && cur[selected] !== 0) return; // 已填格无笔记可记：直接返回，不产生"空撤销"记录
+    // 数字完成ロック：盤面に既に9個ある数字は誤タップ防止のため入力せず、全盤ハイライトとして扱う
+    // （日本App差評「入力済みの数字を誤タップして失敗」対策。間違い含み9個でも、直せば数は減る）
+    if (!pencil && cur[selected] !== d) {
+      let cnt = 0;
+      for (let i = 0; i < 81; i++) if (cur[i] === d) cnt++;
+      if (cnt >= 9) {
+        highlightDigit = highlightDigit === d ? 0 : d;
+        render();
+        return;
+      }
+    }
     pushHistory();
     if (pencil) {
       notes[selected] ^= bit(d);
@@ -323,10 +361,34 @@ function setup(root: HTMLElement): void {
   }
   function undo(): void {
     if (done || paused || !history.length) return;
+    redoStack.push({ c: cur.slice(), n: notes.slice() });
     const prev = history.pop()!;
     cur = prev.c;
     notes = prev.n;
     clearHint();
+    save();
+    render();
+  }
+  function redo(): void {
+    if (done || paused || !redoStack.length) return;
+    // pushHistory は使わない（redoStack を消してしまう）——履歴へ直接積む
+    history.push({ c: cur.slice(), n: notes.slice() });
+    if (history.length > 200) history.shift();
+    const nx = redoStack.pop()!;
+    cur = nx.c;
+    notes = nx.n;
+    clearHint();
+    save();
+    render();
+  }
+  // 自動メモ：全空きマスへ、現在盤面から機械的に求めた候補を一括記入（メモの手作業を省く定番 QoL）。
+  // 候補は「見えている盤面」基準の客観計算（誤記入があればそれ込み——衝突ハイライトと同じ思想、答えは覗かない）
+  function autoNotes(): void {
+    if (done || paused) return;
+    clearHint();
+    pushHistory();
+    const cand = computeCandidates(cur as Grid, ctx);
+    for (let i = 0; i < 81; i++) if (cur[i] === 0) notes[i] = cand[i];
     save();
     render();
   }
@@ -339,7 +401,8 @@ function setup(root: HTMLElement): void {
     const prev = Number(store.get(bestKey()) || '0');
     isRecord = prev === 0 || finalTime < prev;
     if (isRecord) store.set(bestKey(), String(finalTime));
-    if (daily) { bumpStreak(); fillDaily(); }
+    if (daily) { bumpStreak(); dailyLog(); fillDaily(); }
+    logStat();
     track('game_complete', { level: levelJa, daily, record: isRecord });
     renderResult(prev);
     burst();
@@ -404,7 +467,7 @@ function setup(root: HTMLElement): void {
     return { g, cand };
   }
   function hint(): void {
-    if (done) return;
+    if (done || paused) return;
     // 盘面签名变了（落子/撤销/换题）→ 重置到第1级；连点同盘 → 逐级深入（封顶3）
     const sig = cur.join('');
     if (sig !== hintSig) { hintLevel = 1; hintSig = sig; } else hintLevel = Math.min(hintLevel + 1, 3);
@@ -530,6 +593,7 @@ function setup(root: HTMLElement): void {
     solution = sol;
     given = pz.map((v) => v !== 0);
     history = [];
+    redoStack = [];
     selected = -1;
     paused = false;
     highlightDigit = 0;
@@ -597,6 +661,33 @@ function setup(root: HTMLElement): void {
       if (o.p?.length !== 81 || o.s?.length !== 81 || o.c?.length !== 81) return null;
       return o;
     } catch { return null; }
+  }
+
+  // —— 逐局完成日志（統計ページ/実績/月历の最小データ層。上限1000件で自然轮替）——
+  function logStat(): void {
+    try {
+      // 損壊データは型検証で捨てて上書き自愈（catch 放置だと以後の全記録が永久に空振りする）
+      let arr: Array<Record<string, unknown>> = [];
+      try {
+        const parsed = JSON.parse(store.get('numpredo.stats.v1') ?? '[]');
+        if (Array.isArray(parsed)) arr = parsed;
+      } catch { /* 損壊 → 空で作り直し */ }
+      arr.push({ t: Date.now(), lv: daily ? dailyLevel || 'daily' : level, ms: finalTime, d: daily ? 1 : 0, day: jstDayStr() });
+      if (arr.length > 1000) arr.splice(0, arr.length - 1000);
+      store.set('numpredo.stats.v1', JSON.stringify(arr));
+    } catch { /* 静默：日志失败不影响游戏 */ }
+  }
+  // daily 月历数据：日付 → クリアタイム(ms)。カレンダー打刻の真实源
+  function dailyLog(): void {
+    try {
+      let m: Record<string, number> = {};
+      try {
+        const parsed = JSON.parse(store.get('numpredo.daily.log') ?? '{}');
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) m = parsed;
+      } catch { /* 損壊 → 空で作り直し */ }
+      const today = jstDayStr();
+      if (!m[today]) { m[today] = finalTime; store.set('numpredo.daily.log', JSON.stringify(m)); }
+    } catch { /* 静默 */ }
   }
 
   // —— daily：日期 + 连续记录 ——
