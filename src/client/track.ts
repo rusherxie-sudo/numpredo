@@ -9,7 +9,14 @@ declare global {
 
 export function track(name: string, params: Record<string, unknown> = {}): void {
   try {
-    (window.dataLayer = window.dataLayer || []).push(['event', name, params]);
+    const dl = (window.dataLayer = window.dataLayer || []);
+    // gtag.js 只处理 gtag() 推入的 Arguments 对象——普通数组 push 会被静默忽略
+    // （实测教训：数组写法上线两周 6 个事件全部 0 上报）。必须用真函数拿 arguments。
+    function gtag(..._args: unknown[]): void {
+      // eslint-disable-next-line prefer-rest-params
+      dl.push(arguments);
+    }
+    gtag('event', name, params);
   } catch {
     /* 静默：上报失败不影响功能 */
   }

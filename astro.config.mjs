@@ -2,7 +2,6 @@
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import partytown from '@astrojs/partytown';
 
 // 每个 URL 的真实修改日（git 提交日，非构建日）。由 `node scripts/gen-sitemap-lastmod.ts`
 // 离线生成并提交进 git——构建时只读它，不现算（CF Pages 可能 shallow clone，现算会失真）。
@@ -24,7 +23,7 @@ export default defineConfig({
         return item;
       },
     }),
-    // GA4 跑在 web worker（主线程零负担，保 CWV）。forward 让 worker 内的 dataLayer.push 同步回主线程。
-    partytown({ config: { forward: ['dataLayer.push'] } }),
+    // GA4 已改回主线程 async 加载(Partytown forward 实测失效——主线程自定义事件永远到不了 worker,
+    // 详见 Base.astro 注释)。若未来重新引入 worker 化方案,先在线上实测 forward 通道再上。
   ],
 });

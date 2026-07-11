@@ -133,9 +133,12 @@ const footerCols = [
     <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
     <slot name="head" />
 
-    <!-- Google Analytics 4 — 经 Partytown 在 web worker 运行，不占主线程（保 CWV） -->
-    <script type="text/partytown" is:inline src="https://www.googletagmanager.com/gtag/js?id=G-CM79TWN2J0"></script>
-    <script type="text/partytown" is:inline>
+    <!-- Google Analytics 4 — 主线程 async 加载。曾经走 Partytown(worker 隔离保 CWV)，
+         但实测其 forward 通道对主线程 dataLayer.push 完全失效(自定义事件上线两周 0 上报、
+         连 gtag('config') 都转发不动)，且每页多 30+ 个 proxytown 请求。async gtag 对 TBT
+         影响极小(当前 0ms 有余量)，换取事件追踪真正可用。 -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-CM79TWN2J0"></script>
+    <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
       gtag('js', new Date());
