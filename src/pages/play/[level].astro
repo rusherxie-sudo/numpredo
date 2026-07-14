@@ -16,13 +16,20 @@ const LEVEL_TECHS: Record<string, string[]> = {
 };
 
 export function getStaticPaths() {
-  return LEVELS.map((meta) => ({ params: { level: meta.slug }, props: { meta } }));
+  const EPOCH_MS = Date.UTC(2026, 5, 14);
+  const JST = 9 * 3600 * 1000;
+  const todayIdx = Math.floor((Date.now() + JST) / 86400000);
+  const epochIdx = Math.floor(EPOCH_MS / 86400000);
+  const elapsedDays = Math.max(0, todayIdx - epochIdx - 1);
+  const SETS_PER_LEVEL = 55 + elapsedDays;
+  return LEVELS.map((meta) => ({ params: { level: meta.slug }, props: { meta, SETS_PER_LEVEL } }));
 }
 
 interface Props {
   meta: LevelMeta;
+  SETS_PER_LEVEL: number;
 }
-const { meta } = Astro.props;
+const { meta, SETS_PER_LEVEL } = Astro.props;
 const techLinks = (LEVEL_TECHS[meta.slug] ?? [])
   .map((s) => TECHNIQUES.find((t) => t.slug === s))
   .filter((t): t is (typeof TECHNIQUES)[number] => Boolean(t));
@@ -95,8 +102,8 @@ const breadcrumbSchema = {
     </div>
   </div>
 
-  {/* 嵌入 55 道 = 图解页 No.1〜55（SETS_PER_LEVEL，改时同步）：「別の問題」池内循环 + ?n= 直达，不做客户端实时生成 */}
-<SudokuGame level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.slice(0, 55).map((p) => ({ puzzle: p.puzzle, solution: p.solution }))} />
+  {/* 嵌入 SETS_PER_LEVEL 道 = 图解页 No.1〜N（随日期增长，昨日までの daily 題が昇格）：「別の問題」池内循环 + ?n= 直达，不做客户端实时生成 */}
+<SudokuGame level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.slice(0, SETS_PER_LEVEL).map((p) => ({ puzzle: p.puzzle, solution: p.solution }))} />
 
   <div class="px-text">
     <p class="lead">{meta.lead}</p>
@@ -128,7 +135,7 @@ const breadcrumbSchema = {
 
   <h2>{meta.ja}の問題集・一手ずつ図解</h2>
   <p>{meta.ja}の問題を、解答エンジンの手順どおりに一手ずつ図解で解説しています。詰まったときの「次の一手」の参考にどうぞ。</p>
-  <ul class="setlist">{Array.from({ length: Math.min(55, meta.puzzles.length) }, (_, i) => i + 1).map((i) => <li><a href={`/play/${meta.slug}/${i}/`}>数独{meta.ja} No.{i} の解き方図解</a></li>)}</ul>
+  <ul class="setlist">{Array.from({ length: Math.min(SETS_PER_LEVEL, meta.puzzles.length) }, (_, i) => i + 1).map((i) => <li><a href={`/play/${meta.slug}/${i}/`}>数独{meta.ja} No.{i} の解き方図解</a></li>)}</ul>
 
   <h2>他の難易度で遊ぶ</h2>
   {nextLv && <p class="next-lv"><a href={`/play/${nextLv.slug}/`}>次のレベルへ：{nextLv.ja}に挑戦する →</a></p>}

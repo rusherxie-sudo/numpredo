@@ -1,0 +1,50 @@
+# 每日生成 sitemap-lastmod.json + published.json → commit push 到 main
+# CF Pages 已配置 Git 集成（项目 numpredo2），push 后自动 build + deploy
+# 无需 GitHub Secrets：GITHUB_TOKEN 由 Actions 自动注入，写权限限定本仓库
+name: Daily Data Update
+
+on:
+  schedule:
+    - cron: '0 16 * * *' # 日本時間 01:00（每天凌晨 UTC 16:00）
+  workflow_dispatch: # 支持手动触发
+
+concurrency:
+  group: daily-data
+  cancel-in-progress: true
+
+jobs:
+  refresh-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 取完整 git 历史（gen-sitemap-lastmod.ts 内部会跑 git log 算真实 lastmod）
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      - name: 引擎品质断言
+        run: npm run demo
+
+      - name: 更新 lastmod + published
+        run: |
+          npm run gen:sitemap
+          npm run gen:published
+
+      - name: Commit & push（CF Pages 会自动 build + deploy）
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/data/sitemap-lastmod.json src/data/published.json
+          if git diff --staged --quiet; then
+            echo "无变更，跳过 commit"
+            exit 0
+          fi
+          git commit -m "chore: 每日更新日次数据（lastmod + published）"
+          git push

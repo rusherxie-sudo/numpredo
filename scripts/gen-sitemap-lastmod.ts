@@ -90,12 +90,26 @@ for (const rel of [...allPages.filter((p) => p.includes('[')), ...allPages.filte
   if (rel.includes('[')) {
     // 嵌套双参数路由 play/[level]/[n]：level × (1..题库题数)。slugsFromData 只提单层 slug，特判处理。
     if (rel === 'play/[level]/[n].astro') {
+      const EPOCH_MS = Date.UTC(2026, 5, 14);
+      const JST = 9 * 3600 * 1000;
+      const todayIdx = Math.floor((Date.now() + JST) / 86400000);
+      const epochIdx = Math.floor(EPOCH_MS / 86400000);
+      const elapsedDays = Math.max(0, todayIdx - epochIdx - 1);
+      const SETS_PER_LEVEL = 55 + elapsedDays;
       for (const lv of slugsFromData('src/data/levels.ts')) {
         const pf = `src/data/puzzles/${lv}.json`;
         const d = gitLastmod([`${PAGES}/${rel}`, pf]);
         if (!d) continue;
-        const count = Math.min(55, JSON.parse(readFileSync(pf, 'utf-8')).puzzles.length); // = [n].astro 的 SETS_PER_LEVEL
-        for (let nn = 1; nn <= count; nn++) map[`/play/${lv}/${nn}/`] = d;
+        const count = Math.min(SETS_PER_LEVEL, JSON.parse(readFileSync(pf, 'utf-8')).puzzles.length);
+        for (let nn = 1; nn <= count; nn++) {
+          if (nn <= 55) {
+            map[`/play/${lv}/${nn}/`] = d;
+          } else {
+            const dayIdx = epochIdx + (nn - 55);
+            const date = new Date(dayIdx * 86400000);
+            map[`/play/${lv}/${nn}/`] = date.toISOString();
+          }
+        }
       }
       continue;
     }

@@ -104,8 +104,14 @@ for (const rel of listPages()) {
     // 不能一律用模板首次提交日——后来才放量的 No.（13+/31+/46+）会被虚报数周页龄，
     // 与本站「日期取真实 git 提交、绝不虚报」的原则相悖。
     if (rel === 'play/[level]/[n].astro') {
+      const EPOCH_MS = Date.UTC(2026, 5, 14);
+      const JST = 9 * 3600 * 1000;
+      const todayIdx = Math.floor((Date.now() + JST) / 86400000);
+      const epochIdx = Math.floor(EPOCH_MS / 86400000);
+      const elapsedDays = Math.max(0, todayIdx - epochIdx - 1);
+      const SETS_PER_LEVEL = 55 + elapsedDays;
       const tmplFirst = gitPublished([`${PAGES}/${rel}`]); // No.1-12（初期 PER_LEVEL=12 时代）
-      // [该区间最大 No., 公开日]。放量时在此追加一行（同步点：SETS_PER_LEVEL）。
+      // [该区间最大 No., 公开日]。No.1〜55 は EXPANSIONS 表で管理、No.56〜は daily 昇格＝当日が公開日。
       const EXPANSIONS: Array<[number, string]> = [
         [12, tmplFirst], // 2026-06-20 模板初次提交
         [30, '2026-06-27T09:07:25+07:00'], // 999400b 去上限（后收敛 SETS=30）
@@ -113,13 +119,18 @@ for (const rel of listPages()) {
         [55, '2026-07-09T11:05:09+07:00'], // 2c6d3fe 45→55
       ];
       const pubForN = (nn: number): string => {
-        const hit = EXPANSIONS.find(([max]) => nn <= max);
-        // 显式失败而非静默兜底：放量后忘记追加 EXPANSIONS 行会把新页 datePublished 虚报偏早
-        if (!hit) throw new Error(`n=${nn} 超出 EXPANSIONS 区间——SETS_PER_LEVEL 放量后请在 EXPANSIONS 追加一行(扩容提交日)`);
-        return hit[1];
+        if (nn <= 55) {
+          const hit = EXPANSIONS.find(([max]) => nn <= max);
+          if (!hit) throw new Error(`n=${nn} 超出 EXPANSIONS 区间`);
+          return hit[1];
+        }
+        // No.56〜：daily 昇格ページ、公開日＝その問題の daily 出題日
+        const dayIdx = epochIdx + (nn - 55);
+        const date = new Date(dayIdx * 86400000);
+        return date.toISOString();
       };
       for (const lv of slugsFromData('src/data/levels.ts'))
-        for (let nn = 1; nn <= 55; nn++) {
+        for (let nn = 1; nn <= SETS_PER_LEVEL; nn++) {
           const d = pubForN(nn);
           if (d) map[`/play/${lv}/${nn}/`] = d;
         }
