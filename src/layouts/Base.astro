@@ -102,7 +102,7 @@ const footerCols = [
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <!-- 防闪：本文渲染前に data-theme を確定（localStorage 優先、無ければ OS 設定） -->
     <script is:inline>
       (function () {
@@ -147,6 +147,16 @@ const footerCols = [
       function gtag(){ dataLayer.push(arguments); }
       gtag('js', new Date());
       gtag('config', 'G-CM79TWN2J0');
+    </script>
+    <!-- 百度统计 -->
+    <script is:inline>
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?164a103163b39f49476e53c17ca4a573";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
     </script>
   </head>
   <body>
@@ -263,6 +273,10 @@ const footerCols = [
         .snav-mobile[hidden] { display: none; }
         .snav-mobile a { color: var(--ink); text-decoration: none; font-size: var(--text-md); font-weight: 500; padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
         .snav-mcta { color: var(--accent) !important; font-weight: 700 !important; border-bottom: 0 !important; }
+        /* 刘海屏安全区域适配 */
+        .snav { padding-top: env(safe-area-inset-top); }
+        .sfoot { padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom)); }
+        main { padding-top: calc(var(--space-5) + env(safe-area-inset-top)); }
       }
     </style>
   </body>
