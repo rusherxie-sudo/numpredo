@@ -20,10 +20,11 @@ const POOLS5 = [beginner, intermediate, advanced, hard, extreme]; // = 客户端
 const LV5 = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
 const startK = dayStart - EPOCH;
 // 実効窗口：任一档題庫尽きたらそこまで（hard 是最小池，尽きる前に gen:pool 追加すること）
-const effWindow = Math.max(
-  1,
-  Math.min(WINDOW, ...POOLS5.map((p) => p.puzzles.length - SETS_SKIP - startK)),
-);
+const availableDays = Math.min(...POOLS5.map((p) => p.puzzles.length - SETS_SKIP - startK));
+if (availableDays < 1) {
+  throw new Error('日替わり題庫が尽きました。題庫を追加して npm run gen:pool を実行してください。');
+}
+const effWindow = Math.min(WINDOW, availableDays);
 const set = Array.from({ length: effWindow * 5 }, (_, i) => {
   const o = (i / 5) | 0;
   const li = i % 5;

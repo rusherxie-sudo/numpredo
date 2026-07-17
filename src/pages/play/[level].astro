@@ -102,8 +102,10 @@ const breadcrumbSchema = {
     </div>
   </div>
 
-  {/* 嵌入 SETS_PER_LEVEL 道 = 图解页 No.1〜N（随日期增长，昨日までの daily 題が昇格）：「別の問題」池内循环 + ?n= 直达，不做客户端实时生成 */}
-<SudokuGame level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.slice(0, SETS_PER_LEVEL).map((p) => ({ puzzle: p.puzzle, solution: p.solution }))} />
+  {/* 嵌入 SETS_PER_LEVEL 道 = 图解页 No.1〜N（随日期增长，昨日までの daily 題が昇格）。
+      解答はクライアントの既存 solveOne で復元できるため配信しない：題面ごとに81文字を削減し、
+      直達・別問題・ヒント・答え合わせの挙動は SudokuGame 側で維持する。 */}
+<SudokuGame level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.slice(0, SETS_PER_LEVEL).map((p) => ({ puzzle: p.puzzle }))} />
 
   <div class="px-text">
     <p class="lead">{meta.lead}</p>

@@ -1075,18 +1075,26 @@ function setup(root: HTMLElement): void {
     dailyLevel = set[initIdx].level ?? (multi ? LV_ORDER5[tabIdx] : '');
   } else if (daily) {
     // JST 日序号 → 嵌入窗口偏移（data-daystart 为窗口首日，见 daily.astro）。
-    // 窗口外（构建停滞超过窗口天数）取模兜底——仍是全员一致的确定性选题。
+    // 构建停滞而越出窗口时不能静默取模复用旧题，否则「当天日期」会配上历史题目。
     const dayStart = Number(root.dataset.daystart ?? NaN);
     const off = jstDayIndex() - dayStart;
     if (multi) {
       const days = Math.max(1, (set.length / 5) | 0);
-      const dayOff = Number.isFinite(dayStart) ? ((off % days) + days) % days : 0;
+      if (!Number.isFinite(dayStart) || off < 0 || off >= days) {
+        root.innerHTML = '<p class="sk-arch-empty">本日の問題を準備中です。しばらくしてから再読み込みしてください。</p>';
+        return;
+      }
+      const dayOff = off;
       dayBase = dayOff * 5;
       const prefTab = Math.trunc(Number(store.get('numpredo.pref.dailytab') ?? '1'));
       tabIdx = Number.isInteger(prefTab) ? Math.min(4, Math.max(0, prefTab)) : 1; // '0'(初級)も有効。非整数/NaN は中級へ
       initIdx = dayBase + tabIdx;
     } else {
-      initIdx = Number.isFinite(dayStart) ? ((off % set.length) + set.length) % set.length : 0;
+      if (!Number.isFinite(dayStart) || off < 0 || off >= set.length) {
+        root.innerHTML = '<p class="sk-arch-empty">本日の問題を準備中です。しばらくしてから再読み込みしてください。</p>';
+        return;
+      }
+      initIdx = off;
     }
     dailyLevel = set[initIdx].level ?? (multi ? LV_ORDER5[tabIdx] : '');
   } else {

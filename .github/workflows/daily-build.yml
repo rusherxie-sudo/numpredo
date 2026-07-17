@@ -29,6 +29,12 @@ jobs:
 
       - run: npm ci
 
+      - name: 日替わり題庫の余量検証
+        run: npm run check:daily
+
+      - name: 型・Astro コンポーネント検証
+        run: npm run check
+
       - name: 引擎品质断言
         run: npm run demo
 

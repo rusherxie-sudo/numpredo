@@ -10,6 +10,8 @@
     "gen:pool": "node scripts/gen-pool.ts",
     "gen:sitemap": "node scripts/gen-sitemap-lastmod.ts",
     "gen:published": "node scripts/gen-published.ts",
+    "check:daily": "node scripts/check-daily-runway.ts",
+    "check": "astro check && tsc --noEmit",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -23,6 +25,7 @@
     "astro": "^5.13.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.4",
     "typescript": "~5.9.3"
   }
 }
