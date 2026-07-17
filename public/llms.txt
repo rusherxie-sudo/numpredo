@@ -1,53 +1,71 @@
-# numpredo
+# numpredo — 日本語の数独・ナンプレ無料サイト
 
-> 日本語の数独・ナンプレ無料学習サイト。ブラウザで遊べる数独（5段階難易度）と、写真で答え合わせできる自動解答ツールを提供。すべての問題は生成時に唯一解・論理だけで解けることを検証済み。
+> 初級から超難問まで 5 段階の難易度でブラウザプレイ。デイリー問題、解き方ガイド、自動解答ソルバー、印刷用 PDF を提供。すべての問題は唯一解・論理だけで解けることを検証済み。
 
-## 主要ページ
+## 主な機能・ページ
 
-- [トップページ](https://numpredo.com/): サイト概要とレベル別導線
-- [数独を解く（自動解答ソルバー）](https://numpredo.com/tools/solver/): 写真を撮る・画像を選ぶだけで盤面を自動読み取りし解答、解き方も一手ずつ表示
-- [解き方完全ガイド](https://numpredo.com/guide/how-to-solve/): ナンプレの基本手順と手筋（テクニック）を図解で解説
-- [難易度一覧](https://numpredo.com/play/): 初級・中級・上級・難問・超難問の5段階
-- [初級の数独](https://numpredo.com/play/beginner/): ヒント多め、裸の単数・隠れた単数だけで解ける入門向け
-- [中級の数独](https://numpredo.com/play/intermediate/): 区画の絞り込みを使う定番の歯ごたえ
-- [上級の数独](https://numpredo.com/play/advanced/): ペア（二国同盟）を使いこなす本格派
-- [難問の数独](https://numpredo.com/play/hard/): 三国同盟（ネイキッドトリプル）でじっくり解く手強い問題
-- [超難問の数独](https://numpredo.com/play/extreme/): スカイスクレイパー・X-Wing級の最難関
-- [毎日の数独](https://numpredo.com/daily/): 日替わりのデイリー問題
-- [無料印刷用PDF](https://numpredo.com/print/): 難易度と問題数を選んでダウンロード・印刷
+### プレイ（難易度別）
+- [初級（やさしい）](/play/beginner/) — 単数だけで解ける入門問題
+- [中級（ふつう）](/play/intermediate/) — 区画の絞り込みが鍵
+- [上級](/play/advanced/) — ペア（二国同盟）が必要
+- [難問](/play/hard/) — 三国同盟（トリプル）で突破
+- [超難問](/play/extreme/) — X-Wing・スワードフィッシュ
 
-## 手筋（テクニック）解説
+### デイリー・印刷
+- [毎日の数独](/daily/) — 日替わり 5 問、連続記録で遊べる
+- [無料 PDF 問題集](/print/) — 難易度別に印刷して紙で解く
 
-- [ペア（二国同盟）](https://numpredo.com/guide/techniques/naked-pair/)
-- [区画の絞り込み](https://numpredo.com/guide/techniques/pointing/)
-- [X-Wing](https://numpredo.com/guide/techniques/x-wing/)
-- [隠れたペア](https://numpredo.com/guide/techniques/hidden-pair/)
-- [三国同盟（ネイキッドトリプル）](https://numpredo.com/guide/techniques/naked-triple/)
-- [スワードフィッシュ](https://numpredo.com/guide/techniques/swordfish/)
-- [スカイスクレイパー](https://numpredo.com/guide/techniques/skyscraper/)
+### 解き方ガイド
+- [解き方完全ガイド](/guide/how-to-solve/) — 初級から超難問までの手順
+- [ルール・遊び方](/guide/rules/) — 9×9 の基本ルール
+- [初心者のコツ](/guide/beginner/) — 単数の見つけ方・候補メモ
+- [上級テクニック](/guide/advanced/) — ペア・区画の絞り込み・X-Wing
+- [行き詰まったとき](/guide/when-stuck/) — 詰まり解決チェックリスト
 
-## 攻略・情報ガイド
+### テクニック図解（一手ずつ）
+- [ネイキッドペア（二国同盟）](/guide/techniques/naked-pair/)
+- [区画の絞り込み（ポインティング）](/guide/techniques/pointing/)
+- [隠れたペア](/guide/techniques/hidden-pair/)
+- [ネイキッドトリプル（三国同盟）](/guide/techniques/naked-triple/)
+- [X-Wing](/guide/techniques/x-wing/)
+- [スカイスクレイパー](/guide/techniques/skyscraper/)
+- [スワードフィッシュ](/guide/techniques/swordfish/)
 
-- [ルール・遊び方](https://numpredo.com/guide/rules/)
-- [初心者のコツ](https://numpredo.com/guide/beginner/)
-- [子供向け・簡単な数独](https://numpredo.com/guide/for-kids/)
-- [上級テクニック](https://numpredo.com/guide/advanced/)
-- [上達のコツ](https://numpredo.com/guide/tips/)
-- [行き詰まったときは](https://numpredo.com/guide/when-stuck/)
-- [数独とナンプレの違い](https://numpredo.com/guide/sudoku-vs-numpre/)
-- [数独の歴史](https://numpredo.com/guide/sudoku-history/)
-- [数独用語集](https://numpredo.com/guide/glossary/)
-- [数独と脳トレ](https://numpredo.com/guide/brain-training/)
-- [新聞の数独・ナンプレが解けないとき](https://numpredo.com/guide/newspaper/)
+### 変種数独
+- [キラー数独](/variants/killer/) — 足し算ヒント付き
+- [6×6 ミニ数独](/variants/6x6/) — 子供向け入門
+- [不等号ナンプレ](/variants/inequality/) — 隣接マスの大小関係
+- [対角線数独](/variants/diagonal/) — 対角線にも 1〜9
 
-## バリエーション（変体数独）
+### ツール
+- [自動解答ソルバー](/tools/solver/) — マス入力または写真読み取りで答え表示
 
-- [キラー数独](https://numpredo.com/variants/killer/)
-- [6×6数独](https://numpredo.com/variants/6x6/)
-- [不等号ナンプレ](https://numpredo.com/variants/inequality/)
-- [対角線数独（プレイ可）](https://numpredo.com/variants/diagonal/)
+## 数独・ナンプレの基本ルール
 
-## Optional
+9×9＝81 マスの盤面に、1〜9 の数字を入れて完成させるパズル。
 
-- [このサイトについて](https://numpredo.com/about/)
-- [解説コンテンツ全文](https://numpredo.com/llms-full.txt): データ駆動の解説ページ（攻略ガイド・テクニック・バリエーション）本文をまとめた markdown
+1. 各行（横の 9 マス）に 1〜9 を 1 回ずつ
+2. 各列（縦の 9 マス）に 1〜9 を 1 回ずつ
+3. 各ブロック（3×3 の 9 マス）に 1〜9 を 1 回ずつ
+
+計算は一切不要。配置の論理だけで解く。
+
+## 難易度の決まり方
+
+難易度は「空きマスの数」ではなく、「解くのに必要な最も難しいテクニック」で決まる。
+
+| 難易度 | 必要テクニック |
+|--------|---------------|
+| 初級 | 裸の単数・隠れた単数 |
+| 中級 | 区画の絞り込み（ポインティング） |
+| 上級 | ペア（二国同盟） |
+| 難問 | 三国同盟（トリプル） |
+| 超難問 | X-Wing・スワードフィッシュ |
+
+## 運営者情報
+
+- サイト名：numpredo
+- URL：https://numpredo.com
+- 言語：日本語
+- 料金：完全無料・登録不要
+- 問い合わせ：contact@numpredo.com

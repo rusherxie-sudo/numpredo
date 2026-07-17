@@ -1,5 +1,22 @@
 User-agent: *
 Allow: /
 Content-Signal: ai-train=yes, search=yes, ai-input=yes
-
 Sitemap: https://numpredo.com/sitemap-index.xml
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
