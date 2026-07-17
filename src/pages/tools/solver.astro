@@ -90,7 +90,7 @@ const howToSchema = {
   <p>判定できる手筋は<a href="/guide/techniques/naked-pair/">ペア（二国同盟）</a>・<a href="/guide/techniques/x-wing/">X-Wing</a>・<a href="/guide/techniques/swordfish/">スワードフィッシュ</a>・<a href="/guide/techniques/skyscraper/">スカイスクレイパー</a>など、上級者向けの手筋まで対応。難問・超難問の答え合わせでも、どの手筋で解けるのかを図解します。一つひとつの解き方は<a href="/guide/how-to-solve/">解き方完全ガイド</a>でくわしく解説しています。当てずっぽうなしで、論理だけで解けるのが数独の魅力です。</p>
 
   <h2>新聞の数独が写真で解けない時は？</h2>
-  <p>盤面が画面いっぱいになるよう正面から明るい場所で撮影し、読み取り後に盤面を確認・修正してから「解く」を押せば解けます。うまく読み取れないマスは、タップして数字キーで手直しできます。</p>
+  <p>盤面が画面いっぱいになるよう正面から明るい場所で撮影し、読み取り後に盤面を確認・修正してから「解く」を押せば解けます。<strong>黄色のマスは読み取りの確信度が低い箇所</strong>です。タップして数字キーで手直ししてください。</p>
 
   <h2>カメラの使い方解説｜写真・画像で数独・ナンプレを解く方法（スマホ対応）</h2>
   <p>スマホのカメラで撮影、または画像・スクリーンショットを選ぶだけで、数独・ナンプレの盤面を自動で読み取ります。読み取った数字は上の盤面に反映されるので、間違っているマスをタップして直し、「解く」を押すだけ。新聞や雑誌の数独を写真に撮って答え合わせするのに便利です。</p>
@@ -148,6 +148,7 @@ const howToSchema = {
     .sv-cell.sv-given { color: var(--num-given); font-family: var(--font-mincho); font-weight: 700; }
     .sv-cell.sv-sel { background: var(--cell-sel-bg); box-shadow: inset 0 0 0 2px var(--accent); }
     .sv-cell.sv-err { color: var(--num-error) !important; background: var(--cell-error-bg); text-decoration: underline wavy; text-underline-offset: 2px; }
+    .sv-cell.sv-ocr-uncertain { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent); }
     .sv-cell.sv-solved { color: var(--num-user); font-weight: 700; }
 
     .sv-pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }

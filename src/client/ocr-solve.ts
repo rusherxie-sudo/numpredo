@@ -17,6 +17,9 @@ function setup(app: HTMLElement): void {
   let sel = -1;
   let solved: number[] | null = null; // 解答盤（表示中は同じ盤面に直接反映）
   let givenMask: boolean[] = []; // 解答時に「どのマスが元の入力か」を記録
+  // OCR が低確信だったマス。答えを推測せず、利用者に確認箇所だけを示す。
+  let ocrUncertain = new Set<number>();
+  let inputSource: 'manual' | 'paste' | 'photo' | 'game' | 'sample' = 'manual';
 
   // ---- DOM 構築：盤面 + キーボード（role=grid > row > gridcell 合规层级，行容器 display:contents）----
   app.innerHTML = '';
@@ -65,6 +68,8 @@ function setup(app: HTMLElement): void {
   btnSample.textContent = 'サンプル';
   btnSample.addEventListener('click', () => {
     grid = strToGrid(SAMPLE);
+    ocrUncertain.clear();
+    inputSource = 'sample';
     sel = -1;
     clearOut();
     setMsg('サンプルを入力しました。「解く」を押してください。', '');
@@ -74,6 +79,8 @@ function setup(app: HTMLElement): void {
   btnClear.textContent = '全部消す';
   btnClear.addEventListener('click', () => {
     grid = new Array(81).fill(0);
+    ocrUncertain.clear();
+    inputSource = 'manual';
     sel = -1;
     clearOut();
     setMsg('', '');
@@ -121,6 +128,8 @@ function setup(app: HTMLElement): void {
     if (cleaned.length < 81) return;
     e.preventDefault();
     grid = strToGrid(cleaned);
+    ocrUncertain.clear();
+    inputSource = 'paste';
     sel = -1;
     clearOut();
     setMsg('貼り付けから盤面を読み込みました。「解く」を押してください。', 'ok');
@@ -141,6 +150,7 @@ function setup(app: HTMLElement): void {
     solved = null; // 編集したら解答表示を解除
     clearSteps();
     grid[sel] = n;
+    ocrUncertain.delete(sel); // 利用者が直した格は OCR の要確認から外す
     if (n !== 0 && sel < 80) sel++; // 数字入力で次のマスへ自動前進（25個前後の手入力が半分の操作で済む）
     render();
   }
@@ -157,6 +167,7 @@ function setup(app: HTMLElement): void {
       } else {
         c.textContent = grid[i] === 0 ? '' : String(grid[i]);
         if (grid[i] !== 0) c.classList.add('sv-given');
+        if (ocrUncertain.has(i)) c.classList.add('sv-ocr-uncertain');
         if (conf && conf.has(i)) c.classList.add('sv-err');
         if (i === sel) c.classList.add('sv-sel');
       }
@@ -168,7 +179,7 @@ function setup(app: HTMLElement): void {
         c.removeAttribute('aria-invalid');
       } else {
         const dup = !!(conf && conf.has(i));
-        c.setAttribute('aria-label', grid[i] === 0 ? `${pos} 空き` : `${pos} ${grid[i]}${dup ? '（重複）' : ''}`);
+        c.setAttribute('aria-label', grid[i] === 0 ? `${pos} 空き` : `${pos} ${grid[i]}${dup ? '（重複）' : ''}${ocrUncertain.has(i) ? '（読み取りを確認）' : ''}`);
         c.setAttribute('aria-selected', i === sel ? 'true' : 'false');
         if (dup) c.setAttribute('aria-invalid', 'true');
         else c.removeAttribute('aria-invalid');
@@ -208,7 +219,7 @@ function setup(app: HTMLElement): void {
     setMsg(n > 1 ? '※ 解が複数あります。一例を表示しています（緑が答え）。' : '解けました！緑の数字が答えです。盤面をタップすると再入力できます。', n > 1 ? 'warn' : 'ok');
     render();
     renderSteps(grid.slice()); // 「解き方の手順」を図解表示（grid は元の問題＝題面）
-    track('solver_solve', { result: n > 1 ? 'multiple' : 'unique' });
+    track('solver_solve', { result: n > 1 ? 'multiple' : 'unique', source: inputSource, ocr_uncertain: ocrUncertain.size, filled: givenMask.filter(Boolean).length });
   }
 
   async function onImage(file: File): Promise<void> {
@@ -216,13 +227,16 @@ function setup(app: HTMLElement): void {
     photoInputs.forEach((i) => (i.disabled = true));
     setMsg('写真を読み取っています…（初回はエンジンの読み込みに時間がかかります）', 'warn');
     try {
-      const str = await recognizeImage(file, (n) => setMsg(`写真を読み取り中… ${Math.round((n / 81) * 100)}%`, 'warn'));
-      grid = strToGrid(str);
+      const result = await recognizeImage(file, (n) => setMsg(`写真を読み取り中… ${Math.round((n / 81) * 100)}%`, 'warn'));
+      grid = strToGrid(result.grid);
+      ocrUncertain = new Set(result.uncertain);
+      inputSource = 'photo';
       sel = -1;
       render();
       const filled = grid.filter((v) => v !== 0).length;
-      setMsg(`写真から ${filled} マスを読み取りました。間違いを盤面で直してから「解く」を押してください。`, 'ok');
-      track('solver_ocr', { cells: filled });
+      const review = ocrUncertain.size ? ` 黄色の ${ocrUncertain.size} マスは読み取りを確認してください。` : '';
+      setMsg(`写真から ${filled} マスを読み取りました。${review}確認後に「解く」を押してください。`, 'ok');
+      track('solver_ocr', { cells: filled, uncertain: ocrUncertain.size });
     } catch (e) {
       setMsg('画像の読み取りに失敗しました。明るく正面から撮り直すか、盤面に手入力してください。', 'err');
     } finally {
@@ -280,6 +294,7 @@ function setup(app: HTMLElement): void {
   const urlGrid = (new URLSearchParams(location.search).get('grid') ?? '').replace(/[^0-9.]/g, '');
   if (urlGrid.length === 81 && /[1-9]/.test(urlGrid)) {
     grid = strToGrid(urlGrid);
+    inputSource = 'game';
     render();
     setMsg('プレイ中の盤面を読み込みました。「解く」を押すと、答えとここからの解き方手順を表示します。', 'ok');
   } else {
@@ -325,7 +340,7 @@ function conflicts(g: number[]): Set<number> {
 // ---- 画像 → 81 文字（OCR）----
 // 規整な盤面画像（スクショ・正面撮影）を前提：画像全体を盤面とみなして 9×9 に等分し、
 // 各マス中央をトリミング → 空白判定 → 非空マスのみ Tesseract で 1 文字認識。
-async function recognizeImage(file: File, onProgress?: (done: number) => void): Promise<string> {
+async function recognizeImage(file: File, onProgress?: (done: number) => void): Promise<{ grid: string; uncertain: number[] }> {
   const img = await fileToImage(file);
   const S = 450;
   const canvas = document.createElement('canvas');
@@ -363,6 +378,7 @@ async function recognizeImage(file: File, onProgress?: (done: number) => void): 
   });
 
   const out: string[] = [];
+  const uncertain: number[] = [];
   try {
     for (let i = 0; i < 81; i++) {
       const r = (i / 9) | 0;
@@ -384,6 +400,9 @@ async function recognizeImage(file: File, onProgress?: (done: number) => void): 
       cell.getContext('2d')?.putImageData(sub, 0, 0);
       const { data } = await worker.recognize(cell);
       const m = (data.text || '').match(/[1-9]/);
+      // Tesseract の confidence は 0〜100。低い値、または数字を抽出できなかった非空セルは
+      // 正解を勝手に補わず、利用者が確認する対象として残す。
+      if (!m || Number(data.confidence ?? 0) < 65) uncertain.push(i);
       out.push(m ? m[0] : '.');
       onProgress?.(i + 1);
     }
@@ -391,7 +410,7 @@ async function recognizeImage(file: File, onProgress?: (done: number) => void): 
     // 識別中に例外が出ても worker を必ず解放（リーク防止）
     await worker.terminate();
   }
-  return out.join('');
+  return { grid: out.join(''), uncertain };
 }
 
 function isBlank(img: ImageData): boolean {
