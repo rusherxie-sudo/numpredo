@@ -27,6 +27,7 @@ const { defaultLevel = 'advanced' } = Astro.props;
   <label class="pc-check"><input type="checkbox" id="print-cand" /> 候補数字のマスを薄く印刷する</label>
   <button id="print-go" type="button" class="print-go">作成して印刷</button>
   <p id="print-status" class="print-status"></p>
+  <p class="pc-solver"><a id="print-solver-link" href="/tools/solver/">印刷した問題の答え合わせは、写真で読み取る無料ソルバーへ →</a></p>
 </div>
 
 <div id="print-mount" class="print-mount"></div>
@@ -45,6 +46,7 @@ const { defaultLevel = 'advanced' } = Astro.props;
   .pc-check { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-3); margin: 4px 0 14px; }
   .print-go { background: var(--accent); color: var(--surface); border: 0; font-size: 14px; padding: 11px 22px; border-radius: 6px; cursor: pointer; font-family: var(--font-sans); }
   .print-status { font-size: 13px; color: var(--ink-3); margin: 10px 0 0; }
+  .pc-solver { font-size: 13px; margin: 12px 0 0; } .pc-solver a { color: var(--accent); }
 
   .print-mount { margin-top: 20px; }
   .print-head { display: none; align-items: center; justify-content: space-between; margin-bottom: 12px; font-family: var(--font-mincho); }

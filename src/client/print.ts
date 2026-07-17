@@ -45,6 +45,7 @@ function setup(): void {
 
   const status = document.getElementById('print-status')!;
   const mount = document.getElementById('print-mount')!;
+  document.getElementById('print-solver-link')?.addEventListener('click', () => track('print_to_solver'));
 
   root.querySelectorAll<HTMLElement>('[data-lv]').forEach((c) =>
     c.addEventListener('click', () => {
