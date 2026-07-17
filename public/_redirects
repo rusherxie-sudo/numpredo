@@ -21,6 +21,10 @@
 /ja/technique/*              /guide/how-to-solve/ 301
 /en/technique/*              /guide/how-to-solve/ 301
 /zh-CN/technique/*           /guide/how-to-solve/ 301
+# 旧繁中技巧页在 GSC 仍有点击；为保留与 X-Wing 意图相符的落地页，不能让它落到语言根页。
+/zh-TW/technique/x-wing/*    /guide/techniques/x-wing/ 301
+/zh-TW/technique/x-wing      /guide/techniques/x-wing/ 301
+/zh-TW/technique/*           /guide/how-to-solve/ 301
 
 # Guide pages
 /ja/guide*           /guide/how-to-solve/ 301
