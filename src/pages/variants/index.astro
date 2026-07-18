@@ -1,0 +1,81 @@
+---
+import Base from '../../layouts/Base.astro';
+import { VARIANTS } from '../../data/variants.ts';
+
+const title = '変わり種数独・ナンプレ｜ルールと種類 - numpredo';
+const description = 'キラー数独、対角線数独（X数独）、6×6数独、不等号ナンプレを紹介。通常の数独との違い、ルール、解き方のコツを図解で解説します。キラー数独と対角線数独は無料でそのままプレイ可能。';
+const url = 'https://numpredo.com/variants/';
+const faq = [
+  { q: '変わり種数独とは何ですか？', a: '通常の数独の「行・列・3×3ブロックで数字を重複させない」ルールに、合計・対角線・不等号などの追加ルールを加えたパズルです。基本の考え方は数独と共通です。' },
+  { q: '初心者におすすめの変わり種は？', a: 'まずは数字が1〜6だけの<a href="/variants/6x6/">6×6数独</a>がおすすめです。通常の数独に慣れている方は、追加の対角線が絞り込みに役立つ<a href="/variants/diagonal/">対角線数独</a>から始めると取り組みやすいでしょう。' },
+  { q: 'このサイトで実際に遊べる変わり種は？', a: '<a href="/variants/killer/">キラー数独</a>と<a href="/variants/diagonal/">対角線数独</a>を、無料・登録不要でブラウザからプレイできます。6×6数独と不等号ナンプレは、現在はルールと解き方の解説を掲載しています。' },
+];
+const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '変わり種数独・ナンプレ',
+  description,
+  url,
+  inLanguage: 'ja',
+  about: ['キラー数独', '対角線数独', '6×6数独', '不等号ナンプレ'],
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: VARIANTS.map((v, i) => ({ '@type': 'ListItem', position: i + 1, name: v.name, url: `https://numpredo.com/variants/${v.slug}/` })),
+  },
+};
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '変わり種数独・ナンプレ', item: url },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={url}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › 変わり種数独・ナンプレ</nav>
+  <h1>変わり種数独・ナンプレ</h1>
+  <p class="lead">いつもの数独に、合計・対角線・不等号などの新しい手がかりを加えた変わり種を集めました。基本ルールを知っていれば、初めての方でもそれぞれの変わり種に挑戦できます。</p>
+
+  <h2>変わり種数独を選ぶ</h2>
+  <div class="variant-grid">
+    {VARIANTS.map((v) => (
+      <article class="variant-card">
+        <h3><a href={`/variants/${v.slug}/`}>{v.name}</a></h3>
+        <p>{v.lead}</p>
+        <a class="card-link" href={`/variants/${v.slug}/`}>{v.playable ? '今すぐ遊ぶ・ルールを見る →' : 'ルールと解き方を見る →'}</a>
+      </article>
+    ))}
+  </div>
+
+  <h2>通常の数独との違い</h2>
+  <p>どの変わり種でも、行・列・ブロックで数字を重複させないという基本は同じです。そこにケージの合計、対角線、不等号といった追加の手がかりが加わります。迷ったときは、追加ルールだけでなく<a href="/guide/how-to-solve/">通常の数独の解き方</a>に戻って、候補を一つずつ絞り込みましょう。</p>
+  <p>数独を始めたばかりなら、まずは<a href="/play/beginner/">初級の数独</a>で行・列・ブロックの見方に慣れるのがおすすめです。基本が身につくほど、変わり種で増えた手がかりも使いやすくなります。</p>
+
+  <h2>よくある質問</h2>
+  <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
+    .lead { color: var(--ink-3); font-size: var(--text-md); margin: 0 0 24px; }
+    .variant-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 12px 0 30px; }
+    .variant-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+    .variant-card h3 { margin: 0 0 8px; font-size: var(--text-lg); } .variant-card h3 a, .card-link, main p a, .faq a { color: var(--accent); }
+    .variant-card p { color: var(--ink-3); font-size: var(--text-sm); margin: 0 0 14px; line-height: 1.8; }
+    .card-link { font-size: var(--text-sm); font-weight: 700; text-decoration: none; }
+    .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 16px; } .faq dd { margin: 5px 0 0; color: var(--ink-3); }
+  </style>
+</Base>

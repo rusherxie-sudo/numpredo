@@ -270,7 +270,7 @@ function setup(app: HTMLElement): void {
     const badge = `<p class="sv-steps-badge">難易度の目安：<strong>${level.ja}</strong>（最難テクニック：${hardestJa}）</p>`;
     const intro = res.solved
       ? '<p class="sv-steps-intro">この問題を論理だけで解く手順を、要所だけ図解します。枠つきのマス・色つきの候補が注目点です。</p>'
-      : '<p class="sv-steps-intro">この問題は当サイトの論理ソルバーの手筋（X-Wingまで）では最後まで解けませんでした。<strong>ここまでは論理で解ける手順</strong>を図解します（答え自体は上の盤面に表示済みです）。</p>';
+      : '<p class="sv-steps-intro">この問題は当サイトの論理ソルバーで対応している手筋では最後まで解けませんでした。<strong>ここまでは論理で解ける手順</strong>を図解します（答え自体は上の盤面に表示済みです）。</p>';
     const steps = figs
       .map((f) => `<figure class="sv-step">${f.svg}<figcaption>${f.label}${f.slug ? ` ・ <a href="/guide/techniques/${f.slug}/">くわしい解き方</a>` : ''}</figcaption><p>${f.text}</p></figure>`)
       .join('');
