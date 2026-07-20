@@ -147,6 +147,17 @@ const breadcrumbSchema = {
   <h2>印刷して解く</h2>
   <p>紙で解きたい方は<a href={`/print/${meta.slug}/`}>{meta.ja}の印刷専用ページ（答え付き・PDF対応）</a>へ。おすすめの刷り方も紹介しています。ほかの難易度は<a href="/print/">問題集・印刷トップ</a>から。</p>
 
+  {meta.nextActions && (
+    <section class="next-actions" aria-label={`${meta.ja}の目的別リンク`}>
+      <h2>{meta.ja}を次にどう楽しむ？</h2>
+      <div class="next-action-grid">
+        {meta.nextActions.map((action) => (
+          <div class="next-action"><h3>{action.label}</h3><p set:html={action.body} /></div>
+        ))}
+      </div>
+    </section>
+  )}
+
   <h2>よくある質問</h2>
   <dl class="faq">{meta.faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
   </div>
@@ -177,6 +188,12 @@ const breadcrumbSchema = {
     .diff-badges { display: flex; gap: 7px; flex-wrap: wrap; margin: 0 0 18px; }
     .diff-bdg { font-family: var(--font-mincho); font-size: 14px; padding: 4px 14px; border: 1px solid var(--accent); color: var(--accent); border-radius: 3px; text-decoration: none; }
     .diff-bdg.on { background: var(--accent); color: var(--surface); }
+    .next-actions { margin: 26px 0 18px; }
+    .next-action-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .next-action { padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); }
+    .next-action h3 { margin: 0 0 7px; font-size: var(--text-base); }
+    .next-action p { margin: 0; color: var(--ink-3); font-size: var(--text-sm); line-height: 1.75; }
+    .next-action a { color: var(--accent); }
 
     @media (max-width: 760px) {
       .px-text { padding: 0; }
@@ -185,6 +202,7 @@ const breadcrumbSchema = {
       .diff-badges { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; margin-bottom: 12px; }
       .diff-bdg { white-space: nowrap; flex: 0 0 auto; }
       .fig-row { gap: 10px; }
+      .next-action-grid { grid-template-columns: 1fr; }
     }
   </style>
 </Base>
