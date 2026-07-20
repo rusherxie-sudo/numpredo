@@ -23,7 +23,7 @@ const contactSchema = {
   <p>numpredo に関するご意見・ご要望、不具合のご報告、著作権・取材などのお問い合わせは、下記のメールアドレスまでお気軽にご連絡ください。</p>
 
   <h2>メールでのお問い合わせ</h2>
-  <p class="mail"><a href="mailto:contact%40numpredo.com" aria-label="contact アットマーク numpredo ドット com"><span>contact</span><span aria-hidden="true">@</span><span>numpredo.com</span></a></p>
+  <p class="mail"><a id="contact-mail-link" href="#contact-mail" data-local="contact" data-domain="numpredo.com" aria-label="contact アットマーク numpredo ドット com"><span>contact</span><span aria-hidden="true">@</span><span>numpredo.com</span></a></p>
   <p class="sub">いただいたお問い合わせには順次対応いたしますが、内容によっては返信までお時間をいただく場合や、返信いたしかねる場合がございます。あらかじめご了承ください。</p>
 
   <h2>主なお問い合わせ内容</h2>
@@ -33,6 +33,16 @@ const contactSchema = {
     <li>機能のご要望・ご感想</li>
     <li>著作権・コンテンツ利用に関するお問い合わせ（<a href="/terms/">利用規約</a>もあわせてご確認ください）</li>
   </ul>
+
+  <script is:inline>
+    // Cloudflare のメール難読化が mailto: を 404 リンクへ書き換えるため、クリック時だけメール URL を組み立てる。
+    const mailLink = document.getElementById('contact-mail-link');
+    mailLink?.addEventListener('click', (event) => {
+      event.preventDefault();
+      const { local, domain } = mailLink.dataset;
+      if (local && domain) window.location.href = `mailto:${local}@${domain}`;
+    });
+  </script>
 
   <style is:global>
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
