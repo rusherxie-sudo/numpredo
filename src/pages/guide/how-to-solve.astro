@@ -9,8 +9,8 @@ import publishedJson from '../../data/published.json';
 const lastmod: Record<string, string> = lastmodJson;
 const published: Record<string, string> = publishedJson;
 
-const title = '数独・ナンプレの解き方ガイド｜図解で徹底解説 - numpredo';
-const description = '数独（ナンプレ）の解き方を図解でやさしく解説。裸の単数・隠れた単数から、区画の絞り込み・ペア（二国同盟）・X-Wingまで、初心者から上級者まで使える解法テクニックを順番に紹介。例題つきで、論理だけで解く考え方が身につきます。';
+const title = 'ナンプレの解き方｜数独を図解で徹底解説 - numpredo';
+const description = 'ナンプレの解き方を図解でやさしく解説。裸の単数・隠れた単数から、区画の絞り込み・ペア（二国同盟）・X-Wingまで、初心者から難問まで使える数独の解法を順番に紹介。例題つきで、論理だけで解く考え方が身につきます。';
 const url = 'https://numpredo.com/guide/how-to-solve/';
 
 // 构建期用引擎生成「題面」与「テクニック消去」の和風図解
@@ -53,7 +53,7 @@ const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpred
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'Article',
-  headline: 'ナンプレ・数独の解き方完全ガイド',
+  headline: 'ナンプレの解き方完全ガイド',
   description,
   inLanguage: 'ja',
   mainEntityOfPage: url,
@@ -99,9 +99,9 @@ const breadcrumbSchema = {
   </Fragment>
 
   <nav class="crumb"><a href="/">ホーム</a> › 解き方</nav>
-  <h1>ナンプレ・数独の解き方完全ガイド</h1>
+  <h1>ナンプレの解き方完全ガイド｜数独を図解で解く</h1>
   {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
-  <p class="lead">単数の発見から上級テクニックまで、図解でわかりやすく。すべて唯一解・論理だけで解ける考え方です。</p>
+  <p class="lead">ナンプレの解き方を、単数の発見から上級テクニックまで図解でわかりやすく。初心者の一手から難問まで、すべて論理だけで解ける考え方です。</p>
 
   <h2>数独・ナンプレとは</h2>
   <p>9×9のマスに1〜9を入れ、各行・各列・各3×3ブロックに同じ数字が重複しないようにするパズルです。ルールの詳細は<a href="/guide/rules/">ルール・遊び方</a>へ。</p>
@@ -148,6 +148,9 @@ const breadcrumbSchema = {
 
   <h2>詰まったときの対処法</h2>
   <p>どうしても解けないときのチェックリストは<a href="/guide/when-stuck/">行き詰まり解決ガイド</a>へ。候補メモの見直しから三国同盟・スワードフィッシュまで、次の一手を論理で見つける方法を解説しています。答え合わせは<a href="/tools/solver/">数独ソルバー（自動解答）</a>で確認できます。新聞・雑誌の数独で詰まったときは<a href="/guide/newspaper/">新聞の数独が解けないときの答え合わせ方法</a>もどうぞ。</p>
+
+  <h2>難問ナンプレの解き方</h2>
+  <p>難問ナンプレで単数やペアだけでは進まないときは、候補メモを最新にしてから三国同盟、隠れたペア、X-Wingの順に確認します。いきなり推測せず、<a href="/play/hard/">難問</a>で三国同盟を練習し、さらに難しい問題は<a href="/play/extreme/">超難問</a>と<a href="/guide/advanced/">上級テクニック</a>で盤面全体を見る力を鍛えましょう。</p>
 
   <h2>難易度を選んで練習</h2>
   <ul>

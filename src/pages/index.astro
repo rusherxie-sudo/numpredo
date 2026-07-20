@@ -26,8 +26,8 @@ const diffs: [string, string, string, number, string][] = [
 ];
 const tools: [string, string, string, string][] = [
   ['解', '解き方ガイド', '/guide/', 'ルールから上級テクニックまで、盤面の図解つきで解説。'],
-  ['刷', '印刷用PDF', '/print/', '難易度と問題数をえらんで、無料でダウンロード＆印刷。'],
-  ['答', '自動解答ソルバー', '/tools/solver/', '81マスを入力すると答えを自動計算。新聞の答え合わせにも。'],
+  ['刷', '無料プリント・PDF保存', '/print/', '答え付きの問題集を、難易度と問題数を選んで無料で印刷・PDF保存。'],
+  ['答', '画像・カメラ自動解答', '/tools/solver/', '写真を撮るか81マスを入力すると答えを自動計算。新聞の答え合わせにも。'],
   ['変', '変わり種数独', '/variants/', 'キラー数独・6×6・不等号・対角線などのルール紹介。'],
 ];
 const why: [string, string, string][] = [
@@ -76,6 +76,7 @@ const homeFaqSchema = {
       <div class="hp-cta">
         <a href="/play/beginner/" class="hp-btn hp-btn-p">初級をはじめる</a>
         <a href="/daily/" class="hp-btn hp-btn-s">今日のナンプレ →</a>
+        <a href="/print/" class="hp-btn hp-btn-s">無料で印刷 →</a>
       </div>
       <div class="hp-difflinks">またはレベルを選ぶ：<a href="/play/beginner/">初級</a><a href="/play/intermediate/">中級</a><a href="/play/advanced/">上級</a><a href="/play/hard/">難問</a><a href="/play/extreme/">超難問</a></div>
       <div class="hp-meta"><span>5段階の難易度</span><span class="hp-dot">·</span><span>毎日更新</span><span class="hp-dot">·</span><span>スマホ対応</span></div>
