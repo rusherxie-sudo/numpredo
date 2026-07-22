@@ -16,12 +16,9 @@ const LEVEL_TECHS: Record<string, string[]> = {
 };
 
 export function getStaticPaths() {
-  const EPOCH_MS = Date.UTC(2026, 5, 14);
-  const JST = 9 * 3600 * 1000;
-  const todayIdx = Math.floor((Date.now() + JST) / 86400000);
-  const epochIdx = Math.floor(EPOCH_MS / 86400000);
-  const elapsedDays = Math.max(0, todayIdx - epochIdx - 1);
-  const SETS_PER_LEVEL = 55 + elapsedDays;
+  // 新規 URL を日付だけで増やすと、未クロールの問題群が残ったまま巡回優先度を薄める。
+  // 既存の 90 問を一つの編集済みコレクションとして固定し、追加は内容・内部リンクを整えた単位で行う。
+  const SETS_PER_LEVEL = 90;
   return LEVELS.map((meta) => ({ params: { level: meta.slug }, props: { meta, SETS_PER_LEVEL } }));
 }
 

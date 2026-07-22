@@ -9,12 +9,8 @@ const lastmod: Record<string, string> = lastmodJson;
 const published: Record<string, string> = publishedJson;
 
 export function getStaticPaths() {
-  const EPOCH_MS = Date.UTC(2026, 5, 14);
-  const JST = 9 * 3600 * 1000;
-  const todayIdx = Math.floor((Date.now() + JST) / 86400000);
-  const epochIdx = Math.floor(EPOCH_MS / 86400000);
-  const elapsedDays = Math.max(0, todayIdx - epochIdx - 1);
-  const cap = 55 + elapsedDays;
+  // 新規 URL を日付だけで増やさず、既存 90 問のクロール・評価を先に完了させる。
+  const cap = 90;
   return LEVELS.flatMap((meta) =>
     Array.from({ length: Math.min(cap, meta.puzzles.length) }, (_, i) => i + 1).map((n) => ({
       params: { level: meta.slug, n: String(n) },
