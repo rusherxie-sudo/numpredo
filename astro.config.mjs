@@ -8,6 +8,10 @@ import sitemap from '@astrojs/sitemap';
 const lastmod = JSON.parse(
   readFileSync(new URL('./src/data/sitemap-lastmod.json', import.meta.url), 'utf-8'),
 );
+const indexablePuzzles = new Set(
+  JSON.parse(readFileSync(new URL('./src/data/indexable-puzzles.json', import.meta.url), 'utf-8')),
+);
+const numberedPuzzlePattern = /^\/play\/(?:beginner|intermediate|advanced|hard|extreme)\/\d+\/$/;
 
 export default defineConfig({
   site: 'https://numpredo.com',
@@ -16,8 +20,14 @@ export default defineConfig({
   build: { format: 'directory', inlineStylesheets: 'always' },
   integrations: [
     sitemap({
-      // /stats/ 是 noindex 的个人数据页——noindex 页不应进 sitemap(信号自相矛盾)
-      filter: (page) => !page.includes('/stats/'),
+      // 個人データページと、検索需要を確認できていない量産型の問題詳細は sitemap から除外する。
+      // 問題自体は各難易度ページで引き続き全90問を遊べる。
+      filter: (page) => {
+        const pathname = new URL(page).pathname;
+        if (pathname === '/stats/') return false;
+        if (numberedPuzzlePattern.test(pathname)) return indexablePuzzles.has(pathname);
+        return true;
+      },
       // 给每个 URL 注入真实 <lastmod>；映射表里没有的页（理论上不会有）则不写，绝不用构建日兜底。
       serialize(item) {
         const date = lastmod[new URL(item.url).pathname];

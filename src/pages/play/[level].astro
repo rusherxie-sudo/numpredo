@@ -4,6 +4,7 @@ import ShareBar from '../../components/ShareBar.astro';
 import SudokuGame from '../../components/SudokuGame.astro';
 import { LEVELS, type LevelMeta } from '../../data/levels.ts';
 import { TECHNIQUES } from '../../data/techniques.ts';
+import indexablePuzzles from '../../data/indexable-puzzles.json';
 import { renderBoardSvg, gridFromString, traceFirstElimination, TOKEN_THEME } from '../../engine/index.ts';
 
 // 各難易度で習得すべき具体テクニック → 技巧攻略ページへ内部リンク
@@ -27,6 +28,11 @@ interface Props {
   SETS_PER_LEVEL: number;
 }
 const { meta, SETS_PER_LEVEL } = Astro.props;
+const featuredPuzzleNumbers = indexablePuzzles
+  .map((pathname) => pathname.match(new RegExp(`^/play/${meta.slug}/(\\d+)/$`))?.[1])
+  .filter((n): n is string => Boolean(n))
+  .map(Number)
+  .sort((a, b) => a - b);
 const techLinks = (LEVEL_TECHS[meta.slug] ?? [])
   .map((s) => TECHNIQUES.find((t) => t.slug === s))
   .filter((t): t is (typeof TECHNIQUES)[number] => Boolean(t));
@@ -134,8 +140,8 @@ const breadcrumbSchema = {
   </p>
 
   <h2>{meta.ja}の問題集・一手ずつ図解</h2>
-  <p>{meta.ja}の問題を、解答エンジンの手順どおりに一手ずつ図解で解説しています。詰まったときの「次の一手」の参考にどうぞ。</p>
-  <ul class="setlist">{Array.from({ length: Math.min(SETS_PER_LEVEL, meta.puzzles.length) }, (_, i) => i + 1).map((i) => <li><a href={`/play/${meta.slug}/${i}/`}>数独{meta.ja} No.{i} の解き方図解</a></li>)}</ul>
+  <p>{meta.ja}の問題から、検索・利用実績のある代表例を選び、解答エンジンの手順どおりに一手ずつ図解しています。詰まったときの「次の一手」の参考にどうぞ。</p>
+  <ul class="setlist">{featuredPuzzleNumbers.map((i) => <li><a href={`/play/${meta.slug}/${i}/`}>数独{meta.ja} No.{i} の解き方図解</a></li>)}</ul>
 
   <h2>他の難易度で遊ぶ</h2>
   {nextLv && <p class="next-lv"><a href={`/play/${nextLv.slug}/`}>次のレベルへ：{nextLv.ja}に挑戦する →</a></p>}
