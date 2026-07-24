@@ -1,5 +1,6 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import EditorialNote from '../../../components/EditorialNote.astro';
 import { TECHNIQUES, type Technique } from '../../../data/techniques.ts';
 import { renderBoardSvg, bit, TOKEN_THEME, type CandidateMark } from '../../../engine/index.ts';
 import lastmodJson from '../../../data/sitemap-lastmod.json';
@@ -81,6 +82,7 @@ const breadcrumbSchema = {
   <h1>{t.h1}</h1>
   {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
   <p class="lead">{t.lead}（適用：{t.level}）</p>
+  <EditorialNote verification={`${t.name}の成立条件と候補消去を独自ソルバーで確認し、同じ候補状態から生成した盤面図を掲載しています。`} />
 
   {t.sections.map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => <p set:html={p} />)}</>))}
 

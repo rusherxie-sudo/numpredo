@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
+import EditorialNote from '../../components/EditorialNote.astro';
 import { GUIDES, type GuideArticle } from '../../data/guides.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
 import publishedJson from '../../data/published.json';
@@ -62,6 +63,7 @@ const breadcrumbSchema = {
   <h1>{g.h1}</h1>
   {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
   <p class="lead">{g.lead}</p>
+  <EditorialNote verification={g.verification ?? '本文のルール、候補消去、内部リンクを公開前に確認しています。掲載している問題は独自エンジンで唯一解と論理解法を検証しています。'} />
 
   {g.sections.map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => (/^\s*<(table|div|ul|ol|figure)/.test(p) ? <Fragment set:html={p} /> : <p set:html={p} />))}</>))}
 

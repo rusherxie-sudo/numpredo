@@ -1,0 +1,42 @@
+---
+interface Props {
+  verification: string;
+}
+
+const { verification } = Astro.props;
+---
+
+<aside class="editorial-note" aria-label="制作・検証情報">
+  <p><strong>制作・検証：numpredo運営者</strong></p>
+  <p>{verification}</p>
+  <p class="editorial-links"><a href="/about/">運営者・品質方針</a> ／ <a href="/contact/">誤りの報告・お問い合わせ</a></p>
+</aside>
+
+<style>
+  .editorial-note {
+    margin: 0 0 22px;
+    padding: 12px 14px;
+    border: 1px solid var(--line-2);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+
+  .editorial-note p {
+    margin: 0;
+  }
+
+  .editorial-note p + p {
+    margin-top: 5px;
+  }
+
+  .editorial-note strong {
+    color: var(--ink);
+  }
+
+  .editorial-links a {
+    color: var(--accent);
+  }
+</style>
