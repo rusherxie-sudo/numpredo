@@ -88,10 +88,6 @@
 /guide/for-seniors   /guide/how-to-solve/ 301
 # /guide/for-kids 已建为真页（子供向け数独），不再 301
 
-# Technique stubs not yet built → how-to-solve
-/guide/techniques/naked-single/   /guide/how-to-solve/ 301
-/guide/techniques/hidden-single/  /guide/how-to-solve/ 301
-
 # 旧英文 URL：GSC 仍有展现/排名，精准 301 到主题对口的新页（回收权重，胜过兜底到首页）
 /en/wrong-answer*    /tools/solver/ 301
 /en/sudoku-science*  /guide/brain-training/ 301
@@ -106,5 +102,3 @@
 # 无尾斜杠变体补漏（外部旧链接常见形态；splat 与带斜杠规则不匹配裸路径）
 /play/expert          /play/hard/ 301
 /play/master          /play/extreme/ 301
-/guide/techniques/naked-single   /guide/how-to-solve/ 301
-/guide/techniques/hidden-single  /guide/how-to-solve/ 301

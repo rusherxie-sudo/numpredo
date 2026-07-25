@@ -92,10 +92,18 @@ const breadcrumbSchema = {
   <ul>{others.map((o) => (<li><a href={`/guide/techniques/${o.slug}/`}>{o.name}の解き方</a>（{o.level}）</li>))}</ul>
 
   <h2>実際に練習する</h2>
-  <ul>
-    <li><a href="/play/advanced/">上級</a> / <a href="/play/hard/">難問</a> / <a href="/play/extreme/">超難問</a>で練習する</li>
-    <li><a href="/guide/how-to-solve/">解き方ガイドに戻る</a> ・ <a href="/guide/advanced/">上級テクニック一覧</a> ・ <a href="/tools/solver/">数独ソルバーで答え合わせ</a></li>
-  </ul>
+  {['naked-single', 'hidden-single'].includes(t.slug) ? (
+    <ul>
+      <li><a href="/play/beginner/">初級</a>と<a href="/play/intermediate/">中級</a>で単数を探す</li>
+      <li><a href="/guide/beginner/">初心者向け攻略</a>で確認順を身につける</li>
+      <li><a href="/tools/solver/">数独ソルバー</a>で候補と答えを照合する</li>
+    </ul>
+  ) : (
+    <ul>
+      <li><a href="/play/advanced/">上級</a> / <a href="/play/hard/">難問</a> / <a href="/play/extreme/">超難問</a>で練習する</li>
+      <li><a href="/guide/how-to-solve/">解き方ガイドに戻る</a> ・ <a href="/guide/advanced/">上級テクニック一覧</a> ・ <a href="/tools/solver/">数独ソルバーで答え合わせ</a></li>
+    </ul>
+  )}
 
   <h2>よくある質問</h2>
   <dl class="faq">{t.faq.map((q) => (<><dt>{q.q}</dt><dd set:html={q.a} /></>))}</dl>

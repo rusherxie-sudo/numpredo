@@ -18,15 +18,15 @@ const heroSvg = renderBoardSvg(heroGrid, {
 
 // [Lv, 名前, href, 等級(1-5), 説明]
 const diffs: [string, string, string, number, string][] = [
-  ['Lv.1', '初級', '/play/beginner/', 1, 'はじめての方に。ヒントが多めで、基本だけで解けます。'],
-  ['Lv.2', '中級', '/play/intermediate/', 2, '少し考える一手が必要。基本に慣れてきた方へ。'],
-  ['Lv.3', '上級', '/play/advanced/', 3, '候補メモを使いこなして。腕に自信がある方に。'],
-  ['Lv.4', '難問', '/play/hard/', 4, '高度なテクニックが必要な、歯ごたえのある一問。'],
-  ['Lv.5', '超難問', '/play/extreme/', 5, '最難関。じっくり腰を据えて挑む上級者向け。'],
+  ['Lv.1', '数独・ナンプレ 初級', '/play/beginner/', 1, 'はじめての方に。ヒントが多めで、基本だけで解けます。'],
+  ['Lv.2', '数独・ナンプレ 中級', '/play/intermediate/', 2, '少し考える一手が必要。基本に慣れてきた方へ。'],
+  ['Lv.3', '数独・ナンプレ 上級', '/play/advanced/', 3, '候補メモを使いこなして。腕に自信がある方に。'],
+  ['Lv.4', '数独・ナンプレ 難問', '/play/hard/', 4, '高度なテクニックが必要な、歯ごたえのある一問。'],
+  ['Lv.5', '数独 エキスパート・超難問', '/play/extreme/', 5, '最難関。じっくり腰を据えて挑む上級者向け。'],
 ];
 const tools: [string, string, string, string][] = [
   ['解', '解き方ガイド', '/guide/', 'ルールから上級テクニックまで、盤面の図解つきで解説。'],
-  ['刷', '無料プリント・PDF保存', '/print/', '答え付きの問題集を、難易度と問題数を選んで無料で印刷・PDF保存。'],
+  ['刷', '数独無料問題集・プリント', '/print/', '答え付きの問題集を、難易度と問題数を選んで無料で印刷・PDF保存。'],
   ['答', '画像・カメラ自動解答', '/tools/solver/', '写真を撮るか81マスを入力すると答えを自動計算。新聞の答え合わせにも。'],
   ['変', '変わり種数独', '/variants/', 'キラー数独・6×6・不等号・対角線などのルール紹介。'],
 ];
@@ -75,8 +75,8 @@ const homeFaqSchema = {
       <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで5段階、毎日あたらしいデイリー問題も。解き方ガイドと、自動でこたえ合わせできるソルバーつき。</p>
       <div class="hp-cta">
         <a href="/play/beginner/" class="hp-btn hp-btn-p">初級をはじめる</a>
-        <a href="/daily/" class="hp-btn hp-btn-s">今日のナンプレ →</a>
-        <a href="/print/" class="hp-btn hp-btn-s">無料で印刷 →</a>
+        <a href="/daily/" class="hp-btn hp-btn-s">今日の数独・ナンプレ →</a>
+        <a href="/print/" class="hp-btn hp-btn-s">無料問題集を印刷 →</a>
       </div>
       <div class="hp-difflinks">またはレベルを選ぶ：<a href="/play/beginner/">初級</a><a href="/play/intermediate/">中級</a><a href="/play/advanced/">上級</a><a href="/play/hard/">難問</a><a href="/play/extreme/">超難問</a></div>
       <div class="hp-meta"><span>5段階の難易度</span><span class="hp-dot">·</span><span>毎日更新</span><span class="hp-dot">·</span><span>スマホ対応</span></div>
@@ -122,7 +122,7 @@ const homeFaqSchema = {
           </a>
         ))}
       </div>
-      <p class="hp-guidelinks">よく読まれる解説：<a href="/guide/sudoku-vs-numpre/">数独とナンプレの違い</a><a href="/guide/rules/">数独のルール</a><a href="/guide/how-to-solve/">数独の解き方</a><a href="/guide/when-stuck/">行き詰まったときは</a></p>
+      <p class="hp-guidelinks">よく読まれる解説：<a href="/guide/sudoku-vs-numpre/">数独とナンプレの違い</a><a href="/guide/rules/">数独のルール</a><a href="/guide/intermediate/">ナンプレ中級の解き方</a><a href="/guide/tips/">ナンプレのコツ</a><a href="/guide/when-stuck/">数独で行き詰まったら</a></p>
     </div>
   </section>
 

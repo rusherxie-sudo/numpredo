@@ -9,11 +9,18 @@ import { renderBoardSvg, gridFromString, traceFirstElimination, TOKEN_THEME } fr
 
 // 各難易度で習得すべき具体テクニック → 技巧攻略ページへ内部リンク
 const LEVEL_TECHS: Record<string, string[]> = {
-  beginner: ['naked-pair'],
-  intermediate: ['pointing', 'naked-pair'],
+  beginner: ['naked-single', 'hidden-single'],
+  intermediate: ['hidden-single', 'pointing'],
   advanced: ['naked-pair', 'hidden-pair', 'pointing'],
   hard: ['naked-triple', 'skyscraper', 'x-wing'],
   extreme: ['x-wing', 'swordfish', 'skyscraper'],
+};
+const LEVEL_GUIDES: Record<string, { href: string; label: string }> = {
+  beginner: { href: '/guide/beginner/', label: '初心者向けの解き方' },
+  intermediate: { href: '/guide/intermediate/', label: 'ナンプレ中級の解き方' },
+  advanced: { href: '/guide/advanced/', label: '数独上級の解き方・テクニック' },
+  hard: { href: '/guide/hard-sudoku-solving/', label: '難問ナンプレの解き方' },
+  extreme: { href: '/guide/advanced/', label: '超上級テクニックの確認順' },
 };
 
 export function getStaticPaths() {
@@ -37,9 +44,24 @@ const techLinks = (LEVEL_TECHS[meta.slug] ?? [])
   .map((s) => TECHNIQUES.find((t) => t.slug === s))
   .filter((t): t is (typeof TECHNIQUES)[number] => Boolean(t));
 
-const title = `数独無料ゲーム ${meta.ja}｜ナンプレ${meta.ja}を今すぐプレイ - numpredo`;
+const SEO_TITLES: Record<string, string> = {
+  beginner: '数独初級・ナンプレ初級｜無料でやさしい問題をプレイ - numpredo',
+  intermediate: 'ナンプレ中級・数独中級｜無料ゲームと中級問題 - numpredo',
+  advanced: '数独上級・ナンプレ上級｜無料で上級問題をプレイ - numpredo',
+  hard: '数独難問・難問ナンプレ｜無料で手強い問題に挑戦 - numpredo',
+  extreme: '数独エキスパート・超難問｜最高難度ナンプレ無料 - numpredo',
+};
+const SEO_H1: Record<string, string> = {
+  beginner: '数独初級・ナンプレ初級｜無料のやさしい問題',
+  intermediate: 'ナンプレ中級・数独中級｜無料ゲームと問題集',
+  advanced: '数独上級・ナンプレ上級｜無料で本格問題に挑戦',
+  hard: '数独難問・難問ナンプレ｜無料で手強い問題に挑戦',
+  extreme: '数独エキスパート・超難問ナンプレ｜最高難度に挑戦',
+};
+const title = SEO_TITLES[meta.slug] ?? `数独無料ゲーム ${meta.ja}｜ナンプレ${meta.ja}を今すぐプレイ - numpredo`;
 const description = meta.metaDesc;
 const url = `https://numpredo.com/play/${meta.slug}/`;
+const levelGuide = LEVEL_GUIDES[meta.slug];
 
 const idx = LEVELS.findIndex((l) => l.slug === meta.slug);
 const nextLv = LEVELS[idx + 1]; // 档间进阶内链（初級→中級→…→超難問）
@@ -97,7 +119,7 @@ const breadcrumbSchema = {
   <div class="px-text">
     <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › {meta.ja}</nav>
 
-    <h1>数独無料ゲーム {meta.ja}｜ナンプレ{meta.ja}の問題</h1>
+    <h1>{SEO_H1[meta.slug] ?? `数独無料ゲーム ${meta.ja}｜ナンプレ${meta.ja}の問題`}</h1>
     <p class="lv-intro">{meta.intro}</p>
 
     <div class="diff-badges">
@@ -133,6 +155,7 @@ const breadcrumbSchema = {
 
   <h2>解き方をもっと学ぶ</h2>
   <p>
+    {levelGuide && <><a href={levelGuide.href}>{levelGuide.label}</a>で、この難易度に必要な確認順を学べます。 </>}
     テクニックの図解は<a href="/guide/how-to-solve/">数独・ナンプレの解き方ガイド</a>で詳しく解説しています。
     ルールから確認したい方は<a href="/guide/rules/">ルール・遊び方</a>へ。
     行き詰まって答えだけ確認したいときは<a href="/tools/solver/">自動解答ソルバー</a>へ。

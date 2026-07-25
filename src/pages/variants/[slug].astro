@@ -76,7 +76,16 @@ const breadcrumbSchema = {
 
   <figure class="var-fig"><Fragment set:html={v.svg} /><figcaption>{v.svgCaption}</figcaption></figure>
 
-  {v.sections.map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => <p set:html={p} />)}</>))}
+  {v.sections.map((s) => (
+    <>
+      <h2>{s.h}</h2>
+      {s.body.map((p) =>
+        /^\s*<(table|div|ul|ol|figure)/.test(p)
+          ? <Fragment set:html={p} />
+          : <p set:html={p} />
+      )}
+    </>
+  ))}
 
   <h2>他のバリエーション</h2>
   <ul>{others.map((x) => <li><a href={`/variants/${x.slug}/`}>{x.name}</a></li>)}</ul>
@@ -99,5 +108,10 @@ const breadcrumbSchema = {
     .var-fig { margin: 16px auto; text-align: center; max-width: 360px; }
     .var-fig svg { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
     .var-fig figcaption { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+    .gtable-wrap { overflow-x: auto; margin: 12px 0; }
+    .gtable { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .gtable th, .gtable td { border: 1px solid var(--line-2); padding: 9px 11px; text-align: left; vertical-align: top; }
+    .gtable th { background: var(--surface-2); font-weight: 700; }
+    .gtable details summary { color: var(--accent); cursor: pointer; font-weight: 700; }
   </style>
 </Base>

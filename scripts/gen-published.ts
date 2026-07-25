@@ -86,6 +86,26 @@ function gitFirstCommit(file: string): string {
   }
 }
 
+// 动态数据文件中的单个 slug 首次出现日。数据文件可能早于后续新增的内容条目，
+// 不能把整个文件的首次提交日当成每个新页面的发布时间。
+function gitFirstSlugCommit(file: string, slug: string): string {
+  if (!existsSync(file)) return '';
+  for (const needle of [`slug: '${slug}'`, `slug: "${slug}"`]) {
+    try {
+      const out = execFileSync(
+        'git',
+        ['log', '--reverse', `-S${needle}`, '--format=%aI', '--', file],
+        { encoding: 'utf-8' },
+      ).trim();
+      const first = out.split('\n').filter(Boolean)[0];
+      if (first) return first;
+    } catch {
+      /* 尝试另一种引号 */
+    }
+  }
+  return '';
+}
+
 // 一组源文件 → 最早 git 首次提交日（ISO 8601，取最小）；都无提交记录则返回 ''
 function gitPublished(files: string[]): string {
   let best = '';
@@ -143,10 +163,9 @@ for (const rel of listPages()) {
       continue;
     }
     const dir = rel.replace(/\/?\[[^/]+\]\.astro$/, ''); // play / guide / guide/techniques / variants / print
-    const date = gitPublished([`${PAGES}/${rel}`, dataFile]);
-    if (!date) continue;
     for (const slug of slugsFromData(dataFile)) {
-      map[dir ? `/${dir}/${slug}/` : `/${slug}/`] = date;
+      const date = gitFirstSlugCommit(dataFile, slug) || gitPublished([`${PAGES}/${rel}`, dataFile]);
+      if (date) map[dir ? `/${dir}/${slug}/` : `/${slug}/`] = date;
     }
   } else {
     const date = gitPublished([`${PAGES}/${rel}`]);
