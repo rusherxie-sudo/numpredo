@@ -49,6 +49,11 @@ function setup(): void {
   const titleInput = document.getElementById('print-title') as HTMLInputElement;
   const answersBox = document.getElementById('print-answers') as HTMLInputElement;
   document.getElementById('print-solver-link')?.addEventListener('click', () => track('print_to_solver'));
+  document.querySelectorAll<HTMLAnchorElement>('[data-pdf-download]').forEach((link) =>
+    link.addEventListener('click', () =>
+      track('print_pdf_download', { level: link.dataset.pdfDownload ?? 'unknown', format: 'a4_12_with_answers' }),
+    ),
+  );
 
   const selectLevel = (next: string): void => {
     if (!Object.prototype.hasOwnProperty.call(LEVEL_JA, next)) return;

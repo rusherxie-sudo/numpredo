@@ -4,7 +4,7 @@
 // 工具本体是 PrintTool(与枢纽 /print/ 共用),文案在 print-levels.ts 按难度独立撰写。
 import Base from '../../layouts/Base.astro';
 import PrintTool from '../../components/PrintTool.astro';
-import { PRINT_LEVELS } from '../../data/print-levels.ts';
+import { PRINT_LEVELS, printPdfHref } from '../../data/print-levels.ts';
 
 export function getStaticPaths() {
   return PRINT_LEVELS.map((doc) => ({ params: { level: doc.slug }, props: { doc } }));
@@ -58,6 +58,17 @@ const breadcrumbSchema = {
   <PrintTool defaultLevel={doc.slug} />
 
   <div class="screen-only">
+    <section class="pdf-download" aria-labelledby="pdf-download-title">
+      <div>
+        <h2 id="pdf-download-title">{doc.ja}12問をPDFでまとめてダウンロード</h2>
+        <p>問題6ページ＋解答2ページのA4問題集です。毎回の設定は不要。保存して、学校・施設・ご家庭で繰り返し印刷できます。</p>
+      </div>
+      <a class="pdf-download-btn" href={printPdfHref(doc.slug)} download data-pdf-download={doc.slug}>
+        {doc.ja}12問PDF（答え付き）
+        <small>無料・登録不要</small>
+      </a>
+    </section>
+
     {doc.sections.map((s) => (
       <>
         <h2>{s.h}</h2>
@@ -88,5 +99,15 @@ const breadcrumbSchema = {
     main ul { line-height: 2; } main ul a { color: var(--accent); }
     main .screen-only a { color: var(--accent); }
     .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--ink-3); font-size: 14px; } .faq a { color: var(--accent); }
+    .pdf-download { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 28px 0 34px; padding: 22px 24px; border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--surface); }
+    .pdf-download h2 { margin: 0 0 8px; font-size: var(--text-lg); }
+    .pdf-download p { margin: 0; color: var(--ink-3); font-size: var(--text-sm); }
+    .pdf-download-btn { flex: 0 0 auto; display: grid; gap: 2px; min-width: 220px; padding: 13px 18px; border-radius: var(--radius); background: var(--accent); color: var(--accent-on) !important; text-align: center; text-decoration: none; font-weight: 700; }
+    .pdf-download-btn:hover { background: var(--accent-ink); }
+    .pdf-download-btn small { font-size: 11px; font-weight: 500; opacity: .85; }
+    @media (max-width: 680px) {
+      .pdf-download { display: grid; padding: 18px; }
+      .pdf-download-btn { width: 100%; min-width: 0; }
+    }
   </style>
 </Base>

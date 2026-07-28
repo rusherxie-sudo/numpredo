@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ShareBar from '../components/ShareBar.astro';
 import PrintTool from '../components/PrintTool.astro';
+import { PRINT_LEVELS, printPdfHref } from '../data/print-levels.ts';
 const title = '数独無料問題集・ナンプレプリント｜答え付きPDF印刷 - numpredo';
 const description = '数独・ナンプレを無料で印刷（プリント）。初級・中級・上級・難問・超難問から難易度と問題数を選んですぐ印刷、解答付きでPDF保存も可能。唯一解・論理だけで解ける検証済みの高品質問題を、自宅やオフィスで何度でも印刷できます。';
 const url = 'https://numpredo.com/print/';
@@ -57,6 +58,21 @@ const howToSchema = {
 
   <PrintTool />
 
+  <section class="pdf-packs screen-only" aria-labelledby="pdf-packs-title">
+    <div class="pdf-packs-head">
+      <h2 id="pdf-packs-title">すぐ使える無料PDF問題集（各12問・答え付き）</h2>
+      <p>設定なしで保存できるA4版です。問題6ページ＋解答2ページ。学校・施設・ご家庭での配布にどうぞ。</p>
+    </div>
+    <div class="pdf-pack-grid">
+      {PRINT_LEVELS.map((doc) => (
+        <a href={printPdfHref(doc.slug)} class="pdf-pack" download data-pdf-download={doc.slug}>
+          <strong>{doc.ja} 12問</strong>
+          <span>PDFを無料ダウンロード</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
   <ShareBar url="https://numpredo.com/print/" title="ナンプレ・数独 無料プリント問題集（PDF保存）｜numpredo" cta="問題集をシェア" />
 
   <div class="screen-only">
@@ -111,5 +127,12 @@ const howToSchema = {
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 18px; }
     main ul { line-height: 2; } main ul a { color: var(--accent); }
     .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--ink-3); font-size: 14px; } .faq a { color: var(--accent); }
+    .pdf-packs { margin: 30px 0 42px; padding: 24px; border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--surface); }
+    .pdf-packs h2 { margin: 0 0 8px; }
+    .pdf-packs-head p { margin: 0; color: var(--ink-3); }
+    .pdf-pack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 20px; }
+    .pdf-pack { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--washi); color: var(--ink); text-decoration: none; }
+    .pdf-pack:hover { border-color: var(--accent); color: var(--accent); }
+    .pdf-pack span { color: var(--ink-3); font-size: var(--text-xs); }
   </style>
 </Base>

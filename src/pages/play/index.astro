@@ -93,7 +93,7 @@ const webAppSchema = {
   <p class="lead">どの難易度から始めるか迷ったら。必要なテクニックとヒント数のめやすで選べます。</p>
   <div class="gtable-wrap">
     <table class="gtable">
-      <thead><tr><th>難易度</th><th>解くのに必要な主なテクニック</th><th>ヒント数（平均）</th><th>収録問題数</th></tr></thead>
+      <thead><tr><th>難易度</th><th>解くのに必要な主なテクニック</th><th>ヒント数（平均）</th><th>収録問題数</th><th>印刷</th></tr></thead>
       <tbody>
         {LEVELS.map((l) => (
           <tr>
@@ -101,6 +101,7 @@ const webAppSchema = {
             <td>{SHORT_TECH[l.slug]}</td>
             <td>約{avgClues(l.puzzles)}個</td>
             <td>{l.puzzles.length}問</td>
+            <td><a href={`/print/${l.slug}/`}>{l.ja}の答え付きPDF</a></td>
           </tr>
         ))}
       </tbody>

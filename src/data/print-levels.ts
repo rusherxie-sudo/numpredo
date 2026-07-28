@@ -15,6 +15,8 @@ export interface PrintLevelDoc {
   faq: Array<{ q: string; a: string }>;
 }
 
+export const printPdfHref = (slug: string): string => `/downloads/numpredo-${slug}-12.pdf`;
+
 export const PRINT_LEVELS: PrintLevelDoc[] = [
   {
     slug: 'beginner',

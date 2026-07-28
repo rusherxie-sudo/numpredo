@@ -10,6 +10,8 @@
     "gen:pool": "node scripts/gen-pool.ts",
     "gen:sitemap": "node scripts/gen-sitemap-lastmod.ts",
     "gen:published": "node scripts/gen-published.ts",
+    "gen:print-pdfs": "python3 scripts/gen-print-pdfs.py",
+    "submit:indexnow": "node scripts/submit-indexnow.ts",
     "check:daily": "node scripts/check-daily-runway.ts",
     "check": "astro check && tsc --noEmit",
     "dev": "astro dev",
