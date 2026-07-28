@@ -89,6 +89,7 @@ const breadcrumbSchema = {
   <figure class="guide-fig"><Fragment set:html={svg} /><figcaption>{t.figCaption}</figcaption></figure>
 
   <h2>他のテクニック</h2>
+  <p><a href="/guide/tips/">数独テクニック一覧で、初級から超難問までの手筋と覚える順番を見る</a></p>
   <ul>{others.map((o) => (<li><a href={`/guide/techniques/${o.slug}/`}>{o.name}の解き方</a>（{o.level}）</li>))}</ul>
 
   <h2>実際に練習する</h2>

@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import EditorialNote from '../../components/EditorialNote.astro';
 import { GUIDES, type GuideArticle } from '../../data/guides.ts';
+import { TECHNIQUES } from '../../data/techniques.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
 import publishedJson from '../../data/published.json';
 const lastmod: Record<string, string> = lastmodJson;
@@ -50,6 +51,23 @@ const breadcrumbSchema = {
     { '@type': 'ListItem', position: 3, name: g.h1, item: url },
   ],
 };
+const techniqueOrder = ['naked-single', 'hidden-single', 'pointing', 'naked-pair', 'hidden-pair', 'naked-triple', 'skyscraper', 'x-wing', 'swordfish'];
+const orderedTechniques = techniqueOrder.flatMap((slug) => {
+  const technique = TECHNIQUES.find((t) => t.slug === slug);
+  return technique ? [technique] : [];
+});
+const techniqueListSchema = g.slug === 'tips' ? {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: '数独・ナンプレのテクニック一覧',
+  numberOfItems: orderedTechniques.length,
+  itemListElement: orderedTechniques.map((t, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: t.name,
+    url: `https://numpredo.com/guide/techniques/${t.slug}/`,
+  })),
+} : null;
 ---
 
 <Base title={g.title} description={g.description} canonical={url}>
@@ -57,6 +75,7 @@ const breadcrumbSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    {techniqueListSchema && <script type="application/ld+json" set:html={JSON.stringify(techniqueListSchema)} />}
   </Fragment>
 
   <nav class="crumb"><a href="/">ホーム</a> › <a href="/guide/how-to-solve/">解き方</a> › {g.h1}</nav>
