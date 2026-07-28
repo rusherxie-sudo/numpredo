@@ -4,7 +4,7 @@ import SudokuGame from '../../components/SudokuGame.astro';
 import { LEVELS } from '../../data/levels.ts';
 // 収録総数は題庫から実測（「問題集」系クエリの受け皿：数字は本物、扩库自動追随）
 const totalPuzzles = LEVELS.reduce((s, l) => s + l.puzzles.length, 0);
-const title = `数独・ナンプレ無料問題集｜全${totalPuzzles}問を難易度別にプレイ - numpredo`;
+const title = `数独無料ゲーム・ナンプレ問題集｜全${totalPuzzles}問 - numpredo`;
 const description = `初級から超難問まで全${totalPuzzles}問収録の無料数独（ナンプレ）問題集。難易度別にオンラインでプレイでき、すべて唯一解・論理だけで解ける検証済みの高品質問題。図解つき解説・印刷にも対応、登録不要でスマホでも遊べます。`;
 const url = 'https://numpredo.com/play/';
 const featuredLevel = LEVELS.find((l) => l.slug === 'intermediate') ?? LEVELS[0];
