@@ -14,6 +14,7 @@ const faq = [
   { q: 'まとめて何問も印刷できますか？', a: '問題数（2問・4問・6問・12問）を選んで作成すれば、複数のナンプレを一度に印刷できます。押すたびにランダムな組み合わせになるので、自分だけの問題集のように使えます。' },
   { q: '高齢者向けに大きく印刷したいのですが？', a: '「大きく2問」を選ぶと、マス目をゆったり大きく配置できます。さらに印刷ダイアログの拡大・縮小（倍率）を調整すれば、見やすい大きさで印刷できます。' },
   { q: '数独の問題集として使えますか？', a: '使えます。数百問の検証済み問題プールから押すたびにランダムに組み合わせるので、何度でも刷って問題集として使えます。難易度別にまとめて印刷すれば、自分専用のドリルになります。' },
+  { q: '学校や介護施設で印刷・配布できますか？', a: 'はい。学校、学童・保育施設、非営利の地域活動、介護・福祉施設では、施設内の授業・レクリエーション・学習支援に必要な部数を印刷し、参加者へ無料で配布できます。固定PDFは表示を変更せず、そのままご利用ください。販売、ウェブへの再掲載、商用利用はできません。詳しくは<a href="/terms/#print-license">印刷問題集の非営利利用条件</a>をご確認ください。' },
   { q: '印刷した解答ページをなくしてしまったら？', a: '<a href="/tools/solver/">数独ソルバー（自動解答）</a>にマス目を入力すれば、答えをその場で自動表示できます。写真を撮って読み取らせることもできます。' },
 ];
 const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独・ナンプレ無料プリント問題集（PDF印刷）', description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' } };
@@ -62,6 +63,7 @@ const howToSchema = {
     <div class="pdf-packs-head">
       <h2 id="pdf-packs-title">すぐ使える無料PDF問題集（各12問・答え付き）</h2>
       <p>設定なしで保存できるA4版です。問題6ページ＋解答2ページ。学校・施設・ご家庭での配布にどうぞ。</p>
+      <p class="pdf-license">学校・介護施設などでの非営利・無料配布は許可されています。<a href="/terms/#print-license">利用条件を見る</a></p>
     </div>
     <div class="pdf-pack-grid">
       {PRINT_LEVELS.map((doc) => (
@@ -130,6 +132,7 @@ const howToSchema = {
     .pdf-packs { margin: 30px 0 42px; padding: 24px; border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--surface); }
     .pdf-packs h2 { margin: 0 0 8px; }
     .pdf-packs-head p { margin: 0; color: var(--ink-3); }
+    .pdf-packs-head .pdf-license { margin-top: 8px; font-size: var(--text-xs); }
     .pdf-pack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 20px; }
     .pdf-pack { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--washi); color: var(--ink); text-decoration: none; }
     .pdf-pack:hover { border-color: var(--accent); color: var(--accent); }
