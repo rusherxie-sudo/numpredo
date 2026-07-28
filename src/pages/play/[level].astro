@@ -45,18 +45,18 @@ const techLinks = (LEVEL_TECHS[meta.slug] ?? [])
   .filter((t): t is (typeof TECHNIQUES)[number] => Boolean(t));
 
 const SEO_TITLES: Record<string, string> = {
-  beginner: '数独初級・ナンプレ初級｜無料でやさしい問題をプレイ - numpredo',
-  intermediate: 'ナンプレ中級・数独中級｜無料ゲームと中級問題 - numpredo',
-  advanced: '数独上級・ナンプレ上級｜無料で上級問題をプレイ - numpredo',
-  hard: '数独難問・難問ナンプレ｜無料で手強い問題に挑戦 - numpredo',
-  extreme: '数独エキスパート・超難問｜最高難度ナンプレ無料 - numpredo',
+  beginner: '数独無料ゲーム 初級｜やさしいナンプレ問題 - numpredo',
+  intermediate: '数独無料ゲーム 中級｜ナンプレ中級問題 - numpredo',
+  advanced: '数独無料ゲーム 上級｜ナンプレ上級問題 - numpredo',
+  hard: '数独無料ゲーム 難問｜手強いナンプレ問題 - numpredo',
+  extreme: '数独無料ゲーム 最上級・超難問｜最高難度ナンプレ - numpredo',
 };
 const SEO_H1: Record<string, string> = {
-  beginner: '数独初級・ナンプレ初級｜無料のやさしい問題',
-  intermediate: 'ナンプレ中級・数独中級｜無料ゲームと問題集',
-  advanced: '数独上級・ナンプレ上級｜無料で本格問題に挑戦',
-  hard: '数独難問・難問ナンプレ｜無料で手強い問題に挑戦',
-  extreme: '数独エキスパート・超難問ナンプレ｜最高難度に挑戦',
+  beginner: '数独無料ゲーム 初級｜やさしいナンプレ問題',
+  intermediate: '数独無料ゲーム 中級｜ナンプレ中級問題',
+  advanced: '数独無料ゲーム 上級｜ナンプレ上級問題',
+  hard: '数独無料ゲーム 難問｜手強いナンプレ問題',
+  extreme: '数独無料ゲーム 最上級・超難問｜最高難度ナンプレ',
 };
 const title = SEO_TITLES[meta.slug] ?? `数独無料ゲーム ${meta.ja}｜ナンプレ${meta.ja}を今すぐプレイ - numpredo`;
 const description = meta.metaDesc;

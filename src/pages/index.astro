@@ -3,9 +3,9 @@ import Base from '../layouts/Base.astro';
 import advanced from '../data/puzzles/advanced.json';
 import { gridFromString, renderBoardSvg } from '../engine/index.ts';
 
-const title = 'ナンプレ・数独｜無料・唯一解・論理で解ける - numpredo';
+const title = '数独無料ゲーム・ナンプレ無料問題集｜登録不要 - numpredo';
 const description =
-  'ナンプレ（数独）が無料で今すぐ遊べる。初級から超難問まで、すべて唯一解・論理だけで解ける高品質問題を毎日更新。解き方ガイド・自動解答ソルバー・印刷問題集も無料・登録不要。スマホ・PCに対応。';
+  '数独無料ゲーム・ナンプレ無料問題を登録不要ですぐに楽しめます。初級から超難問まで、すべて唯一解・論理だけで解ける高品質問題。解き方、自動解答ソルバー、答え付きPDF印刷にも無料で対応。';
 
 // hero の盤面：実題を構築期に SVG 化（CSS 変数主題で明暗自動追随）
 const heroGrid = gridFromString(advanced.puzzles[0].puzzle);
@@ -71,7 +71,7 @@ const homeFaqSchema = {
   <section class="hp-hero">
     <div class="hp-hero-l">
       <span class="hp-badge">登録不要・完全無料</span>
-      <h1 class="hp-h1">毎日とける、<br />無料のナンプレ・数独。</h1>
+      <h1 class="hp-h1">数独無料ゲームを、<br />毎日。</h1>
       <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで5段階、毎日あたらしいデイリー問題も。解き方ガイドと、自動でこたえ合わせできるソルバーつき。</p>
       <div class="hp-cta">
         <a href="/play/beginner/" class="hp-btn hp-btn-p">初級をはじめる</a>
