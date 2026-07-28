@@ -173,7 +173,7 @@ const breadcrumbSchema = {
   <ul>
     <li><a href={`/play/${meta.slug}/?n=${n}`}>この問題（No.{n}）を画面でプレイ</a></li>
     <li><a href={`/play/${meta.slug}/`}>同じ難易度（{meta.ja}）を画面でプレイ</a></li>
-    <li><a href="/print/">無料プリントで{meta.ja}を印刷</a></li>
+    <li><a href={`/print/${meta.slug}/`}>{meta.ja}の無料プリントを答え付きPDFで印刷</a></li>
   </ul>
 
   <h2>他の{meta.ja}の問題</h2>
