@@ -97,7 +97,14 @@ const breadcrumbSchema = {
 
     <figure class="var-fig"><Fragment set:html={v.svg} /><figcaption>{v.svgCaption}</figcaption></figure>
 
-    {v.sections.map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => <p set:html={p} />)}</>))}
+    {v.sections.map((s) => (
+      <>
+        <h2>{s.h}</h2>
+        {s.body.map((p) => (/^\s*<(table|div|ul|ol|figure)/.test(p)
+          ? <Fragment set:html={p} />
+          : <p set:html={p} />))}
+      </>
+    ))}
 
     <h2>他のバリエーション</h2>
     <ul>{others.map((x) => <li><a href={`/variants/${x.slug}/`}>{x.name}</a></li>)}</ul>
