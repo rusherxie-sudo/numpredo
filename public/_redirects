@@ -36,10 +36,11 @@
 /ja/brain-training*  /guide/brain-training/ 301
 /en/brain-training*  /guide/brain-training/ 301
 
-# Sudoku apps / misc content (no equivalent, send to home)
+# Sudoku apps / misc content
 /ja/sudoku-apps*     / 301
 /ja/logic-puzzles*   / 301
-/ja/number-puzzles*  / 301
+# 旧 number-puzzles はオンライン問題の検索意図を持つため、難易度一覧へ引き継ぐ。
+/ja/number-puzzles*  /play/ 301
 /ja/wrong-answer*    /tools/solver/ 301
 /ja/bored*           / 301
 
@@ -51,9 +52,9 @@
 /zh-TW/about         /about/ 301
 /zh-TW/about/        /about/ 301
 
-# Misc old pages without equivalent
-/en/stuck-mid-game/  / 301
-/en/stuck-mid-game   / 301
+# Misc old pages
+# 現在は「行き詰まったとき」専用ガイドがあるため、旧記事のテーマをそのまま引き継ぐ。
+/en/stuck-mid-game*  /guide/when-stuck/ 301
 
 # Variants
 /ja/6x6-sudoku       /variants/6x6/ 301
@@ -99,6 +100,11 @@
 # 旧英文 URL：GSC 仍有展现/排名，精准 301 到主题对口的新页（回收权重，胜过兜底到首页）
 /en/wrong-answer*    /tools/solver/ 301
 /en/sudoku-science*  /guide/brain-training/ 301
+/en/number-puzzles*  /play/ 301
+
+# 旧繁中の印刷ページは GSC に残っているため、ホームではなく現行の印刷ツールへ。
+/zh-TW/printable*    /print/ 301
+/zh-CN/printable*    /print/ 301
 
 # Language root redirects
 /en/*                / 301
