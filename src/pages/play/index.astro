@@ -1,11 +1,14 @@
 ---
 import Base from '../../layouts/Base.astro';
+import SudokuGame from '../../components/SudokuGame.astro';
 import { LEVELS } from '../../data/levels.ts';
 // 収録総数は題庫から実測（「問題集」系クエリの受け皿：数字は本物、扩库自動追随）
 const totalPuzzles = LEVELS.reduce((s, l) => s + l.puzzles.length, 0);
 const title = `数独・ナンプレ無料問題集｜全${totalPuzzles}問を難易度別にプレイ - numpredo`;
 const description = `初級から超難問まで全${totalPuzzles}問収録の無料数独（ナンプレ）問題集。難易度別にオンラインでプレイでき、すべて唯一解・論理だけで解ける検証済みの高品質問題。図解つき解説・印刷にも対応、登録不要でスマホでも遊べます。`;
 const url = 'https://numpredo.com/play/';
+const featuredLevel = LEVELS.find((l) => l.slug === 'intermediate') ?? LEVELS[0];
+const featuredSet = featuredLevel.puzzles.slice(0, 12).map((p) => ({ puzzle: p.puzzle }));
 
 // 難易度比較表：ヒント数は題庫全量から実測平均（構築期に計算、データと乖離しない）
 // SETS = play/[level]/[n].astro の SETS_PER_LEVEL と同値（日次で増加）
@@ -45,18 +48,38 @@ const itemListSchema = {
     url: `https://numpredo.com/play/${l.slug}/`,
   })),
 };
+const webAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: '無料の数独・ナンプレゲーム',
+  description,
+  url,
+  applicationCategory: 'GameApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'ja',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
+};
 ---
 
 <Base title={title} description={description} canonical={url} wide>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
   </Fragment>
 
   <nav class="crumb"><a href="/">ホーム</a> › プレイ</nav>
-  <h1>数独・ナンプレ無料問題集｜難易度別にプレイ</h1>
-  <p class="lead">初級から超難問まで全{totalPuzzles}問を収録。難易度を選んでプレイ、すべて唯一解・論理だけで解ける高品質問題です。</p>
+  <h1>数独・ナンプレ無料ゲーム｜今すぐオンラインでプレイ</h1>
+  <p class="lead">登録・ダウンロード不要。まずは人気の中級をそのままプレイできます。全{totalPuzzles}問、すべて唯一解・論理だけで解けることを検証済みです。</p>
 
+  <div class="featured-game-head">
+    <p><strong>人気の中級問題</strong>を出題中。ヒント・候補メモ・途中保存に対応しています。</p>
+    <a href="/play/beginner/">初級に変える</a>
+  </div>
+  <SudokuGame level="intermediate" levelJa="中級" url={url} set={featuredSet} />
+
+  <h2>難易度を選んでプレイ</h2>
   <div class="play-list">
     {LEVELS.map((l) => (
       <a href={`/play/${l.slug}/`} class="play-card">
@@ -110,6 +133,9 @@ const itemListSchema = {
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; }
     .crumb a { color: var(--ink-3); text-decoration: none; }
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 18px; }
+    .featured-game-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 auto 8px; max-width: 880px; }
+    .featured-game-head p { margin: 0; color: var(--ink-3); font-size: 13px; }
+    .featured-game-head a { color: var(--accent); font-size: 13px; white-space: nowrap; }
     main ul { line-height: 2; } main ul a { color: var(--accent); }
     .play-list { display: flex; flex-direction: column; gap: 10px; }
     .play-card { display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; text-decoration: none; color: var(--ink); transition: border-color 0.12s; }
@@ -123,5 +149,8 @@ const itemListSchema = {
     .gtable th { background: var(--surface-2); font-weight: 700; color: var(--ink); }
     .gtable td:first-child { white-space: nowrap; }
     .tnote { font-size: 12px; color: var(--ink-4); margin: 6px 0 0; }
+    @media (max-width: 560px) {
+      .featured-game-head { align-items: flex-start; }
+    }
   </style>
 </Base>

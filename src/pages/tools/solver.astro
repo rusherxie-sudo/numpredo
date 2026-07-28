@@ -81,6 +81,11 @@ const howToSchema = {
           return <div class={`sv-cell${c === 2 || c === 5 ? ' sv-br' : ''}${r === 2 || r === 5 ? ' sv-bb' : ''}`} />;
         })}
       </div>
+      <div class="sv-skeleton-side">
+        <div class="sv-skeleton-pad">{Array.from({ length: 10 }, () => <span />)}</div>
+        <span class="sv-skeleton-go"></span>
+        <div class="sv-skeleton-subs"><span></span><span></span></div>
+      </div>
     </div>
   </div>
 
@@ -166,6 +171,15 @@ const howToSchema = {
 
     /* 静态骨架(aria-hidden)不可交互:不给手型指针,避免 JS 未加载时的可点击假象 */
     #sv-app [aria-hidden='true'] .sv-cell { cursor: default; }
+    .sv-skeleton-side { min-height: 250px; }
+    .sv-skeleton-pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+    .sv-skeleton-pad span, .sv-skeleton-go, .sv-skeleton-subs span {
+      display: block; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2);
+    }
+    .sv-skeleton-pad span { height: 52px; }
+    .sv-skeleton-go { height: 46px; margin-top: 12px; }
+    .sv-skeleton-subs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .sv-skeleton-subs span { height: 39px; }
     .sv-msg { font-size: 13px; color: var(--ink-3); margin: 0 0 10px; min-height: 1.2em; }
     .sv-msg.ok { color: var(--accent); }
     .sv-msg.warn { color: var(--ink-2); }
@@ -193,6 +207,9 @@ const howToSchema = {
       .sv-key { padding: 16px 0; font-size: 22px; }
       .sv-photo-btn { flex: 1 1 100%; justify-content: center; }
       .sv-photo-or { display: none; }
+      .sv-skeleton-side { min-height: 182px; }
+      .sv-skeleton-pad { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+      .sv-skeleton-pad span { height: 56px; }
     }
     .fsh { display: none; }
   </style>

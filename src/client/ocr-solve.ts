@@ -1,7 +1,7 @@
 // 数独ソルバー（写真・画像から読み取り → 可視盤面で確認・修正 → 自動求解）。
 // 求解は既存エンジンを完全再利用（純客户端・大模型不要）。識別は Tesseract.js を
 // 必要時のみ CDN から動的 import。識別が不完全でも盤面で手修正できるのが肝。
-import { solveOne, countSolutions, logicalSolve, traceKeySteps, renderStepFigures, levelOf, LEVEL_META, TECH_INFO } from '../engine/index.ts';
+import { solveOne, countSolutions } from '../engine/countSolver.ts';
 import { track } from './track.ts';
 
 const app = document.getElementById('sv-app');
@@ -20,6 +20,14 @@ function setup(app: HTMLElement): void {
   // OCR が低確信だったマス。答えを推測せず、利用者に確認箇所だけを示す。
   let ocrUncertain = new Set<number>();
   let inputSource: 'manual' | 'paste' | 'photo' | 'game' | 'sample' = 'manual';
+  let started = false;
+  const markStarted = (source = inputSource): void => {
+    if (started) return;
+    started = true;
+    track('solver_start', { source });
+  };
+  app.addEventListener('pointerdown', () => markStarted(), { once: true });
+  app.addEventListener('keydown', () => markStarted(), { once: true });
 
   // ---- DOM 構築：盤面 + キーボード（role=grid > row > gridcell 合规层级，行容器 display:contents）----
   app.innerHTML = '';
@@ -140,7 +148,10 @@ function setup(app: HTMLElement): void {
   for (const inp of photoInputs) {
     inp.addEventListener('change', () => {
       const f = inp.files?.[0];
-      if (f) void onImage(f);
+      if (f) {
+        markStarted('photo');
+        void onImage(f);
+      }
       inp.value = '';
     });
   }
@@ -218,7 +229,7 @@ function setup(app: HTMLElement): void {
     solved = sol;
     setMsg(n > 1 ? '※ 解が複数あります。一例を表示しています（緑が答え）。' : '解けました！緑の数字が答えです。盤面をタップすると再入力できます。', n > 1 ? 'warn' : 'ok');
     render();
-    renderSteps(grid.slice()); // 「解き方の手順」を図解表示（grid は元の問題＝題面）
+    void renderSteps(grid.slice()); // 「解き方の手順」を図解表示（grid は元の問題＝題面）
     track('solver_solve', { result: n > 1 ? 'multiple' : 'unique', source: inputSource, ocr_uncertain: ocrUncertain.size, filled: givenMask.filter(Boolean).length });
   }
 
@@ -255,8 +266,16 @@ function setup(app: HTMLElement): void {
   }
   // 「解き方の手順」：論理ソルバーで解析し要所を一手ずつ図解。
   // 動的生成のためクローラーは見えないが、実ユーザーの理解・滞在・回遊（技巧ページ内リンク）を高める。
-  function renderSteps(puzzle: number[]): void {
+  async function renderSteps(puzzle: number[]): Promise<void> {
     if (!stepsEl) return;
+    // 初期表示では解答盤面だけに必要な小さなソルバーを配信し、重い論理解説・SVG 描画は
+    // 「解く」が押された時に初めて取得する。写真入力前の LCP / TBT を守るための遅延分割。
+    const [{ logicalSolve, traceKeySteps }, { renderStepFigures, TECH_INFO }, { levelOf, LEVEL_META }] =
+      await Promise.all([
+        import('../engine/logicalSolver.ts'),
+        import('../engine/stepFigures.ts'),
+        import('../engine/difficulty.ts'),
+      ]);
     const given = puzzle.map((v) => v !== 0);
     const res = logicalSolve(puzzle.slice());
     const keySteps = traceKeySteps(puzzle.slice());

@@ -128,6 +128,20 @@ function setup(root: HTMLElement): void {
   // 衝突チェック・メモ自動消去・ヒント・エリア完成が全部対角線制約込みで動く。
   // killer は cage が**題面ごと**に違う → ctx は載題時に applyCages で都度再構築（let）。
   const variant = root.dataset.variant ?? '';
+  let started = false;
+  const markStarted = (): void => {
+    if (started) return;
+    started = true;
+    track('game_start', {
+      level: levelJa,
+      daily,
+      archive,
+      variant: variant || 'standard',
+      multi,
+    });
+  };
+  root.addEventListener('pointerdown', markStarted, { once: true });
+  root.addEventListener('keydown', markStarted, { once: true });
   const baseCtx = variant === 'diagonal' ? buildContext(DIAGONAL_UNITS) : STANDARD_CONTEXT;
   let ctx = baseCtx;
   const diagCells = variant === 'diagonal' ? new Set(DIAGONAL_UNITS.flat()) : new Set<number>();

@@ -11,6 +11,9 @@
 /zh-TW/play/*      /play/beginner/ 301
 
 # Technique pages — specific routes before wildcard fallback
+/en/technique/x-wing/simple-guide/* /guide/techniques/x-wing/ 301
+/en/technique/x-wing/simple-guide   /guide/techniques/x-wing/ 301
+/en/technique/hidden-vs-naked-pair* /guide/techniques/hidden-pair/ 301
 /ja/technique/naked-pair/*   /guide/techniques/naked-pair/ 301
 /ja/technique/x-wing/*       /guide/techniques/x-wing/ 301
 /ja/technique/pointing/*     /guide/techniques/pointing/ 301
@@ -31,6 +34,7 @@
 
 # Brain training
 /ja/brain-training*  /guide/brain-training/ 301
+/en/brain-training*  /guide/brain-training/ 301
 
 # Sudoku apps / misc content (no equivalent, send to home)
 /ja/sudoku-apps*     / 301
@@ -54,6 +58,9 @@
 # Variants
 /ja/6x6-sudoku       /variants/6x6/ 301
 /ja/6x6-sudoku/      /variants/6x6/ 301
+/en/kids-4x4*        /variants/6x6/ 301
+/zh-TW/kids-4x4*     /variants/6x6/ 301
+/zh-TW/6x6-sudoku*   /variants/6x6/ 301
 
 # 旧日语 URL：GSC 仍有展现/排名，但现有规则未覆盖（曾返回 404）→ 精准 301 回收权重
 /ja/beginner*            /play/beginner/ 301
@@ -64,6 +71,7 @@
 /ja/sudoku-science*      /guide/brain-training/ 301
 /ja/too-many-candidates* /guide/when-stuck/ 301
 /ja/trial-and-error*     /guide/when-stuck/ 301
+/zh-TW/trial-and-error*  /guide/when-stuck/ 301
 
 # Variant slugs not in current site → killer (最接近的变体页)
 /variants/irregular/ /variants/killer/ 301

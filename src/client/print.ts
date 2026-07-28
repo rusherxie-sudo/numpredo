@@ -37,6 +37,7 @@ function setup(): void {
   let level = 'advanced';
   let count = 6;
   let cand = false;
+  let answers = true;
 
   // 難易度別ページ（/print/[level]/）はサーバー側で data-lv-default に初期難易度を埋める。
   // hasOwn で自有キーのみ許可（原型链キー穿透対策、?lv= と同じ守り）
@@ -45,29 +46,78 @@ function setup(): void {
 
   const status = document.getElementById('print-status')!;
   const mount = document.getElementById('print-mount')!;
+  const titleInput = document.getElementById('print-title') as HTMLInputElement;
+  const answersBox = document.getElementById('print-answers') as HTMLInputElement;
   document.getElementById('print-solver-link')?.addEventListener('click', () => track('print_to_solver'));
+
+  const selectLevel = (next: string): void => {
+    if (!Object.prototype.hasOwnProperty.call(LEVEL_JA, next)) return;
+    level = next;
+    root.querySelectorAll<HTMLElement>('[data-lv]').forEach((x) => x.classList.toggle('on', x.dataset.lv === next));
+  };
+  const selectCount = (next: number): void => {
+    if (![2, 4, 6, 12].includes(next)) return;
+    count = next;
+    root.querySelectorAll<HTMLElement>('[data-ct]').forEach((x) => x.classList.toggle('on', Number(x.dataset.ct) === next));
+  };
 
   root.querySelectorAll<HTMLElement>('[data-lv]').forEach((c) =>
     c.addEventListener('click', () => {
-      level = c.dataset.lv!;
-      root.querySelectorAll('[data-lv]').forEach((x) => x.classList.toggle('on', x === c));
+      selectLevel(c.dataset.lv!);
+      root.querySelectorAll('[data-preset]').forEach((x) => x.classList.remove('on'));
     }),
   );
   // ?lv= 深链：難易度別セクション/難易度ページから難易度を預選して直達（例 /print/?lv=extreme）。
   // hasOwn で自有キーのみ許可（?lv=constructor 等の原型链キー穿透で level が汚染されるのを防ぐ）
   const urlLv = new URLSearchParams(location.search).get('lv') ?? '';
   if (urlLv && Object.prototype.hasOwnProperty.call(LEVEL_JA, urlLv)) {
-    level = urlLv;
-    root.querySelectorAll<HTMLElement>('[data-lv]').forEach((x) => x.classList.toggle('on', x.dataset.lv === urlLv));
+    selectLevel(urlLv);
   }
   root.querySelectorAll<HTMLElement>('[data-ct]').forEach((c) =>
     c.addEventListener('click', () => {
-      count = Number(c.dataset.ct);
-      root.querySelectorAll('[data-ct]').forEach((x) => x.classList.toggle('on', x === c));
+      selectCount(Number(c.dataset.ct));
+      root.querySelectorAll('[data-preset]').forEach((x) => x.classList.remove('on'));
     }),
   );
+  const urlCt = Number(new URLSearchParams(location.search).get('ct') ?? '0');
+  if ([2, 4, 6, 12].includes(urlCt)) selectCount(urlCt);
   const candBox = document.getElementById('print-cand') as HTMLInputElement;
   candBox.addEventListener('change', () => (cand = candBox.checked));
+  answersBox.addEventListener('change', () => (answers = answersBox.checked));
+
+  const presets: Record<string, { level: string; count: number; cand: boolean }> = {
+    senior: { level: 'beginner', count: 2, cand: false },
+    daily: { level: 'intermediate', count: 6, cand: false },
+    classroom: { level: 'beginner', count: 12, cand: false },
+    challenge: { level: 'hard', count: 4, cand: true },
+  };
+  root.querySelectorAll<HTMLElement>('[data-preset]').forEach((button) =>
+    button.addEventListener('click', () => {
+      const name = button.dataset.preset ?? '';
+      const preset = presets[name];
+      if (!preset) return;
+      selectLevel(preset.level);
+      selectCount(preset.count);
+      cand = preset.cand;
+      candBox.checked = cand;
+      root.querySelectorAll('[data-preset]').forEach((x) => x.classList.toggle('on', x === button));
+      track('print_preset', { preset: name });
+    }),
+  );
+
+  document.getElementById('print-copy')!.addEventListener('click', async () => {
+    const share = new URL(location.href);
+    share.search = '';
+    share.searchParams.set('lv', level);
+    share.searchParams.set('ct', String(count));
+    try {
+      await navigator.clipboard.writeText(share.toString());
+      status.textContent = 'この印刷設定のURLをコピーしました。';
+      track('print_settings_copy', { level, count });
+    } catch {
+      status.textContent = 'URLをコピーできませんでした。ブラウザのアドレスをコピーしてください。';
+    }
+  });
 
   document.getElementById('print-go')!.addEventListener('click', () => void go());
 
@@ -113,15 +163,22 @@ function setup(): void {
       })
       .join('');
 
+    const customTitle = titleInput.value.trim();
+    const worksheetTitle = customTitle || `${LEVEL_JA[level]}の数独・ナンプレ問題集（${count}問）`;
     mount.innerHTML =
-      `<div class="print-head"><span class="ph-logo">numpre<b>do</b></span><span>${LEVEL_JA[level]}の数独・ナンプレ問題集（${count}問）</span></div>` +
-      `<div class="pz-grid">${probs}</div>` +
-      `<div class="answer-page"><h3>解答</h3><div class="az-grid">${ans}</div></div>`;
+      `<div class="print-head"><span class="ph-logo">numpre<b>do</b></span><span>${escapeHtml(worksheetTitle)}</span></div>` +
+      `<div class="pz-grid pz-count-${count}">${probs}</div>` +
+      (answers ? `<div class="answer-page"><h3>解答</h3><div class="az-grid">${ans}</div></div>` : '');
 
     status.textContent = '作成完了。印刷ダイアログを開きます…';
     track('print_pdf', { level, count, candidates: cand });
+    track('print_generate', { level, count, candidates: cand, answers, custom_title: Boolean(customTitle) });
     setTimeout(() => window.print(), 300);
   }
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]!);
 }
 
 setup();
