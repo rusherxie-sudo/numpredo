@@ -36,13 +36,14 @@ const LEVEL_JA: Record<string, string> = { beginner: '初級', intermediate: '�
 const poolTotal = POOLS5.reduce((s, p) => s + p.puzzles.length, 0);
 const runwayDays = Math.min(...POOLS5.map((p) => p.puzzles.length - SETS_SKIP)); // 最小池基準の連続日数
 
-const title = '毎日の数独・ナンプレ｜毎日5問・日替わり無料（初級〜超難問）- numpredo';
-const description = '毎日0時に更新、初級から超難問まで全難易度の日替わり数独（ナンプレ）5問に挑戦。全員が同じ問題でタイムを競い、連続日数（ストリーク）や一日五冠を目指せます。すべて唯一解・論理だけで解ける高品質問題。無料・登録不要でスマホ・PCに対応。';
+const title = '日替わりナンプレ・毎日の数独｜初級〜超難問を無料で5問 - numpredo';
+const description = '日替わりナンプレを毎日0時に無料更新。初級・中級・上級・難問・超難問の5問から好きな難易度を選べます。全員に同じ問題を出題し、連続記録や一日五冠にも挑戦可能。登録不要、スマホ・PC対応です。';
 const url = 'https://numpredo.com/daily/';
 
 const faq = [
   { q: '毎日の問題はいつ更新されますか？', a: '日付が変わるタイミング（毎日0時・日本時間）で、新しい5問に切り替わります。その日のうちは、何度開いても同じ問題です。' },
   { q: '難易度は選べますか？', a: 'はい。毎日、初級・中級・上級・難問・超難問の5問が出題され、盤面上のタブで自由に切り替えられます。1問だけでも連続記録は伸びるので、その日の気分に合う難易度からどうぞ。5問すべて解くと「一日五冠」です。' },
+  { q: '難問の日替わりナンプレも無料ですか？', a: 'はい。難問と超難問を含む5段階すべてを無料・登録不要で遊べます。盤面上の「難問」「超難問」タブを選んでください。毎日0時に新しい問題へ切り替わります。' },
   { q: '連続記録（ストリーク）はどこに保存されますか？', a: 'タイムと連続記録は、お使いの端末のブラウザ内（ローカルストレージ）に保存されます。登録不要で、サーバーには送信されません。ブラウザのデータを消すと記録もリセットされます。' },
   { q: 'なぜ全員に同じ問題なのですか？', a: '毎日、全員が同じ問題に挑戦するので、タイムを比べて腕試しができます。日替わりの問題を習慣にして、論理的思考のトレーニングに最適です。' },
   { q: '昨日の問題はもう遊べませんか？', a: '遊べます。解き逃した日の問題は<a href="/daily/archive/">アーカイブ</a>からいつでも挑戦できます（連続記録の対象は当日の問題のみ）。たくさん解きたい方は<a href="/play/advanced/">難易度別のプレイ</a>や<a href="/print/">無料PDF問題集</a>もどうぞ。' },
@@ -52,7 +53,7 @@ const faq = [
 const webAppSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: '毎日の数独（ナンプレ）日替わり5問',
+  name: '日替わりナンプレ・毎日の数独（無料5問）',
   description,
   url,
   applicationCategory: 'GameApplication',
@@ -73,7 +74,7 @@ const breadcrumbSchema = {
   '@type': 'BreadcrumbList',
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
-    { '@type': 'ListItem', position: 2, name: '毎日の数独', item: url },
+    { '@type': 'ListItem', position: 2, name: '日替わりナンプレ・毎日の数独', item: url },
   ],
 };
 ---
@@ -87,13 +88,13 @@ const breadcrumbSchema = {
 
   <div class="px-text">
     <nav class="crumb"><a href="/">ホーム</a> › 毎日</nav>
-    <h1>毎日の数独・今日のナンプレ｜日替わり無料5問</h1>
+    <h1>日替わりナンプレ・今日の数独｜無料5問（初級〜超難問）</h1>
   </div>
 
   <SudokuGame level="advanced" levelJa="毎日" daily multi url={url} set={set} daystart={dayStart} />
 
   <div class="px-text">
-    <p class="lead">今日の数独・ナンプレを無料でプレイ。毎日、初級から超難問まで<strong>全難易度の5問</strong>が出題されます。どれか1問で連続記録が伸び、5問すべて解けば「一日五冠」。すべて唯一解・論理だけで解ける高品質問題です。</p>
+    <p class="lead">今日の日替わりナンプレを無料でプレイ。毎日0時に、初級から超難問まで<strong>全難易度の5問</strong>へ更新されます。どれか1問で連続記録が伸び、5問すべて解けば「一日五冠」。すべて唯一解・論理だけで解ける高品質問題です。</p>
 
     <h2>毎日の数独・ナンプレについて</h2>
     <p>毎日0時に、初級・中級・上級・難問・超難問の新しい5問が出題されます。盤面上のタブで難易度を切り替えられ、全員に同じ問題が配られるので、タイムを記録して自己ベストや連続記録（ストリーク）に挑戦できます。今日は気軽に初級だけ、週末は五冠を狙って全難易度——自分のペースでどうぞ。</p>
