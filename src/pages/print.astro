@@ -59,6 +59,29 @@ const howToSchema = {
 
   <PrintTool />
 
+  <section class="print-recipes screen-only" aria-labelledby="print-recipes-title">
+    <h2 id="print-recipes-title">用途別のおすすめ印刷設定</h2>
+    <p>目的に合う設定を開くと、難易度・問題数・候補メモを選んだ状態ですぐ作成できます。設定URLはあとで再利用したり、担当者どうしで共有したりできます。</p>
+    <div class="print-recipe-grid">
+      <a href="/print/?use=senior&amp;lv=beginner&amp;ct=2" class="print-recipe">
+        <strong>高齢者向け・大きな初級2問</strong>
+        <span>大きなマスで、無理なく毎日の脳トレ</span>
+      </a>
+      <a href="/print/?use=daily&amp;lv=intermediate&amp;ct=6" class="print-recipe">
+        <strong>毎日の脳トレ・中級6問</strong>
+        <span>1日1問ずつ続けやすい定番セット</span>
+      </a>
+      <a href="/print/?use=classroom&amp;lv=beginner&amp;ct=12&amp;title=教室・施設用ナンプレ" class="print-recipe">
+        <strong>学校・介護施設向け初級12問</strong>
+        <span>無料配布できる答え付き問題集</span>
+      </a>
+      <a href="/print/?use=challenge&amp;lv=hard&amp;ct=4&amp;cand=1" class="print-recipe">
+        <strong>難問チャレンジ4問・候補付き</strong>
+        <span>候補整理を省いて高度な推理に集中</span>
+      </a>
+    </div>
+  </section>
+
   <section class="pdf-packs screen-only" aria-labelledby="pdf-packs-title">
     <div class="pdf-packs-head">
       <h2 id="pdf-packs-title">すぐ使える無料PDF問題集（各12問・答え付き）</h2>
@@ -137,5 +160,12 @@ const howToSchema = {
     .pdf-pack { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--washi); color: var(--ink); text-decoration: none; }
     .pdf-pack:hover { border-color: var(--accent); color: var(--accent); }
     .pdf-pack span { color: var(--ink-3); font-size: var(--text-xs); }
+    .print-recipes { margin: 28px 0 34px; }
+    .print-recipes > p { color: var(--ink-3); }
+    .print-recipe-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .print-recipe { display: grid; gap: 5px; padding: 15px 16px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--surface); color: var(--ink); text-decoration: none; }
+    .print-recipe:hover { border-color: var(--accent); color: var(--accent); }
+    .print-recipe span { color: var(--ink-3); font-size: var(--text-sm); }
+    @media (max-width: 640px) { .print-recipe-grid { grid-template-columns: 1fr; } }
   </style>
 </Base>

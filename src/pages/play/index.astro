@@ -60,6 +60,17 @@ const webAppSchema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
   publisher: { '@id': 'https://numpredo.com/#organization' },
 };
+const faq = [
+  { q: '数独無料ゲームは登録なしで遊べますか？', a: 'はい。初級・中級・上級・難問・超難問の5段階を、登録もダウンロードも不要で遊べます。候補メモ、ヒント、自動チェック、途中保存も無料です。' },
+  { q: '数独の中級と上級は何が違いますか？', a: '中級は主に区画の絞り込み、上級はさらにペア（二国同盟）を使います。中級が安定して解けるようになったら上級へ進むのがおすすめです。' },
+  { q: '上級・難問・超難問の違いは？', a: '上級はペア、難問は三国同盟など複数候補の整理、超難問はX-Wingやスカイスクレイパーなど複数の行・列をまたぐテクニックが目安です。空きマスの数ではなく、必要な解法で分類しています。' },
+  { q: '無料の数独問題集を印刷できますか？', a: 'はい。印刷ページでは初級から超難問まで、2問・4問・6問・12問の答え付き問題集を作成し、A4印刷またはPDF保存できます。' },
+];
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
 ---
 
 <Base title={title} description={description} canonical={url} wide>
@@ -67,6 +78,7 @@ const webAppSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   </Fragment>
 
   <nav class="crumb"><a href="/">ホーム</a> › プレイ</nav>
@@ -109,6 +121,10 @@ const webAppSchema = {
   </div>
   <p class="tnote">※ ブラウザでの出題は各難易度{SETS}問を順繰りに、<a href="/print/">印刷ページ</a>では収録全問からランダムに出題します。</p>
 
+  <h2>中級・上級・難問・超難問は何が違う？</h2>
+  <p><a href="/play/intermediate/"><strong>数独無料ゲームの中級</strong></a>は、区画の絞り込みを覚える段階です。中級がすらすら解けるようになったら、ペア（二国同盟）を使う<a href="/play/advanced/"><strong>上級の数独無料ゲーム</strong></a>へ。さらに三国同盟などを組み合わせる<a href="/play/hard/"><strong>難問ナンプレ</strong></a>、X-Wing・スカイスクレイパー級の<a href="/play/extreme/"><strong>最上級・超難問の数独</strong></a>と進みます。</p>
+  <p>numpredo の難易度はヒント数の少なさではなく、解くために必要な最難テクニックで判定しています。どの段階も唯一解で、当てずっぽうを使わず論理だけで最後まで解けます。</p>
+
   <h2>問題集・一手ずつ図解で解き方</h2>
   <p class="lead">各難易度の問題を、解答エンジンの手順どおりに一手ずつ図解。詰まったときの「次の一手」と、その難易度で使うテクニックがわかります。</p>
   <ul>
@@ -131,6 +147,9 @@ const webAppSchema = {
     <li><a href="/daily/">毎日の数独</a></li>
   </ul>
 
+  <h2>数独無料ゲームについてよくある質問</h2>
+  <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}</dl>
+
   <style is:global>
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; }
     .crumb a { color: var(--ink-3); text-decoration: none; }
@@ -151,6 +170,8 @@ const webAppSchema = {
     .gtable th { background: var(--surface-2); font-weight: 700; color: var(--ink); }
     .gtable td:first-child { white-space: nowrap; }
     .tnote { font-size: 12px; color: var(--ink-4); margin: 6px 0 0; }
+    .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 16px; }
+    .faq dd { margin: 5px 0 0; color: var(--ink-3); }
     @media (max-width: 560px) {
       .featured-game-head { align-items: flex-start; }
     }

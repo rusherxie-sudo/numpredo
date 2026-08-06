@@ -33,19 +33,19 @@ const { defaultLevel = 'advanced' } = Astro.props;
       {[2, 4, 6, 12].map((n) => <button type="button" class={n === 6 ? 'chip on' : 'chip'} data-ct={n}>{n}問</button>)}
     </div>
   </div>
-  <label class="pc-title">
-    <span class="pc-label">見出し</span>
+  <div class="pc-title">
+    <label class="pc-label" for="print-title">見出し</label>
     <input id="print-title" type="text" maxlength="40" placeholder="例：7月の脳トレ／3年A組" />
-  </label>
+  </div>
   <div class="pc-options">
-    <label class="pc-check"><input type="checkbox" id="print-cand" /> 候補数字を薄く印刷</label>
-    <label class="pc-check"><input type="checkbox" id="print-answers" checked /> 解答ページを付ける</label>
+    <span class="pc-check"><input type="checkbox" id="print-cand" /><label for="print-cand">候補数字を薄く印刷</label></span>
+    <span class="pc-check"><input type="checkbox" id="print-answers" checked /><label for="print-answers">解答ページを付ける</label></span>
   </div>
   <div class="pc-actions">
     <button id="print-go" type="button" class="print-go">問題集を作成して印刷・PDF保存</button>
     <button id="print-copy" type="button" class="print-copy">この設定のURLをコピー</button>
   </div>
-  <p id="print-status" class="print-status"></p>
+  <p id="print-status" class="print-status" role="status" aria-live="polite"></p>
   <p class="pc-solver"><a id="print-solver-link" href="/tools/solver/">印刷した問題の答え合わせは、写真で読み取る無料ソルバーへ →</a></p>
 </div>
 
@@ -63,6 +63,7 @@ const { defaultLevel = 'advanced' } = Astro.props;
   .chip { font-family: var(--font-mincho); font-size: 13px; padding: 5px 13px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); cursor: pointer; }
   .chip.on { background: var(--accent); color: var(--surface); border-color: var(--accent); }
   .pc-check { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-3); margin: 4px 0 14px; }
+  .pc-check label { cursor: pointer; }
   .pc-title { display: flex; align-items: center; gap: 12px; margin: 2px 0 12px; }
   .pc-title input { flex: 1; min-width: 0; max-width: 420px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--ink); padding: 8px 10px; font: inherit; }
   .pc-options { display: flex; flex-wrap: wrap; gap: 8px 22px; }

@@ -48,6 +48,12 @@ function setup(): void {
   const mount = document.getElementById('print-mount')!;
   const titleInput = document.getElementById('print-title') as HTMLInputElement;
   const answersBox = document.getElementById('print-answers') as HTMLInputElement;
+  const candBox = document.getElementById('print-cand') as HTMLInputElement;
+  const params = new URLSearchParams(location.search);
+  const useCase = params.get('use') ?? '';
+  if (['senior', 'daily', 'classroom', 'challenge'].includes(useCase)) {
+    track('print_recipe_open', { use_case: useCase });
+  }
   document.getElementById('print-solver-link')?.addEventListener('click', () => track('print_to_solver'));
   document.querySelectorAll<HTMLAnchorElement>('[data-pdf-download]').forEach((link) =>
     link.addEventListener('click', () =>
@@ -74,7 +80,7 @@ function setup(): void {
   );
   // ?lv= 深链：難易度別セクション/難易度ページから難易度を預選して直達（例 /print/?lv=extreme）。
   // hasOwn で自有キーのみ許可（?lv=constructor 等の原型链キー穿透で level が汚染されるのを防ぐ）
-  const urlLv = new URLSearchParams(location.search).get('lv') ?? '';
+  const urlLv = params.get('lv') ?? '';
   if (urlLv && Object.prototype.hasOwnProperty.call(LEVEL_JA, urlLv)) {
     selectLevel(urlLv);
   }
@@ -84,9 +90,14 @@ function setup(): void {
       root.querySelectorAll('[data-preset]').forEach((x) => x.classList.remove('on'));
     }),
   );
-  const urlCt = Number(new URLSearchParams(location.search).get('ct') ?? '0');
+  const urlCt = Number(params.get('ct') ?? '0');
   if ([2, 4, 6, 12].includes(urlCt)) selectCount(urlCt);
-  const candBox = document.getElementById('print-cand') as HTMLInputElement;
+  cand = params.get('cand') === '1';
+  candBox.checked = cand;
+  answers = params.get('answers') !== '0';
+  answersBox.checked = answers;
+  const urlTitle = (params.get('title') ?? '').trim().slice(0, 40);
+  if (urlTitle) titleInput.value = urlTitle;
   candBox.addEventListener('change', () => (cand = candBox.checked));
   answersBox.addEventListener('change', () => (answers = answersBox.checked));
 
@@ -115,10 +126,14 @@ function setup(): void {
     share.search = '';
     share.searchParams.set('lv', level);
     share.searchParams.set('ct', String(count));
+    if (cand) share.searchParams.set('cand', '1');
+    if (!answers) share.searchParams.set('answers', '0');
+    const customTitle = titleInput.value.trim();
+    if (customTitle) share.searchParams.set('title', customTitle);
     try {
       await navigator.clipboard.writeText(share.toString());
       status.textContent = 'この印刷設定のURLをコピーしました。';
-      track('print_settings_copy', { level, count });
+      track('print_settings_copy', { level, count, candidates: cand, answers, custom_title: Boolean(customTitle) });
     } catch {
       status.textContent = 'URLをコピーできませんでした。ブラウザのアドレスをコピーしてください。';
     }
