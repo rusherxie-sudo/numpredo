@@ -55,7 +55,7 @@ const breadcrumbSchema = {
   '@type': 'BreadcrumbList',
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
-    { '@type': 'ListItem', position: 2, name: 'プレイ', item: 'https://numpredo.com/play/' },
+    { '@type': 'ListItem', position: 2, name: '変わり種数独', item: 'https://numpredo.com/variants/' },
     { '@type': 'ListItem', position: 3, name: v.name, item: url },
   ],
 };
@@ -69,7 +69,7 @@ const breadcrumbSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>
 
-  <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › {v.name}</nav>
+  <nav class="crumb"><a href="/">ホーム</a> › <a href="/variants/">変わり種数独</a> › {v.name}</nav>
   <h1>{v.h1}</h1>
   {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
   <p class="lead">{v.lead}</p>
@@ -86,6 +86,17 @@ const breadcrumbSchema = {
       )}
     </>
   ))}
+
+  {v.howTo && (
+    <>
+      <h2>{v.howTo.name}｜手順まとめ</h2>
+      <ol class="howto-steps">
+        {v.howTo.steps.map((step) => (
+          <li><strong>{step.name}</strong><span>{step.text}</span></li>
+        ))}
+      </ol>
+    </>
+  )}
 
   <h2>他のバリエーション</h2>
   <ul>{others.map((x) => <li><a href={`/variants/${x.slug}/`}>{x.name}</a></li>)}</ul>
@@ -113,5 +124,9 @@ const breadcrumbSchema = {
     .gtable th, .gtable td { border: 1px solid var(--line-2); padding: 9px 11px; text-align: left; vertical-align: top; }
     .gtable th { background: var(--surface-2); font-weight: 700; }
     .gtable details summary { color: var(--accent); cursor: pointer; font-weight: 700; }
+    .howto-steps { display: grid; gap: 10px; padding-left: 22px; }
+    .howto-steps li { padding-left: 4px; }
+    .howto-steps strong, .howto-steps span { display: block; }
+    .howto-steps span { color: var(--ink-3); margin-top: 3px; line-height: 1.8; }
   </style>
 </Base>
