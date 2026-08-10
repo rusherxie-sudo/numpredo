@@ -23,11 +23,12 @@ const set = Array.from({ length: pastDays * 5 }, (_, i) => {
   return { puzzle: POOLS5[li].puzzles[SETS_SKIP + k].puzzle, level: LV5[li] };
 });
 
-const title = '過去のデイリー数独・ナンプレ｜アーカイブ（全難易度5問） - numpredo';
-const description = '解き逃した日のデイリー数独（ナンプレ）5問（初級〜超難問）をアーカイブから選んで挑戦。カレンダーで日付を選ぶだけ、すべて唯一解・論理だけで解ける検証済み問題です。クリアするとカレンダーに記録されます（連続記録の対象外）。';
+const title = 'ナンプレアーカイブ｜過去の日替わり数独5問を無料プレイ - numpredo';
+const description = 'ナンプレアーカイブから過去の日替わり数独5問を日付で選んで無料プレイ。初級〜超難問をカレンダーから遡れ、すべて唯一解・論理だけで解ける検証済み問題です。登録・アプリ不要。';
 const url = 'https://numpredo.com/daily/archive/';
 
 const faq = [
+  { q: 'ナンプレアーカイブは無料ですか？', a: 'はい、登録やアプリなしですべて無料で遊べます。カレンダーから日付を選ぶと、その日の初級〜超難問の5問に挑戦できます。' },
   { q: '過去の問題を解くと連続記録（ストリーク）は伸びますか？', a: '伸びません。連続記録は「その日のうちに当日の問題を解く」ことで伸びる仕組みです。アーカイブのクリアはカレンダーの記録（✓）にだけ反映されます。' },
   { q: 'いつの問題まで遡れますか？', a: `公開初日（2026年6月14日）まで全て遡れます。カレンダーまたは URL の ?d=YYYY-MM-DD で日付を指定してください。` },
   { q: '今日の問題はどこで解けますか？', a: '今日の5問は<a href="/daily/">毎日の数独</a>ページでどうぞ。タイムを競う連続記録はそちらが対象です。' },
@@ -44,7 +45,7 @@ const breadcrumbSchema = {
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
     { '@type': 'ListItem', position: 2, name: '毎日の数独', item: 'https://numpredo.com/daily/' },
-    { '@type': 'ListItem', position: 3, name: 'アーカイブ', item: url },
+    { '@type': 'ListItem', position: 3, name: 'ナンプレアーカイブ', item: url },
   ],
 };
 ---
@@ -56,9 +57,9 @@ const breadcrumbSchema = {
   </Fragment>
 
   <div class="px-text">
-    <nav class="crumb"><a href="/">ホーム</a> › <a href="/daily/">毎日</a> › アーカイブ</nav>
-    <h1>過去のデイリー問題（アーカイブ）</h1>
-    <p class="lead">解き逃した日の5問（初級〜超難問）に、いつでも挑戦できます。カレンダーで日付を選び、盤面上のタブで難易度を切り替えてください（既定は昨日の問題）。クリアはカレンダーに✓で記録されます。</p>
+    <nav class="crumb"><a href="/">ホーム</a> › <a href="/daily/">毎日</a> › ナンプレアーカイブ</nav>
+    <h1>ナンプレアーカイブ｜過去の日替わり数独を無料プレイ</h1>
+    <p class="lead">解き逃した日のナンプレ5問（初級〜超難問）を、登録・アプリなしで無料プレイできます。カレンダーから日付を選び、盤面上のタブで難易度を切り替えてください（既定は昨日の問題）。クリアはカレンダーに✓で記録されます。</p>
     <div data-daily-cal data-epoch={EPOCH} data-maxday={EPOCH + pastDays - 1} class="dc"></div>
   </div>
 
