@@ -9,6 +9,11 @@ const distDir = join(projectRoot, 'dist');
 const siteOrigin = 'https://numpredo.com';
 const numberedPuzzlePattern = /^\/play\/(?:beginner|intermediate|advanced|hard|extreme)\/\d+\/$/;
 const allowedNoindexPaths = new Set(['/stats/']);
+const requiredContentMarkers: Record<string, string[]> = {
+  '/practice/': ['"@type":"LearningResource"', 'data-practice', '実際の問題を論理ソルバーが解いた途中局面', 'この練習で扱う5つの手筋'],
+  '/research/puzzle-analysis/': ['"@type":"Dataset"', '全4,395問の数独を分析', '集計方法と再現性', 'データの範囲と限界'],
+  '/tools/generator/': ['id="quality-verification"', '唯一解検査', '実際の一問で見る生成・検証の4工程'],
+};
 const expectedPuzzlePaths = new Set<string>(
   JSON.parse(readFileSync(join(projectRoot, 'src/data/indexable-puzzles.json'), 'utf8')),
 );
@@ -81,6 +86,18 @@ for (const [canonical, owners] of canonicalOwners) {
 for (const pathname of pages.keys()) {
   if (!indexablePaths.has(pathname) && !allowedNoindexPaths.has(pathname)) {
     errors.push(`${pathname} 是 noindex 的 200 页面，但未在允许名单中`);
+  }
+}
+
+// AdSense の低価値判定に対して追加した一次データ・練習・検証証拠を、将来の改修で空洞化させない。
+for (const [pathname, markers] of Object.entries(requiredContentMarkers)) {
+  const page = pages.get(pathname);
+  if (!page) {
+    errors.push(`${pathname} の高価値コンテンツページが構築されていません`);
+    continue;
+  }
+  for (const marker of markers) {
+    if (!page.html.includes(marker)) errors.push(`${pathname} から必須コンテンツ「${marker}」が消えています`);
   }
 }
 

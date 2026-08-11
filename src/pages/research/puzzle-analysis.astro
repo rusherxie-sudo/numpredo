@@ -1,0 +1,206 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LEVELS } from '../../data/levels.ts';
+import lastmodJson from '../../data/sitemap-lastmod.json';
+import { gridFromString, logicalSolve, TECH_INFO } from '../../engine/index.ts';
+
+const title = '全4,395問の数独を分析｜ヒント数・解法・難易度の実測データ - numpredo';
+const description = 'numpredoの数独4,395問を独自ソルバーで全件分析。難易度別のヒント数、論理手数、最難テクニック、解法の使用頻度を実測データと方法付きで公開します。';
+const url = 'https://numpredo.com/research/puzzle-analysis/';
+const levelOrder = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
+const techniqueOrder = ['nakedSingle', 'hiddenSingle', 'lockedCandidates', 'nakedPair', 'hiddenPair', 'nakedTriple', 'skyscraper', 'xWing', 'swordfish'];
+
+const round = (value: number, digits = 1): number => Number(value.toFixed(digits));
+const median = (values: number[]): number => {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+};
+
+const levelStats = LEVELS
+  .map((level) => {
+    const solved = level.puzzles.map((puzzle) => {
+      const grid = gridFromString(puzzle.puzzle);
+      const result = logicalSolve(grid);
+      if (!result.solved) throw new Error(`${level.slug} に論理未完答の問題があります`);
+      return {
+        clues: grid.filter(Boolean).length,
+        steps: result.steps.length,
+        hardest: result.hardest ?? 'nakedSingle',
+        techniqueCounts: result.techniqueCounts,
+      };
+    });
+    const clues = solved.map((item) => item.clues);
+    const steps = solved.map((item) => item.steps);
+    return {
+      slug: level.slug,
+      ja: level.ja,
+      count: solved.length,
+      clueMin: Math.min(...clues),
+      clueMax: Math.max(...clues),
+      clueAvg: round(clues.reduce((sum, value) => sum + value, 0) / clues.length),
+      stepMin: Math.min(...steps),
+      stepMax: Math.max(...steps),
+      stepAvg: round(steps.reduce((sum, value) => sum + value, 0) / steps.length),
+      stepMedian: median(steps),
+      solved,
+    };
+  })
+  .sort((a, b) => levelOrder.indexOf(a.slug) - levelOrder.indexOf(b.slug));
+
+const totalPuzzles = levelStats.reduce((sum, level) => sum + level.count, 0);
+const totalSteps = levelStats.flatMap((level) => level.solved).reduce((sum, item) => sum + item.steps, 0);
+const techniqueStats = techniqueOrder.map((technique) => {
+  let puzzles = 0;
+  let uses = 0;
+  for (const level of levelStats) {
+    for (const item of level.solved) {
+      const count = item.techniqueCounts[technique] ?? 0;
+      if (count > 0) puzzles++;
+      uses += count;
+    }
+  }
+  return {
+    technique,
+    ja: TECH_INFO[technique]?.ja ?? technique,
+    puzzles,
+    uses,
+    rate: round((puzzles / totalPuzzles) * 100),
+  };
+});
+const maxTechniquePuzzles = Math.max(...techniqueStats.map((item) => item.puzzles));
+const lastmod: Record<string, string> = lastmodJson;
+const dateModified = lastmod['/research/puzzle-analysis/'];
+const displayDate = dateModified
+  ? new Intl.DateTimeFormat('ja-JP', { dateStyle: 'long', timeZone: 'Asia/Tokyo' }).format(new Date(dateModified))
+  : '初回公開時に更新';
+
+const datasetSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Dataset',
+  name: 'numpredo 数独4,395問の難易度・解法データ',
+  description,
+  url,
+  inLanguage: 'ja',
+  creator: { '@id': 'https://numpredo.com/#organization' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
+  isAccessibleForFree: true,
+  measurementTechnique: '唯一解検査と人間向け論理ソルバーによる全件解析',
+  variableMeasured: ['ヒント数', '論理解答手数', '最難テクニック', 'テクニック使用回数'],
+  distribution: {
+    '@type': 'DataDownload',
+    encodingFormat: 'text/html',
+    contentUrl: url,
+  },
+  ...(dateModified ? { dateModified } : {}),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '数独研究', item: url },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={url}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(datasetSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › 数独研究 › 4,395問の分析</nav>
+  <h1>全4,395問の数独を分析<br />ヒント数・解法・難易度の実測データ</h1>
+  <p class="lead">numpredo が公開する全<strong>{totalPuzzles.toLocaleString('ja-JP')}問</strong>を、サイトと同じ論理ソルバーで一問ずつ再解析しました。一般論のまとめではなく、実際の問題から得たヒント数・手数・使用テクニックの一次データです。</p>
+  <p class="research-meta">集計対象：標準9×9数独 {totalPuzzles.toLocaleString('ja-JP')}問 ／ 最終更新：{displayDate} ／ 推測・総当たりによる手は集計対象外</p>
+
+  <section class="summary" aria-label="分析結果の要点">
+    <div><strong>{totalPuzzles.toLocaleString('ja-JP')}</strong><span>解析した問題</span></div>
+    <div><strong>{totalSteps.toLocaleString('ja-JP')}</strong><span>記録した論理ステップ</span></div>
+    <div><strong>100%</strong><span>唯一解・論理完答を確認</span></div>
+  </section>
+
+  <h2>難易度別の実測結果</h2>
+  <p>難易度はヒント数だけでは決まりません。難問の平均ヒント数は<strong>{levelStats.find((x) => x.slug === 'hard')?.clueAvg}</strong>個、超難問は<strong>{levelStats.find((x) => x.slug === 'extreme')?.clueAvg}</strong>個です。超難問のほうが数字がわずかに多くても、X-Wingなど必要な推理が難しいため上のレベルになります。</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>難易度</th><th>問題数</th><th>ヒント数<br />平均（範囲）</th><th>論理手数<br />平均・中央値</th><th>手数の範囲</th></tr></thead>
+      <tbody>
+        {levelStats.map((level) => (
+          <tr>
+            <th><a href={`/play/${level.slug}/`}>{level.ja}</a></th>
+            <td>{level.count.toLocaleString('ja-JP')}</td>
+            <td>{level.clueAvg}（{level.clueMin}〜{level.clueMax}）</td>
+            <td>{level.stepAvg}・{level.stepMedian}</td>
+            <td>{level.stepMin}〜{level.stepMax}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="note">「論理手数」は数字の確定と候補消去を各1手として数えています。ヒントが一つ減れば必要な確定手が増えるため、手数の多さだけでも難易度は決めません。</p>
+
+  <h2>どのテクニックが何問で使われたか</h2>
+  <p>各問題を最も簡単な手筋から順に解き、少なくとも一度使った問題数を集計しました。単数は難問でも繰り返し使いますが、候補を消す高度な手筋は一部の問題だけに現れます。</p>
+  <div class="tech-chart">
+    {techniqueStats.map((item) => (
+      <div class="tech-row">
+        <div class="tech-name">{TECH_INFO[item.technique]?.slug ? <a href={`/guide/techniques/${TECH_INFO[item.technique].slug}/`}>{item.ja}</a> : item.ja}</div>
+        <div class="tech-bar"><i style={`width:${Math.max(2, (item.puzzles / maxTechniquePuzzles) * 100)}%`}></i></div>
+        <div class="tech-value"><strong>{item.puzzles.toLocaleString('ja-JP')}問</strong><span>{item.rate}% ／ 計{item.uses.toLocaleString('ja-JP')}回</span></div>
+      </div>
+    ))}
+  </div>
+
+  <h2>このデータから分かること</h2>
+  <ol class="findings">
+    <li><strong>「ヒントが少ない＝必ず難しい」ではありません。</strong>難問と超難問では平均ヒント数の順序が逆転しており、必要な手筋を見なければ本当の難しさは判定できません。</li>
+    <li><strong>難しい手筋のあとも基本へ戻ります。</strong>候補を一つ消すと新しい単数が生まれるため、上級者ほど「高度な手筋だけ」を探すのではなく、毎回基本から再確認します。</li>
+    <li><strong>同じ難易度にも幅があります。</strong>表の手数範囲が示すように、同じレベルでも短く解ける問題と、基本手筋を何度も積み重ねる問題があります。</li>
+  </ol>
+
+  <h2>集計方法と再現性</h2>
+  <ol>
+    <li>各題面を81文字の盤面データから読み込み、ヒント数を数えます。</li>
+    <li>解の個数を2個見つけた時点で止める検査を行い、解が一つだけの問題を採用します。</li>
+    <li>裸の単数からX-Wing・スワードフィッシュまで、認知負荷の低い順に論理手筋を適用します。</li>
+    <li>推測なしで完成したことと、生成時の正解81マスが一致することを確認します。</li>
+    <li>全ステップの技法名と回数を集計し、このページの表とグラフを構築時に再生成します。</li>
+  </ol>
+  <p>題庫を追加・修正すると数値も自動で変わるため、手作業で都合のよい数字に書き換えることはありません。詳しい品質基準は<a href="/about/#editorial-policy">編集・検証方針</a>、実際の手筋を試すなら<a href="/practice/">数独テクニック練習</a>をご覧ください。</p>
+
+  <h2>データの範囲と限界</h2>
+  <p>この集計は numpredo の標準9×9問題だけを対象にしたサイト内データです。世界中の数独すべてを代表する標本ではありません。また「難しい」と感じる要因には、手筋の知識、候補メモへの慣れ、集中時間など個人差があります。そのため、本サイトではヒント数ではなく、必要な最難手筋を主軸に5段階へ分類しています。</p>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a, main a { color: var(--accent); }
+    .lead { color: var(--ink-2); line-height: 1.95; max-width: 850px; }
+    .research-meta, .note { color: var(--ink-3); font-size: 12px; line-height: 1.75; }
+    .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0 34px; }
+    .summary div { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; text-align: center; }
+    .summary strong { display: block; color: var(--accent); font-family: var(--font-mincho); font-size: 28px; }
+    .summary span { display: block; color: var(--ink-3); font-size: 12px; margin-top: 4px; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+    table { width: 100%; border-collapse: collapse; min-width: 680px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: right; font-size: 13px; }
+    thead th { background: var(--surface-2); color: var(--ink-2); }
+    th:first-child, td:first-child { text-align: left; }
+    tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+    .tech-chart { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+    .tech-row { display: grid; grid-template-columns: 180px minmax(100px, 1fr) 145px; gap: 14px; align-items: center; padding: 8px 0; }
+    .tech-name { font-size: 13px; }
+    .tech-bar { height: 10px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+    .tech-bar i { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
+    .tech-value { text-align: right; font-size: 12px; }
+    .tech-value strong { display: block; }
+    .tech-value span { color: var(--ink-3); }
+    .findings li, main > ol li { margin-bottom: 10px; line-height: 1.9; }
+    @media (max-width: 680px) {
+      .summary { grid-template-columns: 1fr; }
+      .tech-row { grid-template-columns: 1fr 90px; gap: 5px 10px; }
+      .tech-bar { grid-column: 1 / -1; grid-row: 2; }
+      .tech-value { grid-column: 2; grid-row: 1; }
+    }
+  </style>
+</Base>

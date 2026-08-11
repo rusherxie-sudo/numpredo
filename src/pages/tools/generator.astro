@@ -6,6 +6,7 @@ import intermediate from '../../data/puzzles/intermediate.json';
 import advanced from '../../data/puzzles/advanced.json';
 import hard from '../../data/puzzles/hard.json';
 import extreme from '../../data/puzzles/extreme.json';
+import { countSolutions, gridFromString, logicalSolve, renderBoardSvg, TECH_INFO } from '../../engine/index.ts';
 
 const title = '数独作成ツール｜無料でナンプレ問題を自動生成・印刷 - numpredo';
 const description = '無料の数独・ナンプレ作成ツール。初級〜超難問を選ぶだけで、唯一解・論理だけで解ける9×9問題と解答を自動生成。登録不要で印刷・PDF保存、問題URLの共有にも対応します。';
@@ -14,6 +15,20 @@ const pick = (source: typeof beginner) => source.puzzles.slice(0, 48).map(({ puz
 const puzzles = {
   beginner: pick(beginner), intermediate: pick(intermediate), advanced: pick(advanced), hard: pick(hard), extreme: pick(extreme),
 };
+// 品質説明も一般論ではなく、実際の上級題をこの場で再検証した結果を表示する。
+const validationPuzzle = advanced.puzzles[0];
+const validationGrid = gridFromString(validationPuzzle.puzzle);
+const validationSolution = gridFromString(validationPuzzle.solution);
+const validationSolve = logicalSolve(validationGrid);
+const validationSolutionCount = countSolutions(validationGrid, 2);
+const validationGiven = validationGrid.map((value) => value !== 0);
+const validationPuzzleSvg = renderBoardSvg(validationGrid, {
+  given: validationGiven, cell: 28, title: '検証前の上級問題', desc: '独自エンジンで検証する実際の題面',
+});
+const validationSolutionSvg = renderBoardSvg(validationSolution, {
+  given: validationGiven, cell: 28, title: '論理ソルバーの完成盤面', desc: '生成時の正解と81マスを照合',
+});
+const validationHardest = TECH_INFO[validationSolve.hardest ?? 'nakedSingle']?.ja ?? '裸の単数';
 const faq = [
   { q: '作成した数独には必ず答えがありますか？', a: 'はい。すべての元問題は「解が一つだけ」であることを検証済みです。数字・行・列の配置を数独のルールを保つ方法で組み替えるため、作成後も唯一解が保たれます。' },
   { q: '難易度はどう決めていますか？', a: '空きマスの数だけではなく、論理的に解くときに必要な最も難しいテクニックと手順数で初級〜超難問の5段階に分類しています。' },
@@ -64,6 +79,26 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     <p>数独の難しさは、数字が少ないほど高いとは限りません。この作成ツールは、各問題を人間向けの解法で最後まで解き、必要になる最も難しいテクニックと手順数から難易度を分類しています。初級は基本の単数、中級以上は候補の絞り込み、難問では高度な手筋が必要になるように分かれています。</p>
     <p>元になる問題はすべて、①解が一つだけ、②推測なしで論理的に解ける、③論理解と生成時の解答が一致する、という3条件を検証済みです。作成ボタンを押すと、その品質を保つ数字・行・列の組み替えを行い、新しい盤面として表示します。</p>
 
+    <h2 id="quality-verification">実際の一問で見る生成・検証の4工程</h2>
+    <p>下は説明用に作った架空の数値ではなく、現在の上級題庫から一問を読み込み、このページの構築時にもう一度検査した結果です。題庫やエンジンに不整合があれば、公開前の構築チェックで検出されます。</p>
+    <div class="validation-result" aria-label="問題の検証結果">
+      <div><span>唯一解検査</span><strong>{validationSolutionCount === 1 ? '合格（1解）' : `不合格（${validationSolutionCount}解）`}</strong></div>
+      <div><span>論理だけで完答</span><strong>{validationSolve.solved ? '合格' : '不合格'}</strong></div>
+      <div><span>最難テクニック</span><strong>{validationHardest}</strong></div>
+      <div><span>論理ステップ</span><strong>{validationSolve.steps.length}手</strong></div>
+    </div>
+    <div class="validation-boards">
+      <figure><Fragment set:html={validationPuzzleSvg} /><figcaption>工程1〜2：完成盤から数字を外し、別解がないか検査</figcaption></figure>
+      <figure><Fragment set:html={validationSolutionSvg} /><figcaption>工程3〜4：論理だけで完答し、生成時の正解と照合</figcaption></figure>
+    </div>
+    <ol class="validation-steps">
+      <li><strong>完成盤を作る：</strong>行・列・3×3ブロックで1〜9が重複しない81マスを作成します。</li>
+      <li><strong>数字を外して唯一解を守る：</strong>数字を外すたびに解の個数を調べ、別解が生まれる変更は採用しません。</li>
+      <li><strong>人間向けの手筋で解く：</strong>単数、区画の絞り込み、ペアなどを易しい順に適用し、推測せず完成できることを確認します。</li>
+      <li><strong>正解照合と難易度判定：</strong>論理解が生成時の正解と一致するか確認し、最も難しい手筋と手数から5段階へ分類します。</li>
+    </ol>
+    <p>全題庫のヒント数・手数・手筋を横断して確認した結果は、<a href="/research/puzzle-analysis/">全4,395問の数独分析</a>で集計方法とともに公開しています。</p>
+
     <h2>家庭・教室・施設で1問だけ作りたいときに</h2>
     <p>「今日は中級を一題」「生徒全員に同じ問題を配る」といった用途なら、このページで一問を作り、そのまま印刷するのが最短です。URLをコピーすれば、離れた相手にも同じ盤面を渡せます。複数問を一枚にまとめたい場合は、問題数や見出しを選べる<a href="/print/">無料の数独問題集・PDF印刷</a>をご利用ください。</p>
     <ol>
@@ -90,7 +125,19 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     .pg-content { max-width: 820px; margin-inline: auto; }
     .pg-content p, .pg-content li { line-height: 1.9; }
     .pg-content a, .faq a { color: var(--accent); }
+    .validation-result { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin: 18px 0; }
+    .validation-result div { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); padding: 12px; text-align: center; }
+    .validation-result span, .validation-result strong { display: block; }
+    .validation-result span { color: var(--ink-3); font-size: 11px; }
+    .validation-result strong { color: var(--accent); font-size: 14px; margin-top: 4px; }
+    .validation-boards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .validation-boards figure { margin: 0; }
+    .validation-boards svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .validation-boards figcaption { color: var(--ink-3); font-size: 11px; text-align: center; margin-top: 5px; }
+    .validation-steps { padding-left: 1.4em; }
+    .validation-steps li { margin-bottom: 8px; }
     .faq dt { margin-top: 16px; font-family: var(--font-mincho); font-weight: 700; }
     .faq dd { margin: 5px 0 0; color: var(--ink-3); line-height: 1.8; }
+    @media (max-width: 680px) { .validation-result { grid-template-columns: repeat(2, 1fr); } .validation-boards { grid-template-columns: 1fr; } }
   </style>
 </Base>

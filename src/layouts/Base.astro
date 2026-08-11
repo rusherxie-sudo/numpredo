@@ -32,13 +32,14 @@ const orgSchema = {
 // 内容长文（/guide/xxx・/variants/xxx）用 article；hub 索引页（/guide/）与其余用 website
 const pathname = Astro.url.pathname;
 const ogType =
-  /^\/(guide|variants)\//.test(pathname) && pathname !== '/guide/' && pathname !== '/variants/'
+  (/^\/(guide|variants)\//.test(pathname) && pathname !== '/guide/' && pathname !== '/variants/') || pathname.startsWith('/research/')
     ? 'article'
     : 'website';
 
 // グローバルナビ（active はパス接頭辞で判定）
 const nav: [string, string, string][] = [
   ['遊ぶ', '/play/', '/play'],
+  ['練習', '/practice/', '/practice'],
   ['解き方', '/guide/', '/guide'],
   ['印刷', '/print/', '/print'],
   ['デイリー', '/daily/', '/daily'],
@@ -68,6 +69,7 @@ const footerCols = [
     h: '学ぶ・解き方',
     links: [
       ['解き方ガイド一覧', '/guide/'],
+      ['次の一手・実力診断', '/practice/'],
       ['解き方ガイド', '/guide/how-to-solve/'],
       ['ルール・遊び方', '/guide/rules/'],
       ['初心者のコツ', '/guide/beginner/'],
@@ -94,6 +96,7 @@ const footerCols = [
     links: [
       ['数独ソルバー（解答）', '/tools/solver/'],
       ['数独作成ツール（生成・印刷）', '/tools/generator/'],
+      ['全4,395問の分析データ', '/research/puzzle-analysis/'],
       ['新聞の数独の答え合わせ', '/guide/newspaper/'],
       ['あなたの統計・実績', '/stats/'],
       ['このサイトについて', '/about/'],

@@ -1,0 +1,302 @@
+---
+import Base from '../layouts/Base.astro';
+import beginner from '../data/puzzles/beginner.json';
+import intermediate from '../data/puzzles/intermediate.json';
+import advanced from '../data/puzzles/advanced.json';
+import hard from '../data/puzzles/hard.json';
+import extreme from '../data/puzzles/extreme.json';
+import { gridFromString, renderBoardSvg, renderStepFigures, TECH_INFO, traceKeySteps } from '../engine/index.ts';
+
+const title = '数独テクニック練習｜次の一手で実力診断 - numpredo';
+const description = '実際の数独盤面を見て次に使うテクニックを選ぶ無料練習。隠れた単数、区画の絞り込み、二国同盟、三国同盟、X-Wingの5問で実力を診断し、答えを図解します。';
+const url = 'https://numpredo.com/practice/';
+
+const definitions = [
+  {
+    technique: 'hiddenSingle', level: '初級', source: beginner, index: 100,
+    options: ['裸の単数', '隠れた単数', '区画の絞り込み', 'ペア（二国同盟）'],
+    focus: 'ある数字を置ける場所が、行・列・ブロックの中で一つだけになっていないかを見ます。',
+  },
+  {
+    technique: 'lockedCandidates', level: '中級', source: intermediate, index: 0,
+    options: ['隠れた単数', '区画の絞り込み', 'ペア（二国同盟）', '三国同盟（ネイキッドトリプル）'],
+    focus: '同じ数字の候補が、ブロック内の一つの行または列に寄っていないかを見ます。',
+  },
+  {
+    technique: 'nakedPair', level: '上級', source: advanced, index: 0,
+    options: ['区画の絞り込み', 'ペア（二国同盟）', '隠れたペア', '三国同盟（ネイキッドトリプル）'],
+    focus: '同じ単元の中に、同じ二候補だけを持つ二マスがないかを探します。',
+  },
+  {
+    technique: 'nakedTriple', level: '難問', source: hard, index: 0,
+    options: ['ペア（二国同盟）', '隠れたペア', '三国同盟（ネイキッドトリプル）', 'X-Wing'],
+    focus: '三つのマスに現れる候補の和集合が、三種類に収まっているかを確認します。',
+  },
+  {
+    technique: 'xWing', level: '超難問', source: extreme, index: 0,
+    options: ['区画の絞り込み', 'ペア（二国同盟）', 'スカイスクレイパー', 'X-Wing'],
+    focus: '一つの数字の候補が、二行と二列の長方形の四隅にそろっているかを探します。',
+  },
+] as const;
+
+const questions = definitions.map((definition, index) => {
+  const puzzle = definition.source.puzzles[definition.index];
+  const original = gridFromString(puzzle.puzzle);
+  const snapshot = traceKeySteps(original, { maxSteps: 20 }).find((item) => item.step.technique === definition.technique);
+  if (!snapshot) throw new Error(`練習局面を取得できません：${definition.technique}`);
+  const info = TECH_INFO[definition.technique];
+  const given = original.map((value) => value !== 0);
+  const questionSvg = renderBoardSvg(snapshot.grid, {
+    given,
+    candidates: snapshot.candidates,
+    cell: 31,
+    title: `練習${index + 1}：${definition.level}の局面`,
+    desc: '次に使える数独テクニックを選ぶ問題',
+  });
+  const answer = renderStepFigures([snapshot], given, 31)[0];
+  return {
+    ...definition,
+    number: index + 1,
+    answer: info.ja,
+    questionSvg,
+    answerSvg: answer.svg,
+    explanation: answer.text,
+    guide: info.slug ? `/guide/techniques/${info.slug}/` : '/guide/beginner/',
+  };
+});
+
+const learningSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LearningResource',
+  name: '数独テクニック練習・実力診断',
+  description,
+  url,
+  inLanguage: 'ja',
+  learningResourceType: 'Practice problem',
+  educationalLevel: ['初級', '中級', '上級', '難問', '超難問'],
+  teaches: questions.map((question) => question.answer),
+  isAccessibleForFree: true,
+  provider: { '@id': 'https://numpredo.com/#organization' },
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '数独テクニック練習', item: url },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={url} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(learningSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › 数独テクニック練習</nav>
+  <header class="practice-head">
+    <div>
+      <span class="practice-tag">5問・登録不要・無料</span>
+      <h1>数独テクニック練習<br />次の一手で実力診断</h1>
+      <p class="lead">実際の問題を論理ソルバーが解いた途中局面を使います。候補の並びを見て、次に使える手筋を選んでください。答えは候補消去の位置まで図解します。</p>
+    </div>
+    <div class="practice-how">
+      <strong>見方</strong>
+      <span>大きい数字＝確定済み</span>
+      <span>小さい数字＝残っている候補</span>
+      <span>回答後の赤字＝消せる候補</span>
+    </div>
+  </header>
+
+  <section class="practice-app" data-practice>
+    <div class="practice-progress"><span data-progress>1 / {questions.length}</span><i><b data-progress-bar></b></i><span data-score>正解 0</span></div>
+    {questions.map((question, index) => (
+      <article class="practice-card" data-question data-answer={question.answer} data-active={index === 0 ? 'true' : 'false'}>
+        <div class="practice-card-top">
+          <span>練習 {question.number}</span>
+          <strong>{question.level}</strong>
+        </div>
+        <h2>この局面で、次に使える手筋は？</h2>
+        <p class="focus">観察のヒント：{question.focus}</p>
+        <div class="practice-grid"><Fragment set:html={question.questionSvg} /></div>
+        <div class="practice-options">
+          {question.options.map((option) => <button type="button" data-choice={option}>{option}</button>)}
+        </div>
+        <p class="practice-feedback" data-feedback aria-live="polite"></p>
+        <div class="practice-answer" data-answer-panel hidden>
+          <h3>答え：{question.answer}</h3>
+          <div class="answer-layout">
+            <div class="practice-grid"><Fragment set:html={question.answerSvg} /></div>
+            <div>
+              <p>{question.explanation}</p>
+              <p><a href={question.guide}>{question.answer}の成立条件と見つけ方を図解で確認する</a></p>
+            </div>
+          </div>
+          <button type="button" class="next-button" data-next>{index === questions.length - 1 ? '診断結果を見る' : '次の問題へ'}</button>
+        </div>
+      </article>
+    ))}
+    <section class="practice-result" data-result hidden aria-live="polite">
+      <span class="result-label">診断結果</span>
+      <h2 data-result-title></h2>
+      <p data-result-body></p>
+      <div class="result-links">
+        <a href="/play/" class="result-primary">おすすめ難易度で遊ぶ</a>
+        <button type="button" data-retry>もう一度練習する</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="practice-content">
+    <h2>この練習で扱う5つの手筋</h2>
+    <div class="tech-list">
+      {questions.map((question) => (
+        <div>
+          <h3>{question.level}：{question.answer}</h3>
+          <p>{question.focus}</p>
+          <a href={question.guide}>図解ガイドを読む</a>
+        </div>
+      ))}
+    </div>
+
+    <h2>問題を丸暗記しない練習</h2>
+    <p>完成盤面の答えを覚えるのではなく、手筋が成立する候補配置を見分ける練習です。局面は numpredo の実際の題庫から取り出し、論理ソルバーがその瞬間に選んだ手だけを正解にしています。架空の候補配置を説明用に作ったものではありません。</p>
+    <p>間違えたときは、正解名よりも赤く消える候補とその理由を見比べてください。高度な手筋で候補を消したあとは、必ず裸の単数・隠れた単数へ戻って盤面を確認するのが実戦の基本です。</p>
+
+    <h2>診断結果の使い方</h2>
+    <p>この5問は医療・能力検査ではなく、次に練習する難易度を選ぶための簡易診断です。正解数だけでなく、どの候補配置を見落としたかを確認し、対応する<a href="/guide/">解き方ガイド</a>を読んでから<a href="/play/">実際の数独問題</a>へ進んでください。</p>
+  </section>
+
+  <script>
+    const root = document.querySelector<HTMLElement>('[data-practice]');
+    if (root) {
+      const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-question]'));
+      const result = root.querySelector<HTMLElement>('[data-result]');
+      const progress = root.querySelector<HTMLElement>('[data-progress]');
+      const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]');
+      const scoreLabel = root.querySelector<HTMLElement>('[data-score]');
+      let score = 0;
+
+      const showCard = (index: number) => {
+        cards.forEach((card, cardIndex) => card.dataset.active = cardIndex === index ? 'true' : 'false');
+        if (progress) progress.textContent = `${index + 1} / ${cards.length}`;
+        if (progressBar) progressBar.style.width = `${((index + 1) / cards.length) * 100}%`;
+        cards[index]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+
+      cards.forEach((card, cardIndex) => {
+        const choices = Array.from(card.querySelectorAll<HTMLButtonElement>('[data-choice]'));
+        const feedback = card.querySelector<HTMLElement>('[data-feedback]');
+        const answerPanel = card.querySelector<HTMLElement>('[data-answer-panel]');
+        const correct = card.dataset.answer ?? '';
+        choices.forEach((button) => button.addEventListener('click', () => {
+          if (card.dataset.answered === 'true') return;
+          card.dataset.answered = 'true';
+          const selected = button.dataset.choice ?? '';
+          const isCorrect = selected === correct;
+          if (isCorrect) score++;
+          choices.forEach((choice) => {
+            choice.disabled = true;
+            if (choice.dataset.choice === correct) choice.dataset.state = 'correct';
+          });
+          if (!isCorrect) button.dataset.state = 'wrong';
+          if (feedback) {
+            feedback.textContent = isCorrect ? '正解です。候補の配置を正しく見抜けました。' : `今回は不正解。正解は「${correct}」です。赤い候補が消える理由を確認しましょう。`;
+            feedback.dataset.state = isCorrect ? 'correct' : 'wrong';
+          }
+          if (answerPanel) answerPanel.hidden = false;
+          if (scoreLabel) scoreLabel.textContent = `正解 ${score}`;
+        }));
+        card.querySelector<HTMLButtonElement>('[data-next]')?.addEventListener('click', () => {
+          if (cardIndex < cards.length - 1) {
+            showCard(cardIndex + 1);
+            return;
+          }
+          cards.forEach((item) => item.dataset.active = 'false');
+          if (result) result.hidden = false;
+          const titleNode = result?.querySelector<HTMLElement>('[data-result-title]');
+          const bodyNode = result?.querySelector<HTMLElement>('[data-result-body]');
+          const diagnosis = score === 5
+            ? ['超難問レベル', '5種類の候補配置をすべて識別できました。超難問で高度な手筋を実戦投入してみましょう。']
+            : score >= 4
+              ? ['上級レベル', '基本から候補消去までよく身についています。難問で三国同盟、超難問でX-Wingを反復すると次へ進めます。']
+              : score >= 2
+                ? ['中級レベル', '単数と区画の見分けを固め、ペアの候補配置を繰り返し練習する段階です。']
+                : ['初級レベル', 'まず単数を確実に見つける練習から始めましょう。候補の書き方に慣れると次の手筋が見えます。'];
+          if (titleNode) titleNode.textContent = `${score} / ${cards.length} 正解：${diagnosis[0]}`;
+          if (bodyNode) bodyNode.textContent = diagnosis[1];
+          result?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      });
+
+      root.querySelector<HTMLButtonElement>('[data-retry]')?.addEventListener('click', () => {
+        score = 0;
+        cards.forEach((card) => {
+          delete card.dataset.answered;
+          card.querySelectorAll<HTMLButtonElement>('[data-choice]').forEach((choice) => {
+            choice.disabled = false;
+            delete choice.dataset.state;
+          });
+          const feedback = card.querySelector<HTMLElement>('[data-feedback]');
+          if (feedback) { feedback.textContent = ''; delete feedback.dataset.state; }
+          const answer = card.querySelector<HTMLElement>('[data-answer-panel]');
+          if (answer) answer.hidden = true;
+        });
+        if (result) result.hidden = true;
+        if (scoreLabel) scoreLabel.textContent = '正解 0';
+        showCard(0);
+      });
+    }
+  </script>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a, main a { color: var(--accent); }
+    .practice-head { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 32px; align-items: end; max-width: 980px; margin: 0 auto 28px; }
+    .practice-tag, .result-label { display: inline-block; color: var(--accent); background: var(--accent-tint); border-radius: var(--radius-pill); padding: 4px 11px; font-size: 12px; font-weight: 700; }
+    .lead { color: var(--ink-3); line-height: 1.9; max-width: 760px; }
+    .practice-how { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 15px 17px; }
+    .practice-how strong, .practice-how span { display: block; font-size: 12px; }
+    .practice-how span { color: var(--ink-3); margin-top: 4px; }
+    .practice-app { max-width: 980px; margin: 0 auto 46px; }
+    .practice-progress { display: grid; grid-template-columns: 60px 1fr 70px; gap: 12px; align-items: center; color: var(--ink-3); font-size: 12px; margin-bottom: 12px; }
+    .practice-progress > i { display: block; height: 6px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+    .practice-progress > i b { display: block; height: 100%; width: 20%; background: var(--accent); transition: width .2s; }
+    .practice-card { display: none; scroll-margin-top: 76px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 24px; }
+    .practice-card[data-active="true"] { display: block; }
+    .practice-card-top { display: flex; justify-content: space-between; color: var(--ink-3); font-size: 12px; }
+    .practice-card-top strong { color: var(--accent); }
+    .practice-card h2 { margin-top: 12px; text-align: center; }
+    .focus { max-width: 720px; margin: 0 auto 14px; color: var(--ink-3); font-size: 13px; text-align: center; }
+    .practice-grid { width: min(100%, 480px); margin: 0 auto; }
+    .practice-grid svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .practice-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; max-width: 720px; margin: 20px auto 0; }
+    .practice-options button, .result-links button { border: 1px solid var(--line-2); border-radius: var(--radius); padding: 11px 14px; background: var(--bg); color: var(--ink); cursor: pointer; font: inherit; }
+    .practice-options button:hover:not(:disabled) { border-color: var(--accent); }
+    .practice-options button[data-state="correct"] { border-color: var(--accent); background: var(--accent-tint); color: var(--accent); font-weight: 700; }
+    .practice-options button[data-state="wrong"] { border-color: var(--num-error); color: var(--num-error); }
+    .practice-feedback { min-height: 1.7em; text-align: center; font-size: 13px; font-weight: 700; }
+    .practice-feedback[data-state="correct"] { color: var(--accent); }
+    .practice-feedback[data-state="wrong"] { color: var(--num-error); }
+    .practice-answer { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 18px; }
+    .practice-answer h3 { text-align: center; color: var(--accent); }
+    .answer-layout { display: grid; grid-template-columns: minmax(280px, 480px) 1fr; gap: 24px; align-items: center; }
+    .answer-layout p { line-height: 1.9; }
+    .next-button { display: block; margin: 22px auto 0; border: 0; border-radius: var(--radius-pill); padding: 11px 28px; color: var(--accent-on); background: var(--accent); font-weight: 700; cursor: pointer; }
+    .practice-result { text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 42px 24px; }
+    .result-links { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+    .result-primary { display: inline-block; background: var(--accent); color: var(--accent-on) !important; border-radius: var(--radius); padding: 11px 20px; text-decoration: none; font-weight: 700; }
+    .practice-content { max-width: 900px; margin: 0 auto; }
+    .practice-content p { line-height: 1.95; }
+    .tech-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .tech-list > div { border: 1px solid var(--line); border-radius: var(--radius); padding: 15px 17px; background: var(--surface); }
+    .tech-list h3 { margin: 0; }
+    .tech-list p, .tech-list a { font-size: 13px; }
+    @media (max-width: 760px) {
+      .practice-head { grid-template-columns: 1fr; gap: 12px; }
+      .practice-card { padding: 16px 12px; }
+      .practice-options { grid-template-columns: 1fr; }
+      .answer-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</Base>

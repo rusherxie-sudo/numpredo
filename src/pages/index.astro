@@ -27,10 +27,12 @@ const diffs: [string, string, string, number, string][] = [
   ['Lv.5', '数独 エキスパート・超難問', '/play/extreme/', 5, '最難関。じっくり腰を据えて挑む上級者向け。'],
 ];
 const tools: [string, string, string, string][] = [
+  ['練', '次の一手・実力診断', '/practice/', '実際の候補配置から手筋を選ぶ5問。回答後に消せる候補と理由を図解。'],
   ['解', '解き方ガイド', '/guide/', 'ルールから上級テクニックまで、盤面の図解つきで解説。'],
   ['刷', '数独無料問題集・プリント', '/print/', '答え付きの問題集を、難易度と問題数を選んで無料で印刷・PDF保存。'],
   ['答', '画像・カメラ自動解答', '/tools/solver/', '写真を撮るか81マスを入力すると答えを自動計算。新聞の答え合わせにも。'],
   ['変', '変わり種数独', '/variants/', 'キラー数独・6×6・不等号・対角線などのルール紹介。'],
+  ['研', '全4,395問の分析', '/research/puzzle-analysis/', 'ヒント数、論理手数、手筋の使用頻度を全題庫から実測して公開。'],
 ];
 const why: [string, string, string][] = [
   [totalPuzzles.toLocaleString('ja-JP'), '全問題を三重に検証', '唯一解・論理だけで完答・生成解との一致を、公開前に全問チェックしています。'],
@@ -141,7 +143,7 @@ const homeFaqSchema = {
     </div>
   </section>
 
-  <p class="hp-method-link">問題の作り方、検証条件、記事の編集方針は<a href="/about/#editorial-policy">品質検証と編集方針</a>で公開しています。</p>
+  <p class="hp-method-link">問題の作り方、検証条件、記事の編集方針は<a href="/about/#editorial-policy">品質検証と編集方針</a>で公開しています。題庫全体の実測値は<a href="/research/puzzle-analysis/">全4,395問の分析データ</a>で確認できます。</p>
 
   <section class="hp-sec hp-var-sec">
     <div class="hp-var">
