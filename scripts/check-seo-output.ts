@@ -7,6 +7,10 @@ import { fileURLToPath } from 'node:url';
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const distDir = join(projectRoot, 'dist');
 const siteOrigin = 'https://numpredo.com';
+const numberedPuzzlePattern = /^\/play\/(?:beginner|intermediate|advanced|hard|extreme)\/\d+\/$/;
+const expectedPuzzlePaths = new Set<string>(
+  JSON.parse(readFileSync(join(projectRoot, 'src/data/indexable-puzzles.json'), 'utf8')),
+);
 
 if (!existsSync(join(distDir, 'sitemap-0.xml'))) {
   console.error('❌ dist/sitemap-0.xml 不存在。请先运行 npm run build。');
@@ -86,6 +90,17 @@ for (const pathname of sitemapPaths) {
   if (!indexablePaths.has(pathname)) errors.push(`${pathname} 在 sitemap 中但页面不是 index`);
 }
 
+// 量産型の番号ページは noindex の 200 ページとして残さない。
+// 実ページ・sitemap・許可リストの三者が完全一致することを保証する。
+const builtPuzzlePaths = new Set([...pages.keys()].filter((pathname) => numberedPuzzlePattern.test(pathname)));
+for (const pathname of expectedPuzzlePaths) {
+  if (!builtPuzzlePaths.has(pathname)) errors.push(`${pathname} 在题目页白名单中但未构建`);
+  if (!sitemapPaths.has(pathname)) errors.push(`${pathname} 在题目页白名单中但未进入 sitemap`);
+}
+for (const pathname of builtPuzzlePaths) {
+  if (!expectedPuzzlePaths.has(pathname)) errors.push(`${pathname} 未在题目页白名单中却仍被构建`);
+}
+
 const redirectsFile = join(distDir, '_redirects');
 if (!existsSync(redirectsFile)) {
   errors.push('dist/_redirects 不存在');
@@ -98,6 +113,10 @@ if (!existsSync(redirectsFile)) {
   const exactSources = new Set(
     redirects.map(([source]) => source).filter((source) => !source.includes('*')),
   );
+
+  for (const pathname of expectedPuzzlePaths) {
+    if (exactSources.has(pathname)) errors.push(`${pathname} 同时是题目页白名单和 301 来源`);
+  }
 
   for (const [source, target, status] of redirects) {
     if (status !== '301') errors.push(`${source} 的状态码为 ${status}（应为 301）`);

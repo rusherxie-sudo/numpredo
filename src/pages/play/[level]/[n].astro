@@ -10,14 +10,25 @@ const lastmod: Record<string, string> = lastmodJson;
 const published: Record<string, string> = publishedJson;
 
 export function getStaticPaths() {
-  // 新規 URL を日付だけで増やさず、既存 90 問のクロール・評価を先に完了させる。
-  const cap = 90;
-  return LEVELS.flatMap((meta) =>
-    Array.from({ length: Math.min(cap, meta.puzzles.length) }, (_, i) => i + 1).map((n) => ({
+  // 検索需要と固有解説の価値を確認できた代表問題だけを実ページとして生成する。
+  // noindex だけでは AdSense を含む審査クローラから量産ページを隠せないため、
+  // 未採用の番号ページは生成せず public/_redirects で難易度ページへ統合する。
+  return indexablePuzzles.map((pathname) => {
+    const match = pathname.match(/^\/play\/([^/]+)\/(\d+)\/$/);
+    if (!match) throw new Error(`不正な問題 URL: ${pathname}`);
+
+    const [, level, rawN] = match;
+    const meta = LEVELS.find((candidate) => candidate.slug === level);
+    const n = Number(rawN);
+    if (!meta || !Number.isInteger(n) || n < 1 || n > meta.puzzles.length) {
+      throw new Error(`存在しない問題 URL: ${pathname}`);
+    }
+
+    return {
       params: { level: meta.slug, n: String(n) },
       props: { meta, n },
-    })),
-  );
+    };
+  });
 }
 
 interface Props {
@@ -27,8 +38,6 @@ interface Props {
 const { meta, n } = Astro.props;
 const puzzle = meta.puzzles[n - 1];
 const url = `https://numpredo.com/play/${meta.slug}/${n}/`;
-const pathname = `/play/${meta.slug}/${n}/`;
-const isIndexable = indexablePuzzles.includes(pathname);
 
 const grid = gridFromString(puzzle.puzzle);
 const given = grid.map((v) => v !== 0);
@@ -128,7 +137,7 @@ const breadcrumbSchema = {
 };
 ---
 
-<Base title={title} description={description} canonical={url} noindex={!isIndexable}>
+<Base title={title} description={description} canonical={url}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
