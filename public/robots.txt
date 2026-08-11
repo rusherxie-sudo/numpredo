@@ -2,6 +2,10 @@ User-agent: *
 Allow: /
 Sitemap: https://numpredo.com/sitemap-index.xml
 
+# Google AdSense のサイト審査・広告品質クローラ
+User-agent: Mediapartners-Google
+Allow: /
+
 User-agent: GPTBot
 Allow: /
 

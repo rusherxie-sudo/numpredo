@@ -17,6 +17,7 @@
     "check": "astro check && tsc --noEmit",
     "dev": "astro dev",
     "build": "astro build",
+    "postbuild": "npm run check:seo",
     "preview": "astro preview",
     "gen:llms": "node scripts/gen-llms-full.ts"
   },

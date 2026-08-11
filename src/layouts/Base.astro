@@ -12,6 +12,7 @@ interface Props {
 }
 const { title, description, canonical, wide = false, noindex = false } = Astro.props;
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+const adsensePublisherId = 'ca-pub-1382715204285550';
 
 // サイト実体（Organization）を全ページに注入：各テンプレの author/publisher は
 // {'@id': 'https://numpredo.com/#organization'} で本ノードを参照する（単一実体に集約、
@@ -123,6 +124,8 @@ const footerCols = [
     </script>
     <title>{title}</title>
     <meta name="description" content={description} />
+    <!-- AdSense 所有権確認。広告スクリプトは承認後に必要なページだけへ配信する。 -->
+    <meta name="google-adsense-account" content={adsensePublisherId} />
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:title" content={title} />

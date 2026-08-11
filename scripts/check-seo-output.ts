@@ -7,12 +7,21 @@ import { fileURLToPath } from 'node:url';
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const distDir = join(projectRoot, 'dist');
 const siteOrigin = 'https://numpredo.com';
+const adsensePublisherId = 'ca-pub-1382715204285550';
+const adsenseRecord = 'google.com, pub-1382715204285550, DIRECT, f08c47fec0942fa0';
 const numberedPuzzlePattern = /^\/play\/(?:beginner|intermediate|advanced|hard|extreme)\/\d+\/$/;
 const allowedNoindexPaths = new Set(['/stats/']);
+const thinContentExemptPaths = new Set(['/about/', '/contact/', '/privacy/', '/terms/']);
+const minimumMainTextLength = 700;
 const requiredContentMarkers: Record<string, string[]> = {
   '/practice/': ['"@type":"LearningResource"', 'data-practice', '実際の問題を論理ソルバーが解いた途中局面', 'この練習で扱う5つの手筋'],
   '/research/puzzle-analysis/': ['"@type":"Dataset"', '全4,395問の数独を分析', '集計方法と再現性', 'データの範囲と限界'],
   '/tools/generator/': ['id="quality-verification"', '唯一解検査', '実際の一問で見る生成・検証の4工程'],
+  '/about/': ['id="editorial-policy"', 'numpredo 編集部', '広告主が問題の難易度判定や記事内容に関与することはありません'],
+  '/contact/': ['問題・記事の訂正依頼', '運営・プライバシーに関する窓口', 'contact@numpredo.com'],
+  '/privacy/': ['Google AdSense', 'Google が認定した同意管理プラットフォーム', '外部サービスと送信先'],
+  '/terms/': ['印刷問題集の非営利利用', '著作権', '免責事項'],
+  '/daily/archive/': ['日付ごとに5段階を残す理由', 'アーカイブ問題の品質', '全4,395問の分析データ'],
 };
 const expectedPuzzlePaths = new Set<string>(
   JSON.parse(readFileSync(join(projectRoot, 'src/data/indexable-puzzles.json'), 'utf8')),
@@ -41,6 +50,16 @@ function matches(html: string, pattern: RegExp): string[] {
   return [...html.matchAll(pattern)].map((match) => match[1]);
 }
 
+function visibleTextLength(html: string): number {
+  return html
+    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<svg\b[\s\S]*?<\/svg>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&(?:[a-z]+|#\d+);/gi, ' ')
+    .replace(/\s/g, '').length;
+}
+
 const errors: string[] = [];
 const pages = new Map(
   walkIndexPages(distDir).map((file) => {
@@ -52,11 +71,48 @@ const pages = new Map(
 
 const canonicalOwners = new Map<string, string[]>();
 const indexablePaths = new Set<string>();
+const titleOwners = new Map<string, string[]>();
+const descriptionOwners = new Map<string, string[]>();
 
 for (const [pathname, { html }] of pages) {
   const expectedCanonical = `${siteOrigin}${pathname}`;
-  const canonicals = matches(html, /<link rel="canonical" href="([^"]+)"/g);
-  const robots = matches(html, /<meta name="robots" content="([^"]+)"/g);
+  const headHtml = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] ?? '';
+  const canonicals = matches(headHtml, /<link rel="canonical" href="([^"]+)"/g);
+  const robots = matches(headHtml, /<meta name="robots" content="([^"]+)"/g);
+  const titles = matches(headHtml, /<title>([^<]+)<\/title>/g);
+  const descriptions = matches(headHtml, /<meta name="description" content="([^"]+)"/g);
+  const adsenseAccounts = matches(headHtml, /<meta name="google-adsense-account" content="([^"]+)"/g);
+  const mainHtml = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? '';
+
+  if (titles.length !== 1) {
+    errors.push(`${pathname} title 数量为 ${titles.length}（应为 1）`);
+  } else {
+    const owners = titleOwners.get(titles[0]) ?? [];
+    owners.push(pathname);
+    titleOwners.set(titles[0], owners);
+  }
+  if (descriptions.length !== 1) {
+    errors.push(`${pathname} description 数量为 ${descriptions.length}（应为 1）`);
+  } else {
+    const owners = descriptionOwners.get(descriptions[0]) ?? [];
+    owners.push(pathname);
+    descriptionOwners.set(descriptions[0], owners);
+  }
+  if (adsenseAccounts.length !== 1 || adsenseAccounts[0] !== adsensePublisherId) {
+    errors.push(`${pathname} 的 AdSense 所有权标记缺失或错误`);
+  }
+  const h1Count = (mainHtml.match(/<h1\b/gi) ?? []).length;
+  if (h1Count !== 1) errors.push(`${pathname} 主内容 H1 数量为 ${h1Count}（应为 1）`);
+  for (const image of html.match(/<img\b[^>]*>/gi) ?? []) {
+    if (!/\balt="[^"]*"/i.test(image)) errors.push(`${pathname} 存在没有 alt 的图片`);
+  }
+  for (const jsonLd of matches(html, /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    try {
+      JSON.parse(jsonLd);
+    } catch {
+      errors.push(`${pathname} 存在无法解析的 JSON-LD`);
+    }
+  }
 
   if (canonicals.length !== 1) {
     errors.push(`${pathname} canonical 数量为 ${canonicals.length}（应为 1）`);
@@ -77,6 +133,13 @@ for (const [pathname, { html }] of pages) {
   }
 }
 
+for (const [title, owners] of titleOwners) {
+  if (owners.length > 1) errors.push(`title 重复：${title} 被 ${owners.join('、')} 共用`);
+}
+for (const [description, owners] of descriptionOwners) {
+  if (owners.length > 1) errors.push(`description 重复：${description} 被 ${owners.join('、')} 共用`);
+}
+
 for (const [canonical, owners] of canonicalOwners) {
   if (owners.length > 1) {
     errors.push(`canonical 重复：${canonical} 被 ${owners.join('、')} 共用`);
@@ -86,6 +149,42 @@ for (const [canonical, owners] of canonicalOwners) {
 for (const pathname of pages.keys()) {
   if (!indexablePaths.has(pathname) && !allowedNoindexPaths.has(pathname)) {
     errors.push(`${pathname} 是 noindex 的 200 页面，但未在允许名单中`);
+  }
+}
+
+// AdSense の「低価値コンテンツ」を再発させないため、信頼情報ページ以外の
+// index ページには、ナビ・フッター・スクリプトを除いた独自本文量を要求する。
+for (const pathname of indexablePaths) {
+  if (thinContentExemptPaths.has(pathname)) continue;
+  const html = pages.get(pathname)?.html ?? '';
+  const mainHtml = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? '';
+  const textLength = visibleTextLength(mainHtml);
+  if (textLength < minimumMainTextLength) {
+    errors.push(`${pathname} 的主内容仅 ${textLength} 字符（最低 ${minimumMainTextLength}）`);
+  }
+}
+
+// 審査クローラが主要導線で 404 に当たらないよう、全ページの内部リンクと画像を確認する。
+for (const [pathname, { html }] of pages) {
+  const references = [
+    ...matches(html, /href="([^"]+)"/g),
+    ...matches(html, /<img\b[^>]*\bsrc="([^"]+)"/g),
+  ];
+  for (const reference of references) {
+    if (/^(?:#|mailto:|tel:|javascript:|data:)/i.test(reference)) continue;
+    let target: URL;
+    try {
+      target = new URL(reference, `${siteOrigin}${pathname}`);
+    } catch {
+      errors.push(`${pathname} 包含无效链接 ${reference}`);
+      continue;
+    }
+    if (target.origin !== siteOrigin) continue;
+    let targetPath = target.pathname;
+    if (!targetPath.endsWith('/') && !/\.[a-z0-9]+$/i.test(targetPath)) targetPath += '/';
+    if (pages.has(targetPath)) continue;
+    const assetPath = join(distDir, decodeURIComponent(target.pathname).replace(/^\//, ''));
+    if (!existsSync(assetPath)) errors.push(`${pathname} 的内部资源不存在：${reference}`);
   }
 }
 
@@ -166,6 +265,20 @@ if (!existsSync(redirectsFile)) {
 const robotsText = readFileSync(join(distDir, 'robots.txt'), 'utf8');
 if (!robotsText.includes(`Sitemap: ${siteOrigin}/sitemap-index.xml`)) {
   errors.push('robots.txt 未指向正式 sitemap-index.xml');
+}
+if (!/User-agent:\s*Mediapartners-Google[\s\S]*?Allow:\s*\//i.test(robotsText)) {
+  errors.push('robots.txt 未明确允许 Mediapartners-Google 审核爬虫');
+}
+
+const adsTextPath = join(distDir, 'ads.txt');
+if (!existsSync(adsTextPath)) {
+  errors.push('dist/ads.txt 不存在');
+} else {
+  const adsRecords = readFileSync(adsTextPath, 'utf8')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'));
+  if (!adsRecords.includes(adsenseRecord)) errors.push('ads.txt 缺少正确的 Google AdSense 发布商记录');
 }
 
 if (errors.length > 0) {

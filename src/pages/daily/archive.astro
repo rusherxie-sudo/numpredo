@@ -70,6 +70,19 @@ const breadcrumbSchema = {
   )}
 
   <div class="px-text">
+    <h2>日付ごとに5段階を残す理由</h2>
+    <p>毎日のセットは、初級・中級・上級・難問・超難問を1問ずつ組み合わせています。同じ日に少しずつ難度を上げて解くことも、普段選ばない難度だけ試すこともできます。日付を変えても問題がランダムに入れ替わらないため、途中で閉じた盤面へ同じ URL から戻れます。</p>
+
+    <h2>アーカイブ問題の品質</h2>
+    <p>ここに収録する問題は当サイトの自社エンジンで生成し、掲載前に「解が一つだけであること」「仮置きなしの論理手順だけで完答できること」「論理ソルバーの完成盤面が生成時の解答と一致すること」を確認しています。難易度は空きマスの数ではなく、実際に必要になった最も難しい手筋と解法手数から判定しています。検証方法と題庫全体の結果は<a href="/research/puzzle-analysis/">全4,395問の分析データ</a>で公開しています。</p>
+
+    <h2>遊び方</h2>
+    <ol class="howto">
+      <li>カレンダーで公開初日から昨日までの日付を選びます。</li>
+      <li>盤面上のタブから挑戦する難易度を選びます。</li>
+      <li>数字またはメモを入力し、完成後に答えを確認します。途中経過は同じブラウザに保存されます。</li>
+    </ol>
+
     <h2>よくある質問</h2>
     <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
 
@@ -89,7 +102,7 @@ const breadcrumbSchema = {
     .px-text { max-width: 1060px; margin: 0 auto; }
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 14px; }
-    main ul { line-height: 2; }
+    main ul, .howto { line-height: 2; }
     .faq dt { font-weight: 700; margin-top: 16px; } .faq dd { margin: 5px 0 0; color: var(--ink-3); } .faq a { color: var(--accent); }
     .dc { max-width: 380px; margin: 0 0 18px; }
     .dc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
