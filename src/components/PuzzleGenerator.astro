@@ -1,0 +1,121 @@
+---
+type SeedPuzzle = { puzzle: string; solution: string; clues: number };
+interface Props {
+  puzzles: Record<string, SeedPuzzle[]>;
+}
+const { puzzles } = Astro.props;
+const levels = [
+  ['beginner', '初級'],
+  ['intermediate', '中級'],
+  ['advanced', '上級'],
+  ['hard', '難問'],
+  ['extreme', '超難問'],
+];
+---
+
+<section class="pg-tool" aria-labelledby="pg-tool-title">
+  <script id="pg-data" type="application/json" set:html={JSON.stringify(puzzles)} />
+
+  <div class="pg-controls">
+    <div>
+      <p class="pg-kicker">PUZZLE MAKER</p>
+      <h2 id="pg-tool-title">難易度を選んで、1問作成</h2>
+    </div>
+    <div class="pg-levels" role="group" aria-label="難易度">
+      {levels.map(([slug, label], i) => (
+        <button type="button" class={i === 0 ? 'pg-level on' : 'pg-level'} data-pg-level={slug} aria-pressed={i === 0 ? 'true' : 'false'}>{label}</button>
+      ))}
+    </div>
+  </div>
+
+  <div class="pg-shell">
+    <div class="pg-board-card">
+      <div id="pg-board" class="pg-board" role="img" aria-label="作成した数独問題"></div>
+      <span class="pg-seal" aria-label="唯一解・論理解を検証済み">唯一解<br />論理解</span>
+    </div>
+
+    <aside class="pg-side">
+      <div class="pg-quality">
+        <span id="pg-level-label">初級</span>
+        <strong id="pg-clues">—</strong>
+        <small>ヒント数</small>
+      </div>
+      <ul class="pg-checks">
+        <li>解はひとつだけ</li>
+        <li>当てずっぽう不要</li>
+        <li>5段階の難易度判定</li>
+      </ul>
+      <div class="pg-actions">
+        <button id="pg-new" type="button" class="pg-primary">新しい問題を作成</button>
+        <button id="pg-answer-toggle" type="button">解答を表示</button>
+        <button id="pg-print" type="button">印刷・PDF保存</button>
+        <button id="pg-copy" type="button">この問題のURLをコピー</button>
+      </div>
+      <p id="pg-status" class="pg-status" role="status" aria-live="polite"></p>
+    </aside>
+  </div>
+
+  <div id="pg-solution-wrap" class="pg-solution" hidden>
+    <h3>解答</h3>
+    <div id="pg-solution" class="pg-board" role="img" aria-label="数独問題の解答"></div>
+  </div>
+</section>
+
+<script>
+  import '../client/puzzle-generator.ts';
+</script>
+
+<style is:global>
+  .pg-tool { margin: 24px 0 38px; padding: 22px; border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--surface); }
+  .pg-controls { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
+  .pg-controls h2 { margin: 2px 0 0; font-size: clamp(20px, 3vw, 27px); }
+  .pg-kicker { margin: 0; color: var(--accent); font: 700 11px/1 var(--font-mono); letter-spacing: .14em; }
+  .pg-levels { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+  .pg-level { padding: 7px 12px; border: 1px solid var(--line-2); border-radius: var(--radius-pill); background: var(--bg); color: var(--ink-2); font: 600 12px/1 var(--font-sans); cursor: pointer; }
+  .pg-level.on { border-color: var(--accent); background: var(--accent); color: var(--accent-on); }
+  .pg-level:focus-visible, .pg-actions button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .pg-shell { display: grid; grid-template-columns: minmax(280px, 520px) minmax(220px, 1fr); gap: 28px; align-items: center; }
+  .pg-board-card { position: relative; width: min(100%, 520px); }
+  .pg-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; border: 3px solid var(--ink); background: var(--surface); }
+  .pg-cell { display: grid; place-items: center; border-right: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); color: var(--ink); font: 600 clamp(16px, 4.3vw, 30px)/1 var(--font-mincho); }
+  .pg-cell:nth-child(9n) { border-right: 0; }
+  .pg-cell:nth-child(n+73) { border-bottom: 0; }
+  .pg-cell.pg-br { border-right: 2px solid var(--ink); }
+  .pg-cell.pg-bb { border-bottom: 2px solid var(--ink); }
+  .pg-cell.pg-empty { color: transparent; }
+  .pg-seal { position: absolute; right: -10px; bottom: -10px; display: grid; place-items: center; width: 62px; height: 62px; border: 3px double var(--num-error); border-radius: 50%; background: var(--surface); color: var(--num-error); font: 700 13px/1.15 var(--font-mincho); text-align: center; transform: rotate(-8deg); }
+  .pg-side { max-width: 330px; }
+  .pg-quality { display: grid; grid-template-columns: 1fr auto; align-items: end; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .pg-quality span { color: var(--accent); font-weight: 700; }
+  .pg-quality strong { font: 700 34px/1 var(--font-mono); }
+  .pg-quality small { grid-column: 2; margin-top: 3px; color: var(--ink-3); }
+  .pg-checks { margin: 15px 0 18px; padding: 0; list-style: none; color: var(--ink-2); font-size: 13px; line-height: 1.9; }
+  .pg-checks li::before { content: '✓'; margin-right: 8px; color: var(--accent); font-weight: 800; }
+  .pg-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .pg-actions button { min-height: 42px; padding: 9px 10px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--bg); color: var(--ink-2); font: 600 12px/1.35 var(--font-sans); cursor: pointer; }
+  .pg-actions .pg-primary { grid-column: 1 / -1; border-color: var(--accent); background: var(--accent); color: var(--accent-on); font-size: 14px; }
+  .pg-status { min-height: 18px; margin: 8px 0 0; color: var(--ink-3); font-size: 12px; }
+  .pg-solution { max-width: 410px; margin: 28px auto 0; padding-top: 22px; border-top: 1px solid var(--line); }
+  .pg-solution h3 { margin: 0 0 12px; text-align: center; }
+  @media (max-width: 720px) {
+    .pg-tool { padding: 16px; }
+    .pg-controls { align-items: flex-start; flex-direction: column; }
+    .pg-levels { justify-content: flex-start; }
+    .pg-shell { grid-template-columns: 1fr; gap: 24px; }
+    .pg-board-card { margin-inline: auto; }
+    .pg-side { max-width: none; }
+    .pg-seal { right: -6px; bottom: -6px; width: 54px; height: 54px; font-size: 11px; }
+  }
+  @media print {
+    .snav, .sfoot, .fsh, .share-bar, .pg-page-head, .pg-content, .pg-controls, .pg-side { display: none !important; }
+    body, main, .pg-tool { margin: 0; padding: 0; max-width: none; background: #fff; border: 0; }
+    .pg-shell { display: block; }
+    .pg-board-card { width: 150mm; margin: 8mm auto 0; }
+    .pg-board { border-color: #111; }
+    .pg-cell { color: #111; border-color: #bbb; }
+    .pg-cell.pg-br, .pg-cell.pg-bb { border-color: #111; }
+    .pg-seal { background: #fff; }
+    .pg-solution[hidden] { display: block !important; }
+    .pg-solution { max-width: 105mm; margin: 18mm auto 0; padding-top: 0; border-top: 0; page-break-before: always; }
+  }
+</style>
