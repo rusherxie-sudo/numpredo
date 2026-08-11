@@ -17,6 +17,9 @@ import { join } from 'node:path';
 
 const PAGES = 'src/pages';
 const OUT = 'src/data/sitemap-lastmod.json';
+const INDEXABLE_PUZZLE_PATHS: string[] = JSON.parse(
+  readFileSync('src/data/indexable-puzzles.json', 'utf-8'),
+);
 
 // 动态路由模板 → 其内容数据文件。改路由时同步维护（对应 CLAUDE.md 的「内容即数据」表）。
 const DYNAMIC_DATA: Record<string, string> = {
@@ -101,13 +104,18 @@ for (const rel of [...allPages.filter((p) => p.includes('[')), ...allPages.filte
         const d = gitLastmod([`${PAGES}/${rel}`, pf]);
         if (!d) continue;
         const count = Math.min(SETS_PER_LEVEL, JSON.parse(readFileSync(pf, 'utf-8')).puzzles.length);
-        for (let nn = 1; nn <= count; nn++) {
+        for (const path of INDEXABLE_PUZZLE_PATHS) {
+          const hit = path.match(/^\/play\/([^/]+)\/(\d+)\/$/);
+          if (!hit) throw new Error(`编号题索引清单路径格式错误：${path}`);
+          if (hit[1] !== lv) continue;
+          const nn = Number(hit[2]);
+          if (nn > count) continue;
           if (nn <= 55) {
-            map[`/play/${lv}/${nn}/`] = d;
+            map[path] = d;
           } else {
             const dayIdx = epochIdx + (nn - 55);
             const date = new Date(dayIdx * 86400000);
-            map[`/play/${lv}/${nn}/`] = date.toISOString();
+            map[path] = date.toISOString();
           }
         }
       }

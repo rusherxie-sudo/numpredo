@@ -27,6 +27,8 @@ const diffs: [string, string, string, number, string][] = [
   ['Lv.5', '数独 エキスパート・超難問', '/play/extreme/', 5, '最難関。じっくり腰を据えて挑む上級者向け。'],
 ];
 const tools: [string, string, string, string][] = [
+  ['例', '5段階の例題・解き方', '/guide/solving-examples/', '初級から超難問まで、実際の5問を自社エンジンで解き、一手ずつ盤面図で比較。'],
+  ['候', '候補数字・次の一手', '/tools/candidate-checker/', '選んだマスに入る数字と、入らない理由を行・列・ブロック単位でその場で診断。'],
   ['練', '次の一手・実力診断', '/practice/', '実際の候補配置から手筋を選ぶ5問。回答後に消せる候補と理由を図解。'],
   ['解', '解き方ガイド', '/guide/', 'ルールから上級テクニックまで、盤面の図解つきで解説。'],
   ['刷', '数独無料問題集・プリント', '/print/', '答え付きの問題集を、難易度と問題数を選んで無料で印刷・PDF保存。'],
@@ -126,7 +128,7 @@ const homeFaqSchema = {
           </a>
         ))}
       </div>
-      <p class="hp-guidelinks">よく読まれる解説：<a href="/guide/sudoku-vs-numpre/">数独とナンプレの違い</a><a href="/guide/rules/">数独のルール</a><a href="/guide/intermediate/">ナンプレ中級の解き方</a><a href="/guide/tips/">ナンプレのコツ</a><a href="/guide/when-stuck/">数独で行き詰まったら</a></p>
+      <p class="hp-guidelinks">よく読まれる解説：<a href="/guide/solving-examples/">5段階の実戦例題</a><a href="/guide/sudoku-vs-numpre/">数独とナンプレの違い</a><a href="/guide/rules/">数独のルール</a><a href="/guide/intermediate/">ナンプレ中級の解き方</a><a href="/guide/tips/">ナンプレのコツ</a><a href="/guide/when-stuck/">数独で行き詰まったら</a></p>
     </div>
   </section>
 

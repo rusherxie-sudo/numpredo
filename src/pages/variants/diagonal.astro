@@ -3,6 +3,7 @@
 // 但走独立静态路由而非 [slug].astro：Astro 的 hoisted script 在条件渲染下也会打包，
 // 混在动态路由会让 killer/6x6/不等号页背上游戏 JS（违反内容页零 JS）。
 import Base from '../../layouts/Base.astro';
+import EditorialNote from '../../components/EditorialNote.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import SudokuGame from '../../components/SudokuGame.astro';
 import { VARIANTS, variantBySlug } from '../../data/variants.ts';
@@ -78,6 +79,7 @@ const breadcrumbSchema = {
     <h1>{v.h1}</h1>
     {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
     <p class="lead">{v.lead}</p>
+    <EditorialNote verification="掲載する対角線数独30問は、行・列・3×3ブロックに加えて2本の対角線でも1〜9が重複せず、唯一解になることを公開前に検証しています。" />
   </div>
 
   <SudokuGame level="diagonal" levelJa="対角線数独" url={url} variant="diagonal" set={set} />

@@ -255,7 +255,7 @@ export const GUIDES: GuideArticle[] = [
       {
         h: '中級問題で手順を練習する',
         body: [
-          '<a href="/play/intermediate/1/">中級 No.1 の一手ずつ図解</a>では、どの候補を、どの根拠で消したかを順番に確認できます。図解を一手だけ見たら<a href="/play/intermediate/">中級ナンプレを無料でプレイ</a>へ戻り、自分で同じ形を探すと定着しやすくなります。',
+          '<a href="/guide/solving-examples/#intermediate">中級の代表例題と一手ずつ図解</a>では、どの候補を、どの根拠で消したかを順番に確認できます。図解を一手だけ見たら<a href="/play/intermediate/">中級ナンプレを無料でプレイ</a>へ戻り、自分で同じ形を探すと定着しやすくなります。',
           '紙に候補を書き込んで練習したい方は、<a href="/print/intermediate/">数独中級の無料プリント問題集</a>を利用できます。答え付きでPDF保存にも対応しています。',
         ],
       },

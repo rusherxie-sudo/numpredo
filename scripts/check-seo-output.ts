@@ -13,6 +13,7 @@ const numberedPuzzlePattern = /^\/play\/(?:beginner|intermediate|advanced|hard|e
 const allowedNoindexPaths = new Set(['/stats/']);
 const thinContentExemptPaths = new Set(['/about/', '/contact/', '/privacy/', '/terms/']);
 const minimumMainTextLength = 700;
+const maximumContentSimilarity = 0.45;
 const requiredContentMarkers: Record<string, string[]> = {
   '/practice/': ['"@type":"LearningResource"', 'data-practice', '実際の問題を論理ソルバーが解いた途中局面', 'この練習で扱う5つの手筋'],
   '/research/puzzle-analysis/': ['"@type":"Dataset"', '全4,395問の数独を分析', '集計方法と再現性', 'データの範囲と限界'],
@@ -22,6 +23,8 @@ const requiredContentMarkers: Record<string, string[]> = {
   '/privacy/': ['Google AdSense', 'Google が認定した同意管理プラットフォーム', '外部サービスと送信先'],
   '/terms/': ['印刷問題集の非営利利用', '著作権', '免責事項'],
   '/daily/archive/': ['日付ごとに5段階を残す理由', 'アーカイブ問題の品質', '全4,395問の分析データ'],
+  '/guide/solving-examples/': ['5問の比較表', '初級の例題', '超難問の例題', '題庫から構築時に再計算'],
+  '/tools/candidate-checker/': ['data-candidate-checker', '候補数字の調べ方', '答えを見ずに「なぜ入らないか」を確認', 'EducationalApplication'],
 };
 const expectedPuzzlePaths = new Set<string>(
   JSON.parse(readFileSync(join(projectRoot, 'src/data/indexable-puzzles.json'), 'utf8')),
@@ -50,14 +53,20 @@ function matches(html: string, pattern: RegExp): string[] {
   return [...html.matchAll(pattern)].map((match) => match[1]);
 }
 
-function visibleTextLength(html: string): number {
+function visibleText(html: string): string {
   return html
     .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
     .replace(/<svg\b[\s\S]*?<\/svg>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&(?:[a-z]+|#\d+);/gi, ' ')
-    .replace(/\s/g, '').length;
+    .replace(/\s/g, '');
+}
+
+function contentShingles(text: string, size = 5): Set<string> {
+  const out = new Set<string>();
+  for (let index = 0; index <= text.length - size; index++) out.add(text.slice(index, index + size));
+  return out;
 }
 
 const errors: string[] = [];
@@ -158,9 +167,31 @@ for (const pathname of indexablePaths) {
   if (thinContentExemptPaths.has(pathname)) continue;
   const html = pages.get(pathname)?.html ?? '';
   const mainHtml = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? '';
-  const textLength = visibleTextLength(mainHtml);
+  const textLength = visibleText(mainHtml).length;
   if (textLength < minimumMainTextLength) {
     errors.push(`${pathname} 的主内容仅 ${textLength} 字符（最低 ${minimumMainTextLength}）`);
+  }
+}
+
+// 字数无法识别“换题号、换少量参数”的模板页。使用正文 5 字片段 Jaccard 相似度，
+// 直接阻止高度雷同的 index 页面再次进入站点（本轮整改前编号页最高 0.772）。
+const indexableContent = [...indexablePaths].map((pathname) => {
+  const html = pages.get(pathname)?.html ?? '';
+  const mainHtml = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? '';
+  const text = visibleText(mainHtml);
+  return { pathname, shingles: contentShingles(text) };
+});
+for (let left = 0; left < indexableContent.length; left++) {
+  for (let right = left + 1; right < indexableContent.length; right++) {
+    const a = indexableContent[left];
+    const b = indexableContent[right];
+    let intersection = 0;
+    for (const shingle of a.shingles) if (b.shingles.has(shingle)) intersection++;
+    const union = a.shingles.size + b.shingles.size - intersection;
+    const similarity = union ? intersection / union : 0;
+    if (similarity >= maximumContentSimilarity) {
+      errors.push(`${a.pathname} 与 ${b.pathname} 正文相似度 ${(similarity * 100).toFixed(1)}%（上限 ${(maximumContentSimilarity * 100).toFixed(0)}%）`);
+    }
   }
 }
 
@@ -216,6 +247,7 @@ for (const pathname of sitemapPaths) {
 // 量産型の番号ページは noindex の 200 ページとして残さない。
 // 実ページ・sitemap・許可リストの三者が完全一致することを保証する。
 const builtPuzzlePaths = new Set([...pages.keys()].filter((pathname) => numberedPuzzlePattern.test(pathname)));
+if (expectedPuzzlePaths.size > 0) errors.push('AdSense 低价值整改期间不得重新启用独立编号题页');
 for (const pathname of expectedPuzzlePaths) {
   if (!builtPuzzlePaths.has(pathname)) errors.push(`${pathname} 在题目页白名单中但未构建`);
   if (!sitemapPaths.has(pathname)) errors.push(`${pathname} 在题目页白名单中但未进入 sitemap`);

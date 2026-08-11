@@ -13,7 +13,7 @@ export function getStaticPaths() {
   // 検索需要と固有解説の価値を確認できた代表問題だけを実ページとして生成する。
   // noindex だけでは AdSense を含む審査クローラから量産ページを隠せないため、
   // 未採用の番号ページは生成せず public/_redirects で難易度ページへ統合する。
-  return indexablePuzzles.map((pathname) => {
+  return (indexablePuzzles as string[]).map((pathname) => {
     const match = pathname.match(/^\/play\/([^/]+)\/(\d+)\/$/);
     if (!match) throw new Error(`不正な問題 URL: ${pathname}`);
 
@@ -36,6 +36,7 @@ interface Props {
   n: number;
 }
 const { meta, n } = Astro.props;
+const indexablePuzzlePaths: string[] = indexablePuzzles;
 const puzzle = meta.puzzles[n - 1];
 const url = `https://numpredo.com/play/${meta.slug}/${n}/`;
 
@@ -54,13 +55,13 @@ const svgPuzzle = renderBoardSvg(grid, { given, theme: TOKEN_THEME, cell: 34, ti
 const stepFigs = renderStepFigures(keySteps, given);
 
 // 他の問題（同档相邻 ±6 を内部リンク。全件は档主页=枢纽が列挙、ここは近隣のみで過剰リンク回避）
-const sameLevelNs = indexablePuzzles
+const sameLevelNs = indexablePuzzlePaths
   .map((candidate) => candidate.match(new RegExp(`^/play/${meta.slug}/(\\d+)/$`))?.[1])
   .filter((candidate): candidate is string => Boolean(candidate))
   .map(Number)
   .filter((candidate) => candidate !== n);
 const otherLevels = LEVELS.filter(
-  (level) => level.slug !== meta.slug && indexablePuzzles.includes(`/play/${level.slug}/${n}/`),
+  (level) => level.slug !== meta.slug && indexablePuzzlePaths.includes(`/play/${level.slug}/${n}/`),
 );
 
 // ページ固有の実測パラメータ（description/本文の差別化：同档で clues/hardest が定数に潰れる档＝初級でも毎題変わる）

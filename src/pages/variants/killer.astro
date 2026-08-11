@@ -4,6 +4,7 @@
 // 混在动态路由会让 6x6/不等号页背上游戏 JS(违反内容页零 JS)。与 diagonal.astro 同一模式。
 // set 每题携带 cages(cage 划分是题面级数据),SudokuGame 岛按 data-variant="killer" 渲染点线与合计。
 import Base from '../../layouts/Base.astro';
+import EditorialNote from '../../components/EditorialNote.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import SudokuGame from '../../components/SudokuGame.astro';
 import { VARIANTS, variantBySlug } from '../../data/variants.ts';
@@ -88,6 +89,7 @@ const breadcrumbSchema = {
     <h1>{v.h1}</h1>
     {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
     <p class="lead">{v.lead}</p>
+    <EditorialNote verification="掲載するキラー数独30問は、各ケージの合計・ケージ内の重複禁止・通常数独の制約を同時に満たし、唯一解になることを公開前に検証しています。" />
   </div>
 
   <SudokuGame level="killer" levelJa="キラー数独" url={url} variant="killer" set={set} />

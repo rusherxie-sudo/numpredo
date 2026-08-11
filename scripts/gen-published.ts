@@ -20,6 +20,9 @@ import { join } from 'node:path';
 
 const PAGES = 'src/pages';
 const OUT = 'src/data/published.json';
+const INDEXABLE_PUZZLE_PATHS: string[] = JSON.parse(
+  readFileSync('src/data/indexable-puzzles.json', 'utf-8'),
+);
 
 // 动态路由模板 → 其内容数据文件（与 gen-sitemap-lastmod.ts 保持一致，改路由时同步维护）。
 const DYNAMIC_DATA: Record<string, string> = {
@@ -149,11 +152,14 @@ for (const rel of listPages()) {
         const date = new Date(dayIdx * 86400000);
         return date.toISOString();
       };
-      for (const lv of slugsFromData('src/data/levels.ts'))
-        for (let nn = 1; nn <= SETS_PER_LEVEL; nn++) {
-          const d = pubForN(nn);
-          if (d) map[`/play/${lv}/${nn}/`] = d;
-        }
+      for (const path of INDEXABLE_PUZZLE_PATHS) {
+        const hit = path.match(/^\/play\/([^/]+)\/(\d+)\/$/);
+        if (!hit) throw new Error(`编号题索引清单路径格式错误：${path}`);
+        const nn = Number(hit[2]);
+        if (nn > SETS_PER_LEVEL) continue;
+        const d = pubForN(nn);
+        if (d) map[path] = d;
+      }
       continue;
     }
     // 动态路由：每个 slug 一个 URL；内容源 = 模板文件 + 数据文件，组内共用同一日期（git 按文件粒度）

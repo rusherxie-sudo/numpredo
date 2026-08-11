@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro';
+import EditorialNote from '../../components/EditorialNote.astro';
+
+const title = '数独の候補数字・次の一手チェッカー｜入らない理由まで無料診断 - numpredo';
+const description = '数独・ナンプレの盤面を入力して、各マスの候補数字と入らない理由、重複、次の論理手順を無料診断。行・列・3×3ブロックのどこで候補が消えるかを一数字ずつ確認できます。';
+const url = 'https://numpredo.com/tools/candidate-checker/';
+const faq = [
+  { q: '候補数字とは何ですか？', a: 'その空きマスにルール上入る可能性が残っている数字です。同じ行・列・3×3ブロックにすでにある数字を1〜9から除くと求められます。' },
+  { q: '入力した盤面や記録は送信されますか？', a: 'いいえ。候補計算と次の一手の判定はブラウザ内で行い、入力した81マスを当サイトのサーバーへ保存・送信しません。' },
+  { q: '候補が一つなのに数字を入れてよいですか？', a: '同じ行・列・ブロックの数字から計算した候補が一つだけなら「裸の単数」として確定できます。ただし、それ以前の入力に誤りがあると候補も変わるため、赤い重複がないか先に確認してください。' },
+  { q: '問題に解があるか、唯一解かも分かりますか？', a: 'このページは現在の候補と次の一手を学ぶためのツールです。解の有無と唯一解、完成盤面まで確認する場合は数独ソルバーを利用してください。' },
+];
+const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独の候補数字・次の一手チェッカー', description, url, applicationCategory: 'EducationalApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' }, publisher: { '@id': 'https://numpredo.com/#organization' } };
+const howToSchema = { '@context': 'https://schema.org', '@type': 'HowTo', name: '数独の候補数字と次の一手を調べる方法', inLanguage: 'ja', step: [
+  { '@type': 'HowToStep', position: 1, name: '盤面を入力', text: '最初から入っている数字と、現在までに確定した数字を盤面へ入力します。' },
+  { '@type': 'HowToStep', position: 2, name: '空きマスを選択', text: '調べたい空きマスを選ぶと、1〜9それぞれが候補に残るかを表示します。' },
+  { '@type': 'HowToStep', position: 3, name: '理由と次の一手を確認', text: '候補から消える理由、候補が一つのマス数、現在使える最初の論理手順を確認します。' },
+] };
+const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) };
+const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+  { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+  { '@type': 'ListItem', position: 2, name: '数独ソルバー', item: 'https://numpredo.com/tools/solver/' },
+  { '@type': 'ListItem', position: 3, name: '候補数字チェッカー', item: url },
+] };
+---
+
+<Base title={title} description={description} canonical={url} wide>
+  <Fragment slot="head"><script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} /><script type="application/ld+json" set:html={JSON.stringify(howToSchema)} /><script type="application/ld+json" set:html={JSON.stringify(faqSchema)} /><script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} /></Fragment>
+  <div class="cc-text"><nav class="crumb"><a href="/">ホーム</a> › <a href="/tools/solver/">ソルバー</a> › 候補数字チェッカー</nav><h1>数独の候補数字・次の一手チェッカー</h1><p class="lead">盤面を入力して空きマスを選ぶと、候補に残る数字と、候補から消える理由を1〜9まで表示します。重複、候補が一つのマス、現在使える最初の論理手順も同時に診断します。無料・登録不要、計算はすべて端末内です。</p><EditorialNote verification="候補は独自数独エンジンの行・列・3×3ブロック制約から毎回再計算し、次の一手は掲載題庫の難易度判定と同じ論理ソルバーで確認しています。" /></div>
+  <div data-candidate-checker class="cc-app"><p>盤面を準備しています…</p></div>
+  <div class="cc-text">
+    <h2>候補数字の調べ方</h2><ol><li>最初から入っている数字と、確定済みの数字を盤面へ入力します。81文字形式なら貼り付けにも対応しています。</li><li>調べたい空きマスを選びます。小さく表示される数字が、行・列・3×3ブロックの制約をすべて通過した候補です。</li><li>右側の診断で、1〜9それぞれが「候補に残る」「同じ行・列・ブロックの数字で消える」のどちらかを確認します。</li><li>候補が一つだけなら裸の単数です。次の一手欄には、現在の盤面から最初に使える論理手順を表示します。</li></ol>
+    <h2>答えを見ずに「なぜ入らないか」を確認</h2><p>一般的な解答ツールは完成盤面をすぐ表示しますが、このチェッカーは答えを見せる前の学習に使います。たとえば5が候補から消える場合、「同じ行の2行7列に5がある」のように、どの制約で除外されたかを示します。自分の候補メモと機械計算を照合できるため、見落とした数字だけを直して自力で続きを解けます。</p>
+    <h2>このツールで分かること・分からないこと</h2><div class="cc-compare"><div><h3>分かること</h3><ul><li>選んだマスの候補1〜9</li><li>候補から消える具体的な理由</li><li>行・列・ブロック内の重複</li><li>裸の単数の個数</li><li>現在使える最初の論理手順</li></ul></div><div><h3>ソルバーで確認すること</h3><ul><li>問題に解があるか</li><li>解が一つだけか</li><li>完成した答えの盤面</li><li>最後までの図解手順</li></ul><p><a href="/tools/solver/">数独ソルバーへ進む</a></p></div></div>
+    <h2>候補から次の一手へ進む順番</h2><p>候補を更新したら、まず候補が一つの<a href="/guide/techniques/naked-single/">裸の単数</a>、次に一つの数字が一箇所にしか入れない<a href="/guide/techniques/hidden-single/">隠れた単数</a>を探します。それでも進まなければ、<a href="/guide/techniques/pointing/">区画の絞り込み</a>、<a href="/guide/techniques/naked-pair/">ペア（二国同盟）</a>へ進みます。実際の5段階の盤面は<a href="/guide/solving-examples/">一手ずつ図解の例題集</a>で比較できます。</p>
+    <h2>よくある質問</h2><dl class="faq">{faq.map((item) => <><dt>{item.q}</dt><dd>{item.a}</dd></>)}</dl>
+  </div>
+  <script>import '../../client/candidate-checker.ts';</script>
+  <style is:global>
+    .cc-text { max-width: 1060px; margin: 0 auto; } .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; } .lead { color: var(--ink-3); font-size: 14px; }
+    .cc-app { max-width: 900px; margin: 18px auto 28px; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .cc-layout { display: grid; grid-template-columns: minmax(300px, 480px) 1fr; gap: 22px; align-items: start; }
+    .cc-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; border: 2px solid var(--board-edge); border-radius: 5px; overflow: hidden; background: var(--board-bg); }
+    .cc-cell { border: .5px solid var(--cell-line); background: transparent; color: var(--ink-4); font-size: clamp(8px, 1.5vw, 12px); padding: 1px; letter-spacing: .04em; cursor: pointer; overflow-wrap: anywhere; }
+    .cc-cell.cc-br { border-right: 2px solid var(--box-line); } .cc-cell.cc-bb { border-bottom: 2px solid var(--box-line); } .cc-cell.cc-given { font-family: var(--font-mincho); font-size: clamp(18px, 3vw, 26px); font-weight: 700; color: var(--num-given); }
+    .cc-cell.cc-peer { background: var(--surface-2); } .cc-cell.cc-selected { background: var(--cell-sel-bg); box-shadow: inset 0 0 0 2px var(--accent); } .cc-cell.cc-error { color: var(--num-error); background: var(--cell-error-bg); }
+    .cc-pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; } .cc-pad button, .cc-controls button { min-height: 44px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; font-size: 16px; }
+    .cc-controls { display: flex; gap: 8px; margin-top: 10px; } .cc-controls button { flex: 1; font-size: 13px; }
+    .cc-result { margin-top: 14px; font-size: 13px; color: var(--ink-2); } .cc-result p { margin: 8px 0; } .cc-result a { color: var(--accent); } .cc-alert { color: var(--num-error); } .cc-ok { color: var(--accent); }
+    .cc-reason { display: block; padding: 3px 0; } .cc-reason.ok { color: var(--accent); } .cc-reason.ng { color: var(--ink-4); } .cc-summary { padding: 7px 9px; background: var(--surface-2); border-radius: 5px; }
+    .cc-text a { color: var(--accent); } .cc-text ul, .cc-text ol { line-height: 2; } .cc-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } .cc-compare > div { padding: 12px 14px; border: 1px solid var(--line); border-radius: 7px; }
+    .faq dt { font-weight: 700; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--ink-3); }
+    @media (max-width: 760px) { .cc-layout, .cc-compare { grid-template-columns: 1fr; } .cc-app { padding: 10px; } .cc-cell { font-size: 8px; } .cc-cell.cc-given { font-size: clamp(18px, 6vw, 28px); } }
+  </style>
+</Base>

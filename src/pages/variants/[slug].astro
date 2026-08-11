@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import EditorialNote from '../../components/EditorialNote.astro';
 import { VARIANTS, type Variant } from '../../data/variants.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
 import publishedJson from '../../data/published.json';
@@ -73,6 +74,7 @@ const breadcrumbSchema = {
   <h1>{v.h1}</h1>
   {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
   <p class="lead">{v.lead}</p>
+  <EditorialNote verification={`${v.name}固有のルール、盤面例、FAQを照合し、通常の9×9数独との違いが盤面上で再現できることを確認しています。`} />
 
   <figure class="var-fig"><Fragment set:html={v.svg} /><figcaption>{v.svgCaption}</figcaption></figure>
 

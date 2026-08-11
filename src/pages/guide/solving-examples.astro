@@ -1,0 +1,116 @@
+---
+import Base from '../../layouts/Base.astro';
+import EditorialNote from '../../components/EditorialNote.astro';
+import ShareBar from '../../components/ShareBar.astro';
+import { LEVELS } from '../../data/levels.ts';
+import lastmodJson from '../../data/sitemap-lastmod.json';
+import publishedJson from '../../data/published.json';
+import {
+  TECH_INFO,
+  TOKEN_THEME,
+  gridFromString,
+  logicalSolve,
+  renderBoardSvg,
+  renderStepFigures,
+  traceKeySteps,
+} from '../../engine/index.ts';
+
+const title = '数独の解き方例題集｜初級から超難問まで5問を一手ずつ図解 - numpredo';
+const description = '数独・ナンプレの初級、中級、上級、難問、超難問を実際の5問で比較。ヒント数、論理手数、最難テクニックと候補消去を、独自ソルバーが解いた盤面で一手ずつ図解します。';
+const url = 'https://numpredo.com/guide/solving-examples/';
+const lastmod: Record<string, string> = lastmodJson;
+const published: Record<string, string> = publishedJson;
+const datePublished = published['/guide/solving-examples/'];
+const dateModified = lastmod['/guide/solving-examples/'];
+
+const sampleNumbers: Record<string, number> = { beginner: 1, intermediate: 1, advanced: 1, hard: 10, extreme: 17 };
+const examples = LEVELS.map((level) => {
+  const number = sampleNumbers[level.slug] ?? 1;
+  const raw = level.puzzles[number - 1];
+  const grid = gridFromString(raw.puzzle);
+  const given = grid.map((value) => value !== 0);
+  const result = logicalSolve(gridFromString(raw.puzzle));
+  const hardestInfo = TECH_INFO[result.hardest ?? 'nakedSingle'] ?? TECH_INFO.nakedSingle;
+  return {
+    level,
+    number,
+    clues: grid.filter(Boolean).length,
+    result,
+    hardestInfo,
+    puzzleSvg: renderBoardSvg(grid, { given, theme: TOKEN_THEME, cell: 34, title: `${level.ja}の代表例題`, desc: `${level.ja}の検証済み数独問題` }),
+    figures: renderStepFigures(traceKeySteps(gridFromString(raw.puzzle), { maxSteps: 4 }), given, 32),
+  };
+});
+
+const articleSchema = {
+  '@context': 'https://schema.org', '@type': 'Article',
+  headline: '数独の解き方例題集｜5段階を一手ずつ比較', description, inLanguage: 'ja',
+  mainEntityOfPage: url, image: 'https://numpredo.com/og-image.png',
+  author: { '@id': 'https://numpredo.com/#organization' }, publisher: { '@id': 'https://numpredo.com/#organization' },
+  ...(datePublished ? { datePublished } : {}), ...(dateModified ? { dateModified } : {}),
+};
+const itemListSchema = {
+  '@context': 'https://schema.org', '@type': 'ItemList', name: '初級から超難問までの数独例題5問', numberOfItems: examples.length,
+  itemListElement: examples.map((example, index) => ({ '@type': 'ListItem', position: index + 1, name: `${example.level.ja}の数独例題`, url: `${url}#${example.level.slug}` })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '解き方', item: 'https://numpredo.com/guide/' },
+    { '@type': 'ListItem', position: 3, name: '5段階の例題集', item: url },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={url}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › <a href="/guide/">解き方</a> › 5段階の例題集</nav>
+  <h1>数独の解き方例題集｜初級から超難問まで5問を一手ずつ図解</h1>
+  {dateModified && <p class="updated"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
+  <p class="lead">同じ9×9の数独でも、難しさは空きマスの数だけでは決まりません。このページでは、5段階から実際の問題を1問ずつ選び、独自ソルバーが論理だけで解いた手順を比較します。盤面・ヒント数・手数・使った最難テクニックは、すべて題庫から構築時に再計算した値です。</p>
+  <EditorialNote verification="掲載する5問を独自エンジンで再解析し、唯一解、論理だけで完答、生成時の解答との一致を確認しています。図解は各手筋を実行する直前の候補状態から生成しています。" />
+
+  <h2>5問の比較表</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>難易度</th><th>ヒント</th><th>論理手数</th><th>最難テクニック</th><th>結果</th></tr></thead>
+    <tbody>{examples.map((example) => <tr><td><a href={`#${example.level.slug}`}>{example.level.ja}</a></td><td>{example.clues}個</td><td>{example.result.steps.length}手</td><td>{example.hardestInfo.ja}</td><td>{example.result.solved ? '論理だけで完答' : '未完了'}</td></tr>)}</tbody>
+  </table></div>
+  <p>初級では一つのマスや一つの数字を見れば進めます。中級以上では、候補を消す手筋を使い、その結果として新しい単数を作る流れが増えます。超難問は盤面全体の複数行・複数列を同時に見る必要があります。</p>
+
+  {examples.map((example) => (
+    <section id={example.level.slug} class="example">
+      <h2>{example.level.ja}の例題｜{example.hardestInfo.ja}まで使う</h2>
+      <p>{example.level.intro} この例題はヒント<strong>{example.clues}個</strong>、論理手数<strong>{example.result.steps.length}手</strong>。最も難しい手筋は<strong>{example.hardestInfo.ja}</strong>です。</p>
+      <div class="puzzle-row">
+        <figure class="puzzle"><Fragment set:html={example.puzzleSvg} /><figcaption>{example.level.ja}の問題（太字が最初のヒント）</figcaption></figure>
+        <div><h3>この盤面で見るポイント</h3><ul><li>解は一つだけで、仮置きは不要です。</li><li>独自ソルバーは{example.result.steps.length}回の論理手順で完成しました。</li><li>候補消去の後は、もう一度単数がないか確認します。</li></ul><p><a href={`/play/${example.level.slug}/?n=${example.number}`}>この問題を自分で解く</a>{example.hardestInfo.slug && <> ／ <a href={`/guide/techniques/${example.hardestInfo.slug}/`}>{example.hardestInfo.ja}の詳しい解説</a></>}</p></div>
+      </div>
+      <h3>重要な手順を盤面で確認</h3>
+      <div class="steps">{example.figures.map((figure) => <figure class="step"><Fragment set:html={figure.svg} /><figcaption><strong>{figure.label}</strong>{figure.slug && <> — <a href={`/guide/techniques/${figure.slug}/`}>手筋の解説</a></>}</figcaption><p>{figure.text}</p></figure>)}</div>
+    </section>
+  ))}
+
+  <h2>図解を自分の盤面に応用する方法</h2>
+  <ol><li>まず裸の単数と隠れた単数をすべて探します。</li><li>進まなければ全空きマスの候補を更新し、同じ候補の並びを探します。</li><li>候補を消したら高度な手筋を続けず、再び単数へ戻ります。</li><li>自分の問題で根拠を確認したい場合は、<a href="/tools/candidate-checker/">候補数字・次の一手チェッカー</a>または<a href="/tools/solver/">数独ソルバー</a>へ入力します。</li></ol>
+  <ShareBar url={url} title={title} cta="5段階の違いが分かったらシェア" />
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
+    .updated { color: var(--ink-4); font-size: 12px; margin: -4px 0 10px; } .lead { color: var(--ink-3); font-size: 14px; }
+    main a { color: var(--accent); } main ul, main ol { line-height: 2; }
+    .table-wrap { overflow-x: auto; margin: 12px 0; } table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid var(--line-2); padding: 9px 11px; text-align: left; } th { background: var(--surface-2); }
+    .example { scroll-margin-top: 78px; border-top: 1px solid var(--line); margin-top: 34px; padding-top: 10px; }
+    .puzzle-row { display: grid; grid-template-columns: minmax(240px, 330px) 1fr; gap: 24px; align-items: center; } .puzzle { margin: 0; text-align: center; }
+    .puzzle svg, .step svg { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+    .puzzle figcaption, .step figcaption { color: var(--ink-3); font-size: 12px; margin-top: 5px; }
+    .steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 16px; } .step { margin: 0; }
+    .step p { color: var(--ink-3); font-size: 13px; line-height: 1.7; margin: 5px 0 0; }
+    @media (max-width: 680px) { .puzzle-row, .steps { grid-template-columns: 1fr; } .puzzle { max-width: 330px; margin: 0 auto; } }
+  </style>
+</Base>
