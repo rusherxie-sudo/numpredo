@@ -3,12 +3,14 @@
 # Play pages
 # AdSense/検索品質対策：代表問題以外の旧番号ページは、同じ難易度のプレイページへ統合。
 # indexable-puzzles.json に番号を追加するときは、対応する行をこのブロックから削除すること。
+/play/beginner/2/ /play/beginner/ 301
 /play/beginner/3/ /play/beginner/ 301
 /play/beginner/4/ /play/beginner/ 301
 /play/beginner/5/ /play/beginner/ 301
 /play/beginner/6/ /play/beginner/ 301
 /play/beginner/7/ /play/beginner/ 301
 /play/beginner/8/ /play/beginner/ 301
+/play/beginner/9/ /play/beginner/ 301
 /play/beginner/10/ /play/beginner/ 301
 /play/beginner/11/ /play/beginner/ 301
 /play/beginner/12/ /play/beginner/ 301
@@ -76,6 +78,7 @@
 /play/beginner/74/ /play/beginner/ 301
 /play/beginner/75/ /play/beginner/ 301
 /play/beginner/76/ /play/beginner/ 301
+/play/beginner/77/ /play/beginner/ 301
 /play/beginner/78/ /play/beginner/ 301
 /play/beginner/79/ /play/beginner/ 301
 /play/beginner/80/ /play/beginner/ 301
@@ -90,6 +93,7 @@
 /play/beginner/89/ /play/beginner/ 301
 /play/beginner/90/ /play/beginner/ 301
 /play/intermediate/2/ /play/intermediate/ 301
+/play/intermediate/4/ /play/intermediate/ 301
 /play/intermediate/7/ /play/intermediate/ 301
 /play/intermediate/8/ /play/intermediate/ 301
 /play/intermediate/9/ /play/intermediate/ 301
@@ -173,17 +177,20 @@
 /play/intermediate/89/ /play/intermediate/ 301
 /play/intermediate/90/ /play/intermediate/ 301
 /play/advanced/2/ /play/advanced/ 301
-/play/advanced/3/ /play/advanced/ 301
 /play/advanced/4/ /play/advanced/ 301
 /play/advanced/5/ /play/advanced/ 301
 /play/advanced/6/ /play/advanced/ 301
 /play/advanced/7/ /play/advanced/ 301
 /play/advanced/8/ /play/advanced/ 301
 /play/advanced/9/ /play/advanced/ 301
+/play/advanced/11/ /play/advanced/ 301
 /play/advanced/12/ /play/advanced/ 301
+/play/advanced/13/ /play/advanced/ 301
 /play/advanced/14/ /play/advanced/ 301
 /play/advanced/15/ /play/advanced/ 301
+/play/advanced/16/ /play/advanced/ 301
 /play/advanced/17/ /play/advanced/ 301
+/play/advanced/19/ /play/advanced/ 301
 /play/advanced/22/ /play/advanced/ 301
 /play/advanced/23/ /play/advanced/ 301
 /play/advanced/24/ /play/advanced/ 301
@@ -197,6 +204,7 @@
 /play/advanced/33/ /play/advanced/ 301
 /play/advanced/34/ /play/advanced/ 301
 /play/advanced/35/ /play/advanced/ 301
+/play/advanced/36/ /play/advanced/ 301
 /play/advanced/37/ /play/advanced/ 301
 /play/advanced/38/ /play/advanced/ 301
 /play/advanced/39/ /play/advanced/ 301
@@ -206,6 +214,7 @@
 /play/advanced/43/ /play/advanced/ 301
 /play/advanced/44/ /play/advanced/ 301
 /play/advanced/45/ /play/advanced/ 301
+/play/advanced/46/ /play/advanced/ 301
 /play/advanced/47/ /play/advanced/ 301
 /play/advanced/48/ /play/advanced/ 301
 /play/advanced/49/ /play/advanced/ 301
@@ -225,6 +234,7 @@
 /play/advanced/63/ /play/advanced/ 301
 /play/advanced/64/ /play/advanced/ 301
 /play/advanced/65/ /play/advanced/ 301
+/play/advanced/66/ /play/advanced/ 301
 /play/advanced/67/ /play/advanced/ 301
 /play/advanced/68/ /play/advanced/ 301
 /play/advanced/69/ /play/advanced/ 301
@@ -253,6 +263,7 @@
 /play/hard/2/ /play/hard/ 301
 /play/hard/3/ /play/hard/ 301
 /play/hard/4/ /play/hard/ 301
+/play/hard/5/ /play/hard/ 301
 /play/hard/7/ /play/hard/ 301
 /play/hard/8/ /play/hard/ 301
 /play/hard/9/ /play/hard/ 301
@@ -260,6 +271,7 @@
 /play/hard/12/ /play/hard/ 301
 /play/hard/13/ /play/hard/ 301
 /play/hard/14/ /play/hard/ 301
+/play/hard/15/ /play/hard/ 301
 /play/hard/16/ /play/hard/ 301
 /play/hard/17/ /play/hard/ 301
 /play/hard/18/ /play/hard/ 301
@@ -271,7 +283,6 @@
 /play/hard/24/ /play/hard/ 301
 /play/hard/25/ /play/hard/ 301
 /play/hard/26/ /play/hard/ 301
-/play/hard/27/ /play/hard/ 301
 /play/hard/28/ /play/hard/ 301
 /play/hard/29/ /play/hard/ 301
 /play/hard/30/ /play/hard/ 301
@@ -285,8 +296,10 @@
 /play/hard/38/ /play/hard/ 301
 /play/hard/39/ /play/hard/ 301
 /play/hard/40/ /play/hard/ 301
+/play/hard/41/ /play/hard/ 301
 /play/hard/42/ /play/hard/ 301
 /play/hard/43/ /play/hard/ 301
+/play/hard/44/ /play/hard/ 301
 /play/hard/45/ /play/hard/ 301
 /play/hard/46/ /play/hard/ 301
 /play/hard/47/ /play/hard/ 301
@@ -333,6 +346,7 @@
 /play/hard/88/ /play/hard/ 301
 /play/hard/89/ /play/hard/ 301
 /play/hard/90/ /play/hard/ 301
+/play/extreme/1/ /play/extreme/ 301
 /play/extreme/2/ /play/extreme/ 301
 /play/extreme/3/ /play/extreme/ 301
 /play/extreme/4/ /play/extreme/ 301
@@ -365,8 +379,11 @@
 /play/extreme/33/ /play/extreme/ 301
 /play/extreme/34/ /play/extreme/ 301
 /play/extreme/35/ /play/extreme/ 301
+/play/extreme/37/ /play/extreme/ 301
 /play/extreme/38/ /play/extreme/ 301
+/play/extreme/40/ /play/extreme/ 301
 /play/extreme/42/ /play/extreme/ 301
+/play/extreme/43/ /play/extreme/ 301
 /play/extreme/45/ /play/extreme/ 301
 /play/extreme/46/ /play/extreme/ 301
 /play/extreme/47/ /play/extreme/ 301
@@ -377,6 +394,7 @@
 /play/extreme/52/ /play/extreme/ 301
 /play/extreme/53/ /play/extreme/ 301
 /play/extreme/54/ /play/extreme/ 301
+/play/extreme/55/ /play/extreme/ 301
 /play/extreme/56/ /play/extreme/ 301
 /play/extreme/57/ /play/extreme/ 301
 /play/extreme/58/ /play/extreme/ 301
@@ -392,6 +410,7 @@
 /play/extreme/68/ /play/extreme/ 301
 /play/extreme/69/ /play/extreme/ 301
 /play/extreme/70/ /play/extreme/ 301
+/play/extreme/71/ /play/extreme/ 301
 /play/extreme/72/ /play/extreme/ 301
 /play/extreme/73/ /play/extreme/ 301
 /play/extreme/74/ /play/extreme/ 301

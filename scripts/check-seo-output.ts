@@ -8,6 +8,7 @@ const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const distDir = join(projectRoot, 'dist');
 const siteOrigin = 'https://numpredo.com';
 const numberedPuzzlePattern = /^\/play\/(?:beginner|intermediate|advanced|hard|extreme)\/\d+\/$/;
+const allowedNoindexPaths = new Set(['/stats/']);
 const expectedPuzzlePaths = new Set<string>(
   JSON.parse(readFileSync(join(projectRoot, 'src/data/indexable-puzzles.json'), 'utf8')),
 );
@@ -77,6 +78,12 @@ for (const [canonical, owners] of canonicalOwners) {
   }
 }
 
+for (const pathname of pages.keys()) {
+  if (!indexablePaths.has(pathname) && !allowedNoindexPaths.has(pathname)) {
+    errors.push(`${pathname} 是 noindex 的 200 页面，但未在允许名单中`);
+  }
+}
+
 const sitemapXml = readFileSync(join(distDir, 'sitemap-0.xml'), 'utf8');
 const sitemapPaths = new Set(
   matches(sitemapXml, /<loc>([^<]+)<\/loc>/g).map((url) => new URL(url).pathname),
@@ -116,6 +123,19 @@ if (!existsSync(redirectsFile)) {
 
   for (const pathname of expectedPuzzlePaths) {
     if (exactSources.has(pathname)) errors.push(`${pathname} 同时是题目页白名单和 301 来源`);
+  }
+
+  // 内部链接不应把用户和审核爬虫先送进 301，尤其不能继续暴露已收缩的题号页。
+  for (const [pathname, { html }] of pages) {
+    const hrefs = matches(html, /href="([^"]+)"/g);
+    for (const href of hrefs) {
+      if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) continue;
+      const target = new URL(href, siteOrigin);
+      if (target.origin !== siteOrigin) continue;
+      if (numberedPuzzlePattern.test(target.pathname) && exactSources.has(target.pathname)) {
+        errors.push(`${pathname} 内链指向已 301 的题号页 ${target.pathname}`);
+      }
+    }
   }
 
   for (const [source, target, status] of redirects) {

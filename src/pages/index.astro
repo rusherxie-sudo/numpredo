@@ -1,11 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
 import advanced from '../data/puzzles/advanced.json';
+import { LEVELS } from '../data/levels.ts';
 import { gridFromString, renderBoardSvg } from '../engine/index.ts';
 
 const title = '数独無料ゲーム・ナンプレ無料問題集｜登録不要 - numpredo';
 const description =
   '数独無料ゲーム・ナンプレ無料問題を登録不要ですぐに楽しめます。初級から超難問まで、すべて唯一解・論理だけで解ける高品質問題。解き方、自動解答ソルバー、答え付きPDF印刷にも無料で対応。';
+const totalPuzzles = LEVELS.reduce((sum, level) => sum + level.puzzles.length, 0);
 
 // hero の盤面：実題を構築期に SVG 化（CSS 変数主題で明暗自動追随）
 const heroGrid = gridFromString(advanced.puzzles[0].puzzle);
@@ -31,10 +33,10 @@ const tools: [string, string, string, string][] = [
   ['変', '変わり種数独', '/variants/', 'キラー数独・6×6・不等号・対角線などのルール紹介。'],
 ];
 const why: [string, string, string][] = [
-  ['無料', '登録なしで遊べる', 'アカウント登録もアプリも不要。開いてすぐ始められます。'],
-  ['📱', 'スマホでも快適', '小さな画面でも押しやすい数字キーボードで、サクサク作答。'],
-  ['✎', '候補メモ機能', 'マスの中に小さく候補を書き込んで、消去法で絞り込めます。'],
-  ['✓', '自動でこたえ合わせ', 'まちがいはその場で表示。ソルバーで紙の問題も照合できます。'],
+  [totalPuzzles.toLocaleString('ja-JP'), '全問題を三重に検証', '唯一解・論理だけで完答・生成解との一致を、公開前に全問チェックしています。'],
+  ['技', '解法で決める難易度', '空きマス数ではなく、実際に必要な最難テクニックと手数で5段階に分類。'],
+  ['図', '実際の解答手順を図解', '一般的な説明の使い回しではなく、その盤面を解いた手順から次の一手を表示します。'],
+  ['独', '自社エンジンと無料ツール', '問題生成・自動解答・印刷まで同じ検証済みエンジンを使い、第三者問題を転載しません。'],
 ];
 
 const homeFaq: [string, string][] = [
@@ -72,14 +74,14 @@ const homeFaqSchema = {
     <div class="hp-hero-l">
       <span class="hp-badge">登録不要・完全無料</span>
       <h1 class="hp-h1">数独無料ゲームを、<br />毎日。</h1>
-      <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで5段階、毎日あたらしいデイリー問題も。解き方ガイドと、自動でこたえ合わせできるソルバーつき。</p>
+      <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで全{totalPuzzles.toLocaleString('ja-JP')}題を、唯一解・論理だけで解けることまで検証しています。毎日の問題、図解ガイド、自動で答え合わせできるソルバーも無料です。</p>
       <div class="hp-cta">
         <a href="/play/beginner/" class="hp-btn hp-btn-p">初級をはじめる</a>
         <a href="/daily/" class="hp-btn hp-btn-s">日替わりナンプレ・今日の数独 →</a>
         <a href="/print/" class="hp-btn hp-btn-s">無料問題集を印刷 →</a>
       </div>
       <div class="hp-difflinks">またはレベルを選ぶ：<a href="/play/beginner/">初級</a><a href="/play/intermediate/">中級</a><a href="/play/advanced/">上級</a><a href="/play/hard/">難問</a><a href="/play/extreme/">超難問</a></div>
-      <div class="hp-meta"><span>5段階の難易度</span><span class="hp-dot">·</span><span>毎日更新</span><span class="hp-dot">·</span><span>スマホ対応</span></div>
+      <div class="hp-meta"><span>全{totalPuzzles.toLocaleString('ja-JP')}題を検証</span><span class="hp-dot">·</span><span>毎日更新</span><span class="hp-dot">·</span><span>登録不要</span></div>
     </div>
     <div class="hp-hero-r">
       <div class="hp-board"><Fragment set:html={heroSvg} /></div>
@@ -127,7 +129,7 @@ const homeFaqSchema = {
   </section>
 
   <section class="hp-sec">
-    <h2 class="hp-h2 hp-center">numpredo が選ばれる理由</h2>
+    <h2 class="hp-h2 hp-center">numpredo の問題品質</h2>
     <div class="hp-why">
       {why.map(([big, h, p]) => (
         <div class="hp-why-i">
@@ -138,6 +140,8 @@ const homeFaqSchema = {
       ))}
     </div>
   </section>
+
+  <p class="hp-method-link">問題の作り方、検証条件、記事の編集方針は<a href="/about/#editorial-policy">品質検証と編集方針</a>で公開しています。</p>
 
   <section class="hp-sec hp-var-sec">
     <div class="hp-var">
@@ -222,6 +226,8 @@ const homeFaqSchema = {
     .hp-why-big { font-size: 28px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
     .hp-why-h { font-size: var(--text-base); font-weight: 700; margin-bottom: 6px; }
     .hp-why-p { font-size: var(--text-sm); color: var(--ink-3); line-height: 1.75; margin: 0; }
+    .hp-method-link { max-width: 760px; margin: -24px auto 36px; color: var(--ink-3); font-size: var(--text-sm); line-height: 1.8; text-align: center; }
+    .hp-method-link a { color: var(--accent); }
 
     .hp-var-sec { padding-bottom: 24px; }
     .hp-var { background: var(--surface-2); border-radius: var(--radius-lg); padding: 34px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }

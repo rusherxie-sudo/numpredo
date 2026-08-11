@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import SudokuGame from '../../components/SudokuGame.astro';
 import { LEVELS } from '../../data/levels.ts';
+import indexablePuzzles from '../../data/indexable-puzzles.json';
 // 収録総数は題庫から実測（「問題集」系クエリの受け皿：数字は本物、扩库自動追随）
 const totalPuzzles = LEVELS.reduce((s, l) => s + l.puzzles.length, 0);
 const title = `数独無料ゲーム・ナンプレ問題集｜全${totalPuzzles}問 - numpredo`;
@@ -9,6 +10,13 @@ const description = `初級から超難問まで全${totalPuzzles}問収録の�
 const url = 'https://numpredo.com/play/';
 const featuredLevel = LEVELS.find((l) => l.slug === 'intermediate') ?? LEVELS[0];
 const featuredSet = featuredLevel.puzzles.slice(0, 12).map((p) => ({ puzzle: p.puzzle }));
+const featuredPuzzleLinks = LEVELS.map((level) => {
+  const numbers = indexablePuzzles
+    .map((pathname) => pathname.match(new RegExp(`^/play/${level.slug}/(\\d+)/$`))?.[1])
+    .filter((number): number is string => Boolean(number))
+    .map(Number);
+  return { level, number: numbers[0], count: numbers.length };
+}).filter((item): item is { level: (typeof LEVELS)[number]; number: number; count: number } => item.number !== undefined);
 
 // 難易度比較表：ヒント数は題庫全量から実測平均（構築期に計算、データと乖離しない）
 // SETS = play/[level]/[n].astro の SETS_PER_LEVEL と同値（日次で増加）
@@ -125,10 +133,10 @@ const faqSchema = {
   <p><a href="/play/intermediate/"><strong>数独無料ゲームの中級</strong></a>は、区画の絞り込みを覚える段階です。中級がすらすら解けるようになったら、ペア（二国同盟）を使う<a href="/play/advanced/"><strong>上級の数独無料ゲーム</strong></a>へ。さらに三国同盟などを組み合わせる<a href="/play/hard/"><strong>難問ナンプレ</strong></a>、X-Wing・スカイスクレイパー級の<a href="/play/extreme/"><strong>最上級・超難問の数独</strong></a>と進みます。</p>
   <p>numpredo の難易度はヒント数の少なさではなく、解くために必要な最難テクニックで判定しています。どの段階も唯一解で、当てずっぽうを使わず論理だけで最後まで解けます。</p>
 
-  <h2>問題集・一手ずつ図解で解き方</h2>
-  <p class="lead">各難易度の問題を、解答エンジンの手順どおりに一手ずつ図解。詰まったときの「次の一手」と、その難易度で使うテクニックがわかります。</p>
+  <h2>代表問題・一手ずつ図解で解き方</h2>
+  <p class="lead">各難易度から検索・利用実績のある代表問題だけを選び、解答エンジンの手順どおりに一手ずつ図解しています。詰まったときの「次の一手」と、その難易度で使うテクニックがわかります。</p>
   <ul>
-    {LEVELS.map((l) => <li><a href={`/play/${l.slug}/1/`}>数独{l.ja}の問題を図解で解く（No.1〜{SETS}）</a></li>)}
+    {featuredPuzzleLinks.map(({ level, number, count }) => <li><a href={`/play/${level.slug}/${number}/`}>数独{level.ja}の代表問題を図解で解く</a>（厳選{count}問）</li>)}
   </ul>
 
   <h2>バリエーション数独</h2>
