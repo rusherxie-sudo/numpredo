@@ -29,7 +29,7 @@ lines.push('# numpredo — 解説コンテンツ全文（llms-full.txt）');
 lines.push('');
 lines.push('> 日本語の数独・ナンプレ無料学習サイト numpredo の解説ページ本文をまとめたファイルです。ページ一覧・サイト概要は https://numpredo.com/llms.txt を参照してください。');
 lines.push('');
-lines.push('本ファイルはデータ駆動の解説ページ（攻略ガイド・テクニック・バリエーション）を収録しています。解き方の全体像をまとめた支柱ページは https://numpredo.com/guide/how-to-solve/ を直接参照してください。');
+lines.push('本ファイルはデータ駆動の解説ページ（攻略ガイド・テクニック・バリエーション）を収録しています。解き方の全体像は https://numpredo.com/guide/how-to-solve/ 、5段階の実戦図解は https://numpredo.com/guide/solving-examples/ 、候補の理由を調べるツールは https://numpredo.com/tools/candidate-checker/ を直接参照してください。');
 lines.push('');
 
 interface SectionLike {
