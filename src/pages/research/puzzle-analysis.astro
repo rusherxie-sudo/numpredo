@@ -84,6 +84,7 @@ const datasetSchema = {
   inLanguage: 'ja',
   creator: { '@id': 'https://numpredo.com/#organization' },
   publisher: { '@id': 'https://numpredo.com/#organization' },
+  license: 'https://numpredo.com/terms/',
   isAccessibleForFree: true,
   measurementTechnique: '唯一解検査と人間向け論理ソルバーによる全件解析',
   variableMeasured: ['ヒント数', '論理解答手数', '最難テクニック', 'テクニック使用回数'],
@@ -172,6 +173,7 @@ const breadcrumbSchema = {
 
   <h2>データの範囲と限界</h2>
   <p>この集計は numpredo の標準9×9問題だけを対象にしたサイト内データです。世界中の数独すべてを代表する標本ではありません。また「難しい」と感じる要因には、手筋の知識、候補メモへの慣れ、集中時間など個人差があります。そのため、本サイトではヒント数ではなく、必要な最難手筋を主軸に5段階へ分類しています。</p>
+  <p class="note">データと図表の利用条件は<a href="/terms/">利用規約</a>をご確認ください。研究・報道などで引用する場合は、このページのURLと numpredo を出典として明記してください。</p>
 
   <style is:global>
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a, main a { color: var(--accent); }
