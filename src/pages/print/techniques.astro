@@ -1,0 +1,233 @@
+---
+import Base from '../../layouts/Base.astro';
+import beginner from '../../data/puzzles/beginner.json';
+import intermediate from '../../data/puzzles/intermediate.json';
+import advanced from '../../data/puzzles/advanced.json';
+import hard from '../../data/puzzles/hard.json';
+import extreme from '../../data/puzzles/extreme.json';
+import { LIGHT_THEME, gridFromString, renderBoardSvg } from '../../engine/index.ts';
+
+const title = '数独テクニック別練習問題｜解答付き無料印刷 - numpredo';
+const description = '裸の単数、区画の絞り込み、二国同盟、三国同盟、X-Wingを使う数独を各2問収録。実測した最難手筋と論理スコア付きで、問題と解答を無料印刷できます。';
+const url = 'https://numpredo.com/print/techniques/';
+
+const definitions = [
+  {
+    key: 'nakedSingle', level: '初級', source: beginner, indexes: [0, 1], label: '裸の単数', guide: '/guide/techniques/naked-single/',
+    short: '候補が一つだけのマスを見つける基本練習です。候補を書かなくても、行・列・ブロックの不足数字から進められます。',
+    check: '空きマスごとに、同じ行・列・3×3ブロックですでに使われた数字を消します。残りが一つなら確定です。',
+  },
+  {
+    key: 'lockedCandidates', level: '中級', source: intermediate, indexes: [0, 1], label: '区画の絞り込み', guide: '/guide/techniques/pointing/',
+    short: 'ブロック内の候補が一つの行または列に寄る形を探し、同じ行・列の別ブロックから候補を消す練習です。',
+    check: '一つの数字だけを追い、3×3ブロック内で候補位置が一直線に並んでいないか確認します。',
+  },
+  {
+    key: 'nakedPair', level: '上級', source: advanced, indexes: [0, 1], label: 'ペア（二国同盟）', guide: '/guide/techniques/naked-pair/',
+    short: '同じ行・列・ブロック内にある同一の二候補だけを持つ二マスを見つけ、その二マスと同じユニットにあるほかのマスから候補を除外する練習です。',
+    check: '候補が二つのマスを探し、同じ行・列・ブロック内にまったく同じ候補の組がもう一つないか照合します。',
+  },
+  {
+    key: 'nakedTriple', level: '難問', source: hard, indexes: [0, 1], label: '三国同盟', guide: '/guide/techniques/naked-triple/',
+    short: '同じ行・列・ブロック内の三マスに現れる候補の和集合が三種類に収まる配置を見抜き、そのユニットのほかの候補を整理する練習です。',
+    check: '候補数が二〜三個のマスを三つ選び、全部を合わせても三数字だけになる組を探します。',
+  },
+  {
+    key: 'xWing', level: '超難問', source: extreme, indexes: [0, 1], label: 'X-Wing', guide: '/guide/techniques/x-wing/',
+    short: '一つの数字の候補が二行と二列の四隅にそろう形を探し、長方形を作る二列のほかの行から同じ候補を消す超難問練習です。',
+    check: '数字を一つに絞り、候補が二か所だけの行を探して、同じ二列を共有する別の行と組にします。',
+  },
+] as const;
+
+const drills = definitions.map((definition) => {
+  const puzzles = definition.indexes.map((index, puzzleIndex) => {
+    const puzzle = definition.source.puzzles[index];
+    if (puzzle.hardest !== definition.key) throw new Error(`練習問題の最難手筋が一致しません：${definition.key} / ${puzzle.hardest}`);
+    const question = gridFromString(puzzle.puzzle);
+    const solution = gridFromString(puzzle.solution);
+    const given = question.map((value) => value !== 0);
+    return {
+      number: puzzleIndex + 1, clues: puzzle.clues, score: puzzle.score,
+      questionSvg: renderBoardSvg(question, { given, theme: LIGHT_THEME, cell: 34, title: `${definition.label}の練習問題${puzzleIndex + 1}`, desc: `${definition.level}の検証済み数独問題` }),
+      answerSvg: renderBoardSvg(solution, { given, theme: LIGHT_THEME, cell: 34, title: `${definition.label}の練習問題${puzzleIndex + 1}の解答`, desc: '最初から与えられた数字と解答を区別した完成盤面' }),
+    };
+  });
+  return { ...definition, puzzles };
+});
+
+const faq = [
+  { q: '本当に指定したテクニックを使う問題ですか？', a: 'はい。全問題を人間向け論理ソルバーで解き、表示した手筋が実際の解法履歴で使われ、その履歴の中で最難として記録されたことを確認しています。唯一解で、当てずっぽうは不要です。' },
+  { q: '問題だけを印刷できますか？', a: 'できます。各テクニックの「この2問を印刷」を押す前に「解答も印刷」のチェックを外してください。ブラウザの印刷画面からPDF保存もできます。' },
+  { q: '解き方が分からないときはどうすればいいですか？', a: '各セクションの図解ガイドで成立条件を確認するか、<a href="/practice/">次の一手練習</a>で候補配置を見分ける練習をしてください。途中の候補を確認したい場合は<a href="/tools/candidate-checker/">候補数字・次の一手チェッカー</a>が使えます。' },
+  { q: '初心者はどの順番で取り組めばいいですか？', a: '裸の単数→区画の絞り込み→ペア（二国同盟）→三国同盟→X-Wingの順がおすすめです。最初の2問が安定して解けてから次へ進むと、候補メモの負担が急に増えません。' },
+];
+
+const learningSchema = {
+  '@context': 'https://schema.org', '@type': 'LearningResource', name: '数独テクニック別・解答付き印刷練習問題',
+  description, url, inLanguage: 'ja', learningResourceType: 'Practice problem',
+  educationalLevel: drills.map((drill) => drill.level), teaches: drills.map((drill) => drill.label),
+  isAccessibleForFree: true, provider: { '@id': 'https://numpredo.com/#organization' },
+};
+const itemListSchema = {
+  '@context': 'https://schema.org', '@type': 'ItemList', name: '数独テクニック別練習問題', numberOfItems: drills.length,
+  itemListElement: drills.map((drill, index) => ({ '@type': 'ListItem', position: index + 1, name: `${drill.label}の練習問題`, url: `${url}#${drill.key}` })),
+};
+const faqSchema = {
+  '@context': 'https://schema.org', '@type': 'FAQPage',
+  mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a.replace(/<[^>]+>/g, '') } })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '無料印刷', item: 'https://numpredo.com/print/' },
+    { '@type': 'ListItem', position: 3, name: 'テクニック別練習', item: url },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={url} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(learningSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › <a href="/print/">無料印刷</a> › テクニック別練習</nav>
+  <header class="tech-print-head screen-only">
+    <span>全10問・解答付き・登録不要</span>
+    <h1>数独テクニック別<br />無料練習問題</h1>
+    <p class="lead">覚えたい手筋を選び、独自ソルバーの解法履歴でその手筋が最難として記録された2問を印刷できます。題庫から適当に選んだ問題ではなく、実際の論理解答履歴を検証した盤面だけです。</p>
+  </header>
+
+  <nav class="tech-jump screen-only" aria-label="テクニックを選ぶ">
+    {drills.map((drill) => <a href={`#${drill.key}`}><small>{drill.level}</small>{drill.label}</a>)}
+  </nav>
+
+  <div class="print-drills" data-technique-print>
+    {drills.map((drill) => (
+      <section class="drill" id={drill.key} data-drill>
+        <header class="drill-head">
+          <div><span>{drill.level}</span><h2>{drill.label}の練習問題</h2></div>
+          <p>{drill.short}</p>
+        </header>
+        <div class="print-sheet-head"><strong>numpredo</strong><span>{drill.label}・練習問題</span></div>
+        <div class="puzzle-grid">
+          {drill.puzzles.map((puzzle) => (
+            <figure>
+              <figcaption>問題 {puzzle.number} <small>ヒント{puzzle.clues}個・論理スコア{puzzle.score}</small></figcaption>
+              <Fragment set:html={puzzle.questionSvg} />
+            </figure>
+          ))}
+        </div>
+        <div class="drill-note screen-only">
+          <strong>見る場所</strong><p>{drill.check}</p>
+          <a href={drill.guide}>{drill.label}の成立条件と候補消去を図解で確認する</a>
+        </div>
+        <div class="drill-actions screen-only">
+          <label><input type="checkbox" data-with-answers checked /> 解答も印刷</label>
+          <button type="button" data-print-drill>この2問を印刷・PDF保存</button>
+        </div>
+        <details class="answer-block">
+          <summary>2問の解答を見る</summary>
+          <div class="answer-sheet-head"><strong>numpredo</strong><span>{drill.label}・解答</span></div>
+          <div class="answer-grid">
+            {drill.puzzles.map((puzzle) => (
+              <figure>
+                <figcaption>問題 {puzzle.number} の解答</figcaption>
+                <Fragment set:html={puzzle.answerSvg} />
+              </figure>
+            ))}
+          </div>
+        </details>
+      </section>
+    ))}
+  </div>
+
+  <section class="method screen-only">
+    <h2>難易度ではなく「解法履歴の最難手筋」で選ぶ</h2>
+    <p>空きマスやヒント数が似ていても、独自ソルバーがたどる推理は同じとは限りません。このページは各問題を最後まで論理的に解き、その解法履歴で使った中で最も難しいテクニックを基準に分類しています。各盤面にはヒント数とサイト内比較用の論理スコアも表示しているため、同じ手筋の2問でも手数の違いを比べられます。</p>
+    <p>まず候補配置を見分ける力を試したい方は<a href="/practice/">次の一手・実力診断</a>へ。自由に難易度と問題数を選びたい方は<a href="/print/">通常の無料問題集</a>、自分の盤面で次に進める場所を知りたい方は<a href="/tools/candidate-checker/">候補数字・次の一手チェッカー</a>をご利用ください。</p>
+
+    <h2>よくある質問</h2>
+    <dl class="faq">{faq.map((item) => (<><dt>{item.q}</dt><dd set:html={item.a} /></>))}</dl>
+  </section>
+
+  <script>
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-drill]'));
+    const cleanupPrintState = () => {
+      delete document.documentElement.dataset.techniquePrint;
+      delete document.documentElement.dataset.techniqueAnswers;
+      sections.forEach((section) => {
+        delete section.dataset.printSelected;
+        section.querySelector<HTMLDetailsElement>('.answer-block')?.removeAttribute('open');
+      });
+    };
+    sections.forEach((section) => {
+      section.querySelector<HTMLButtonElement>('[data-print-drill]')?.addEventListener('click', () => {
+        cleanupPrintState();
+        section.dataset.printSelected = 'true';
+        document.documentElement.dataset.techniquePrint = 'true';
+        const withAnswers = section.querySelector<HTMLInputElement>('[data-with-answers]')?.checked ?? true;
+        if (withAnswers) {
+          document.documentElement.dataset.techniqueAnswers = 'true';
+          section.querySelector<HTMLDetailsElement>('.answer-block')?.setAttribute('open', '');
+        }
+        window.print();
+      });
+    });
+    window.addEventListener('afterprint', cleanupPrintState);
+  </script>
+
+  <style is:global>
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a, main a { color: var(--accent); }
+    .tech-print-head { max-width: 820px; margin: 0 auto 24px; text-align: center; }
+    .tech-print-head > span { display: inline-block; color: var(--accent); background: var(--accent-tint); border-radius: var(--radius-pill); padding: 4px 11px; font-size: 12px; font-weight: 700; }
+    .tech-print-head h1 { margin: 12px 0; } .lead { color: var(--ink-3); line-height: 1.9; }
+    .tech-jump { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 980px; margin: 0 auto 28px; }
+    .tech-jump a { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); padding: 11px; text-align: center; text-decoration: none; font-weight: 700; }
+    .tech-jump a:hover { border-color: var(--accent); } .tech-jump small { color: var(--ink-3); font-weight: 400; }
+    .print-drills { display: grid; gap: 24px; max-width: 980px; margin: 0 auto; }
+    .drill { scroll-margin-top: 76px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); padding: 22px; }
+    .drill-head { display: grid; grid-template-columns: 270px 1fr; gap: 24px; align-items: end; margin-bottom: 16px; }
+    .drill-head span { color: var(--accent); font-size: 12px; font-weight: 700; } .drill-head h2 { margin: 4px 0 0; }
+    .drill-head p { margin: 0; color: var(--ink-3); line-height: 1.8; font-size: 13px; }
+    .print-sheet-head, .answer-sheet-head { display: none; }
+    .puzzle-grid, .answer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 760px; margin: 0 auto; }
+    figure { margin: 0; } figure svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: #fff; }
+    figcaption { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-family: var(--font-mincho); font-weight: 700; }
+    figcaption small { color: var(--ink-3); font-family: var(--font-sans); font-weight: 400; }
+    .drill-note { max-width: 760px; margin: 16px auto 0; padding: 14px 16px; background: var(--surface-2); border-radius: var(--radius); }
+    .drill-note strong { font-size: 13px; } .drill-note p { margin: 4px 0 8px; color: var(--ink-3); font-size: 13px; }
+    .drill-note a { font-size: 13px; }
+    .drill-actions { display: flex; justify-content: flex-end; align-items: center; gap: 14px; max-width: 760px; margin: 14px auto 0; font-size: 13px; }
+    .drill-actions button { border: 0; border-radius: var(--radius); background: var(--accent); color: var(--surface); padding: 10px 17px; cursor: pointer; font: inherit; font-weight: 700; }
+    .answer-block { max-width: 760px; margin: 16px auto 0; border-top: 1px solid var(--line); padding-top: 12px; }
+    .answer-block summary { color: var(--accent); cursor: pointer; font-weight: 700; }
+    .answer-grid { margin-top: 14px; }
+    .method { max-width: 820px; margin: 44px auto 0; } .method p { line-height: 1.9; }
+    .faq dt { font-family: var(--font-mincho); font-weight: 700; margin-top: 16px; } .faq dd { margin: 5px 0 0; color: var(--ink-3); line-height: 1.8; }
+    @media print {
+      .snav, .sfoot, .fsh, .screen-only, .crumb { display: none !important; }
+      main.wide { max-width: none; padding: 0; } body { background: #fff; color: #000; }
+      html[data-technique-print] .print-drills > .drill:not([data-print-selected="true"]) { display: none !important; }
+      .drill { border: 0; padding: 0; background: #fff; }
+      .print-sheet-head { display: flex; justify-content: space-between; margin-bottom: 5mm; color: #000; font-family: serif; }
+      .puzzle-grid { max-width: 180mm; gap: 8mm; }
+      figure { break-inside: avoid; } figure svg { border-color: #bbb; } figcaption, figcaption small { color: #000; }
+      .answer-block { display: none; border: 0; max-width: 180mm; }
+      html[data-technique-answers="true"] .answer-block { display: block; break-before: page; padding-top: 0; }
+      .answer-block summary { display: none; } .answer-grid { max-width: 180mm; gap: 8mm; }
+      .answer-sheet-head { display: flex; justify-content: space-between; margin-bottom: 5mm; color: #000; font-family: serif; }
+      @page { size: A4 portrait; margin: 12mm; }
+    }
+    @media (max-width: 720px) {
+      .tech-jump { grid-template-columns: repeat(2, 1fr); }
+      .drill-head { grid-template-columns: 1fr; gap: 8px; }
+    }
+    @media (max-width: 540px) {
+      .puzzle-grid, .answer-grid { grid-template-columns: 1fr; }
+      .drill { padding: 16px; } .drill-actions { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</Base>
