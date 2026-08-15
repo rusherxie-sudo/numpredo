@@ -93,6 +93,7 @@ const breadcrumbSchema = {
   <ul>{others.map((o) => (<li><a href={`/guide/techniques/${o.slug}/`}>{o.name}の解き方</a>（{o.level}）</li>))}</ul>
 
   <h2>実際に練習する</h2>
+  <p><a href="/print/techniques/">裸の単数からX-Wingまで、テクニック別の解答付き問題を無料印刷する</a></p>
   {['naked-single', 'hidden-single'].includes(t.slug) ? (
     <ul>
       <li><a href="/play/beginner/">初級</a>と<a href="/play/intermediate/">中級</a>で単数を探す</li>
