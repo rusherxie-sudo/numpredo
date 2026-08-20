@@ -1,0 +1,159 @@
+---
+// 16×16 は専用ソルバーを持つため独立ルートにする。
+// 説明本文は variants.ts を単一データ源として再利用し、他の静的変体ページへ JS を配らない。
+import Base from '../../layouts/Base.astro';
+import EditorialNote from '../../components/EditorialNote.astro';
+import ShareBar from '../../components/ShareBar.astro';
+import Sudoku16Solver from '../../components/Sudoku16Solver.astro';
+import { VARIANTS, variantBySlug } from '../../data/variants.ts';
+import lastmodJson from '../../data/sitemap-lastmod.json';
+import publishedJson from '../../data/published.json';
+
+const lastmod: Record<string, string> = lastmodJson;
+const published: Record<string, string> = publishedJson;
+const v = variantBySlug('16x16')!;
+const url = 'https://numpredo.com/variants/16x16/';
+const others = VARIANTS.filter((x) => x.slug !== v.slug);
+const datePublished = published['/variants/16x16/'];
+const dateModified = lastmod['/variants/16x16/'];
+
+const webAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: '16×16ナンプレ自動解答ソルバー',
+  description: v.description,
+  url,
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'ja',
+  browserRequirements: 'JavaScript',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
+};
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: v.h1,
+  description: v.description,
+  inLanguage: 'ja',
+  mainEntityOfPage: url,
+  image: 'https://numpredo.com/og-image.png',
+  author: { '@id': 'https://numpredo.com/#organization' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
+  speakable: { '@type': 'SpeakableSpecification', cssSelector: ['.lead', '.faq'] },
+  ...(datePublished ? { datePublished } : {}),
+  ...(dateModified ? { dateModified } : {}),
+};
+const abs = (html: string): string => html.replace(/href="\//g, 'href="https://numpredo.com/');
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: v.faq.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: abs(item.a) },
+  })),
+};
+const howToSchema = v.howTo && {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: v.howTo.name,
+  description: v.howTo.description,
+  inLanguage: 'ja',
+  step: v.howTo.steps.map((step, index) => ({
+    '@type': 'HowToStep',
+    position: index + 1,
+    name: step.name,
+    text: step.text,
+  })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '変わり種数独', item: 'https://numpredo.com/variants/' },
+    { '@type': 'ListItem', position: 3, name: v.name, item: url },
+  ],
+};
+---
+
+<Base title={v.title} description={v.description} canonical={url} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+    {howToSchema && <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />}
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <div class="s16-text">
+    <nav class="crumb"><a href="/">ホーム</a> › <a href="/variants/">変わり種数独</a> › {v.name}</nav>
+    <h1>{v.h1}</h1>
+    {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
+    <p class="lead">{v.lead}</p>
+    <EditorialNote verification="16×16ソルバーは各行・列・4×4ブロックの重複を検査し、探索上限内で解なし・唯一解・複数解を判定できることを公開前に例題と不正盤面で確認しています。" />
+
+    <Sudoku16Solver />
+    <ShareBar url={url} title={v.title} cta="16×16ナンプレのソルバーをシェア" />
+
+    <figure class="var-fig"><Fragment set:html={v.svg} /><figcaption>{v.svgCaption}</figcaption></figure>
+
+    {v.sections.map((section) => (
+      <>
+        <h2>{section.h}</h2>
+        {section.body.map((paragraph) => (/^\s*<(table|div|ul|ol|figure)/.test(paragraph)
+          ? <Fragment set:html={paragraph} />
+          : <p set:html={paragraph} />))}
+      </>
+    ))}
+
+    {v.howTo && (
+      <>
+        <h2>{v.howTo.name}｜手順まとめ</h2>
+        <ol class="howto-steps">
+          {v.howTo.steps.map((step) => <li><strong>{step.name}</strong><span>{step.text}</span></li>)}
+        </ol>
+      </>
+    )}
+
+    <h2>他のバリエーション</h2>
+    <ul>{others.map((item) => <li><a href={`/variants/${item.slug}/`}>{item.name}</a></li>)}</ul>
+
+    <h2>関連ツール</h2>
+    <ul>
+      <li><a href="/tools/solver/">9×9ナンプレを写真・カメラで自動解答</a></li>
+      <li><a href="/tools/generator/">9×9数独の問題を無料で作成・印刷</a></li>
+      <li><a href="/play/extreme/">9×9の超難問をオンラインでプレイ</a></li>
+    </ul>
+
+    <h2>よくある質問</h2>
+    <dl class="faq">{v.faq.map((item) => (<><dt>{item.q}</dt><dd set:html={item.a} /></>))}</dl>
+  </div>
+
+  <style is:global>
+    .s16-text { max-width: 1060px; margin: 0 auto; }
+    .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; }
+    .crumb a { color: var(--ink-3); text-decoration: none; }
+    .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 16px; }
+    .upd { color: var(--ink-4); font-size: 12px; margin: -4px 0 10px; }
+    main ul { line-height: 2; }
+    main ul a, main p a { color: var(--accent); }
+    .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 16px; }
+    .faq dd { margin: 5px 0 0; color: var(--ink-3); }
+    .var-fig { margin: 24px auto; text-align: center; max-width: 420px; }
+    .var-fig svg { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+    .var-fig figcaption { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+    .gtable-wrap { overflow-x: auto; margin: 12px 0; }
+    .gtable { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .gtable th, .gtable td { border: 1px solid var(--line-2); padding: 9px 11px; text-align: left; vertical-align: top; }
+    .gtable th { background: var(--surface-2); font-weight: 700; }
+    .howto-steps { display: grid; gap: 10px; padding-left: 22px; }
+    .howto-steps strong, .howto-steps span { display: block; }
+    .howto-steps span { color: var(--ink-3); margin-top: 3px; line-height: 1.8; }
+    @media (max-width: 760px) {
+      .crumb { display: none; }
+      .s16-text h1 { font-size: var(--text-lg); margin: 0 0 8px; }
+    }
+  </style>
+</Base>

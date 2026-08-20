@@ -8,7 +8,7 @@ const url = 'https://numpredo.com/variants/';
 const faq = [
   { q: '変わり種数独とは何ですか？', a: '通常の数独の「行・列・3×3ブロックで数字を重複させない」ルールに、合計・対角線・不等号などの追加ルールを加えたパズルです。基本の考え方は数独と共通です。' },
   { q: '初心者におすすめの変わり種は？', a: 'まずは数字が1〜6だけの<a href="/variants/6x6/">6×6数独</a>がおすすめです。通常の数独に慣れている方は、追加の対角線が絞り込みに役立つ<a href="/variants/diagonal/">対角線数独</a>から始めると取り組みやすいでしょう。' },
-  { q: 'このサイトで実際に遊べる変わり種は？', a: '<a href="/variants/killer/">キラー数独</a>と<a href="/variants/diagonal/">対角線数独</a>を、無料・登録不要でブラウザからプレイできます。6×6・16×16数独と不等号ナンプレは、現在はルールと解き方の解説を掲載しています。' },
+  { q: 'このサイトで実際に使える変わり種は？', a: '<a href="/variants/killer/">キラー数独</a>と<a href="/variants/diagonal/">対角線数独</a>を、無料・登録不要でブラウザからプレイできます。<a href="/variants/16x16/">16×16ナンプレ</a>は手入力・256文字の一括入力に対応した自動解答ソルバーを利用できます。6×6数独と不等号ナンプレはルールと解き方を掲載しています。' },
 ];
 const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
 const collectionSchema = {
@@ -56,7 +56,7 @@ const breadcrumbSchema = {
       <article class="variant-card">
         <h3><a href={`/variants/${v.slug}/`}>{v.name}</a></h3>
         <p>{v.lead}</p>
-        <a class="card-link" href={`/variants/${v.slug}/`}>{v.playable ? '今すぐ遊ぶ・ルールを見る →' : 'ルールと解き方を見る →'}</a>
+        <a class="card-link" href={`/variants/${v.slug}/`}>{v.slug === '16x16' ? '自動解答ソルバーを使う →' : v.playable ? '今すぐ遊ぶ・ルールを見る →' : 'ルールと解き方を見る →'}</a>
       </article>
     ))}
   </div>

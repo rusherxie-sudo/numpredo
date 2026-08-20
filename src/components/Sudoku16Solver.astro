@@ -1,0 +1,98 @@
+---
+const symbols = '123456789ABCDEFG'.split('');
+---
+
+<section class="s16" data-s16 aria-labelledby="s16-title">
+  <div class="s16-head">
+    <div>
+      <h2 id="s16-title">16×16ナンプレ自動解答ソルバー</h2>
+      <p>問題の数字・文字を入力して「自動解答」を押すと、答えと唯一解かどうかを端末内で判定します。1〜9・A〜G形式、無料・登録不要です。</p>
+    </div>
+    <p class="s16-privacy">入力内容はサーバーへ送信されません</p>
+  </div>
+
+  <p class="s16-scroll">スマホでは盤面を横にスクロールできます。</p>
+  <div class="s16-board-wrap">
+    <div class="s16-board" role="grid" aria-label="16×16ナンプレ入力盤面">
+      {Array.from({ length: 256 }, (_, index) => {
+        const row = Math.floor(index / 16);
+        const col = index % 16;
+        return (
+          <button
+            type="button"
+            class:list={['s16-cell', { 's16-br': col === 3 || col === 7 || col === 11, 's16-bb': row === 3 || row === 7 || row === 11 }]}
+            data-cell={index}
+            role="gridcell"
+            aria-label={`${row + 1}行${col + 1}列、空欄`}
+          ></button>
+        );
+      })}
+    </div>
+  </div>
+
+  <div class="s16-pad" aria-label="入力する記号">
+    {symbols.map((symbol) => <button type="button" data-symbol={symbol}>{symbol}</button>)}
+    <button type="button" class="s16-delete" data-delete>消去</button>
+  </div>
+
+  <div class="s16-actions">
+    <button type="button" class="s16-solve" data-solve>自動解答</button>
+    <button type="button" data-example>例題を入力</button>
+    <button type="button" data-clear>すべて消去</button>
+  </div>
+  <p class="s16-message" data-message aria-live="polite">マスを選び、下の1〜9・A〜Gまたはキーボードで入力してください。</p>
+
+  <details class="s16-bulk">
+    <summary>256文字をまとめて入力する</summary>
+    <p>上の行から順に1〜9・A〜Gを入力し、空きマスは「.」「0」「*」のいずれかで表します。改行や空白、区切り記号は無視されます。</p>
+    <textarea data-bulk rows="6" spellcheck="false" aria-label="16×16ナンプレの一括入力"></textarea>
+    <button type="button" data-import>盤面へ反映</button>
+  </details>
+</section>
+
+<script>
+  import '../client/sudoku16-solver.ts';
+</script>
+
+<style>
+  .s16 { margin: 22px 0 34px; padding: clamp(14px, 3vw, 24px); border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  .s16-head { display: flex; align-items: start; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+  .s16-head h2 { margin: 0 0 6px; }
+  .s16-head p { margin: 0; color: var(--ink-3); font-size: 14px; }
+  .s16-privacy { flex: 0 0 auto; padding: 6px 9px; border-radius: 999px; background: var(--surface-2); font-size: 12px !important; }
+  .s16-scroll { display: none; color: var(--ink-4); font-size: 12px; }
+  .s16-board-wrap { overflow-x: auto; padding-bottom: 4px; overscroll-behavior-x: contain; }
+  .s16-board { display: grid; grid-template-columns: repeat(16, 1fr); width: min(100%, 640px); min-width: 544px; aspect-ratio: 1; margin: 0 auto; border: 2px solid var(--board-edge); border-radius: 5px; overflow: hidden; background: var(--board-bg); }
+  .s16-cell { min-width: 0; padding: 0; border: 0; border-right: 1px solid var(--cell-line); border-bottom: 1px solid var(--cell-line); background: transparent; color: var(--num-given); font: 600 clamp(12px, 1.75vw, 20px)/1 var(--font-mincho); cursor: pointer; }
+  .s16-cell:hover { background: var(--cell-peer-bg); }
+  .s16-cell.s16-br { border-right: 2px solid var(--box-line); }
+  .s16-cell.s16-bb { border-bottom: 2px solid var(--box-line); }
+  .s16-cell.s16-selected { background: var(--cell-sel-bg); box-shadow: inset 0 0 0 2px var(--accent); }
+  .s16-cell.s16-peer { background: var(--cell-peer-bg); }
+  .s16-cell.s16-solved { color: var(--num-user); }
+  .s16-cell.s16-error { color: var(--num-error); background: var(--cell-error-bg); }
+  .s16-pad { display: grid; grid-template-columns: repeat(9, minmax(34px, 1fr)); gap: 6px; max-width: 640px; margin: 14px auto 0; }
+  .s16-pad button, .s16-actions button, .s16-bulk button { min-height: 40px; border: 1px solid var(--key-line); border-radius: 6px; background: var(--key-bg); color: var(--key-ink); font-weight: 700; cursor: pointer; }
+  .s16-pad button:hover, .s16-actions button:hover, .s16-bulk button:hover { border-color: var(--accent); color: var(--accent); }
+  .s16-pad .s16-delete { grid-column: span 2; font-size: 12px; }
+  .s16-actions { display: flex; flex-wrap: wrap; gap: 8px; max-width: 640px; margin: 10px auto 0; }
+  .s16-actions button { flex: 1 1 150px; padding: 10px 14px; }
+  .s16-actions .s16-solve { border-color: var(--accent); background: var(--accent); color: var(--accent-on); }
+  .s16-actions .s16-solve:hover { background: var(--accent-ink); color: var(--accent-on); }
+  .s16-message { min-height: 1.5em; max-width: 640px; margin: 10px auto 0; color: var(--ink-3); font-size: 13px; }
+  .s16-message[data-state='ok'] { color: var(--accent); }
+  .s16-message[data-state='error'] { color: var(--num-error); }
+  .s16-bulk { max-width: 640px; margin: 12px auto 0; padding-top: 10px; border-top: 1px solid var(--line); }
+  .s16-bulk summary { color: var(--accent); font-weight: 700; cursor: pointer; }
+  .s16-bulk p { color: var(--ink-3); font-size: 13px; }
+  .s16-bulk textarea { box-sizing: border-box; width: 100%; padding: 10px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--washi); color: var(--ink); font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; resize: vertical; }
+  .s16-bulk button { width: 100%; margin-top: 7px; }
+  @media (max-width: 640px) {
+    .s16-head { display: block; }
+    .s16-privacy { display: inline-block; margin-top: 9px !important; }
+    .s16-scroll { display: block; }
+    .s16-board { margin-left: 0; }
+    .s16-pad { grid-template-columns: repeat(6, 1fr); }
+    .s16-pad .s16-delete { grid-column: span 2; }
+  }
+</style>
