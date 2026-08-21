@@ -243,18 +243,22 @@ writeFileSync(`${OUT}/daily.json`, JSON.stringify({ name: 'daily', count: all.le
 
 console.log(`✓ 完成 ${((Date.now() - t0) / 1000).toFixed(1)}s → daily ${all.length} 題`);
 
-// 毎日5問余量预警：daily/archive 现在直接消费五档池 puzzles[55+k]（55=图解页专用前缀,同期点
-// SETS_PER_LEVEL 已冻结）。真实约束 = 各档 (题数-55) - 已消耗天数 的最小值(当前瓶颈是 hard)。
+// 毎日7問余量预警：基本5問は puzzles[55+k]、追加の初級/中級は puzzles[455+k] を消費する。
 // 余量低于窗口天数（daily.astro 的 WINDOW=60）+缓冲就该扩库,耗尽会让 daily.astro 构建期直接报错。
 // daily.json 仍生成,但仅供 scripts/demo.ts 全量复核,页面已不消费。
 const EPOCH = Math.floor(Date.UTC(2026, 5, 14) / 86400000);
 const elapsedDays = Math.floor((Date.now() + 9 * 3600 * 1000) / 86400000) - EPOCH;
 const SETS_SKIP = 55;
+const BONUS_SKIP = 455;
 let minRemain = Infinity;
 let minLv = '';
 for (const lv of ORDER) {
   const r = buckets[lv].length - SETS_SKIP - elapsedDays;
   if (r < minRemain) { minRemain = r; minLv = lv; }
 }
-if (minRemain < 90) console.warn(`⚠ 毎日5問余量仅 ${minRemain} 天(瓶颈:${minLv})——请调大 CFG.${minLv} 后重跑 gen:pool`);
-else console.log(`  毎日5問余量 ${minRemain} 天(瓶颈:${minLv})`);
+for (const lv of ['beginner', 'intermediate'] as const) {
+  const r = buckets[lv].length - BONUS_SKIP - elapsedDays;
+  if (r < minRemain) { minRemain = r; minLv = `${lv}-2`; }
+}
+if (minRemain < 90) console.warn(`⚠ 毎日7問余量仅 ${minRemain} 天(瓶颈:${minLv})——请扩充对应题库后重跑 gen:pool`);
+else console.log(`  毎日7問余量 ${minRemain} 天(瓶颈:${minLv})`);

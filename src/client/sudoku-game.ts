@@ -14,6 +14,8 @@ interface PuzzlePair {
   puzzle: string;
   solution?: string; // daily は未配信（瘦身）→ クライアントで solveOne 現算。play は予生成解を同梱。
   level?: string;
+  dailyKey?: string; // 同じ難易度が複数ある日の保存・達成判定用キー
+  dailyLabel?: string; // デイリータブに表示する短いラベル
   cages?: Array<{ cells: number[]; sum: number }>; // killer 変体のみ：cage 划分(题面级数据,逐题不同)
 }
 
@@ -21,8 +23,9 @@ interface PuzzlePair {
 const LV_JA: Record<string, string> = {
   beginner: '初級', intermediate: '中級', advanced: '上級', hard: '難問', extreme: '超難問',
 };
-// 毎日5問モードの難易度順（set の 1 日ぶん 5 エントリはこの順で並ぶ——daily.astro/archive.astro と同期）
+// 毎日7問の既定順（先頭5問のキーは旧5問版と同じにして、既存の進捗を引き継ぐ）
 const LV_ORDER5 = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
+const DAILY_SIZE = 7;
 interface Saved {
   p: string; // 题面
   s: string; // 解
@@ -121,7 +124,7 @@ function setup(root: HTMLElement): void {
   // archive：過去のデイリーを解くモード（/daily/archive/）。daily の派生だが
   // ①ストリークは伸びない ②進捗は専用スロット ③月历(daily.log)はその日付に遡及記入
   const archive = root.dataset.archive === '1';
-  // multi：毎日5問モード（daily/archive 共通）。set は「1日 = LV_ORDER5 順の5エントリ」の平坦配列
+  // multi：毎日7問モード（daily/archive 共通）。set は1日7エントリの平坦配列
   const multi = root.dataset.multi === '1';
   const shareUrl = root.dataset.url ?? 'https://numpredo.com/';
   // 変体上下文：data-variant="diagonal" で units/peers を対角線入りに差し替え——
@@ -460,7 +463,7 @@ function setup(root: HTMLElement): void {
     save();
     render();
   }
-  // multi（毎日5問）は難易度別に best/prog を分ける
+  // multi（毎日7問）は出題スロット別に best/prog を分ける
   const bestKey = (): string =>
     `numpredo.best.${archive ? 'archive' : daily ? 'daily' : level}${multi && dailyLevel ? '.' + dailyLevel : ''}`;
   function checkDone(): void {
@@ -772,7 +775,7 @@ function setup(root: HTMLElement): void {
       if (!m[key]) { m[key] = finalTime; store.set('numpredo.daily.log', JSON.stringify(m)); }
     } catch { /* 静默 */ }
   }
-  // 毎日5問：日付 → クリア済み難易度の記録（タブ✓と「一日五冠」実績の真实源）
+  // 毎日7問：日付 → クリア済みスロットの記録（タブ✓と全問達成実績の真实源）
   function log5Write(dateKey: string): void {
     if (!multi || !dailyLevel) return;
     try {
@@ -826,9 +829,12 @@ function setup(root: HTMLElement): void {
   function tabsHtml(dateKey: string): string {
     if (!multi) return '';
     const clearedLvs = readDailyLog5()[dateKey] ?? [];
-    return `<div class="sk-dtabs">${LV_ORDER5.map((lv, i) =>
-      `<button type="button" class="sk-dtab${i === tabIdx ? ' on' : ''}" data-tab="${i}">${LV_JA[lv]}${clearedLvs.includes(lv) ? '<i>✓</i>' : ''}</button>`,
-    ).join('')}</div>`;
+    return `<div class="sk-dtabs">${Array.from({ length: DAILY_SIZE }, (_, i) => {
+      const item = set[dayBase + i];
+      const key = item?.dailyKey ?? item?.level ?? LV_ORDER5[i] ?? `daily-${i + 1}`;
+      const label = item?.dailyLabel ?? LV_JA[item?.level ?? ''] ?? `${i + 1}問目`;
+      return `<button type="button" class="sk-dtab${i === tabIdx ? ' on' : ''}" data-tab="${i}">${label}${clearedLvs.includes(key) ? '<i>✓</i>' : ''}</button>`;
+    }).join('')}</div>`;
   }
   function bindTabs(): void {
     dailyEl.querySelectorAll<HTMLButtonElement>('.sk-dtab').forEach((b) =>
@@ -836,12 +842,12 @@ function setup(root: HTMLElement): void {
     );
   }
   function switchTab(i: number): void {
-    if (!multi || i === tabIdx || i < 0 || i > 4 || !set[dayBase + i]) return;
+    if (!multi || i === tabIdx || i < 0 || i >= DAILY_SIZE || !set[dayBase + i]) return;
     if (!done) save(); // 進行中タブの盤面・タイムを保存してから切替
     tabIdx = i;
     store.set('numpredo.pref.dailytab', String(i));
     const t = set[dayBase + i];
-    dailyLevel = t.level ?? LV_ORDER5[i];
+    dailyLevel = t.dailyKey ?? t.level ?? LV_ORDER5[i];
     const sv = load();
     if (sv && normP(sv.p) === normP(t.puzzle)) {
       apply(gridFromString(sv.p), gridFromString(sv.s), sv);
@@ -861,7 +867,7 @@ function setup(root: HTMLElement): void {
       dailyEl.innerHTML =
         `<div class="sk-d-date">${am}月${ad}日の問題<span class="sk-d-arch">アーカイブ</span></div>` +
         tabsHtml(archiveDay) +
-        `<div class="sk-d-streak">${clearedA >= 5 ? '五冠達成 🎇' : clearedA > 0 ? `${clearedA} / 5 クリア` : '過去の問題に挑戦'}</div>`;
+        `<div class="sk-d-streak">${clearedA >= DAILY_SIZE ? '7問達成 🎇' : clearedA > 0 ? `${clearedA} / ${DAILY_SIZE} クリア` : '過去の問題に挑戦'}</div>`;
       bindTabs();
       return;
     }
@@ -875,7 +881,7 @@ function setup(root: HTMLElement): void {
     dailyEl.innerHTML =
       `<div class="sk-d-date">${m}月${d}日の問題</div>` +
       tabsHtml(jstDayStr()) +
-      (multi && clearedN > 0 ? `<div class="sk-d-level">${clearedN >= 5 ? '本日五冠達成 🎇' : `本日 ${clearedN} / 5 クリア`}</div>` : '') +
+      (multi && clearedN > 0 ? `<div class="sk-d-level">${clearedN >= DAILY_SIZE ? '本日7問達成 🎇' : `本日 ${clearedN} / ${DAILY_SIZE} クリア`}</div>` : '') +
       `<div class="sk-d-streak">${streak > 0 ? streak + '日連続' : '記録に挑戦'}${doneToday ? ' ✓' : ''}</div>`;
     bindTabs();
   }
@@ -1071,37 +1077,37 @@ function setup(root: HTMLElement): void {
       const di = Math.floor(Date.UTC(+dm[1], +dm[2] - 1, +dm[3]) / 86400000);
       if (di >= epochIdx && di < todayIdx) idx = di;
     }
-    const days = multi ? (set.length / 5) | 0 : set.length; // multi は 1 日 5 エントリ
+    const days = multi ? (set.length / DAILY_SIZE) | 0 : set.length;
     if (!Number.isFinite(epochIdx) || days < 1) { root.innerHTML = '<p class="sk-arch-empty">アーカイブを読み込めませんでした。<a href="/daily/">今日の問題へ</a></p>'; return; }
     idx = Math.min(idx, epochIdx + days - 1); // ビルド停滞ぶんのクランプ
     // 上线首日/时钟异常时无「过去」可解——死壳盘面(undefined 格子)を残さず案内文に差し替え
     if (idx < epochIdx) { root.innerHTML = '<p class="sk-arch-empty">アーカイブはまだありません。<a href="/daily/">今日の問題へ</a></p>'; return; }
     if (multi) {
-      dayBase = (idx - epochIdx) * 5;
+      dayBase = (idx - epochIdx) * DAILY_SIZE;
       const prefTab = Math.trunc(Number(store.get('numpredo.pref.dailytab') ?? '1'));
-      tabIdx = Number.isInteger(prefTab) ? Math.min(4, Math.max(0, prefTab)) : 1; // '0'(初級)も有効。非整数/NaN は中級へ
+      tabIdx = Number.isInteger(prefTab) ? Math.min(DAILY_SIZE - 1, Math.max(0, prefTab)) : 1;
       initIdx = dayBase + tabIdx;
     } else {
       initIdx = idx - epochIdx;
     }
     const ad = new Date(idx * 86400000);
     archiveDay = `${ad.getUTCFullYear()}-${pad2(ad.getUTCMonth() + 1)}-${pad2(ad.getUTCDate())}`;
-    dailyLevel = set[initIdx].level ?? (multi ? LV_ORDER5[tabIdx] : '');
+    dailyLevel = set[initIdx].dailyKey ?? set[initIdx].level ?? (multi ? LV_ORDER5[tabIdx] : '');
   } else if (daily) {
     // JST 日序号 → 嵌入窗口偏移（data-daystart 为窗口首日，见 daily.astro）。
     // 构建停滞而越出窗口时不能静默取模复用旧题，否则「当天日期」会配上历史题目。
     const dayStart = Number(root.dataset.daystart ?? NaN);
     const off = jstDayIndex() - dayStart;
     if (multi) {
-      const days = Math.max(1, (set.length / 5) | 0);
+      const days = Math.max(1, (set.length / DAILY_SIZE) | 0);
       if (!Number.isFinite(dayStart) || off < 0 || off >= days) {
         root.innerHTML = '<p class="sk-arch-empty">本日の問題を準備中です。しばらくしてから再読み込みしてください。</p>';
         return;
       }
       const dayOff = off;
-      dayBase = dayOff * 5;
+      dayBase = dayOff * DAILY_SIZE;
       const prefTab = Math.trunc(Number(store.get('numpredo.pref.dailytab') ?? '1'));
-      tabIdx = Number.isInteger(prefTab) ? Math.min(4, Math.max(0, prefTab)) : 1; // '0'(初級)も有効。非整数/NaN は中級へ
+      tabIdx = Number.isInteger(prefTab) ? Math.min(DAILY_SIZE - 1, Math.max(0, prefTab)) : 1;
       initIdx = dayBase + tabIdx;
     } else {
       if (!Number.isFinite(dayStart) || off < 0 || off >= set.length) {
@@ -1110,7 +1116,7 @@ function setup(root: HTMLElement): void {
       }
       initIdx = off;
     }
-    dailyLevel = set[initIdx].level ?? (multi ? LV_ORDER5[tabIdx] : '');
+    dailyLevel = set[initIdx].dailyKey ?? set[initIdx].level ?? (multi ? LV_ORDER5[tabIdx] : '');
   } else {
     // ?n= 直达题库第 n 题（图解页 /play/{level}/{n}/ 的「この問題をプレイ」入口）
     const urlN = Number(new URLSearchParams(location.search).get('n') ?? '0');

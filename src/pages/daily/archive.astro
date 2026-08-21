@@ -13,25 +13,33 @@ import extreme from '../../data/puzzles/extreme.json';
 const EPOCH = Math.floor(Date.UTC(2026, 5, 14) / 86400000); // 2026-06-14（daily.astro と同値・同期点）
 const todayIdx = Math.floor((Date.now() + 9 * 3600 * 1000) / 86400000); // 构建时的 JST 日序号
 const SETS_SKIP = 55; // = SETS_PER_LEVEL（daily.astro と同期点：図解頁 No.1〜55 は消費しない）
-const POOLS5 = [beginner, intermediate, advanced, hard, extreme]; // = 客户端 LV_ORDER5 順
-const LV5 = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
-const pastDays = Math.max(0, Math.min(todayIdx - EPOCH, ...POOLS5.map((p) => p.puzzles.length - SETS_SKIP)));
-// EPOCH〜昨日（構築時点）の全過去日 × 5 難易度を埋め込み。1日5題≒550B、1年でも約200KB
-const set = Array.from({ length: pastDays * 5 }, (_, i) => {
-  const k = (i / 5) | 0;
-  const li = i % 5;
-  return { puzzle: POOLS5[li].puzzles[SETS_SKIP + k].puzzle, level: LV5[li] };
+const BONUS_SKIP = 455;
+const DAILY_SLOTS = [
+  { pool: beginner, level: 'beginner', dailyKey: 'beginner', dailyLabel: '初級①', skip: SETS_SKIP },
+  { pool: intermediate, level: 'intermediate', dailyKey: 'intermediate', dailyLabel: '中級①', skip: SETS_SKIP },
+  { pool: advanced, level: 'advanced', dailyKey: 'advanced', dailyLabel: '上級', skip: SETS_SKIP },
+  { pool: hard, level: 'hard', dailyKey: 'hard', dailyLabel: '難問', skip: SETS_SKIP },
+  { pool: extreme, level: 'extreme', dailyKey: 'extreme', dailyLabel: '超難問', skip: SETS_SKIP },
+  { pool: beginner, level: 'beginner', dailyKey: 'beginner-2', dailyLabel: '初級②', skip: BONUS_SKIP },
+  { pool: intermediate, level: 'intermediate', dailyKey: 'intermediate-2', dailyLabel: '中級②', skip: BONUS_SKIP },
+];
+const pastDays = Math.max(0, Math.min(todayIdx - EPOCH, ...DAILY_SLOTS.map((s) => s.pool.puzzles.length - s.skip)));
+// EPOCH〜昨日（構築時点）の全過去日 × 7問を埋め込む
+const set = Array.from({ length: pastDays * DAILY_SLOTS.length }, (_, i) => {
+  const k = (i / DAILY_SLOTS.length) | 0;
+  const slot = DAILY_SLOTS[i % DAILY_SLOTS.length];
+  return { puzzle: slot.pool.puzzles[slot.skip + k].puzzle, level: slot.level, dailyKey: slot.dailyKey, dailyLabel: slot.dailyLabel };
 });
 
-const title = 'ナンプレアーカイブ｜過去の日替わり数独5問を無料プレイ - numpredo';
-const description = 'ナンプレアーカイブから過去の日替わり数独5問を日付で選んで無料プレイ。初級〜超難問をカレンダーから遡れ、すべて唯一解・論理だけで解ける検証済み問題です。登録・アプリ不要。';
+const title = 'ナンプレアーカイブ｜過去の日替わり数独7問を無料プレイ - numpredo';
+const description = 'ナンプレアーカイブから過去の日替わり数独7問を日付で選んで無料プレイ。初級〜超難問をカレンダーから遡れ、すべて唯一解・論理だけで解ける検証済み問題です。';
 const url = 'https://numpredo.com/daily/archive/';
 
 const faq = [
-  { q: 'ナンプレアーカイブは無料ですか？', a: 'はい、登録やアプリなしですべて無料で遊べます。カレンダーから日付を選ぶと、その日の初級〜超難問の5問に挑戦できます。' },
+  { q: 'ナンプレアーカイブは無料ですか？', a: 'はい、登録やアプリなしですべて無料で遊べます。カレンダーから日付を選ぶと、その日の初級〜超難問7問に挑戦できます。' },
   { q: '過去の問題を解くと連続記録（ストリーク）は伸びますか？', a: '伸びません。連続記録は「その日のうちに当日の問題を解く」ことで伸びる仕組みです。アーカイブのクリアはカレンダーの記録（✓）にだけ反映されます。' },
   { q: 'いつの問題まで遡れますか？', a: `公開初日（2026年6月14日）まで全て遡れます。カレンダーまたは URL の ?d=YYYY-MM-DD で日付を指定してください。` },
-  { q: '今日の問題はどこで解けますか？', a: '今日の5問は<a href="/daily/">毎日の数独</a>ページでどうぞ。タイムを競う連続記録はそちらが対象です。' },
+  { q: '今日の問題はどこで解けますか？', a: '今日の7問は<a href="/daily/">毎日の数独</a>ページでどうぞ。タイムを競う連続記録はそちらが対象です。' },
 ];
 const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
 const faqSchema = {
@@ -59,7 +67,7 @@ const breadcrumbSchema = {
   <div class="px-text">
     <nav class="crumb"><a href="/">ホーム</a> › <a href="/daily/">毎日</a> › ナンプレアーカイブ</nav>
     <h1>ナンプレアーカイブ｜過去の日替わり数独を無料プレイ</h1>
-    <p class="lead">解き逃した日のナンプレ5問（初級〜超難問）を、登録・アプリなしで無料プレイできます。カレンダーから日付を選び、盤面上のタブで難易度を切り替えてください（既定は昨日の問題）。クリアはカレンダーに✓で記録されます。</p>
+    <p class="lead">解き逃した日のナンプレ7問（初級〜超難問）を、登録・アプリなしで無料プレイできます。カレンダーから日付を選び、盤面上のタブで問題を切り替えてください（既定は昨日の問題）。クリアはカレンダーに✓で記録されます。</p>
     <div data-daily-cal data-epoch={EPOCH} data-maxday={EPOCH + pastDays - 1} class="dc"></div>
   </div>
 
@@ -71,7 +79,7 @@ const breadcrumbSchema = {
 
   <div class="px-text">
     <h2>日付ごとに5段階を残す理由</h2>
-    <p>毎日のセットは、初級・中級・上級・難問・超難問を1問ずつ組み合わせています。同じ日に少しずつ難度を上げて解くことも、普段選ばない難度だけ試すこともできます。日付を変えても問題がランダムに入れ替わらないため、途中で閉じた盤面へ同じ URL から戻れます。</p>
+    <p>毎日のセットは、初級と中級を2問ずつ、上級・難問・超難問を1問ずつ組み合わせた全7問です。同じ日に少しずつ難度を上げて解くことも、普段選ばない難度だけ試すこともできます。日付を変えても問題がランダムに入れ替わらないため、途中で閉じた盤面へ同じ URL から戻れます。</p>
 
     <h2>アーカイブ問題の品質</h2>
     <p>ここに収録する問題は当サイトの自社エンジンで生成し、掲載前に「解が一つだけであること」「仮置きなしの論理手順だけで完答できること」「論理ソルバーの完成盤面が生成時の解答と一致すること」を確認しています。難易度は空きマスの数ではなく、実際に必要になった最も難しい手筋と解法手数から判定しています。検証方法と題庫全体の結果は<a href="/research/puzzle-analysis/">全4,395問の分析データ</a>で公開しています。</p>
