@@ -60,14 +60,20 @@ const breadcrumbSchema = {
   <div class="screen-only">
     <section class="pdf-download" aria-labelledby="pdf-download-title">
       <div>
-        <h2 id="pdf-download-title">{doc.ja}12問をPDFでまとめてダウンロード</h2>
-        <p>問題6ページ＋解答2ページのA4問題集です。毎回の設定は不要。保存して、学校・施設・ご家庭で繰り返し印刷できます。</p>
+        <h2 id="pdf-download-title">{doc.ja}12問・60問をPDFでまとめてダウンロード</h2>
+        <p>短く試せる12問版と、たっぷり取り組める60問版のA4問題集です。どちらも解答付き。保存して、学校・施設・ご家庭で繰り返し印刷できます。</p>
         <p class="pdf-license">学校・介護施設などでの非営利・無料配布は許可されています。<a href="/terms/#print-license">利用条件を見る</a></p>
       </div>
-      <a class="pdf-download-btn" href={printPdfHref(doc.slug)} download data-pdf-download={doc.slug}>
-        {doc.ja}12問PDF（答え付き）
-        <small>無料・登録不要</small>
-      </a>
+      <div class="pdf-download-actions">
+        <a class="pdf-download-btn" href={printPdfHref(doc.slug, 12)} download data-pdf-download={doc.slug} data-pdf-count="12">
+          {doc.ja}12問PDF
+          <small>答え付き・無料</small>
+        </a>
+        <a class="pdf-download-btn" href={printPdfHref(doc.slug, 60)} download data-pdf-download={doc.slug} data-pdf-count="60">
+          {doc.ja}60問PDF
+          <small>答え付き・無料</small>
+        </a>
+      </div>
     </section>
 
     {doc.sections.map((s) => (
@@ -104,12 +110,13 @@ const breadcrumbSchema = {
     .pdf-download h2 { margin: 0 0 8px; font-size: var(--text-lg); }
     .pdf-download p { margin: 0; color: var(--ink-3); font-size: var(--text-sm); }
     .pdf-download .pdf-license { margin-top: 8px; font-size: var(--text-xs); }
-    .pdf-download-btn { flex: 0 0 auto; display: grid; gap: 2px; min-width: 220px; padding: 13px 18px; border-radius: var(--radius); background: var(--accent); color: var(--accent-on) !important; text-align: center; text-decoration: none; font-weight: 700; }
+    .pdf-download-actions { flex: 0 0 auto; display: grid; gap: 8px; min-width: 220px; }
+    .pdf-download-btn { display: grid; gap: 2px; padding: 13px 18px; border-radius: var(--radius); background: var(--accent); color: var(--accent-on) !important; text-align: center; text-decoration: none; font-weight: 700; }
     .pdf-download-btn:hover { background: var(--accent-ink); }
     .pdf-download-btn small { font-size: 11px; font-weight: 500; opacity: .85; }
     @media (max-width: 680px) {
       .pdf-download { display: grid; padding: 18px; }
-      .pdf-download-btn { width: 100%; min-width: 0; }
+      .pdf-download-actions, .pdf-download-btn { width: 100%; min-width: 0; }
     }
   </style>
 </Base>

@@ -36,12 +36,12 @@ LEVELS = [
 ]
 
 
-def load_puzzles(slug: str) -> list[dict[str, str]]:
+def load_puzzles(slug: str, count: int) -> list[dict[str, str]]:
     path = ROOT / "src" / "data" / "puzzles" / f"{slug}.json"
     data = json.loads(path.read_text(encoding="utf-8"))
-    puzzles = data["puzzles"][:12]
-    if len(puzzles) != 12:
-        raise ValueError(f"{slug}: 12問を取得できません")
+    puzzles = data["puzzles"][:count]
+    if len(puzzles) != count:
+        raise ValueError(f"{slug}: {count}問を取得できません")
     for index, item in enumerate(puzzles, start=1):
         puzzle = item["puzzle"]
         solution = item["solution"]
@@ -87,11 +87,11 @@ def draw_board(
         pdf.drawCentredString(center_x, center_y, value)
 
 
-def draw_header(pdf: Canvas, level_ja: str, subtitle: str, answer: bool = False) -> None:
+def draw_header(pdf: Canvas, level_ja: str, subtitle: str, count: int, answer: bool = False) -> None:
     width, height = A4
     pdf.setFillColor(INK)
     pdf.setFont(JAPANESE_FONT, 16)
-    label = f"{level_ja} ナンプレ12問 - {'解答' if answer else '無料プリント'}"
+    label = f"{level_ja} ナンプレ{count}問 - {'解答' if answer else '無料プリント'}"
     pdf.drawString(18 * mm, height - 17 * mm, label)
     pdf.setFillColor(MUTED)
     pdf.setFont(JAPANESE_FONT, 8.5)
@@ -109,20 +109,23 @@ def draw_footer(pdf: Canvas, page: int, total: int) -> None:
     pdf.drawRightString(width - 18 * mm, 10 * mm, f"{page} / {total}")
 
 
-def build_pdf(slug: str, level_ja: str, subtitle: str) -> Path:
-    puzzles = load_puzzles(slug)
-    output = OUTPUT_DIR / f"numpredo-{slug}-12.pdf"
-    total_pages = 8
-    pdf = Canvas(str(output), pagesize=A4, pageCompression=1)
-    pdf.setTitle(f"{level_ja}の数独・ナンプレ無料プリント12問（答え付き）")
+def build_pdf(slug: str, level_ja: str, subtitle: str, count: int) -> Path:
+    puzzles = load_puzzles(slug, count)
+    output = OUTPUT_DIR / f"numpredo-{slug}-{count}.pdf"
+    problem_pages = count // 2
+    answer_pages = (count + 5) // 6
+    total_pages = problem_pages + answer_pages
+    # 固定 PDF 的创建时间与内部 ID，避免同一题库重复生成时产生无意义的二进制差异。
+    pdf = Canvas(str(output), pagesize=A4, pageCompression=1, invariant=1)
+    pdf.setTitle(f"{level_ja}の数独・ナンプレ無料プリント{count}問（答え付き）")
     pdf.setAuthor("numpredo")
     pdf.setSubject("唯一解・論理だけで解ける数独問題集")
 
     problem_size = 90 * mm
     problem_x = (A4[0] - problem_size) / 2
     problem_y = [161 * mm, 53 * mm]
-    for page_index in range(6):
-        draw_header(pdf, level_ja, subtitle)
+    for page_index in range(problem_pages):
+        draw_header(pdf, level_ja, subtitle, count)
         for slot in range(2):
             number = page_index * 2 + slot
             item = puzzles[number]
@@ -137,10 +140,12 @@ def build_pdf(slug: str, level_ja: str, subtitle: str) -> Path:
     answer_size = 50 * mm
     answer_x = [20 * mm, 110 * mm]
     answer_y = [202 * mm, 137 * mm, 72 * mm]
-    for answer_page in range(2):
-        draw_header(pdf, level_ja, "緑の数字が空きマスの答えです", answer=True)
+    for answer_page in range(answer_pages):
+        draw_header(pdf, level_ja, "緑の数字が空きマスの答えです", count, answer=True)
         for slot in range(6):
             number = answer_page * 6 + slot
+            if number >= count:
+                break
             item = puzzles[number]
             row, col = divmod(slot, 2)
             x, y = answer_x[col], answer_y[row]
@@ -148,7 +153,7 @@ def build_pdf(slug: str, level_ja: str, subtitle: str) -> Path:
             pdf.setFont(JAPANESE_FONT, 7.5)
             pdf.drawString(x, y + answer_size + 2.5 * mm, f"第 {number + 1} 問")
             draw_board(pdf, x, y, answer_size, item["solution"], item["puzzle"])
-        draw_footer(pdf, 7 + answer_page, total_pages)
+        draw_footer(pdf, problem_pages + answer_page + 1, total_pages)
         pdf.showPage()
 
     pdf.save()
@@ -169,11 +174,12 @@ def main() -> None:
 
     expected = set()
     for slug, level_ja, subtitle in LEVELS:
-        path = build_pdf(slug, level_ja, subtitle)
-        expected.add(path.name)
-        print(f"生成: {path.relative_to(ROOT)}")
+        for count in (12, 60):
+            path = build_pdf(slug, level_ja, subtitle, count)
+            expected.add(path.name)
+            print(f"生成: {path.relative_to(ROOT)}")
 
-    for stale in OUTPUT_DIR.glob("numpredo-*-12.pdf"):
+    for stale in OUTPUT_DIR.glob("numpredo-*.pdf"):
         if stale.name not in expected:
             stale.unlink()
 

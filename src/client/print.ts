@@ -57,7 +57,11 @@ function setup(): void {
   document.getElementById('print-solver-link')?.addEventListener('click', () => track('print_to_solver'));
   document.querySelectorAll<HTMLAnchorElement>('[data-pdf-download]').forEach((link) =>
     link.addEventListener('click', () =>
-      track('print_pdf_download', { level: link.dataset.pdfDownload ?? 'unknown', format: 'a4_12_with_answers' }),
+      track('print_pdf_download', {
+        level: link.dataset.pdfDownload ?? 'unknown',
+        count: Number(link.dataset.pdfCount ?? '12'),
+        format: 'a4_with_answers',
+      }),
     ),
   );
 
