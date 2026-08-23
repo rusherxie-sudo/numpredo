@@ -7,18 +7,20 @@ import { LEVELS } from '../data/levels.ts';
 
 interface Props {
   defaultLevel?: string;
+  defaultCount?: 2 | 4 | 6 | 12;
+  defaultPreset?: 'senior' | 'daily' | 'classroom' | 'challenge';
 }
-const { defaultLevel = 'advanced' } = Astro.props;
+const { defaultLevel = 'advanced', defaultCount = 6, defaultPreset } = Astro.props;
 ---
 
-<div id="print-tool" class="print-controls" data-lv-default={defaultLevel}>
+<div id="print-tool" class="print-controls" data-lv-default={defaultLevel} data-ct-default={defaultCount} data-preset-default={defaultPreset}>
   <div class="pc-row">
     <span class="pc-label">用途</span>
     <div class="chips pc-presets">
-      <button type="button" class="chip" data-preset="senior">大きく2問</button>
-      <button type="button" class="chip" data-preset="daily">毎日の6問</button>
-      <button type="button" class="chip" data-preset="classroom">教室・施設12問</button>
-      <button type="button" class="chip" data-preset="challenge">難問チャレンジ</button>
+      <button type="button" class={defaultPreset === 'senior' ? 'chip on' : 'chip'} data-preset="senior">大きく2問</button>
+      <button type="button" class={defaultPreset === 'daily' ? 'chip on' : 'chip'} data-preset="daily">毎日の6問</button>
+      <button type="button" class={defaultPreset === 'classroom' ? 'chip on' : 'chip'} data-preset="classroom">教室・施設12問</button>
+      <button type="button" class={defaultPreset === 'challenge' ? 'chip on' : 'chip'} data-preset="challenge">難問チャレンジ</button>
     </div>
   </div>
   <div class="pc-row">
@@ -30,7 +32,7 @@ const { defaultLevel = 'advanced' } = Astro.props;
   <div class="pc-row">
     <span class="pc-label">問題数</span>
     <div class="chips">
-      {[2, 4, 6, 12].map((n) => <button type="button" class={n === 6 ? 'chip on' : 'chip'} data-ct={n}>{n}問</button>)}
+      {[2, 4, 6, 12].map((n) => <button type="button" class={n === defaultCount ? 'chip on' : 'chip'} data-ct={n}>{n}問</button>)}
     </div>
   </div>
   <div class="pc-title">

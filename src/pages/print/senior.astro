@@ -1,0 +1,110 @@
+---
+import Base from '../../layouts/Base.astro';
+import PrintTool from '../../components/PrintTool.astro';
+import ShareBar from '../../components/ShareBar.astro';
+
+const title = '高齢者向けナンプレ無料プリント｜大きなマス - numpredo';
+const description = '高齢者・シニア向けのナンプレを大きなマスで無料印刷。初級2問と解答をA4で作成でき、登録不要。家庭の脳トレやデイサービス・介護施設内のレクリエーションに使えます。';
+const url = 'https://numpredo.com/print/senior/';
+const faq = [
+  { q: '高齢者向けナンプレは無料で印刷できますか？', a: 'はい。登録不要で何度でも無料印刷できます。最初から初級2問が選ばれており、「問題集を作成して印刷・PDF保存」を押すだけです。' },
+  { q: '文字やマスを大きく印刷できますか？', a: 'はい。A4に2問だけ配置するため、1問あたりのマスを大きく保てます。さらに大きくしたい場合は、印刷画面の倍率を調整してください。' },
+  { q: '答えも一緒に印刷できますか？', a: 'できます。「解答ページを付ける」をオンにすると、問題の後ろに解答ページが付きます。参加者用と職員・家族用を分けたい場合は、必要なページだけ印刷してください。' },
+  { q: 'デイサービスや介護施設で配布できますか？', a: '施設内の非営利レクリエーションや学習支援で、参加者へ無料配布できます。販売・ウェブへの再掲載・商用利用はできません。詳しくは<a href="/terms/#print-license">印刷問題集の非営利利用条件</a>をご確認ください。' },
+  { q: '高齢者には初級と中級のどちらがおすすめですか？', a: '数独が初めての方や久しぶりの方は初級がおすすめです。初級を無理なく解けるようになったら中級へ変更できます。年齢ではなく、本人が無理なく楽しめる難しさを選んでください。' },
+  { q: 'ナンプレで認知症を予防できますか？', a: 'ナンプレだけで認知症を予防できるとは断定できません。楽しみながら考える活動の一つとして、疲れない範囲で利用してください。研究で分かっている範囲は<a href="/guide/brain-training/">数独と脳トレの解説</a>にまとめています。' },
+];
+const abs = (html: string): string => html.replace(/href="\//g, 'href="https://numpredo.com/');
+const webAppSchema = {
+  '@context': 'https://schema.org', '@type': 'WebApplication',
+  name: '高齢者向けナンプレ無料プリント（大きなマス・解答付き）',
+  description, url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja',
+  audience: { '@type': 'PeopleAudience', suggestedMinAge: 60 },
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+};
+const howToSchema = {
+  '@context': 'https://schema.org', '@type': 'HowTo',
+  name: '高齢者向けの大きなナンプレをA4印刷する方法',
+  description: '初級2問を大きなマスで配置し、解答付きで印刷またはPDF保存する手順。',
+  inLanguage: 'ja', totalTime: 'PT1M',
+  step: [
+    { '@type': 'HowToStep', position: 1, name: '難易度を確認する', text: '初めは初級がおすすめです。慣れている方は中級へ変更できます。' },
+    { '@type': 'HowToStep', position: 2, name: '解答ページを選ぶ', text: '答えが必要なら「解答ページを付ける」をオンにします。' },
+    { '@type': 'HowToStep', position: 3, name: '印刷またはPDF保存する', text: '「問題集を作成して印刷・PDF保存」を押し、A4で印刷するかPDFに保存します。', url },
+  ],
+};
+const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })) };
+const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+  { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+  { '@type': 'ListItem', position: 2, name: '無料問題集・印刷', item: 'https://numpredo.com/print/' },
+  { '@type': 'ListItem', position: 3, name: '高齢者向けナンプレ', item: url },
+] };
+---
+
+<Base title={title} description={description} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <nav class="crumb"><a href="/">ホーム</a> › <a href="/print/">問題集・印刷</a> › 高齢者向け</nav>
+  <h1>高齢者向けナンプレ無料プリント｜大きなマス・解答付き</h1>
+  <p class="lead">A4に初級2問をゆったり配置した、高齢者・シニア向けの無料ナンプレです。最初から「大きく2問」が選ばれているので、設定に迷わず印刷できます。家庭での脳トレや、デイサービス・介護施設内のレクリエーションにどうぞ。</p>
+
+  <PrintTool defaultLevel="beginner" defaultCount={2} defaultPreset="senior" />
+
+  <div class="screen-only senior-content">
+    <section>
+      <h2>大きなマスで印刷できる初級ナンプレ</h2>
+      <p>1ページに問題を詰め込みすぎず、<strong>A4に2問だけ</strong>配置します。数字とマス目を見やすく保ち、鉛筆で候補を書き込む余白も確保できます。問題は初級が選択済みですが、慣れている方は上の難易度ボタンで中級へ変更できます。</p>
+      <p>毎回、検証済みの問題プールから異なる組み合わせを作ります。すべての問題は<strong>唯一解</strong>で、当てずっぽうを使わず論理だけで解けることを確認済みです。難易度を固定しても同じプリントの繰り返しにはなりません。</p>
+    </section>
+
+    <section>
+      <h2>家庭・デイサービスでの使い方</h2>
+      <ol class="use-steps">
+        <li><strong>見出しを付ける：</strong>「8月の脳トレ」「火曜日レクリエーション」など、配布日やグループ名を入力できます。</li>
+        <li><strong>解答を分ける：</strong>参加者には問題ページ、家族や職員には解答ページを渡すと、答え合わせがスムーズです。</li>
+        <li><strong>1問ずつ取り組む：</strong>時間を決めて競う必要はありません。疲れたら途中で休み、本人のペースを優先してください。</li>
+        <li><strong>難しければ戻す：</strong>中級で手が止まる場合は初級へ戻します。年齢ではなく、気持ちよく続けられる難しさが基準です。</li>
+      </ol>
+      <p>学校、非営利の地域活動、介護・福祉施設では、施設内で必要な部数を印刷して参加者へ無料配布できます。利用範囲は<a href="/terms/#print-license">非営利利用条件</a>をご確認ください。</p>
+    </section>
+
+    <section>
+      <h2>難易度の選び方</h2>
+      <div class="difficulty-grid">
+        <article><h3>初級</h3><p>初めての方、久しぶりに解く方に。候補が一つに決まる基本的な手順で進められます。</p><a href="/print/beginner/">初級プリントの詳しい説明 →</a></article>
+        <article><h3>中級</h3><p>初級を無理なく解ける方に。ブロックを見比べる一段深い考え方が加わります。</p><a href="/print/intermediate/">中級プリントの詳しい説明 →</a></article>
+      </div>
+    </section>
+
+    <section>
+      <h2>「脳トレ」は無理なく楽しむ活動として</h2>
+      <p>ナンプレは紙と鉛筆だけで取り組める論理パズルですが、病気の予防や治療を保証するものではありません。正解数や速さだけを目標にせず、考える時間や会話を楽しむ活動の一つとして使ってください。詳しくは<a href="/guide/brain-training/">数独の脳トレ効果と研究結果</a>で、分かっていることと限界を分けて説明しています。</p>
+    </section>
+
+    <ShareBar url={url} title="高齢者向けナンプレ無料プリント｜大きなマス・解答付き" cta="大きなナンプレをシェア" />
+
+    <section>
+      <h2>よくある質問</h2>
+      <dl class="faq">
+        {faq.map((f) => <><dt>{f.q}</dt><dd set:html={f.a} /></>)}
+      </dl>
+    </section>
+  </div>
+
+  <style>
+    .senior-content { max-width: 880px; margin: 32px auto 0; }
+    .senior-content section { margin-top: 34px; }
+    .senior-content h2 { margin-bottom: 12px; }
+    .use-steps { display: grid; gap: 10px; padding-left: 1.4em; }
+    .difficulty-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .difficulty-grid article { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .difficulty-grid h3 { margin: 0 0 8px; }
+    .difficulty-grid p { margin: 0 0 10px; }
+    @media (max-width: 640px) { .difficulty-grid { grid-template-columns: 1fr; } }
+  </style>
+</Base>

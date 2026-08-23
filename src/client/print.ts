@@ -43,6 +43,8 @@ function setup(): void {
   // hasOwn で自有キーのみ許可（原型链キー穿透対策、?lv= と同じ守り）
   const defLv = root.dataset.lvDefault ?? '';
   if (defLv && Object.prototype.hasOwnProperty.call(LEVEL_JA, defLv)) level = defLv;
+  const defCt = Number(root.dataset.ctDefault ?? '6');
+  if ([2, 4, 6, 12].includes(defCt)) count = defCt;
 
   const status = document.getElementById('print-status')!;
   const mount = document.getElementById('print-mount')!;
@@ -50,6 +52,15 @@ function setup(): void {
   const answersBox = document.getElementById('print-answers') as HTMLInputElement;
   const candBox = document.getElementById('print-cand') as HTMLInputElement;
   const params = new URLSearchParams(location.search);
+  const hasValidUrlOverride =
+    Object.prototype.hasOwnProperty.call(LEVEL_JA, params.get('lv') ?? '') ||
+    [2, 4, 6, 12].includes(Number(params.get('ct') ?? '0')) ||
+    ['0', '1'].includes(params.get('cand') ?? '') ||
+    ['0', '1'].includes(params.get('answers') ?? '') ||
+    Boolean((params.get('title') ?? '').trim());
+  if (hasValidUrlOverride) {
+    root.querySelectorAll('[data-preset]').forEach((x) => x.classList.remove('on'));
+  }
   const useCase = params.get('use') ?? '';
   if (['senior', 'daily', 'classroom', 'challenge'].includes(useCase)) {
     track('print_recipe_open', { use_case: useCase });
