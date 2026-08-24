@@ -32,23 +32,11 @@ const printByLevel: Array<{ slug: string; ja: string; h: string; body: string }>
   { slug: 'extreme', ja: '超難問', h: '超難問の数独を印刷する', body: 'スカイスクレイパー・X-Wing級の最難関。超難問のナンプレを無料で印刷できるサイトは少なく、しかも全問が唯一解・論理だけで解けることを検証済み。上級者の挑戦用にどうぞ。' },
 ];
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: '問題集・印刷', item: url }] };
-const howToSchema = {
-  '@context': 'https://schema.org', '@type': 'HowTo',
-  name: '数独・ナンプレを無料で印刷（PDF保存）する方法',
-  description: '難易度と問題数を選ぶだけで、検証済みの数独・ナンプレ問題集を無料で印刷、またはPDFとして保存する手順。',
-  inLanguage: 'ja', totalTime: 'PT1M',
-  step: [
-    { '@type': 'HowToStep', position: 1, name: '用途・難易度・問題数を選ぶ', text: '用途別プリセット、初級〜超難問の難易度、問題数（2問・4問・6問・12問）を選びます。' },
-    { '@type': 'HowToStep', position: 2, name: '「作成して印刷」を押す', text: '検証済みの問題プールから問題集を組み立て、印刷ダイアログを開きます。解答ページは必要に応じて付け外しできます。' },
-    { '@type': 'HowToStep', position: 3, name: '印刷またはPDFに保存', text: 'プリンターで印刷するか、「PDFに保存」を選べばPDFファイルとして保存できます。用紙サイズはA4がおすすめです。', url: url },
-  ],
-};
 ---
 
 <Base title={title} description={description} wide>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
-    <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>

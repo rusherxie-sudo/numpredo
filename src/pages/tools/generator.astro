@@ -42,14 +42,6 @@ const webAppSchema = {
   applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' }, publisher: { '@id': 'https://numpredo.com/#organization' },
 };
-const howToSchema = {
-  '@context': 'https://schema.org', '@type': 'HowTo', name: '無料で数独問題を作成して印刷する方法', description, inLanguage: 'ja', totalTime: 'PT1M',
-  step: [
-    { '@type': 'HowToStep', position: 1, name: '難易度を選ぶ', text: '初級・中級・上級・難問・超難問から作りたい難易度を選びます。', url: url + '#pg-tool-title' },
-    { '@type': 'HowToStep', position: 2, name: '新しい問題を作成する', text: '「新しい問題を作成」を押すと、唯一解・論理解を検証済みの問題が表示されます。', url: url + '#pg-tool-title' },
-    { '@type': 'HowToStep', position: 3, name: '印刷または共有する', text: '印刷・PDF保存、または問題を再現できるURLのコピーを選びます。', url: url + '#pg-tool-title' },
-  ],
-};
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })) };
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
   { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
@@ -61,7 +53,6 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 <Base title={title} description={description} canonical={url} wide>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
-    <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>

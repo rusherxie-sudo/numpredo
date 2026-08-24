@@ -1,6 +1,8 @@
 # 301 redirects: old React multilingual URLs → new Astro Japanese URLs
 
 # Play pages
+/play/mobile/ /play/ 301
+/play/pc/ /play/ 301
 # AdSense/検索品質対策：代表問題以外の旧番号ページは、同じ難易度のプレイページへ統合。
 # indexable-puzzles.json に番号を追加するときは、対応する行をこのブロックから削除すること。
 /play/beginner/1/ /play/beginner/ 301

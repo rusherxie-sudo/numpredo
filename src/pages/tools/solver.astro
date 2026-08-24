@@ -36,25 +36,11 @@ const webAppSchema = {
 const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })) };
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: 'プレイ', item: 'https://numpredo.com/play/' }, { '@type': 'ListItem', position: 3, name: 'ソルバー', item: url }] };
-// HowTo：ページ内の「写真で解く手順」を構造化データ化（写真/カメラで解く方法の意図に対応、リッチリザルト対象）
-const howToSchema = {
-  '@context': 'https://schema.org', '@type': 'HowTo',
-  name: '写真で数独・ナンプレを自動で解く方法',
-  description: '新聞・雑誌の数独やナンプレを、写真を撮る／画像を選ぶだけで自動読み取りし、答えを自動計算する手順。',
-  inLanguage: 'ja', totalTime: 'PT1M',
-  tool: { '@type': 'HowToTool', name: 'numpredo 数独・ナンプレ自動解答ツール' },
-  step: [
-    { '@type': 'HowToStep', position: 1, name: '写真を撮る・画像を選ぶ', text: 'スマホのカメラで数独の紙面を撮影するか、画像・スクリーンショットを選びます。盤面が画面いっぱいになるよう、明るい場所で正面から撮るときれいに読み取れます。', url: url + '#sv-app' },
-    { '@type': 'HowToStep', position: 2, name: '読み取った盤面を確認・修正する', text: '自動で読み取った数字が上の盤面に反映されます。間違っているマスをタップして数字キーで直します。手入力だけでも使えます。', url: url + '#sv-app' },
-    { '@type': 'HowToStep', position: 3, name: '「解く」を押す', text: '「解く」を押すと答えを自動計算して表示します。対応している手筋で論理的に解ける範囲は、手順も図解で確認できます。', url: url + '#sv-steps' },
-  ],
-};
 ---
 
 <Base title={title} description={description} wide>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
-    <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>

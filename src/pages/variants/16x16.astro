@@ -38,7 +38,7 @@ const articleSchema = {
   inLanguage: 'ja',
   mainEntityOfPage: url,
   image: 'https://numpredo.com/og-image.png',
-  author: { '@id': 'https://numpredo.com/#organization' },
+  author: { '@id': 'https://numpredo.com/#operator' },
   publisher: { '@id': 'https://numpredo.com/#organization' },
   speakable: { '@type': 'SpeakableSpecification', cssSelector: ['.lead', '.faq'] },
   ...(datePublished ? { datePublished } : {}),
@@ -52,19 +52,6 @@ const faqSchema = {
     '@type': 'Question',
     name: item.q,
     acceptedAnswer: { '@type': 'Answer', text: abs(item.a) },
-  })),
-};
-const howToSchema = v.howTo && {
-  '@context': 'https://schema.org',
-  '@type': 'HowTo',
-  name: v.howTo.name,
-  description: v.howTo.description,
-  inLanguage: 'ja',
-  step: v.howTo.steps.map((step, index) => ({
-    '@type': 'HowToStep',
-    position: index + 1,
-    name: step.name,
-    text: step.text,
   })),
 };
 const breadcrumbSchema = {
@@ -82,7 +69,6 @@ const breadcrumbSchema = {
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
-    {howToSchema && <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />}
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>

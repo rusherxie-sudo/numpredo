@@ -16,9 +16,9 @@ const minimumMainTextLength = 700;
 const maximumContentSimilarity = 0.45;
 const requiredContentMarkers: Record<string, string[]> = {
   '/practice/': ['"@type":"LearningResource"', 'data-practice', '実際の問題を論理ソルバーが解いた途中局面', 'この練習で扱う5つの手筋'],
-  '/research/puzzle-analysis/': ['"@type":"Dataset"', '全4,395問の数独を分析', '集計方法と再現性', 'データの範囲と限界'],
+  '/research/puzzle-analysis/': ['"@type":"Dataset"', '全4,395問の数独を分析', '集計方法と再現性', '公開CSVの列と検算方法'],
   '/tools/generator/': ['id="quality-verification"', '唯一解検査', '実際の一問で見る生成・検証の4工程'],
-  '/about/': ['id="editorial-policy"', 'numpredo 編集部', '広告主が問題の難易度判定や記事内容に関与することはありません'],
+  '/about/': ['id="editorial-policy"', 'id="operator"', '個人開発者', '広告主が問題の難易度判定や記事内容に関与することはありません'],
   '/contact/': ['問題・記事の訂正依頼', '運営・プライバシーに関する窓口', 'contact@numpredo.com'],
   '/privacy/': ['Google AdSense', 'Google が認定した同意管理プラットフォーム', '外部サービスと送信先'],
   '/terms/': ['印刷問題集の非営利利用', '著作権', '免責事項'],
@@ -29,9 +29,20 @@ const requiredContentMarkers: Record<string, string[]> = {
 const expectedPuzzlePaths = new Set<string>(
   JSON.parse(readFileSync(join(projectRoot, 'src/data/indexable-puzzles.json'), 'utf8')),
 );
+const analysisCsvPath = join(projectRoot, 'public/data/numpredo-puzzle-analysis.csv');
 
 if (!existsSync(join(distDir, 'sitemap-0.xml'))) {
   console.error('❌ dist/sitemap-0.xml 不存在。请先运行 npm run build。');
+  process.exit(1);
+}
+
+if (!existsSync(analysisCsvPath)) {
+  console.error('❌ 缺少逐题分析数据 public/data/numpredo-puzzle-analysis.csv');
+  process.exit(1);
+}
+const analysisRows = readFileSync(analysisCsvPath, 'utf8').trim().split('\n');
+if (analysisRows.length !== 4396) {
+  console.error(`❌ 逐题分析 CSV 应为 4,395 题，实际 ${analysisRows.length - 1} 题`);
   process.exit(1);
 }
 
@@ -158,6 +169,29 @@ for (const [canonical, owners] of canonicalOwners) {
 for (const pathname of pages.keys()) {
   if (!indexablePaths.has(pathname) && !allowedNoindexPaths.has(pathname)) {
     errors.push(`${pathname} 是 noindex 的 200 页面，但未在允许名单中`);
+  }
+}
+
+// 个人运营站必须明确回答“谁制作”。同时禁止已停用的 HowTo 标记和与实际运营
+// 形态矛盾的“编辑部”署名，避免页面向审核系统传递虚构团队或过期富结果信号。
+for (const pathname of indexablePaths) {
+  const html = pages.get(pathname)?.html ?? '';
+  if (!html.includes('"@id":"https://numpredo.com/#operator"')) {
+    errors.push(`${pathname} 缺少个人运营责任者实体`);
+  }
+  if (html.includes('"@type":"HowTo"')) {
+    errors.push(`${pathname} 仍使用 Google 已停用的 HowTo 结构化数据`);
+  }
+  if (html.includes('numpredo 編集部')) {
+    errors.push(`${pathname} 仍使用与个人运营不一致的“编辑部”署名`);
+  }
+  if (html.includes('"@type":"Article"')) {
+    if (!html.includes('"author":{"@id":"https://numpredo.com/#operator"}')) {
+      errors.push(`${pathname} 的 Article 未关联个人运营责任者`);
+    }
+    if (!html.includes('numpredo 運営責任者')) {
+      errors.push(`${pathname} 缺少可见的个人运营责任者署名`);
+    }
   }
 }
 

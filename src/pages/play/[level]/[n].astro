@@ -106,18 +106,10 @@ const articleSchema = {
   inLanguage: 'ja',
   mainEntityOfPage: url,
   image: 'https://numpredo.com/og-image.png',
-  author: { '@id': 'https://numpredo.com/#organization' },
+  author: { '@id': 'https://numpredo.com/#operator' },
   publisher: { '@id': 'https://numpredo.com/#organization' },
   ...(datePublished ? { datePublished } : {}),
   ...(dateModified ? { dateModified } : {}),
-};
-const howToSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'HowTo',
-  name: `数独${meta.ja} No.${n}の解き方`,
-  description: `数独${meta.ja} No.${n}を論理だけで解く手順`,
-  inLanguage: 'ja',
-  step: stepFigs.map((f, i) => ({ '@type': 'HowToStep', position: i + 1, name: f.label, text: f.text })),
 };
 // JSON-LD 内リンクは絶対 URL に（ページ文脈から切り離して消費されても辿れるように）
 const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
@@ -141,7 +133,6 @@ const breadcrumbSchema = {
 <Base title={title} description={description} canonical={url}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
-    <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>

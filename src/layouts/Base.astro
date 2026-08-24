@@ -14,8 +14,8 @@ const { title, description, canonical, wide = false, noindex = false } = Astro.p
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 const adsensePublisherId = 'ca-pub-1382715204285550';
 
-// サイト実体（Organization）を全ページに注入：各テンプレの author/publisher は
-// {'@id': 'https://numpredo.com/#organization'} で本ノードを参照する（単一実体に集約、
+// サイト実体（Organization）と個人運営責任者を全ページに注入：各テンプレの
+// publisher は #organization、author は #operator を参照する。
 // ページ単位で JSON-LD を読む Google/AI クローラでも参照が解決できる）。
 // sameAs は公式 SNS アカウント開設後にここへ追加する（外部実体アンカー）。
 const orgSchema = {
@@ -29,6 +29,18 @@ const orgSchema = {
     '日本語の数独・ナンプレ無料学習サイト。5段階難易度のブラウザプレイ、写真で答え合わせできる自動解答ソルバー、解き方ガイド、印刷用PDFを提供。',
   knowsAbout: ['数独', 'ナンプレ', 'パズルゲーム', '論理パズル'],
   contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', email: 'contact@numpredo.com', availableLanguage: 'ja' },
+  founder: { '@id': 'https://numpredo.com/#operator' },
+};
+const operatorSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': 'https://numpredo.com/#operator',
+  name: 'numpredo 運営責任者',
+  url: 'https://numpredo.com/about/#operator',
+  jobTitle: '個人開発者・編集責任者',
+  worksFor: { '@id': 'https://numpredo.com/#organization' },
+  knowsAbout: ['数独問題生成', '数独の論理解法', '数独の難易度判定', 'ウェブアプリ開発'],
+  description: 'numpredo の数独エンジン、ウェブ機能、解き方記事を一人で設計・実装・検証する個人運営責任者。',
 };
 // 内容长文（/guide/xxx・/variants/xxx）用 article；hub 索引页（/guide/）与其余用 website
 const pathname = Astro.url.pathname;
@@ -57,8 +69,6 @@ const footerCols = [
       ['上級', '/play/advanced/'],
       ['難問', '/play/hard/'],
       ['超難問', '/play/extreme/'],
-      ['スマホ版・無料ナンプレ', '/play/mobile/'],
-      ['パソコン版・無料ナンプレ', '/play/pc/'],
       ['変わり種数独一覧', '/variants/'],
       ['キラー数独', '/variants/killer/'],
       ['6×6数独', '/variants/6x6/'],
@@ -150,6 +160,7 @@ const footerCols = [
     <meta name="twitter:image:alt" content="numpredo — 無料の数独・ナンプレ" />
     <meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow'} />
     <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(operatorSchema)} />
     <slot name="head" />
 
     <!-- Google Analytics 4：先建立队列，用户首次操作或停留 8 秒后才加载第三方脚本。

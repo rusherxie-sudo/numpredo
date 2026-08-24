@@ -21,7 +21,7 @@ const others = VARIANTS.filter((x) => x.slug !== v.slug);
 // 全 30 问嵌入(易→难顺:easy→normal→hard tier,「別の問題」池内循环;与 gen-pool 的 tier 顺序一致)
 const set = killerPack.puzzles.map((p) => ({ puzzle: p.puzzle, solution: p.solution, cages: p.cages }));
 
-// 可玩页 = WebApplication(play/[level] 范式)＋ 解説長文としての Article/HowTo/FAQ/Breadcrumb を維持
+// 可玩页 = WebApplication(play/[level] 范式)＋ 解説長文としての Article/FAQ/Breadcrumb を維持
 const webAppSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
@@ -43,7 +43,7 @@ const articleSchema = {
   inLanguage: 'ja',
   mainEntityOfPage: url,
   image: 'https://numpredo.com/og-image.png',
-  author: { '@id': 'https://numpredo.com/#organization' },
+  author: { '@id': 'https://numpredo.com/#operator' },
   publisher: { '@id': 'https://numpredo.com/#organization' },
   speakable: { '@type': 'SpeakableSpecification', cssSelector: ['.lead', '.faq'] },
   ...(datePublished ? { datePublished } : {}),
@@ -55,14 +55,6 @@ const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: v.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: abs(f.a) } })),
-};
-const howToSchema = v.howTo && {
-  '@context': 'https://schema.org',
-  '@type': 'HowTo',
-  name: v.howTo.name,
-  description: v.howTo.description,
-  inLanguage: 'ja',
-  step: v.howTo.steps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.name, text: s.text })),
 };
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -79,7 +71,6 @@ const breadcrumbSchema = {
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
-    {howToSchema && <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />}
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>

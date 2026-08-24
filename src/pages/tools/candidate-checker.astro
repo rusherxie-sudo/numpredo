@@ -12,11 +12,6 @@ const faq = [
   { q: '問題に解があるか、唯一解かも分かりますか？', a: 'このページは現在の候補と次の一手を学ぶためのツールです。解の有無と唯一解、完成盤面まで確認する場合は数独ソルバーを利用してください。' },
 ];
 const webAppSchema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: '数独の候補数字・次の一手チェッカー', description, url, applicationCategory: 'EducationalApplication', operatingSystem: 'Web', inLanguage: 'ja', offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' }, publisher: { '@id': 'https://numpredo.com/#organization' } };
-const howToSchema = { '@context': 'https://schema.org', '@type': 'HowTo', name: '数独の候補数字と次の一手を調べる方法', inLanguage: 'ja', step: [
-  { '@type': 'HowToStep', position: 1, name: '盤面を入力', text: '最初から入っている数字と、現在までに確定した数字を盤面へ入力します。' },
-  { '@type': 'HowToStep', position: 2, name: '空きマスを選択', text: '調べたい空きマスを選ぶと、1〜9それぞれが候補に残るかを表示します。' },
-  { '@type': 'HowToStep', position: 3, name: '理由と次の一手を確認', text: '候補から消える理由、候補が一つのマス数、現在使える最初の論理手順を確認します。' },
-] };
 const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) };
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
   { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
@@ -26,7 +21,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 ---
 
 <Base title={title} description={description} canonical={url} wide>
-  <Fragment slot="head"><script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} /><script type="application/ld+json" set:html={JSON.stringify(howToSchema)} /><script type="application/ld+json" set:html={JSON.stringify(faqSchema)} /><script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} /></Fragment>
+  <Fragment slot="head"><script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} /><script type="application/ld+json" set:html={JSON.stringify(faqSchema)} /><script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} /></Fragment>
   <div class="cc-text"><nav class="crumb"><a href="/">ホーム</a> › <a href="/tools/solver/">ソルバー</a> › 候補数字チェッカー</nav><h1>数独の候補数字・次の一手チェッカー</h1><p class="lead">盤面を入力して空きマスを選ぶと、候補に残る数字と、候補から消える理由を1〜9まで表示します。重複、候補が一つのマス、現在使える最初の論理手順も同時に診断します。無料・登録不要、計算はすべて端末内です。</p><EditorialNote verification="候補は独自数独エンジンの行・列・3×3ブロック制約から毎回再計算し、次の一手は掲載題庫の難易度判定と同じ論理ソルバーで確認しています。" /></div>
   <div data-candidate-checker class="cc-app"><p>盤面を準備しています…</p></div>
   <div class="cc-text">

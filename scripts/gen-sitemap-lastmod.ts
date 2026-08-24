@@ -35,8 +35,13 @@ const DYNAMIC_DATA: Record<string, string> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
-  'variants/diagonal.astro': ['src/data/variants.ts', 'src/data/puzzles/diagonal.json'],
-  'variants/killer.astro': ['src/data/variants.ts', 'src/data/puzzles/killer.json'],
+  'variants/diagonal.astro': ['src/data/puzzles/diagonal.json'],
+  'variants/killer.astro': ['src/data/puzzles/killer.json'],
+};
+const STATIC_SLUG_DATA: Record<string, { file: string; slug: string }> = {
+  'variants/16x16.astro': { file: 'src/data/variants.ts', slug: '16x16' },
+  'variants/diagonal.astro': { file: 'src/data/variants.ts', slug: 'diagonal' },
+  'variants/killer.astro': { file: 'src/data/variants.ts', slug: 'killer' },
 };
 
 // 递归列出 src/pages 下所有 .astro（返回相对 PAGES 的 posix 路径）
@@ -84,6 +89,46 @@ function gitLastmod(files: string[]): string {
   return best;
 }
 
+// 数据文件内单个 slug 对象的真实最后修改日。过去直接取整个 data/*.ts 的最后提交，
+// 修改一篇文章会让同文件驱动的所有页面同时“变新”。这里通过 git blame 限定到当前
+// slug 的对象区间，只把真正改过该条目内容的提交计入 lastmod。
+function gitSlugLastmod(file: string, slug: string): string {
+  if (!existsSync(file)) return '';
+  const lines = readFileSync(file, 'utf-8').split('\n');
+  const slugPattern = new RegExp(`\\bslug:\\s*['"]${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`);
+  const slugLine = lines.findIndex((line) => slugPattern.test(line));
+  if (slugLine < 0) return '';
+
+  let start = slugLine;
+  while (start > 0 && !/^\s{2}\{\s*$/.test(lines[start])) start--;
+  if (!/^\s{2}\{\s*$/.test(lines[start])) start = slugLine;
+
+  let end = lines.length - 1;
+  for (let index = slugLine + 1; index < lines.length; index++) {
+    if (/^\s{2}\{\s*$/.test(lines[index])) {
+      end = index - 1;
+      break;
+    }
+  }
+
+  try {
+    const blame = execFileSync(
+      'git',
+      ['blame', '--line-porcelain', `-L${start + 1},${end + 1}`, '--', file],
+      { encoding: 'utf-8' },
+    );
+    let latest = 0;
+    for (const match of blame.matchAll(/^committer-time (\d+)$/gm)) latest = Math.max(latest, Number(match[1]));
+    return latest ? new Date(latest * 1000).toISOString() : '';
+  } catch {
+    return '';
+  }
+}
+
+function latestIso(...values: string[]): string {
+  return values.filter(Boolean).sort().at(-1) ?? '';
+}
+
 const map: Record<string, string> = {};
 
 // 先动态路由、后静态页：同 URL 时静态页的归因优先
@@ -128,13 +173,17 @@ for (const rel of [...allPages.filter((p) => p.includes('[')), ...allPages.filte
       continue;
     }
     const dir = rel.replace(/\/?\[[^/]+\]\.astro$/, ''); // play / guide / guide/techniques / variants / print
-    const date = gitLastmod([`${PAGES}/${rel}`, dataFile]);
-    if (!date) continue;
+    const templateDate = gitLastmod([`${PAGES}/${rel}`]);
     for (const slug of slugsFromData(dataFile)) {
-      map[dir ? `/${dir}/${slug}/` : `/${slug}/`] = date;
+      const date = latestIso(templateDate, gitSlugLastmod(dataFile, slug));
+      if (date) map[dir ? `/${dir}/${slug}/` : `/${slug}/`] = date;
     }
   } else {
-    const date = gitLastmod([`${PAGES}/${rel}`, ...(STATIC_EXTRA_DATA[rel] ?? [])]);
+    const slugData = STATIC_SLUG_DATA[rel];
+    const date = latestIso(
+      gitLastmod([`${PAGES}/${rel}`, ...(STATIC_EXTRA_DATA[rel] ?? [])]),
+      slugData ? gitSlugLastmod(slugData.file, slugData.slug) : '',
+    );
     if (date) map[fileToUrl(rel)] = date;
   }
 }
