@@ -1,0 +1,265 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const title = '数独の空白マスを無料印刷｜9×9の枠だけPDF - numpredo';
+const description = '数字なしの9×9数独・ナンプレ空白マスを無料印刷。A4に1面・2面・4面から選び、見出しと盤面番号を設定してPDF保存できます。問題の書き写し、自作、候補メモ、答え合わせ用の枠だけテンプレートです。';
+const url = 'https://numpredo.com/print/blank/';
+const faq = [
+  {
+    q: '数独の枠だけを無料で印刷できますか？',
+    a: 'はい。数字が入っていない9×9の空白マスを、登録不要で何度でも無料印刷できます。A4用紙に1面・2面・4面から選べます。',
+  },
+  {
+    q: '空白の数独盤面をPDFで保存できますか？',
+    a: 'できます。「印刷・PDF保存」を押し、印刷画面でプリンターの代わりに「PDFに保存」を選んでください。',
+  },
+  {
+    q: '新聞や本のナンプレを書き写してもよいですか？',
+    a: '個人で解くための書き写しに利用できます。ただし、元の問題の著作権や利用条件は発行元に帰属します。書き写した問題を再配布・公開するときは、発行元の条件を確認してください。',
+  },
+  {
+    q: '自分で数独問題を作るには何を確認すればよいですか？',
+    a: '行・列・3×3ブロックで数字が重複しないことに加え、完成できるだけでなく解答が一つに決まることが重要です。作った問題は<a href="/tools/solver/">数独ソルバー</a>で解答数を確認できます。',
+  },
+  {
+    q: '数字入りの問題を印刷したい場合は？',
+    a: '<a href="/print/">数独無料問題集</a>で、初級から超難問まで難易度と問題数を選べます。すべて解答付きで、印刷とPDF保存に対応しています。',
+  },
+];
+const abs = (html: string): string => html.replace(/href="\//g, 'href="https://numpredo.com/');
+const webAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: '数独・ナンプレ空白マス印刷ツール',
+  description,
+  url,
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'ja',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
+};
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: abs(f.a) },
+  })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '問題集・印刷', item: 'https://numpredo.com/print/' },
+    { '@type': 'ListItem', position: 3, name: '空白マス', item: url },
+  ],
+};
+const cells = Array.from({ length: 81 });
+const boards = Array.from({ length: 4 });
+---
+
+<Base title={title} description={description} canonical={url} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <div class="blank-page">
+    <header class="screen-only">
+      <nav class="crumb"><a href="/">ホーム</a> › <a href="/print/">問題集・印刷</a> › 空白マス</nav>
+      <h1>数独の空白マスを無料印刷｜9×9の枠だけPDF</h1>
+      <p class="lead">数字のない9×9の数独盤面を、A4に1面・2面・4面で印刷できます。新聞や本の問題を書き写す、自作問題を考える、途中経過を別の盤面で整理するといった用途に使える、枠だけの無料テンプレートです。</p>
+    </header>
+
+    <section class="blank-controls screen-only" aria-labelledby="blank-settings-title">
+      <h2 id="blank-settings-title">印刷する空白盤面を設定</h2>
+      <div class="blank-control-row">
+        <span class="blank-label">盤面数</span>
+        <div class="blank-segments" role="group" aria-label="A4一枚の盤面数">
+          <button type="button" data-blank-count="1" aria-pressed="false">1面</button>
+          <button type="button" data-blank-count="2" aria-pressed="true" class="on">2面</button>
+          <button type="button" data-blank-count="4" aria-pressed="false">4面</button>
+        </div>
+      </div>
+      <div class="blank-control-row blank-title-row">
+        <label class="blank-label" for="blank-title">見出し</label>
+        <input id="blank-title" type="text" maxlength="40" value="空白の数独盤面" />
+      </div>
+      <label class="blank-check" for="blank-numbered">
+        <input id="blank-numbered" type="checkbox" checked />
+        <span>盤面に番号を付ける</span>
+      </label>
+      <button type="button" class="blank-print-button" data-blank-print>印刷・PDF保存</button>
+      <p class="blank-status" role="status" aria-live="polite">現在：A4に2面</p>
+    </section>
+
+    <section class="blank-print-area" data-blank-sheet data-count="2" aria-label="印刷プレビュー">
+      <header class="blank-sheet-head">
+        <strong data-blank-heading>空白の数独盤面</strong>
+        <span>numpredo.com</span>
+      </header>
+      <div class="blank-board-list">
+        {boards.map((_, boardIndex) => (
+          <figure class="blank-board-wrap" data-board-index={boardIndex + 1}>
+            <figcaption data-board-caption>盤面 {boardIndex + 1}</figcaption>
+            <div class="blank-board" role="img" aria-label={`数字のない9×9数独盤面 ${boardIndex + 1}`}>
+              {cells.map(() => <span class="blank-cell" aria-hidden="true"></span>)}
+            </div>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <div class="blank-content screen-only">
+      <section>
+        <h2>空白の9×9数独盤面を印刷する方法</h2>
+        <ol>
+          <li><strong>盤面数を選ぶ：</strong>大きく書きたいときは1面、通常の練習は2面、複数問をまとめるなら4面を選びます。</li>
+          <li><strong>見出しを変える：</strong>日付、教材名、クラス名などを40文字まで入力できます。不要なら空欄にもできます。</li>
+          <li><strong>印刷する：</strong>「印刷・PDF保存」を押し、用紙をA4・縦向きに設定します。ファイルに残す場合は印刷先で「PDFに保存」を選びます。</li>
+        </ol>
+        <p>太い線で3×3ブロック、細い線で各マスを区切っています。画像を引き伸ばす方式ではなく、ブラウザが罫線を直接描くため、家庭用プリンターでもPDFでも線がぼやけにくい設計です。</p>
+      </section>
+
+      <section>
+        <h2>1面・2面・4面の使い分け</h2>
+        <div class="blank-use-grid">
+          <article><h3>1面：候補を書き込みたい</h3><p>一つのマスを最も大きく取れます。候補数字や推理の印を書き込みながら、難しい問題をじっくり検討するときに向いています。</p></article>
+          <article><h3>2面：問題と控えを並べたい</h3><p>読みやすさと用紙の節約を両立する標準設定です。同じ問題を二度解く、途中で詰まった盤面を写して別の手順を試す、といった使い方ができます。</p></article>
+          <article><h3>4面：複数問をまとめたい</h3><p>自作問題の下書きや、新聞・雑誌の問題を数日分まとめて控えるときに便利です。候補を多く書く場合は1面か2面を選んでください。</p></article>
+        </div>
+      </section>
+
+      <section>
+        <h2>問題の書き写し・自作・検算に</h2>
+        <p>手元の問題を書き写すときは、まず与えられた数字だけを濃く記入し、解き始めてから入れた数字や候補は鉛筆で薄く書くと区別しやすくなります。写し間違いを防ぐには、3×3ブロックごとに元の盤面と見比べてください。</p>
+        <p>自作数独では、完成盤を作って数字を外しただけでは、解答が複数残ることがあります。公開・配布する前に<a href="/tools/solver/">数独ソルバー</a>へ入力し、「解が一つだけ」か確認してください。最初から検証済みの問題を作りたい場合は<a href="/tools/generator/">数独作成ツール</a>、数字入りの問題をまとめて刷る場合は<a href="/print/">無料の答え付き問題集</a>が使えます。</p>
+      </section>
+
+      <section>
+        <h2>数独の空白マスについてよくある質問</h2>
+        <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a} /></>))}</dl>
+      </section>
+
+      <section>
+        <h2>関連ツール</h2>
+        <ul>
+          <li><a href="/print/">数字入りの数独・ナンプレを答え付きで印刷</a></li>
+          <li><a href="/tools/generator/">唯一解の数独問題を自動作成して印刷</a></li>
+          <li><a href="/tools/solver/">書き写した問題の解答・唯一解を確認</a></li>
+          <li><a href="/guide/how-to-solve/">数独・ナンプレのルールと解き方</a></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const sheet = document.querySelector<HTMLElement>('[data-blank-sheet]');
+    const heading = document.querySelector<HTMLElement>('[data-blank-heading]');
+    const titleInput = document.querySelector<HTMLInputElement>('#blank-title');
+    const numberedInput = document.querySelector<HTMLInputElement>('#blank-numbered');
+    const status = document.querySelector<HTMLElement>('.blank-status');
+    const countButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-blank-count]'));
+
+    const setCount = (count: string): void => {
+      if (!sheet || !['1', '2', '4'].includes(count)) return;
+      sheet.dataset.count = count;
+      countButtons.forEach((button) => {
+        const selected = button.dataset.blankCount === count;
+        button.classList.toggle('on', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+      if (status) status.textContent = `現在：A4に${count}面`;
+    };
+
+    countButtons.forEach((button) => button.addEventListener('click', () => setCount(button.dataset.blankCount ?? '2')));
+    titleInput?.addEventListener('input', () => {
+      if (heading) heading.textContent = titleInput.value.trim();
+    });
+    numberedInput?.addEventListener('change', () => sheet?.classList.toggle('without-numbers', !numberedInput.checked));
+    document.querySelector('[data-blank-print]')?.addEventListener('click', () => window.print());
+  </script>
+
+  <style is:global>
+    .blank-page { max-width: 1060px; margin-inline: auto; }
+    .blank-page .crumb { margin-bottom: 10px; color: var(--ink-3); font-size: var(--text-xs); }
+    .blank-page .crumb a { color: var(--ink-3); text-decoration: none; }
+    .blank-page .lead { max-width: 850px; margin-bottom: 20px; color: var(--ink-3); font-size: var(--text-sm); line-height: 1.85; }
+    .blank-controls { padding: 18px; border-block: 1px solid var(--line); background: var(--surface); }
+    .blank-controls h2 { margin: 0 0 16px; font-size: var(--text-lg); }
+    .blank-control-row { display: flex; align-items: center; gap: 14px; margin-bottom: 13px; }
+    .blank-label { flex: 0 0 54px; color: var(--ink-3); font-size: var(--text-sm); }
+    .blank-segments { display: inline-grid; grid-template-columns: repeat(3, minmax(64px, 1fr)); overflow: hidden; border: 1px solid var(--line-2); border-radius: var(--radius-sm); }
+    .blank-segments button { min-height: 40px; padding: 7px 16px; border: 0; border-right: 1px solid var(--line-2); background: var(--bg); color: var(--ink); font: inherit; cursor: pointer; }
+    .blank-segments button:last-child { border-right: 0; }
+    .blank-segments button.on { background: var(--accent); color: var(--accent-on); }
+    .blank-title-row input { width: min(100%, 420px); min-height: 40px; padding: 8px 10px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: var(--bg); color: var(--ink); font: inherit; }
+    .blank-check { display: flex; align-items: center; gap: 8px; width: fit-content; margin: 4px 0 15px 68px; color: var(--ink-2); font-size: var(--text-sm); cursor: pointer; }
+    .blank-print-button { min-height: 44px; margin-left: 68px; padding: 10px 22px; border: 0; border-radius: var(--radius-sm); background: var(--accent); color: var(--accent-on); font: 700 var(--text-sm) var(--font-sans); cursor: pointer; }
+    .blank-print-button:hover { background: var(--accent-ink); }
+    .blank-status { display: inline; margin-left: 10px; color: var(--ink-3); font-size: var(--text-xs); }
+    .blank-print-area { width: min(100%, 760px); margin: 24px auto 36px; padding: 24px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--shadow-sm); }
+    .blank-sheet-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; color: var(--ink); }
+    .blank-sheet-head strong { min-height: 1.5em; font-family: var(--font-mincho); font-size: var(--text-md); }
+    .blank-sheet-head span { color: var(--ink-3); font-size: 10px; }
+    .blank-board-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+    .blank-board-wrap { margin: 0; }
+    .blank-board-wrap figcaption { height: 22px; color: var(--ink-3); font-size: var(--text-xs); }
+    .blank-board { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); overflow: hidden; width: 100%; aspect-ratio: 1; border: 2px solid var(--ink); background: var(--surface); }
+    .blank-cell { aspect-ratio: 1; border-right: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); }
+    .blank-cell:nth-child(9n) { border-right: 0; }
+    .blank-cell:nth-child(n+73) { border-bottom: 0; }
+    .blank-cell:nth-child(9n+3), .blank-cell:nth-child(9n+6) { border-right: 2px solid var(--ink); }
+    .blank-cell:nth-child(n+19):nth-child(-n+27), .blank-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--ink); }
+    .blank-print-area[data-count='1'] .blank-board-list { grid-template-columns: minmax(0, 1fr); max-width: 620px; margin-inline: auto; }
+    .blank-print-area[data-count='1'] .blank-board-wrap:not(:first-child),
+    .blank-print-area[data-count='2'] .blank-board-wrap:nth-child(n+3) { display: none; }
+    .blank-print-area.without-numbers .blank-board-wrap figcaption { visibility: hidden; }
+    .blank-content { max-width: 860px; margin-inline: auto; }
+    .blank-content section { margin-top: 34px; }
+    .blank-content p, .blank-content li { line-height: 1.9; }
+    .blank-content a, .blank-content .faq a { color: var(--accent); }
+    .blank-use-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .blank-use-grid article { padding: 0 16px; border-left: 3px solid var(--line-2); }
+    .blank-use-grid h3 { margin: 0 0 7px; font-size: var(--text-md); }
+    .blank-use-grid p { margin: 0; color: var(--ink-3); font-size: var(--text-sm); }
+    .blank-content .faq dt { margin-top: 16px; font-family: var(--font-mincho); font-weight: 700; }
+    .blank-content .faq dd { margin: 5px 0 0; color: var(--ink-3); line-height: 1.85; }
+
+    @media (max-width: 680px) {
+      .blank-control-row { align-items: flex-start; }
+      .blank-title-row { display: grid; grid-template-columns: 54px minmax(0, 1fr); }
+      .blank-title-row input { width: 100%; }
+      .blank-check, .blank-print-button { margin-left: 0; }
+      .blank-status { display: block; margin: 9px 0 0; }
+      .blank-print-area { padding: 14px; }
+      .blank-board-list { gap: 12px; }
+      .blank-use-grid { grid-template-columns: 1fr; }
+    }
+
+    @page { size: A4 portrait; margin: 12mm; }
+    @media print {
+      .snav, .sfoot, .fsh, .blank-page .screen-only { display: none !important; }
+      body { background: #fff; }
+      main, main.wide { max-width: none; padding: 0; }
+      .blank-print-area { width: 100%; margin: 0; padding: 0; border: 0; border-radius: 0; background: #fff; box-shadow: none; color: #111; }
+      .blank-sheet-head { margin-bottom: 4mm; color: #111; }
+      .blank-sheet-head strong { font-size: 14pt; }
+      .blank-sheet-head span { color: #444; font-size: 8pt; }
+      .blank-board-list { gap: 7mm; }
+      .blank-board-wrap { break-inside: avoid; }
+      .blank-board-wrap figcaption { height: 5mm; color: #333; font-size: 8pt; }
+      .blank-board { border-color: #111; background: #fff; }
+      .blank-cell { border-color: #aaa; }
+      .blank-cell:nth-child(9n+3), .blank-cell:nth-child(9n+6),
+      .blank-cell:nth-child(n+19):nth-child(-n+27), .blank-cell:nth-child(n+46):nth-child(-n+54) { border-color: #111; }
+      .blank-print-area[data-count='1'] .blank-board-list { width: 165mm; max-width: 100%; margin: 10mm auto 0; }
+      .blank-print-area[data-count='2'] .blank-board-list { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 16mm; }
+      .blank-print-area[data-count='4'] .blank-board-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9mm 7mm; }
+    }
+  </style>
+</Base>
