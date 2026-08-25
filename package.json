@@ -23,11 +23,11 @@
     "gen:analysis-data": "node scripts/gen-analysis-data.ts"
   },
   "engines": {
-    "node": ">=22.6"
+    "node": ">=22.12"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "^5.13.0",
+    "astro": "^7.2.6",
     "sharp": "^0.35.3"
   },
   "devDependencies": {
