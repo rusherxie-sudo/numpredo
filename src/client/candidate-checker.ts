@@ -1,4 +1,5 @@
 import { PEERS, boxOf, colOf, computeCandidates, digitsOf, logicalSolve, popcount, rowOf, TECH_INFO } from '../engine/index.ts';
+import { track } from './track.ts';
 
 const root = document.querySelector<HTMLElement>('[data-candidate-checker]');
 if (root) setup(root);
@@ -8,6 +9,22 @@ function setup(root: HTMLElement): void {
   let grid = new Array<number>(81).fill(0);
   let selected = 0;
   let candidates = computeCandidates(grid);
+  let useTracked = false;
+
+  const trackUse = (source: 'manual' | 'paste' | 'sample'): void => {
+    if (useTracked) return;
+    useTracked = true;
+    track('candidate_check', { source });
+  };
+
+  root.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element) || !target.closest('a[href^="/tools/solver/"]')) return;
+    track('candidate_to_solver', {
+      filled: grid.filter((value) => value !== 0).length,
+      has_conflict: conflictCells(grid).size > 0,
+    });
+  });
 
   const board = document.createElement('div');
   board.className = 'cc-board';
@@ -41,7 +58,7 @@ function setup(root: HTMLElement): void {
 
   const controls = document.createElement('div');
   controls.className = 'cc-controls';
-  controls.append(action('サンプルを入力', () => { grid = parse(SAMPLE); selected = grid.findIndex((v) => v === 0); analyze(); }), action('全部消す', () => { grid.fill(0); selected = 0; analyze(); }));
+  controls.append(action('サンプルを入力', () => { trackUse('sample'); grid = parse(SAMPLE); selected = grid.findIndex((v) => v === 0); analyze(); }), action('全部消す', () => { grid.fill(0); selected = 0; analyze(); }));
 
   const result = document.createElement('div');
   result.className = 'cc-result';
@@ -68,6 +85,7 @@ function setup(root: HTMLElement): void {
   document.addEventListener('paste', (event) => {
     const text = event.clipboardData?.getData('text').replace(/[^0-9.]/g, '') ?? '';
     if (text.length !== 81) return;
+    trackUse('paste');
     grid = parse(text);
     selected = Math.max(0, grid.findIndex((value) => value === 0));
     analyze();
@@ -83,6 +101,7 @@ function setup(root: HTMLElement): void {
   }
 
   function input(value: number): void {
+    if (value) trackUse('manual');
     grid[selected] = value;
     if (value && selected < 80) selected++;
     analyze();
