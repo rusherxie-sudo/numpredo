@@ -587,15 +587,15 @@ export const GUIDES: GuideArticle[] = [
   {
     slug: 'tips',
     title: '数独テクニック一覧｜初心者から超難問までの解き方・コツ - numpredo',
-    description: '数独（ナンプレ）のテクニックを難易度順に一覧化。単数、区画の絞り込み、二国同盟・三国同盟、スカイスクレイパー、X-Wing、スワードフィッシュまで、覚える順番と図解ページをまとめました。',
+    description: '数独（ナンプレ）のテクニックを難易度順に一覧化。単数、二国同盟・三国同盟、X-Wing、XY-Wing、スワードフィッシュまで、覚える順番と図解をまとめました。',
     h1: '数独・ナンプレのテクニック一覧｜覚える順番と解き方のコツ',
-    lead: '数独のテクニックは、単数から候補消去へ順番に覚えると迷いません。初級から超難問までの9手筋を一覧で比べたあと、実戦で確認する順番と見つけ方のコツを解説します。',
-    verification: '独自ソルバーの認知難度モデル（TECH_WEIGHT）に合わせ、基本の単数から高難度の魚型・単数字チェーンまでを難易度順に整理しました。各手筋の成立条件と消去方向は図解ページごとに確認しています。',
+    lead: '数独のテクニックは、単数から候補消去へ順番に覚えると迷いません。初級から超難問までの10手筋を一覧で比べたあと、実戦で確認する順番と見つけ方のコツを解説します。',
+    verification: '独自ソルバーに実装した単数からスワードフィッシュまでの難度モデルを土台に整理し、モデル外の発展手筋であるXY-Wingは編集工程で二分岐の論理を個別に確認して追加しています。',
     sections: [
       {
         h: '数独テクニック一覧｜難易度と使う順番',
         body: [
-          '<div class="gtable-wrap"><table class="gtable"><thead><tr><th>覚える順</th><th>テクニック</th><th>目安</th><th>何を見るか</th></tr></thead><tbody><tr><td>1</td><td><a href="/guide/techniques/naked-single/">裸の単数</a></td><td>初級</td><td>候補が1つだけのマス</td></tr><tr><td>2</td><td><a href="/guide/techniques/hidden-single/">隠れた単数</a></td><td>初級〜中級</td><td>数字を置ける場所が1つだけの行・列・ブロック</td></tr><tr><td>3</td><td><a href="/guide/techniques/pointing/">区画の絞り込み</a></td><td>中級〜上級</td><td>ブロックと行・列の交わり</td></tr><tr><td>4</td><td><a href="/guide/techniques/naked-pair/">ネイキッドペア（二国同盟）</a></td><td>上級</td><td>同じ2候補だけを持つ2マス</td></tr><tr><td>5</td><td><a href="/guide/techniques/hidden-pair/">隠れたペア</a></td><td>上級〜難問</td><td>同じ2マスにしか入れない2数字</td></tr><tr><td>6</td><td><a href="/guide/techniques/naked-triple/">三国同盟（ネイキッドトリプル）</a></td><td>難問</td><td>候補の和集合が3種類になる3マス</td></tr><tr><td>7</td><td><a href="/guide/techniques/skyscraper/">スカイスクレイパー</a></td><td>超難問</td><td>位置がずれた2本の強リンク</td></tr><tr><td>8</td><td><a href="/guide/techniques/x-wing/">X-Wing</a></td><td>超難問</td><td>2行×2列の候補の長方形</td></tr><tr><td>9</td><td><a href="/guide/techniques/swordfish/">スワードフィッシュ</a></td><td>超難問</td><td>3行×3列に広がる候補の配置</td></tr></tbody></table></div>',
+          '<div class="gtable-wrap"><table class="gtable"><thead><tr><th>覚える順</th><th>テクニック</th><th>目安</th><th>何を見るか</th></tr></thead><tbody><tr><td>1</td><td><a href="/guide/techniques/naked-single/">裸の単数</a></td><td>初級</td><td>候補が1つだけのマス</td></tr><tr><td>2</td><td><a href="/guide/techniques/hidden-single/">隠れた単数</a></td><td>初級〜中級</td><td>数字を置ける場所が1つだけの行・列・ブロック</td></tr><tr><td>3</td><td><a href="/guide/techniques/pointing/">区画の絞り込み</a></td><td>中級〜上級</td><td>ブロックと行・列の交わり</td></tr><tr><td>4</td><td><a href="/guide/techniques/naked-pair/">ネイキッドペア（二国同盟）</a></td><td>上級</td><td>同じ2候補だけを持つ2マス</td></tr><tr><td>5</td><td><a href="/guide/techniques/hidden-pair/">隠れたペア</a></td><td>上級〜難問</td><td>同じ2マスにしか入れない2数字</td></tr><tr><td>6</td><td><a href="/guide/techniques/naked-triple/">三国同盟（ネイキッドトリプル）</a></td><td>難問</td><td>候補の和集合が3種類になる3マス</td></tr><tr><td>7</td><td><a href="/guide/techniques/skyscraper/">スカイスクレイパー</a></td><td>超難問</td><td>位置がずれた2本の強リンク</td></tr><tr><td>8</td><td><a href="/guide/techniques/x-wing/">X-Wing</a></td><td>超難問</td><td>2行×2列の候補の長方形</td></tr><tr><td>9</td><td><a href="/guide/techniques/xy-wing/">XY-Wing</a></td><td>超難問</td><td>3つの2候補マスによる連鎖</td></tr><tr><td>10</td><td><a href="/guide/techniques/swordfish/">スワードフィッシュ</a></td><td>超難問</td><td>3行×3列に広がる候補の配置</td></tr></tbody></table></div>',
           '上の表は、独自ソルバーの認知難度モデルに合わせた<strong>おすすめの学習順</strong>です。実際の盤面では、使える手筋で候補を消去するたびに、必ず1番の裸の単数へ戻ります。消去によって新しい確定マスが生まれることが多いからです。',
         ],
       },
@@ -657,7 +657,7 @@ export const GUIDES: GuideArticle[] = [
       },
     ],
     faq: [
-      { q: '数独のテクニックには何がありますか？', a: '基本は裸の単数・隠れた単数、次に区画の絞り込み、ネイキッドペア（二国同盟）・隠れたペア・三国同盟、上級手筋としてX-Wing・スカイスクレイパー・スワードフィッシュがあります。各手筋は本文の一覧から図解ページを開けます。' },
+      { q: '数独のテクニックには何がありますか？', a: '基本は裸の単数・隠れた単数、次に区画の絞り込み、ネイキッドペア（二国同盟）・隠れたペア・三国同盟、上級手筋としてX-Wing・XY-Wing・スカイスクレイパー・スワードフィッシュがあります。各手筋は本文の一覧から図解ページを開けます。' },
       { q: '数独のコツはどの順番で覚える？', a: '裸の単数、隠れた単数、区画の絞り込み、ペアの順がおすすめです。中級に特化した確認順は<a href="/guide/intermediate/">ナンプレ中級の解き方</a>、実戦は<a href="/play/intermediate/">中級をプレイ</a>で練習できます。' },
       { q: '数独のコツは何ですか？', a: 'まず候補メモを全マスに書き、単数（確定できるマス）を探すのが基本です。次に区画の絞り込み、上級ではペアなどのテクニックを使うと詰まりにくくなります。' },
       { q: 'ナンプレのコツと数独のコツは同じですか？', a: 'まったく同じです。数独とナンプレは同じパズルの呼び方が違うだけです。' },

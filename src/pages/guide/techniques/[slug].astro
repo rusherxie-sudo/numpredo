@@ -74,7 +74,7 @@ const breadcrumbSchema = {
   <h1>{t.h1}</h1>
   {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
   <p class="lead">{t.lead}（適用：{t.level}）</p>
-  <EditorialNote verification={`${t.name}の成立条件と候補消去を独自ソルバーで確認し、同じ候補状態から生成した盤面図を掲載しています。`} />
+  <EditorialNote verification={t.verification ?? `${t.name}の成立条件と候補消去を独自ソルバーで確認し、同じ候補状態から生成した盤面図を掲載しています。`} />
 
   {t.sections.map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => <p set:html={p} />)}</>))}
 
@@ -86,7 +86,13 @@ const breadcrumbSchema = {
 
   <h2>実際に練習する</h2>
   <p><a href="/print/techniques/">裸の単数からX-Wingまで、テクニック別の解答付き問題を無料印刷する</a></p>
-  {['naked-single', 'hidden-single'].includes(t.slug) ? (
+  {t.slug === 'xy-wing' ? (
+    <ul>
+      <li>上の候補図で、ピボットを2と仮定した分岐と7と仮定した分岐を一つずつ追う</li>
+      <li>両方の分岐で、どちらかのウイングが9になることを確認する</li>
+      <li>両ウイングを同時に見るマスだけから9を消す（現在の題庫・ソルバーはXY-Wingを必須手筋としていません）</li>
+    </ul>
+  ) : ['naked-single', 'hidden-single'].includes(t.slug) ? (
     <ul>
       <li><a href="/play/beginner/">初級</a>と<a href="/play/intermediate/">中級</a>で単数を探す</li>
       <li><a href="/guide/beginner/">初心者向け攻略</a>で確認順を身につける</li>
