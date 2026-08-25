@@ -85,6 +85,13 @@ const datasetSchema = {
   inLanguage: 'ja',
   creator: { '@id': 'https://numpredo.com/#operator' },
   publisher: { '@id': 'https://numpredo.com/#organization' },
+  image: {
+    '@type': 'ImageObject',
+    contentUrl: 'https://numpredo.com/data/numpredo-puzzle-analysis.png',
+    width: 1200,
+    height: 630,
+    caption: 'numpredo 4,395問の難易度別ヒント数・論理手数',
+  },
   license: 'https://numpredo.com/terms/',
   isAccessibleForFree: true,
   measurementTechnique: '唯一解検査と人間向け論理ソルバーによる全件解析',
@@ -106,7 +113,13 @@ const breadcrumbSchema = {
 };
 ---
 
-<Base title={title} description={description} canonical={url}>
+<Base
+  title={title}
+  description={description}
+  canonical={url}
+  ogImage="/data/numpredo-puzzle-analysis.png"
+  ogImageAlt="numpredo 4,395問の数独を難易度別に分析した実測グラフ"
+>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(datasetSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
@@ -118,6 +131,10 @@ const breadcrumbSchema = {
   <EditorialNote verification="運営責任者が題庫4,395問を本番と同じ論理ソルバーで全件再計算し、集計表と逐題CSVを同じ結果から生成しています。題面・解答の転載データは使用していません。" />
   <p class="research-meta">集計対象：標準9×9数独 {totalPuzzles.toLocaleString('ja-JP')}問 ／ 最終更新：{displayDate} ／ 推測・総当たりによる手は集計対象外</p>
   <p class="download"><a href="/data/numpredo-puzzle-analysis.csv" download>4,395問の逐題データをCSVでダウンロード</a><span>問題ID・難易度・ヒント数・論理手数・最難手筋・各手筋の使用回数</span></p>
+  <figure class="research-visual">
+    <a href="/data/numpredo-puzzle-analysis.png"><img src="/data/numpredo-puzzle-analysis.png" width="1200" height="630" loading="lazy" decoding="async" alt="初級から超難問まで4,395問の平均ヒント数と平均論理手数を比較したグラフ" /></a>
+    <figcaption>難易度別の問題数・平均ヒント数・平均論理手数。<a href="/data/numpredo-puzzle-analysis.png" download>引用用PNGをダウンロード</a></figcaption>
+  </figure>
 
   <section class="summary" aria-label="分析結果の要点">
     <div><strong>{totalPuzzles.toLocaleString('ja-JP')}</strong><span>解析した問題</span></div>
@@ -189,6 +206,9 @@ const breadcrumbSchema = {
     .download { display: flex; flex-direction: column; gap: 5px; margin: 18px 0 26px; padding: 15px 17px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); background: var(--surface-2); }
     .download a { width: fit-content; font-weight: 700; }
     .download span { color: var(--ink-3); font-size: 12px; }
+    .research-visual { margin: 0 0 28px; }
+    .research-visual img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+    .research-visual figcaption { margin-top: 7px; color: var(--ink-3); font-size: 12px; line-height: 1.7; }
     .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0 34px; }
     .summary div { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; text-align: center; }
     .summary strong { display: block; color: var(--accent); font-family: var(--font-mincho); font-size: 28px; }

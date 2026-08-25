@@ -3,6 +3,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const distDir = join(projectRoot, 'dist');
@@ -16,7 +17,15 @@ const minimumMainTextLength = 700;
 const maximumContentSimilarity = 0.45;
 const requiredContentMarkers: Record<string, string[]> = {
   '/practice/': ['"@type":"LearningResource"', 'data-practice', '実際の問題を論理ソルバーが解いた途中局面', 'この練習で扱う5つの手筋'],
-  '/research/puzzle-analysis/': ['"@type":"Dataset"', '全4,395問の数独を分析', '集計方法と再現性', '公開CSVの列と検算方法'],
+  '/research/puzzle-analysis/': [
+    '"@type":"Dataset"',
+    '全4,395問の数独を分析',
+    '集計方法と再現性',
+    '公開CSVの列と検算方法',
+    '引用用PNGをダウンロード',
+    '<meta property="og:image" content="https://numpredo.com/data/numpredo-puzzle-analysis.png">',
+    '<meta name="twitter:image" content="https://numpredo.com/data/numpredo-puzzle-analysis.png">',
+  ],
   '/tools/generator/': ['id="quality-verification"', '唯一解検査', '実際の一問で見る生成・検証の4工程'],
   '/about/': ['id="editorial-policy"', 'id="operator"', '個人開発者', '広告主が問題の難易度判定や記事内容に関与することはありません'],
   '/contact/': ['問題・記事の訂正依頼', '運営・プライバシーに関する窓口', 'contact@numpredo.com'],
@@ -37,6 +46,7 @@ const expectedPuzzlePaths = new Set<string>(
   JSON.parse(readFileSync(join(projectRoot, 'src/data/indexable-puzzles.json'), 'utf8')),
 );
 const analysisCsvPath = join(projectRoot, 'public/data/numpredo-puzzle-analysis.csv');
+const analysisImagePath = join(projectRoot, 'public/data/numpredo-puzzle-analysis.png');
 
 if (!existsSync(join(distDir, 'sitemap-0.xml'))) {
   console.error('❌ dist/sitemap-0.xml 不存在。请先运行 npm run build。');
@@ -50,6 +60,15 @@ if (!existsSync(analysisCsvPath)) {
 const analysisRows = readFileSync(analysisCsvPath, 'utf8').trim().split('\n');
 if (analysisRows.length !== 4396) {
   console.error(`❌ 逐题分析 CSV 应为 4,395 题，实际 ${analysisRows.length - 1} 题`);
+  process.exit(1);
+}
+if (!existsSync(analysisImagePath)) {
+  console.error('❌ 缺少研究图表 public/data/numpredo-puzzle-analysis.png');
+  process.exit(1);
+}
+const analysisImage = await sharp(analysisImagePath).metadata();
+if (analysisImage.format !== 'png' || analysisImage.width !== 1200 || analysisImage.height !== 630) {
+  console.error(`❌ 研究图表应为 1200×630 PNG，实际 ${analysisImage.width}×${analysisImage.height} ${analysisImage.format}`);
   process.exit(1);
 }
 
