@@ -1,6 +1,6 @@
 // 构建产物 SEO 一致性检查。
 // 以 dist/ 为最终事实源，验证 sitemap、robots、canonical 与 301 目标是否同步。
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -15,6 +15,7 @@ const allowedNoindexPaths = new Set(['/stats/']);
 const thinContentExemptPaths = new Set(['/about/', '/contact/', '/privacy/', '/terms/']);
 const minimumMainTextLength = 700;
 const maximumContentSimilarity = 0.45;
+const maximumInitialJsBytes = 64 * 1024;
 const requiredContentMarkers: Record<string, string[]> = {
   '/practice/': ['"@type":"LearningResource"', 'data-practice', '実際の問題を論理ソルバーが解いた途中局面', 'この練習で扱う5つの手筋'],
   '/research/puzzle-analysis/': [
@@ -106,6 +107,30 @@ function contentShingles(text: string, size = 5): Set<string> {
   return out;
 }
 
+function isContentOnlyPath(pathname: string): boolean {
+  return pathname.startsWith('/guide/')
+    || pathname.startsWith('/research/')
+    || ['/about/', '/contact/', '/privacy/', '/terms/', '/variants/', '/variants/6x6/', '/variants/inequality/'].includes(pathname);
+}
+
+// 递归统计入口脚本的静态 import 图；动态 import（OCR 等）不属于首屏下载，不计入预算。
+function initialScriptGraphBytes(sources: string[]): number {
+  const seen = new Set<string>();
+  const visit = (file: string): void => {
+    if (seen.has(file) || !existsSync(file)) return;
+    seen.add(file);
+    const source = readFileSync(file, 'utf8');
+    for (const match of source.matchAll(/(?:from\s*|import\s*)["'`](\.\/[^"'`]+)["'`]/g)) {
+      visit(join(dirname(file), match[1]));
+    }
+  };
+  for (const source of sources) {
+    const pathname = new URL(source, siteOrigin).pathname;
+    if (pathname.startsWith('/_astro/')) visit(join(distDir, pathname.slice(1)));
+  }
+  return [...seen].reduce((sum, file) => sum + statSync(file).size, 0);
+}
+
 const errors: string[] = [];
 const pages = new Map(
   walkIndexPages(distDir).map((file) => {
@@ -129,6 +154,15 @@ for (const [pathname, { html }] of pages) {
   const descriptions = matches(headHtml, /<meta name="description" content="([^"]+)"/g);
   const adsenseAccounts = matches(headHtml, /<meta name="google-adsense-account" content="([^"]+)"/g);
   const mainHtml = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? '';
+  const externalScripts = matches(html, /<script\b[^>]*\bsrc="([^"]+)"/g);
+
+  if (isContentOnlyPath(pathname) && externalScripts.length > 0) {
+    errors.push(`${pathname} 是纯内容页，却加载了外部脚本：${externalScripts.join('、')}`);
+  }
+  const initialJsBytes = initialScriptGraphBytes(externalScripts);
+  if (initialJsBytes > maximumInitialJsBytes) {
+    errors.push(`${pathname} 的首屏 JS 依赖图为 ${initialJsBytes} 字节（上限 ${maximumInitialJsBytes}）`);
+  }
 
   if (titles.length !== 1) {
     errors.push(`${pathname} title 数量为 ${titles.length}（应为 1）`);
