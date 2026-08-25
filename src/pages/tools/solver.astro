@@ -6,7 +6,7 @@ const lastmod: Record<string, string> = lastmodJson;
 const published: Record<string, string> = publishedJson;
 
 const title = 'ナンプレ自動解答｜写真・カメラで答え合わせできる無料数独ソルバー - numpredo';
-const description = 'ナンプレ・数独を無料で自動解答。新聞や雑誌の問題をカメラで撮影、または画像を選ぶと盤面を読み取り、答えと解き方を一手ずつ表示します。手入力にも対応した登録不要の9×9ソルバーです。';
+const description = 'ナンプレ・数独を無料で自動解答。新聞や雑誌の問題をカメラで撮影、または画像を選ぶと盤面を読み取り、答えと解き方を一手ずつ表示します。手入力にも対応した登録不要の9×9解答プログラムです。';
 const url = 'https://numpredo.com/tools/solver/';
 const datePublished = published['/tools/solver/'];
 const dateModified = lastmod['/tools/solver/'];
@@ -25,8 +25,11 @@ const faq = [
 ];
 const webAppSchema = {
   '@context': 'https://schema.org', '@type': 'WebApplication',
-  name: '数独・ナンプレ自動解答ツール（写真ソルバー）', description, url,
+  name: 'ナンプレ自動解答プログラム（写真・カメラ対応）',
+  alternateName: ['数独解答プログラム', 'ナンプレ解答ツール', '写真ソルバー'],
+  description, url,
   applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', inLanguage: 'ja',
+  featureList: ['写真・画像から9×9盤面を読み取り', '手入力・81文字入力', '唯一解・複数解の判定', '論理解法を一手ずつ図解'],
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
   publisher: { '@id': 'https://numpredo.com/#organization' },
   ...(datePublished ? { datePublished } : {}),
@@ -105,7 +108,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 
   <p>「ナンプレの答えだけを知りたい」「答え合わせをしたい」というときは、最初から印刷されている問題を読み取らせます。無料の<strong>ナンプレ解答プログラム</strong>として答えを表示でき、対応する手筋で論理的に解ける範囲は手順も確認できます。</p>
 
-  <h2>ナンプレ・数独の自動解答について</h2>
+  <h2>無料のナンプレ解答プログラム・自動解答ツールについて</h2>
   <dl class="faq">{faq.map((f) => (<><dt>{f.q}</dt><dd set:html={f.a}></dd></>))}</dl>
 
   <h2>関連</h2>
