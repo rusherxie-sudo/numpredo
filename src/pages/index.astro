@@ -122,7 +122,7 @@ const homeFaqSchema = {
       <div class="hp-tools">
         {tools.map(([icon, name, href, desc]) => (
           <a href={href} class="hp-tool">
-            <div class="hp-tool-ic">{icon}</div>
+            <div class="hp-tool-ic" data-icon={icon} aria-hidden="true"></div>
             <div class="hp-tool-name">{name}</div>
             <p class="hp-tool-desc">{desc}</p>
           </a>
@@ -219,6 +219,7 @@ const homeFaqSchema = {
     .hp-tool { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 22px; text-decoration: none; color: var(--ink); transition: border-color .15s; }
     .hp-tool:hover { border-color: var(--accent); }
     .hp-tool-ic { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--accent-tint); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; font-family: var(--font-mincho); margin-bottom: 16px; }
+    .hp-tool-ic::before { content: attr(data-icon); }
     .hp-tool-name { font-size: var(--text-base); font-weight: 700; margin-bottom: 7px; }
     .hp-tool-desc { font-size: var(--text-sm); line-height: 1.8; color: var(--ink-3); margin: 0; }
     .hp-guidelinks { font-size: var(--text-sm); color: var(--ink-4); margin: 22px 0 0; line-height: 2; }
