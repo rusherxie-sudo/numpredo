@@ -24,12 +24,12 @@ const faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEn
 
 // 難易度別の印刷ガイド（「超難問 印刷」等の難易度×印刷クエリの着地点。h3 に id アンカー、
 // 本文の受け皿は難易度別専用ページ /print/[level]/ ——ここからリンクで内部リンク加権）
-const printByLevel: Array<{ slug: string; ja: string; h: string; body: string }> = [
+const printByLevel: Array<{ slug: string; ja: string; h: string; body: string; linkLabel?: string }> = [
   { slug: 'beginner', ja: '初級', h: '初級の数独を印刷する', body: 'ヒントが多く、裸の単数・隠れた単数だけで解ける入門向け。お子さまの練習や、数独がはじめての方のウォーミングアップに。まとめて刷るなら12問がおすすめです。' },
   { slug: 'intermediate', ja: '中級', h: '中級の数独を印刷する', body: '「区画の絞り込み」で一段深く考える定番の歯ごたえ。毎日の脳トレ・通勤のおともにちょうどよい難しさで、繰り返し印刷して日課にするのに向いています。' },
   { slug: 'advanced', ja: '上級', h: '上級の数独を印刷する', body: 'ペア（二国同盟）を使いこなす本格派。候補メモを書き込みながらじっくり解くタイプなので、マス目に書き込める紙との相性が抜群です。' },
   { slug: 'hard', ja: '難問', h: '難問の数独を印刷する', body: '複数のテクニックを組み合わせて解く手強い一問。1枚4問のゆったりレイアウトで印刷して、腰を据えて挑むのがおすすめです。' },
-  { slug: 'extreme', ja: '超難問', h: '超難問の数独を印刷する', body: 'スカイスクレイパー・X-Wing級の最難関。超難問のナンプレを無料で印刷できるサイトは少なく、しかも全問が唯一解・論理だけで解けることを検証済み。上級者の挑戦用にどうぞ。' },
+  { slug: 'extreme', ja: '超難問', h: '最高難度に挑戦する方へ', body: 'スカイスクレイパー・X-Wing級の最難関。候補をじっくり書き込める4問レイアウトが向いています。専用ページでは12問・60問の答え付きPDFも選べます。', linkLabel: 'ナンプレ超難問の無料印刷ページへ →' },
 ];
 const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' }, { '@type': 'ListItem', position: 2, name: '問題集・印刷', item: url }] };
 ---
@@ -111,7 +111,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
       <>
         <h3 id={x.slug}>{x.h}</h3>
         <p>{x.body}</p>
-        <p class="plv-go"><a href={`/print/${x.slug}/`}>{x.ja}の印刷専用ページへ（おすすめの刷り方・FAQ）→</a></p>
+        <p class="plv-go"><a href={`/print/${x.slug}/`}>{x.linkLabel ?? `${x.ja}の印刷専用ページへ（おすすめの刷り方・FAQ）→`}</a></p>
       </>
     ))}
 
