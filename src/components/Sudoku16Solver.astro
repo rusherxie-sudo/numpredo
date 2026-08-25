@@ -14,19 +14,22 @@ const symbols = '123456789ABCDEFG'.split('');
   <p class="s16-scroll">スマホでは盤面を横にスクロールできます。</p>
   <div class="s16-board-wrap">
     <div class="s16-board" role="grid" aria-label="16×16ナンプレ入力盤面">
-      {Array.from({ length: 256 }, (_, index) => {
-        const row = Math.floor(index / 16);
-        const col = index % 16;
-        return (
-          <button
-            type="button"
-            class:list={['s16-cell', { 's16-br': col === 3 || col === 7 || col === 11, 's16-bb': row === 3 || row === 7 || row === 11 }]}
-            data-cell={index}
-            role="gridcell"
-            aria-label={`${row + 1}行${col + 1}列、空欄`}
-          ></button>
-        );
-      })}
+      {Array.from({ length: 16 }, (_, row) => (
+        <div class="s16-row" role="row">
+          {Array.from({ length: 16 }, (_, col) => {
+            const index = row * 16 + col;
+            return (
+              <button
+                type="button"
+                class:list={['s16-cell', { 's16-br': col === 3 || col === 7 || col === 11, 's16-bb': row === 3 || row === 7 || row === 11 }]}
+                data-cell={index}
+                role="gridcell"
+                aria-label={`${row + 1}行${col + 1}列、空欄`}
+              ></button>
+            );
+          })}
+        </div>
+      ))}
     </div>
   </div>
 
@@ -63,6 +66,7 @@ const symbols = '123456789ABCDEFG'.split('');
   .s16-scroll { display: none; color: var(--ink-4); font-size: 12px; }
   .s16-board-wrap { overflow-x: auto; padding-bottom: 4px; overscroll-behavior-x: contain; }
   .s16-board { display: grid; grid-template-columns: repeat(16, 1fr); width: min(100%, 640px); min-width: 544px; aspect-ratio: 1; margin: 0 auto; border: 2px solid var(--board-edge); border-radius: 5px; overflow: hidden; background: var(--board-bg); }
+  .s16-row { display: contents; }
   .s16-cell { min-width: 0; padding: 0; border: 0; border-right: 1px solid var(--cell-line); border-bottom: 1px solid var(--cell-line); background: transparent; color: var(--num-given); font: 600 clamp(12px, 1.75vw, 20px)/1 var(--font-mincho); cursor: pointer; }
   .s16-cell:hover { background: var(--cell-peer-bg); }
   .s16-cell.s16-br { border-right: 2px solid var(--box-line); }

@@ -37,14 +37,15 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     .cc-app { max-width: 900px; margin: 18px auto 28px; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
     .cc-layout { display: grid; grid-template-columns: minmax(300px, 480px) 1fr; gap: 22px; align-items: start; }
     .cc-board { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; border: 2px solid var(--board-edge); border-radius: 5px; overflow: hidden; background: var(--board-bg); }
-    .cc-cell { border: .5px solid var(--cell-line); background: transparent; color: var(--ink-4); font-size: clamp(8px, 1.5vw, 12px); padding: 1px; letter-spacing: .04em; cursor: pointer; overflow-wrap: anywhere; }
+    .cc-row { display: contents; }
+    .cc-cell { border: .5px solid var(--cell-line); background: transparent; color: var(--ink-3); font-size: clamp(8px, 1.5vw, 12px); padding: 1px; letter-spacing: .04em; cursor: pointer; overflow-wrap: anywhere; }
     .cc-cell.cc-br { border-right: 2px solid var(--box-line); } .cc-cell.cc-bb { border-bottom: 2px solid var(--box-line); } .cc-cell.cc-given { font-family: var(--font-mincho); font-size: clamp(18px, 3vw, 26px); font-weight: 700; color: var(--num-given); }
-    .cc-cell.cc-peer { background: var(--surface-2); } .cc-cell.cc-selected { background: var(--cell-sel-bg); box-shadow: inset 0 0 0 2px var(--accent); } .cc-cell.cc-error { color: var(--num-error); background: var(--cell-error-bg); }
+    .cc-cell.cc-peer { background: var(--surface-2); } .cc-cell.cc-selected { background: var(--cell-sel-bg); color: var(--ink); box-shadow: inset 0 0 0 2px var(--accent); } .cc-cell.cc-error { color: var(--num-error); background: var(--cell-error-bg); }
     .cc-pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; } .cc-pad button, .cc-controls button { min-height: 44px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; font-size: 16px; }
     .cc-controls { display: flex; gap: 8px; margin-top: 10px; } .cc-controls button { flex: 1; font-size: 13px; }
     .cc-result { margin-top: 14px; font-size: 13px; color: var(--ink-2); } .cc-result p { margin: 8px 0; } .cc-result a { color: var(--accent); } .cc-alert { color: var(--num-error); } .cc-ok { color: var(--accent); }
     .cc-reason { display: block; padding: 3px 0; } .cc-reason.ok { color: var(--accent); } .cc-reason.ng { color: var(--ink-4); } .cc-summary { padding: 7px 9px; background: var(--surface-2); border-radius: 5px; }
-    .cc-text a { color: var(--accent); } .cc-text ul, .cc-text ol { line-height: 2; } .cc-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } .cc-compare > div { padding: 12px 14px; border: 1px solid var(--line); border-radius: 7px; }
+    .cc-text a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; } .cc-text ul, .cc-text ol { line-height: 2; } .cc-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } .cc-compare > div { padding: 12px 14px; border: 1px solid var(--line); border-radius: 7px; }
     .faq dt { font-weight: 700; margin-top: 14px; } .faq dd { margin: 4px 0 0; color: var(--ink-3); }
     @media (max-width: 760px) { .cc-layout, .cc-compare { grid-template-columns: 1fr; } .cc-app { padding: 10px; } .cc-cell { font-size: 8px; } .cc-cell.cc-given { font-size: clamp(18px, 6vw, 28px); } }
   </style>

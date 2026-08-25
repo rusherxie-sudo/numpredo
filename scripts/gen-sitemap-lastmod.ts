@@ -35,6 +35,8 @@ const DYNAMIC_DATA: Record<string, string> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
+  'tools/candidate-checker.astro': ['src/client/candidate-checker.ts'],
+  'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts'],
   'variants/diagonal.astro': ['src/data/puzzles/diagonal.json'],
   'variants/killer.astro': ['src/data/puzzles/killer.json'],
 };

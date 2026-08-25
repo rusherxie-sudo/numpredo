@@ -31,14 +31,21 @@ function setup(root: HTMLElement): void {
   board.setAttribute('role', 'grid');
   board.setAttribute('aria-label', '候補を調べる数独盤面');
   const cells: HTMLButtonElement[] = [];
-  for (let i = 0; i < 81; i++) {
-    const cell = document.createElement('button');
-    cell.type = 'button';
-    cell.className = 'cc-cell';
-    cell.setAttribute('role', 'gridcell');
-    cell.addEventListener('click', () => { selected = i; render(); });
-    cells.push(cell);
-    board.append(cell);
+  for (let row = 0; row < 9; row++) {
+    const rowElement = document.createElement('div');
+    rowElement.className = 'cc-row';
+    rowElement.setAttribute('role', 'row');
+    for (let col = 0; col < 9; col++) {
+      const index = row * 9 + col;
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'cc-cell';
+      cell.setAttribute('role', 'gridcell');
+      cell.addEventListener('click', () => { selected = index; render(); });
+      cells.push(cell);
+      rowElement.append(cell);
+    }
+    board.append(rowElement);
   }
 
   const pad = document.createElement('div');
@@ -71,6 +78,7 @@ function setup(root: HTMLElement): void {
   right.append(pad, controls, result);
   layout.append(left, right);
   root.replaceChildren(layout);
+  render();
 
   document.addEventListener('keydown', (event) => {
     const active = document.activeElement;
@@ -123,10 +131,11 @@ function setup(root: HTMLElement): void {
       if (selectedPeers.has(i)) cell.classList.add('cc-peer');
       if (i === selected) cell.classList.add('cc-selected');
       if (conflicts.has(i)) cell.classList.add('cc-error');
-      cell.textContent = grid[i] ? String(grid[i]) : digitsOf(candidates[i]).join('');
+      const candidateText = digitsOf(candidates[i]).join('');
+      cell.textContent = grid[i] ? String(grid[i]) : candidateText;
       cell.classList.toggle('cc-given', grid[i] !== 0);
       cell.setAttribute('aria-selected', i === selected ? 'true' : 'false');
-      cell.setAttribute('aria-label', `${rowOf(i) + 1}行${colOf(i) + 1}列 ${grid[i] ? grid[i] : `候補${digitsOf(candidates[i]).join('、') || 'なし'}`}`);
+      cell.setAttribute('aria-label', `${rowOf(i) + 1}行${colOf(i) + 1}列 ${grid[i] ? grid[i] : `候補 ${candidateText || 'なし'}`}`);
       cell.tabIndex = i === selected ? 0 : -1;
     }
     result.innerHTML = resultHtml(conflicts);
