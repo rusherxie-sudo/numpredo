@@ -243,7 +243,13 @@ for (const [pathname, { html }] of pages) {
     ...matches(html, /<img\b[^>]*\bsrc="([^"]+)"/g),
   ];
   for (const reference of references) {
-    if (/^(?:#|mailto:|tel:|javascript:|data:)/i.test(reference)) continue;
+    // Cloudflare Email Address Obfuscation 会把静态 mailto: 改写成
+    // /cdn-cgi/l/email-protection；该路径对审核爬虫返回 404。邮箱链接必须像 contact 页一样点击时组装。
+    if (/^mailto:/i.test(reference)) {
+      errors.push(`${pathname} 包含静态邮箱链接 ${reference}（会被 Cloudflare 改写成 404）`);
+      continue;
+    }
+    if (/^(?:#|tel:|javascript:|data:)/i.test(reference)) continue;
     let target: URL;
     try {
       target = new URL(reference, `${siteOrigin}${pathname}`);
