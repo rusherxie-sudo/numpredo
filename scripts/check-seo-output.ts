@@ -185,6 +185,9 @@ for (const [pathname, { html }] of pages) {
   if (h1Count !== 1) errors.push(`${pathname} 主内容 H1 数量为 ${h1Count}（应为 1）`);
   for (const image of html.match(/<img\b[^>]*>/gi) ?? []) {
     if (!/\balt="[^"]*"/i.test(image)) errors.push(`${pathname} 存在没有 alt 的图片`);
+    if (!/\bwidth="[^"]+"/i.test(image) || !/\bheight="[^"]+"/i.test(image)) {
+      errors.push(`${pathname} 存在没有固定 width/height 的图片（会产生布局偏移）`);
+    }
   }
   for (const jsonLd of matches(html, /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     try {
