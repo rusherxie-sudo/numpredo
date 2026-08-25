@@ -81,9 +81,16 @@ const breadcrumbSchema = {
     {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
     <p class="lead">{v.lead}</p>
     <EditorialNote verification="掲載するキラー数独30問は、各ケージの合計・ケージ内の重複禁止・通常数独の制約を同時に満たし、唯一解になることを公開前に検証しています。" />
+    <nav class="killer-levels" aria-label="キラーナンプレの難易度">
+      <a href="/variants/killer/?n=1#killer-game"><strong>やさしい</strong><span>No.1〜10</span></a>
+      <a href="/variants/killer/?n=11#killer-game"><strong>ふつう</strong><span>No.11〜20</span></a>
+      <a href="/variants/killer/?n=21#killer-game"><strong>エキスパート</strong><span>No.21〜30</span></a>
+    </nav>
   </div>
 
-  <SudokuGame level="killer" levelJa="キラー数独" url={url} variant="killer" set={set} />
+  <div id="killer-game">
+    <SudokuGame level="killer" levelJa="キラー数独" url={url} variant="killer" set={set} />
+  </div>
 
   <div class="px-text">
     <ShareBar url={url} title={v.title} cta="この問題をシェア・友達に挑戦状を送ろう" />
@@ -117,6 +124,14 @@ const breadcrumbSchema = {
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 16px; }
     .upd { color: var(--ink-4); font-size: 12px; margin: -4px 0 10px; }
+    #killer-game { scroll-margin-top: 16px; }
+    .killer-levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 14px 0 18px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); overflow: hidden; }
+    .killer-levels a { min-width: 0; padding: 10px 8px; color: var(--ink); text-align: center; text-decoration: none; background: var(--surface); }
+    .killer-levels a + a { border-left: 1px solid var(--line-2); }
+    .killer-levels a:hover { background: var(--surface-2); }
+    .killer-levels strong, .killer-levels span { display: block; }
+    .killer-levels strong { font-size: 14px; }
+    .killer-levels span { margin-top: 2px; color: var(--ink-3); font-size: 11px; }
     main ul { line-height: 2; } main ul a, main p a { color: var(--accent); }
     .faq dt { font-family: var(--font-mincho); font-weight: 600; margin-top: 16px; } .faq dd { margin: 5px 0 0; color: var(--ink-3); }
     .var-fig { margin: 16px auto; text-align: center; max-width: 360px; }
