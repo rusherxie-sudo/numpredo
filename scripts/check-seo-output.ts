@@ -335,6 +335,52 @@ const sitemapXml = readFileSync(join(distDir, 'sitemap-0.xml'), 'utf8');
 const sitemapPaths = new Set(
   matches(sitemapXml, /<loc>([^<]+)<\/loc>/g).map((url) => new URL(url).pathname),
 );
+const sitemapModifiedAt = new Map(
+  [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc><lastmod>([^<]+)<\/lastmod>/g)]
+    .map((match) => [new URL(match[1]).pathname, match[2]] as const),
+);
+
+// sitemap 与结构化数据是修改日期的双消费者。时区表示可以不同，但必须是同一时刻；
+// Article 还必须公开初次发布日期，并在正文显示与 JSON-LD 一致的更新时间。
+let checkedModifiedSchemas = 0;
+let checkedArticles = 0;
+for (const [pathname, { html }] of pages) {
+  for (const raw of matches(html, /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    let schema: Record<string, unknown>;
+    try {
+      schema = JSON.parse(raw) as Record<string, unknown>;
+    } catch {
+      continue; // 无法解析的 JSON-LD 已在上方统一报错。
+    }
+    const type = schema['@type'];
+    const modified = typeof schema.dateModified === 'string' ? schema.dateModified : undefined;
+    const published = typeof schema.datePublished === 'string' ? schema.datePublished : undefined;
+    if (modified) {
+      checkedModifiedSchemas++;
+      const sitemapModified = sitemapModifiedAt.get(pathname);
+      if (!sitemapModified) {
+        errors.push(`${pathname} 的 JSON-LD 有 dateModified，但 sitemap 缺少 lastmod`);
+      } else if (!Number.isFinite(Date.parse(modified)) || Date.parse(modified) !== Date.parse(sitemapModified)) {
+        errors.push(`${pathname} 的 JSON-LD dateModified（${modified}）与 sitemap lastmod（${sitemapModified}）不一致`);
+      }
+    }
+    if (type === 'Article') {
+      checkedArticles++;
+      if (!published || !modified) {
+        errors.push(`${pathname} 的 Article 必须同时包含 datePublished 与 dateModified`);
+        continue;
+      }
+      const publishedAt = Date.parse(published);
+      const modifiedAt = Date.parse(modified);
+      if (!Number.isFinite(publishedAt) || !Number.isFinite(modifiedAt) || publishedAt > modifiedAt) {
+        errors.push(`${pathname} 的 Article 日期顺序无效：published=${published} modified=${modified}`);
+      }
+      if (!html.includes(`<time datetime="${modified}">`)) {
+        errors.push(`${pathname} 的可见更新时间与 Article dateModified 不一致`);
+      }
+    }
+  }
+}
 
 for (const pathname of indexablePaths) {
   if (!sitemapPaths.has(pathname)) errors.push(`${pathname} 允许索引但未进入 sitemap`);
@@ -423,3 +469,4 @@ console.log('✅ SEO 构建检查通过');
 console.log(`  构建页面：${pages.size}`);
 console.log(`  可索引页面：${indexablePaths.size}`);
 console.log(`  sitemap URL：${sitemapPaths.size}`);
+console.log(`  日期一致性：Article ${checkedArticles} / 含 dateModified schema ${checkedModifiedSchemas}`);
