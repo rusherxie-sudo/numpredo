@@ -23,7 +23,7 @@ npm run render-demo # 导出示例 SVG 到 engine-demo/
 
 **无单元测试框架**。引擎正确性靠 `scripts/demo.ts` 的运行时断言保证（可接 CI）。
 
-**Node 版本注意**：`package.json` 写 `>=18`，但所有 `scripts/*.ts` 用 `node scripts/xxx.ts` **原生跑 TypeScript**，需 Node 22.6+/23+（开发机为 v24）。引擎内部 import 全部带 **`.ts` 显式后缀**（`tsconfig` 开了 `allowImportingTsExtensions`）——新增引擎文件时必须照此约定写后缀，否则原生执行和 Astro 构建都会失败。
+**Node 版本注意**：`package.json` 写 `>=22.12`（Astro 7 的最低要求）；同时所有 `scripts/*.ts` 用 `node scripts/xxx.ts` **原生跑 TypeScript**。开发机需 Node 22.12+/23+（当前为 v22.23）。引擎内部 import 全部带 **`.ts` 显式后缀**（`tsconfig` 开了 `allowImportingTsExtensions`）——新增引擎文件时必须照此约定写后缀，否则原生执行和 Astro 构建都会失败。
 
 ## 核心架构：一套引擎，三处复用
 
