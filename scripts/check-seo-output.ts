@@ -352,6 +352,19 @@ const sitemapModifiedAt = new Map(
   [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc><lastmod>([^<]+)<\/lastmod>/g)]
     .map((match) => [new URL(match[1]).pathname, match[2]] as const),
 );
+for (const pathname of sitemapPaths) {
+  const lastmod = sitemapModifiedAt.get(pathname);
+  if (!lastmod) {
+    errors.push(`${pathname} 在 sitemap 中缺少 lastmod`);
+    continue;
+  }
+  const modifiedAt = Date.parse(lastmod);
+  if (!Number.isFinite(modifiedAt)) {
+    errors.push(`${pathname} 的 sitemap lastmod 无法解析：${lastmod}`);
+  } else if (modifiedAt > Date.now() + 5 * 60 * 1000) {
+    errors.push(`${pathname} 的 sitemap lastmod 位于未来：${lastmod}`);
+  }
+}
 
 // sitemap 与结构化数据是修改日期的双消费者。时区表示可以不同，但必须是同一时刻；
 // Article 还必须公开初次发布日期，并在正文显示与 JSON-LD 一致的更新时间。
@@ -482,4 +495,5 @@ console.log('✅ SEO 构建检查通过');
 console.log(`  构建页面：${pages.size}`);
 console.log(`  可索引页面：${indexablePaths.size}`);
 console.log(`  sitemap URL：${sitemapPaths.size}`);
+console.log(`  sitemap lastmod：${sitemapModifiedAt.size}/${sitemapPaths.size}`);
 console.log(`  日期一致性：Article ${checkedArticles} / 含 dateModified schema ${checkedModifiedSchemas}`);
