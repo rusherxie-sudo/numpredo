@@ -96,7 +96,7 @@ function cbtn(icon: string, label: string, on: () => void): HTMLButtonElement {
   return b;
 }
 
-// 技巧名 → 日语 + 解法页链接（用于提示的教学引导）。键与引擎技巧链一致，止于 xWing（对齐五档）。
+// 技巧名 → 日语 + 解法页链接（用于提示和成绩卡的教学引导）。键与引擎技巧链一致。
 const TECH_JA: Record<string, { ja: string; href: string }> = {
   nakedSingle: { ja: '裸の単数', href: '/guide/beginner/' },
   hiddenSingle: { ja: '隠れた単数', href: '/guide/beginner/' },
@@ -112,7 +112,18 @@ const TECH_JA: Record<string, { ja: string; href: string }> = {
 // ブロックの日本語ラベル（ナッジ段階の位置指示）
 const BOX_JA = ['左上', '中央上', '右上', '左中', '中央', '右中', '左下', '中央下', '右下'];
 // 认知难度递增序（成绩卡「使ったテクニック」按此排序展示）
-const TECH_ORDER = ['nakedSingle', 'hiddenSingle', 'cageCombo', 'lockedCandidates', 'nakedPair', 'hiddenPair', 'nakedTriple', 'xWing'];
+const TECH_ORDER = [
+  'nakedSingle',
+  'hiddenSingle',
+  'cageCombo',
+  'lockedCandidates',
+  'nakedPair',
+  'hiddenPair',
+  'nakedTriple',
+  'skyscraper',
+  'xWing',
+  'swordfish',
+];
 
 function setup(root: HTMLElement): void {
   const set: PuzzlePair[] = JSON.parse(root.dataset.set ?? '[]');
