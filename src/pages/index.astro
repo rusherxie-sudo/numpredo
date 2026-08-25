@@ -247,14 +247,16 @@ const homeFaqSchema = {
 
     @media (max-width: 760px) {
       .hp-sec-head { flex-direction: column; align-items: flex-start; gap: 8px; }
-      /* hero：盤面を背景の地紋に、文字を主役に。CTA は横1行で省スペース */
+      /* 移动端以文字为主，盘面退为背景；CTA 使用一主两辅的稳定网格。 */
       .hp-hero { position: relative; grid-template-columns: 1fr; padding: 30px 0 34px; }
       .hp-hero-r { position: absolute; inset: 0; z-index: 0; background: none; border: 0; box-shadow: none; padding: 0; opacity: .1; pointer-events: none; justify-content: center; align-items: center; }
       .hp-hero-r .hp-board { max-width: 94%; }
       .hp-board-cap { display: none; }
-      .hp-hero-l { position: relative; z-index: 1; }
-      .hp-cta { flex-wrap: nowrap; gap: 10px; }
-      .hp-btn { flex: 1 1 0; min-width: 0; text-align: center; padding: 13px 6px; font-size: var(--text-base); white-space: nowrap; }
+      .hp-hero-l { position: relative; z-index: 1; min-width: 0; max-width: 100%; }
+      .hp-h1, .hp-lead, .hp-difflinks, .hp-meta { max-width: 100%; }
+      .hp-cta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 10px; }
+      .hp-btn { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 48px; text-align: center; padding: 11px 8px; font-size: var(--text-base); line-height: 1.45; white-space: normal; }
+      .hp-btn:first-child { grid-column: 1 / -1; }
     }
   </style>
 </Base>
