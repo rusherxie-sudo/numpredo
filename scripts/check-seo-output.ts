@@ -183,6 +183,16 @@ for (const [pathname, { html }] of pages) {
   }
   const h1Count = (mainHtml.match(/<h1\b/gi) ?? []).length;
   if (h1Count !== 1) errors.push(`${pathname} 主内容 H1 数量为 ${h1Count}（应为 1）`);
+  const headings = [...mainHtml.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi)]
+    .map((match) => ({ level: Number(match[1]), text: visibleText(match[2]) }));
+  for (let index = 0; index < headings.length; index++) {
+    const heading = headings[index];
+    if (!heading.text) errors.push(`${pathname} 存在空 H${heading.level}`);
+    const previous = headings[index - 1];
+    if (previous && heading.level > previous.level + 1) {
+      errors.push(`${pathname} 标题层级从 H${previous.level} 跳到 H${heading.level}`);
+    }
+  }
   for (const image of html.match(/<img\b[^>]*>/gi) ?? []) {
     if (!/\balt="[^"]*"/i.test(image)) errors.push(`${pathname} 存在没有 alt 的图片`);
     if (!/\bwidth="[^"]+"/i.test(image) || !/\bheight="[^"]+"/i.test(image)) {

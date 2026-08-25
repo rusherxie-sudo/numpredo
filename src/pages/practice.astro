@@ -139,7 +139,7 @@ const breadcrumbSchema = {
     ))}
     <section class="practice-result" data-result hidden aria-live="polite">
       <span class="result-label">診断結果</span>
-      <h2 data-result-title></h2>
+      <h2 data-result-title>あなたの診断結果</h2>
       <p data-result-body></p>
       <div class="result-links">
         <a href="/play/" class="result-primary">おすすめ難易度で遊ぶ</a>
@@ -215,7 +215,6 @@ const breadcrumbSchema = {
             return;
           }
           cards.forEach((item) => item.dataset.active = 'false');
-          if (result) result.hidden = false;
           const titleNode = result?.querySelector<HTMLElement>('[data-result-title]');
           const bodyNode = result?.querySelector<HTMLElement>('[data-result-body]');
           const diagnosis = score === 5
@@ -227,6 +226,7 @@ const breadcrumbSchema = {
                 : ['初級レベル', 'まず単数を確実に見つける練習から始めましょう。候補の書き方に慣れると次の手筋が見えます。'];
           if (titleNode) titleNode.textContent = `${score} / ${cards.length} 正解：${diagnosis[0]}`;
           if (bodyNode) bodyNode.textContent = diagnosis[1];
+          if (result) result.hidden = false;
           result?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
       });
