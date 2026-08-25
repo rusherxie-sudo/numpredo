@@ -5,6 +5,13 @@
 /play/pc/ /play/ 301
 # AdSense/検索品質対策：代表問題以外の旧番号ページは、同じ難易度のプレイページへ統合。
 # indexable-puzzles.json に番号を追加するときは、対応する行をこのブロックから削除すること。
+# GSC 仍记录早期曾暴露的 No.91/92；当前精选题目页为空，精确回收到对应难度页。
+/play/beginner/91/ /play/beginner/ 301
+/play/intermediate/91/ /play/intermediate/ 301
+/play/advanced/91/ /play/advanced/ 301
+/play/hard/91/ /play/hard/ 301
+/play/hard/92/ /play/hard/ 301
+/play/extreme/91/ /play/extreme/ 301
 /play/beginner/1/ /play/beginner/ 301
 /play/intermediate/1/ /play/intermediate/ 301
 /play/intermediate/3/ /play/intermediate/ 301
