@@ -128,7 +128,10 @@ function gitSlugLastmod(file: string, slug: string): string {
 }
 
 function latestIso(...values: string[]): string {
-  return values.filter(Boolean).sort().at(-1) ?? '';
+  // gitLastmod（%cI）与 gitSlugLastmod（toISOString）可能分别返回带时区偏移
+  // 与 UTC(Z) 的 ISO 字符串；按字符串排序会把「同一时刻」误判成不同先后。
+  // 这里统一用绝对时间戳比较，取最晚修改的那个源。
+  return values.filter(Boolean).sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? '';
 }
 
 const map: Record<string, string> = {};
