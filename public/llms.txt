@@ -24,6 +24,7 @@
 - [上級テクニック](/guide/advanced/) — ペア・区画の絞り込み・X-Wing
 - [行き詰まったとき](/guide/when-stuck/) — 詰まり解決チェックリスト
 - [数独をプログラムで解くアルゴリズム](/guide/sudoku-algorithm/) — バックトラッキング・MRV・候補法・唯一解判定の実装
+- [ナンバープレイスとは](/guide/number-place/) — 数独・ナンプレとの関係と無料で遊ぶ方法
 
 ### テクニック図解（一手ずつ）
 - [ネイキッドペア（二国同盟）](/guide/techniques/naked-pair/)
