@@ -63,12 +63,14 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
   <div id="sv-app">
     {/* 静的スケルトン盤面：JS 読み込み前の空白を防ぐ（ocr-solve.ts が innerHTML='' で置換） */}
     <div class="sv-layout" aria-hidden="true">
-      <div class="sv-board">
-        {Array.from({ length: 81 }, (_, i) => {
-          const r = (i / 9) | 0;
-          const c = i % 9;
-          return <div class={`sv-cell${c === 2 || c === 5 ? ' sv-br' : ''}${r === 2 || r === 5 ? ' sv-bb' : ''}`} />;
-        })}
+      <div class="sv-left">
+        <div class="sv-board">
+          {Array.from({ length: 81 }, (_, i) => {
+            const r = (i / 9) | 0;
+            const c = i % 9;
+            return <div class={`sv-cell${c === 2 || c === 5 ? ' sv-br' : ''}${r === 2 || r === 5 ? ' sv-bb' : ''}`} />;
+          })}
+        </div>
       </div>
       <div class="sv-skeleton-side">
         <div class="sv-skeleton-pad">{Array.from({ length: 10 }, () => <span />)}</div>
@@ -115,6 +117,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
   <ul>
     <li><a href="/variants/16x16/">16×16ナンプレを自動解答する</a></li>
     <li><a href="/tools/candidate-checker/">答えを見ずに候補数字と次の一手だけ確認する</a></li>
+    <li><a href="/guide/sudoku-algorithm/">数独ソルバーのアルゴリズムと唯一解判定を学ぶ</a></li>
     <li><a href="/guide/newspaper/">新聞の数独・ナンプレが解けないとき</a></li>
     <li><a href="/guide/how-to-solve/">自力で解くための解き方ガイド</a></li>
     <li><a href="/play/advanced/">上級をプレイ</a></li>

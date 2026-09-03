@@ -14,6 +14,7 @@ const numberedPuzzlePattern = /^\/play\/(?:beginner|intermediate|advanced|hard|e
 const allowedNoindexPaths = new Set(['/stats/']);
 const thinContentExemptPaths = new Set(['/about/', '/contact/', '/privacy/', '/terms/']);
 const minimumMainTextLength = 700;
+const minimumContextualIncomingLinks = 2;
 const maximumContentSimilarity = 0.45;
 const maximumInitialJsBytes = 64 * 1024;
 const requiredContentMarkers: Record<string, string[]> = {
@@ -242,6 +243,35 @@ for (const [canonical, owners] of canonicalOwners) {
 for (const pathname of pages.keys()) {
   if (!indexablePaths.has(pathname) && !allowedNoindexPaths.has(pathname)) {
     errors.push(`${pathname} 是 noindex 的 200 页面，但未在允许名单中`);
+  }
+}
+
+// 页头和页脚的全站链接不能证明页面属于某个主题簇。只统计其他页面 <main> 内的
+// 上下文链接，阻止“进入 sitemap 但只挂在全站导航”的弱页和孤儿页上线。
+const contextualIncomingLinks = new Map(
+  [...indexablePaths].map((pathname) => [pathname, new Set<string>()]),
+);
+for (const [sourcePath, { html }] of pages) {
+  const mainHtml = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? '';
+  for (const href of matches(mainHtml, /href="([^"]+)"/g)) {
+    if (/^(?:#|mailto:|tel:|javascript:|data:)/i.test(href)) continue;
+    let target: URL;
+    try {
+      target = new URL(href, `${siteOrigin}${sourcePath}`);
+    } catch {
+      continue; // 无效链接由下方统一链接检查报告。
+    }
+    if (target.origin !== siteOrigin || target.pathname === sourcePath) continue;
+    let targetPath = target.pathname;
+    if (!targetPath.endsWith('/') && !/\.[a-z0-9]+$/i.test(targetPath)) targetPath += '/';
+    contextualIncomingLinks.get(targetPath)?.add(sourcePath);
+  }
+}
+for (const [pathname, sources] of contextualIncomingLinks) {
+  if (sources.size < minimumContextualIncomingLinks) {
+    errors.push(
+      `${pathname} 只有 ${sources.size} 个其他页面主内容入链（最低 ${minimumContextualIncomingLinks}）`,
+    );
   }
 }
 
@@ -496,4 +526,5 @@ console.log(`  构建页面：${pages.size}`);
 console.log(`  可索引页面：${indexablePaths.size}`);
 console.log(`  sitemap URL：${sitemapPaths.size}`);
 console.log(`  sitemap lastmod：${sitemapModifiedAt.size}/${sitemapPaths.size}`);
+console.log(`  上下文入链：全部可索引页 ≥ ${minimumContextualIncomingLinks}`);
 console.log(`  日期一致性：Article ${checkedArticles} / 含 dateModified schema ${checkedModifiedSchemas}`);
