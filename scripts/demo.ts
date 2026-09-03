@@ -24,6 +24,7 @@ import {
   logicalSolve,
   logicalSolveKiller,
 } from '../src/engine/index.ts';
+import { MINI4_PUZZLES } from '../src/data/mini4.ts';
 
 function render(g: Grid): string {
   const rows: string[] = [];
@@ -237,6 +238,65 @@ if (existsSync(`${POOL_DIR}/killer.json`)) {
 } else {
   console.log('\n[9] （killer.json 不存在，跳过——変体题库生成前属正常）');
 }
+
+// ---- 10. 4×4ミニ数独：固定题池的完整性与唯一解 ----
+console.log('\n[10] 复核4×4ミニ数独题池…');
+const countMini4Solutions = (source: string, limit = 2): number => {
+  const grid = [...source].map((value) => value === '.' ? 0 : Number(value));
+  const groups: number[][] = [];
+  for (let index = 0; index < 4; index++) {
+    groups.push([index * 4, index * 4 + 1, index * 4 + 2, index * 4 + 3]);
+    groups.push([index, index + 4, index + 8, index + 12]);
+  }
+  groups.push([0, 1, 4, 5], [2, 3, 6, 7], [8, 9, 12, 13], [10, 11, 14, 15]);
+  if (groups.some((group) => {
+    const values = group.map((cell) => grid[cell]).filter(Boolean);
+    return new Set(values).size !== values.length;
+  })) return 0;
+  let count = 0;
+  const valid = (cell: number, digit: number): boolean => {
+    const row = Math.floor(cell / 4);
+    const col = cell % 4;
+    for (let index = 0; index < 4; index++) {
+      if (grid[row * 4 + index] === digit || grid[index * 4 + col] === digit) return false;
+    }
+    const boxRow = Math.floor(row / 2) * 2;
+    const boxCol = Math.floor(col / 2) * 2;
+    for (let r = boxRow; r < boxRow + 2; r++) {
+      for (let c = boxCol; c < boxCol + 2; c++) if (grid[r * 4 + c] === digit) return false;
+    }
+    return true;
+  };
+  const search = (): void => {
+    if (count >= limit) return;
+    const cell = grid.indexOf(0);
+    if (cell < 0) {
+      count++;
+      return;
+    }
+    for (let digit = 1; digit <= 4; digit++) {
+      if (!valid(cell, digit)) continue;
+      grid[cell] = digit;
+      search();
+      grid[cell] = 0;
+    }
+  };
+  search();
+  return count;
+};
+const mini4Ids = new Set<number>();
+for (const puzzle of MINI4_PUZZLES) {
+  assert(puzzle.puzzle.length === 16 && /^[1-4.]+$/.test(puzzle.puzzle), `4×4 #${puzzle.id} 题面格式合法`);
+  assert(puzzle.solution.length === 16 && /^[1-4]+$/.test(puzzle.solution), `4×4 #${puzzle.id} 解答格式合法`);
+  assert(!mini4Ids.has(puzzle.id), `4×4 #${puzzle.id} ID 不重复`);
+  mini4Ids.add(puzzle.id);
+  assert([...puzzle.puzzle].filter((value) => value !== '.').length === puzzle.clues, `4×4 #${puzzle.id} 提示数一致`);
+  assert([...puzzle.puzzle].every((value, index) => value === '.' || value === puzzle.solution[index]), `4×4 #${puzzle.id} 题面与解答一致`);
+  assert(countMini4Solutions(puzzle.solution) === 1, `4×4 #${puzzle.id} 解答满足全部约束`);
+  assert(countMini4Solutions(puzzle.puzzle, 2) === 1, `4×4 #${puzzle.id} 必须唯一解`);
+}
+assert(MINI4_PUZZLES.length === 12, `4×4 题池应为12题（实际 ${MINI4_PUZZLES.length}）`);
+console.log(`    ✓ ${MINI4_PUZZLES.length} 题全过（格式+提示数+唯一解）`);
 
 // ---- 结果 ----
 console.log('\n' + '═'.repeat(64));

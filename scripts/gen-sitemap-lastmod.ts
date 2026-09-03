@@ -36,11 +36,13 @@ const DYNAMIC_DATA: Record<string, string> = {
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
   'tools/candidate-checker.astro': ['src/client/candidate-checker.ts'],
+  'variants/4x4.astro': ['src/data/mini4.ts', 'src/components/MiniSudoku4.astro', 'src/client/mini-sudoku4.ts'],
   'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts'],
   'variants/diagonal.astro': ['src/data/puzzles/diagonal.json'],
   'variants/killer.astro': ['src/data/puzzles/killer.json'],
 };
 const STATIC_SLUG_DATA: Record<string, { file: string; slug: string }> = {
+  'variants/4x4.astro': { file: 'src/data/variants.ts', slug: '4x4' },
   'variants/16x16.astro': { file: 'src/data/variants.ts', slug: '16x16' },
   'variants/diagonal.astro': { file: 'src/data/variants.ts', slug: 'diagonal' },
   'variants/killer.astro': { file: 'src/data/variants.ts', slug: 'killer' },

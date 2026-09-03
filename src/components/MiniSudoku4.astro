@@ -1,0 +1,117 @@
+---
+import { MINI4_PUZZLES } from '../data/mini4.ts';
+
+const first = MINI4_PUZZLES[0];
+const cells = (value: string): Array<number | null> => [...value].map((digit) => digit === '.' ? null : Number(digit));
+---
+
+<section class="mini4-tool screen-only" data-mini4 aria-label="4×4ナンプレ無料ゲーム">
+  <div class="mini4-toolbar">
+    <button type="button" class="icon-button" data-mini4-prev aria-label="前の問題" title="前の問題">←</button>
+    <strong data-mini4-label>{first.level} No.{first.id}（1 / {MINI4_PUZZLES.length}）</strong>
+    <button type="button" class="icon-button" data-mini4-next aria-label="次の問題" title="次の問題">→</button>
+  </div>
+  <div class="mini4-layout">
+    <div class="mini4-board" role="grid" aria-label="4×4ナンプレ盤面">
+      {cells(first.puzzle).map((value, index) => (
+        <button type="button" role="gridcell" data-mini4-cell data-cell={index} disabled={value !== null} class:list={{ given: value !== null }} aria-label={`${Math.floor(index / 4) + 1}行${(index % 4) + 1}列${value ? ` ${value}` : ' 空き'}`}>{value}</button>
+      ))}
+    </div>
+    <div class="mini4-controls">
+      <div class="mini4-pad" aria-label="数字入力">
+        {[1, 2, 3, 4].map((digit) => <button type="button" data-mini4-key={digit}>{digit}</button>)}
+        <button type="button" data-mini4-key="0" class="erase">消す</button>
+      </div>
+      <div class="mini4-actions">
+        <button type="button" data-mini4-check>答え合わせ</button>
+        <button type="button" data-mini4-hint>ヒント</button>
+        <button type="button" data-mini4-reset>最初から</button>
+        <button type="button" data-mini4-print>12問を印刷</button>
+      </div>
+      <p class="mini4-status" data-mini4-status aria-live="polite">空いているマスを選び、1〜4を入れてください。</p>
+    </div>
+  </div>
+</section>
+
+<section class="mini4-print-sheet" aria-label="4×4ナンプレ印刷問題集">
+  <header><strong>4×4ミニナンプレ 12問</strong><span>numpredo.com</span></header>
+  <div class="mini4-print-grid">
+    {MINI4_PUZZLES.map((puzzle) => (
+      <figure><figcaption>{puzzle.level} No.{puzzle.id}</figcaption><div class="print-board">
+        {cells(puzzle.puzzle).map((value) => <i>{value}</i>)}
+      </div></figure>
+    ))}
+  </div>
+  <section class="mini4-answers">
+    <h2>答え</h2>
+    <div class="mini4-print-grid">
+      {MINI4_PUZZLES.map((puzzle) => (
+        <figure><figcaption>No.{puzzle.id}</figcaption><div class="print-board answer">
+          {cells(puzzle.solution).map((value) => <i>{value}</i>)}
+        </div></figure>
+      ))}
+    </div>
+  </section>
+</section>
+
+<script>
+  import '../client/mini-sudoku4.ts';
+</script>
+
+<style is:global>
+  .mini4-tool { max-width: 760px; margin: 22px 0 34px; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+  .mini4-toolbar { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px; align-items: center; gap: 10px; margin-bottom: 16px; text-align: center; }
+  .mini4-toolbar strong { font-family: var(--font-mincho); font-size: var(--text-md); }
+  .mini4-toolbar .icon-button { width: 40px; height: 40px; padding: 0; border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: var(--bg); color: var(--ink); font-size: 20px; cursor: pointer; }
+  .mini4-toolbar .icon-button:disabled { opacity: .35; cursor: default; }
+  .mini4-layout { display: grid; grid-template-columns: minmax(260px, 390px) minmax(220px, 1fr); gap: 24px; align-items: start; }
+  .mini4-board { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; aspect-ratio: 1; overflow: hidden; border: 3px solid var(--board-edge); border-radius: 4px; background: var(--board-bg); }
+  .mini4-board button { aspect-ratio: 1; padding: 0; border: 0; border-right: 1px solid var(--cell-line); border-bottom: 1px solid var(--cell-line); background: transparent; color: var(--num-user); font: 700 clamp(26px, 6vw, 42px) var(--font-mincho); cursor: pointer; }
+  .mini4-board button:nth-child(4n) { border-right: 0; }
+  .mini4-board button:nth-child(n+13) { border-bottom: 0; }
+  .mini4-board button:nth-child(4n+2) { border-right: 3px solid var(--box-line); }
+  .mini4-board button:nth-child(n+5):nth-child(-n+8) { border-bottom: 3px solid var(--box-line); }
+  .mini4-board button.given { color: var(--num-given); background: var(--surface-2); cursor: default; }
+  .mini4-board button.selected { background: var(--cell-sel-bg); box-shadow: inset 0 0 0 3px var(--accent); }
+  .mini4-board button.conflict { color: var(--num-error); background: var(--cell-error-bg); }
+  .mini4-pad { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .mini4-pad button, .mini4-actions button { min-height: 48px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: var(--bg); color: var(--ink); font: 700 var(--text-md) var(--font-sans); cursor: pointer; }
+  .mini4-pad button:hover, .mini4-actions button:hover { border-color: var(--accent); color: var(--accent); }
+  .mini4-pad .erase { grid-column: 1 / -1; font-size: var(--text-sm); }
+  .mini4-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .mini4-actions button { min-height: 42px; font-size: var(--text-sm); }
+  .mini4-actions button:first-child { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+  .mini4-status { min-height: 2.8em; margin: 14px 0 0; color: var(--ink-3); font-size: var(--text-sm); line-height: 1.6; }
+  .mini4-status.success { color: var(--accent); font-weight: 700; }
+  .mini4-status.error { color: var(--num-error); }
+  .mini4-print-sheet { display: none; }
+  @media (max-width: 680px) {
+    .mini4-tool { padding: 14px; }
+    .mini4-layout { grid-template-columns: 1fr; }
+    .mini4-board { max-width: 390px; margin-inline: auto; }
+    .mini4-controls { max-width: 390px; margin-inline: auto; }
+    .mini4-pad { grid-template-columns: repeat(5, 1fr); }
+    .mini4-pad .erase { grid-column: auto; font-size: 12px; }
+  }
+  @page { size: A4 portrait; margin: 10mm; }
+  @media print {
+    .snav, .sfoot, .fsh, .mini4-page .screen-only { display: none !important; }
+    body { background: #fff; color: #111; }
+    main, main.wide { max-width: none; padding: 0; }
+    .mini4-print-sheet { display: block; color: #111; }
+    .mini4-print-sheet header { display: flex; justify-content: space-between; margin-bottom: 5mm; font-size: 13pt; }
+    .mini4-print-sheet header span { font-size: 8pt; }
+    .mini4-print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm 7mm; }
+    .mini4-print-grid figure { margin: 0; break-inside: avoid; }
+    .mini4-print-grid figcaption { margin-bottom: 1mm; font-size: 8pt; }
+    .print-board { display: grid; grid-template-columns: repeat(4, 1fr); aspect-ratio: 1; border: 1.2pt solid #111; }
+    .print-board i { display: grid; place-items: center; border-right: .4pt solid #888; border-bottom: .4pt solid #888; font: normal 15pt serif; }
+    .print-board i:nth-child(4n) { border-right: 0; }
+    .print-board i:nth-child(n+13) { border-bottom: 0; }
+    .print-board i:nth-child(4n+2) { border-right: 1.2pt solid #111; }
+    .print-board i:nth-child(n+5):nth-child(-n+8) { border-bottom: 1.2pt solid #111; }
+    .mini4-answers { break-before: page; }
+    .mini4-answers h2 { margin: 0 0 5mm; font-size: 13pt; }
+    .mini4-answers .print-board i { font-size: 11pt; }
+  }
+</style>

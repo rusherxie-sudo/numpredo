@@ -3,12 +3,12 @@ import Base from '../../layouts/Base.astro';
 import { VARIANTS } from '../../data/variants.ts';
 
 const title = '変わり種数独・ナンプレ｜ルールと種類 - numpredo';
-const description = 'キラー数独、対角線数独、6×6・16×16数独、不等号ナンプレを紹介。通常の数独との違い、ルール、解き方のコツを図解します。';
+const description = '無料で遊べて印刷できる4×4ナンプレをはじめ、キラー数独、対角線数独、6×6・16×16数独、不等号ナンプレのルールと解き方を紹介します。';
 const url = 'https://numpredo.com/variants/';
 const faq = [
   { q: '変わり種数独とは何ですか？', a: '通常の数独の「行・列・3×3ブロックで数字を重複させない」ルールに、合計・対角線・不等号などの追加ルールを加えたパズルです。基本の考え方は数独と共通です。' },
-  { q: '初心者におすすめの変わり種は？', a: 'まずは数字が1〜6だけの<a href="/variants/6x6/">6×6数独</a>がおすすめです。通常の数独に慣れている方は、追加の対角線が絞り込みに役立つ<a href="/variants/diagonal/">対角線数独</a>から始めると取り組みやすいでしょう。' },
-  { q: 'このサイトで実際に使える変わり種は？', a: '<a href="/variants/killer/">キラー数独</a>と<a href="/variants/diagonal/">対角線数独</a>を、無料・登録不要でブラウザからプレイできます。<a href="/variants/16x16/">16×16ナンプレ</a>は手入力・256文字の一括入力に対応した自動解答ソルバーを利用できます。6×6数独と不等号ナンプレはルールと解き方を掲載しています。' },
+  { q: '初心者におすすめの変わり種は？', a: '数独が初めての子どもには、1〜4だけを使う<a href="/variants/4x4/">4×4ナンプレ</a>がおすすめです。4×4でルールに慣れたら<a href="/variants/6x6/">6×6数独</a>、通常の9×9に慣れている方は<a href="/variants/diagonal/">対角線数独</a>へ進むと取り組みやすいでしょう。' },
+  { q: 'このサイトで実際に使える変わり種は？', a: '<a href="/variants/4x4/">4×4ナンプレ</a>は12問を無料で遊べ、問題と答えをA4印刷できます。<a href="/variants/killer/">キラー数独</a>と<a href="/variants/diagonal/">対角線数独</a>も登録不要でプレイできます。<a href="/variants/16x16/">16×16ナンプレ</a>は手入力・256文字の一括入力に対応した自動解答ソルバーを利用できます。6×6数独と不等号ナンプレはルールと解き方を掲載しています。' },
 ];
 const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpredo.com/');
 const collectionSchema = {
@@ -18,7 +18,7 @@ const collectionSchema = {
   description,
   url,
   inLanguage: 'ja',
-  about: ['キラー数独', '対角線数独', '6×6数独', '16×16数独', '不等号ナンプレ'],
+  about: ['4×4ナンプレ', 'キラー数独', '対角線数独', '6×6数独', '16×16数独', '不等号ナンプレ'],
   mainEntity: {
     '@type': 'ItemList',
     itemListElement: VARIANTS.map((v, i) => ({ '@type': 'ListItem', position: i + 1, name: v.name, url: `https://numpredo.com/variants/${v.slug}/` })),
@@ -48,7 +48,7 @@ const breadcrumbSchema = {
 
   <nav class="crumb"><a href="/">ホーム</a> › 変わり種数独・ナンプレ</nav>
   <h1>変わり種数独・ナンプレ</h1>
-  <p class="lead">いつもの数独に合計・対角線・不等号を加えた変種から、6×6・16×16のサイズ違いまで集めました。基本ルールとの違いを確認し、自分に合う数独を選べます。</p>
+  <p class="lead">いつもの数独に合計・対角線・不等号を加えた変種から、4×4・6×6・16×16のサイズ違いまで集めました。基本ルールとの違いを確認し、自分に合う数独を選べます。</p>
 
   <h2>変わり種数独を選ぶ</h2>
   <div class="variant-grid">

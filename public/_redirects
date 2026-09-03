@@ -521,8 +521,8 @@
 # Variants
 /ja/6x6-sudoku       /variants/6x6/ 301
 /ja/6x6-sudoku/      /variants/6x6/ 301
-/en/kids-4x4*        /variants/6x6/ 301
-/zh-TW/kids-4x4*     /variants/6x6/ 301
+/en/kids-4x4*        /variants/4x4/ 301
+/zh-TW/kids-4x4*     /variants/4x4/ 301
 /zh-TW/6x6-sudoku*   /variants/6x6/ 301
 
 # 旧日语 URL：GSC 仍有展现/排名，但现有规则未覆盖（曾返回 404）→ 精准 301 回收权重

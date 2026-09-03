@@ -1,0 +1,101 @@
+---
+import Base from '../../layouts/Base.astro';
+import EditorialNote from '../../components/EditorialNote.astro';
+import MiniSudoku4 from '../../components/MiniSudoku4.astro';
+import ShareBar from '../../components/ShareBar.astro';
+import { variantBySlug } from '../../data/variants.ts';
+import { MINI4_PUZZLES } from '../../data/mini4.ts';
+import lastmodJson from '../../data/sitemap-lastmod.json';
+import publishedJson from '../../data/published.json';
+
+const variant = variantBySlug('4x4');
+if (!variant) throw new Error('4×4 variant metadata is missing');
+const url = 'https://numpredo.com/variants/4x4/';
+const lastmod: Record<string, string> = lastmodJson;
+const published: Record<string, string> = publishedJson;
+const datePublished = published['/variants/4x4/'];
+const dateModified = lastmod['/variants/4x4/'];
+const abs = (html: string): string => html.replace(/href="\//g, 'href="https://numpredo.com/');
+
+const webAppSchema = {
+  '@context': 'https://schema.org', '@type': 'WebApplication',
+  name: '4×4ミニナンプレ無料ゲーム・プリント', description: variant.description, url,
+  applicationCategory: 'GameApplication', operatingSystem: 'Web', inLanguage: 'ja',
+  featureList: ['4×4ナンプレ12問', '3段階の難易度', '答え合わせとヒント', 'A4問題・解答印刷', '進捗の端末内保存'],
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
+};
+const articleSchema = {
+  '@context': 'https://schema.org', '@type': 'Article', headline: variant.h1,
+  description: variant.description, inLanguage: 'ja', mainEntityOfPage: url,
+  image: 'https://numpredo.com/og-image.png', author: { '@id': 'https://numpredo.com/#operator' },
+  publisher: { '@id': 'https://numpredo.com/#organization' },
+  ...(datePublished ? { datePublished } : {}), ...(dateModified ? { dateModified } : {}),
+};
+const faqSchema = {
+  '@context': 'https://schema.org', '@type': 'FAQPage',
+  mainEntity: variant.faq.map((faq) => ({ '@type': 'Question', name: faq.q, acceptedAnswer: { '@type': 'Answer', text: abs(faq.a) } })),
+};
+const itemListSchema = {
+  '@context': 'https://schema.org', '@type': 'ItemList', name: '4×4ミニナンプレ12問',
+  numberOfItems: MINI4_PUZZLES.length,
+  itemListElement: MINI4_PUZZLES.map((puzzle, index) => ({ '@type': 'ListItem', position: index + 1, name: `${puzzle.level} No.${puzzle.id}` })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: 'https://numpredo.com/' },
+    { '@type': 'ListItem', position: 2, name: '変わり種数独', item: 'https://numpredo.com/variants/' },
+    { '@type': 'ListItem', position: 3, name: '4×4ミニナンプレ', item: url },
+  ],
+};
+---
+
+<Base title={variant.title} description={variant.description} canonical={url} wide>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <div class="mini4-page">
+    <div class="screen-only">
+      <nav class="crumb"><a href="/">ホーム</a> › <a href="/variants/">変わり種数独</a> › 4×4ミニナンプレ</nav>
+      <h1>{variant.h1}</h1>
+      {dateModified && <p class="updated"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
+      <p class="lead">{variant.lead}</p>
+      <EditorialNote verification="掲載する12問を全組み合わせの総当たりで検査し、各行・列・2×2ブロックの条件を満たす答えが一つだけであることと、登録した解答との一致を確認しています。" />
+    </div>
+
+    <MiniSudoku4 />
+
+    <div class="screen-only mini4-content">
+      <figure class="variant-figure"><Fragment set:html={variant.svg} /><figcaption>{variant.svgCaption}</figcaption></figure>
+      {variant.sections.map((section) => (<section><h2>{section.h}</h2>{section.body.map((body) => <p set:html={body} />)}</section>))}
+      <ShareBar url={url} title={variant.title} cta="4×4ミニナンプレをシェア" />
+      <h2>4×4ナンプレのよくある質問</h2>
+      <dl class="faq">{variant.faq.map((faq) => (<><dt>{faq.q}</dt><dd set:html={faq.a} /></>))}</dl>
+    </div>
+  </div>
+
+  <style is:global>
+    .mini4-page { max-width: 1060px; margin-inline: auto; }
+    .mini4-page .crumb { margin-bottom: 10px; color: var(--ink-3); font-size: var(--text-xs); }
+    .mini4-page .crumb a, .mini4-content a, .mini4-content .faq a { color: var(--accent); }
+    .mini4-page .lead { max-width: 850px; color: var(--ink-3); font-size: var(--text-md); line-height: 1.9; }
+    .mini4-page .updated { margin: -5px 0 10px; color: var(--ink-4); font-size: var(--text-xs); }
+    .mini4-content { max-width: 880px; }
+    .mini4-content section { margin-top: 34px; }
+    .mini4-content p, .mini4-content li { line-height: 1.9; }
+    .variant-figure { width: min(100%, 340px); margin: 30px 0; text-align: center; }
+    .variant-figure svg { width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .variant-figure figcaption { margin-top: 7px; color: var(--ink-3); font-size: var(--text-xs); }
+    .mini4-content .faq dt { margin-top: 16px; font-family: var(--font-mincho); font-weight: 700; }
+    .mini4-content .faq dd { margin: 5px 0 0; color: var(--ink-3); line-height: 1.85; }
+    .gtable-wrap { overflow-x: auto; }
+    .gtable { width: 100%; min-width: 560px; border-collapse: collapse; font-size: var(--text-sm); }
+    .gtable th, .gtable td { padding: 9px 11px; border: 1px solid var(--line-2); text-align: left; }
+    .gtable th { background: var(--surface-2); }
+  </style>
+</Base>
