@@ -1,13 +1,19 @@
 # numpredo 任务台账
 
 > 单一事实来源。状态：进行中 → 就绪 → 冻结待解冻 → 后续。
-> 更新日期：2026-09-05（接手首轮审计 + 内链优化后）
+> 更新日期：2026-09-05（接手首轮审计 + 内链优化 + 漏收录页攻坚后）
 
-## 进行中（已派发看板）
+## 进行中（P0：3 个漏收录页）
 
-| 任务 | 负责人 | 看板 | 观察点 |
-|---|---|---|---|
-| 重试 3 个漏收录页 GSC 索引请求 + IndexNow 刷新 | seo | `t_99c1dcb8` | 3–7 天后看是否收录 |
+**现状**：`/guide/number-place/`、`/guide/sudoku-algorithm/`、`/print/blank/` 仍 `Discovered - currently not indexed`（从未被抓取）。
+
+**已尽自动化之能（2026-09-05 全部完成）**：
+- ✅ 内链补强：number-place 已接 how-to-solve 正文 + sudoku-vs-numpre 正文/FAQ（4.5k 曝光高频页）；sudoku-algorithm 已接 solver + research 正文；print/blank 已有 nav + print×2 + generator
+- ✅ sitemap 重提（HTTP 204，lastSubmitted 已刷新）
+- ✅ IndexNow 提交（HTTP 200，Bing 即时）
+- ❌ **GSC「请求索引」无 API**：URL Inspection 只读、Indexing API 仅限 JobPosting 且未启用
+
+**唯一剩余动作（需人工）**：在 GSC 后台 UI 对 3 个 URL 逐个点「请求索引」（有日配额）。否则等自然抓取 3–7 天（已靠新内链 + sitemap 重提抬升优先级）。
 
 ## 就绪（下一轮候选，按优先级）
 
