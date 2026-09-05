@@ -189,7 +189,7 @@ const breadcrumbSchema = {
     <li>推測なしで完成したことと、生成時の正解81マスが一致することを確認します。</li>
     <li>全ステップの技法名と回数を集計し、このページの表とグラフを構築時に再生成します。</li>
   </ol>
-  <p>題庫を追加・修正すると数値も自動で変わるため、手作業で都合のよい数字に書き換えることはありません。詳しい品質基準は<a href="/about/#editorial-policy">編集・検証方針</a>、実際の手筋を試すなら<a href="/practice/">数独テクニック練習</a>をご覧ください。</p>
+  <p>題庫を追加・修正すると数値も自動で変わるため、手作業で都合のよい数字に書き換えることはありません。詳しい品質基準は<a href="/about/#editorial-policy">編集・検証方針</a>、実際の手筋を試すなら<a href="/practice/">数独テクニック練習</a>をご覧ください。これらの解析を支える解法アルゴリズムの実装は<a href="/guide/sudoku-algorithm/">数独をプログラムで解くアルゴリズム</a>で解説しています。</p>
 
   <h2>公開CSVの列と検算方法</h2>
   <p><a href="/data/numpredo-puzzle-analysis.csv">逐題CSV</a>は、4,395問を1行ずつ記録した一次データです。<code>level</code> と <code>puzzle_id</code> が問題を識別し、<code>clues</code> は初期ヒント数、<code>logical_steps</code> は完答までの論理手数、<code>hardest_technique</code> はその問題で使った最難手筋を表します。後続9列は各手筋の使用回数です。</p>
