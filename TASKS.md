@@ -11,9 +11,9 @@
 - ✅ 内链补强：number-place 已接 how-to-solve 正文 + sudoku-vs-numpre 正文/FAQ（4.5k 曝光高频页）；sudoku-algorithm 已接 solver + research 正文；print/blank 已有 nav + print×2 + generator
 - ✅ sitemap 重提（HTTP 204，lastSubmitted 已刷新）
 - ✅ IndexNow 提交（HTTP 200，Bing 即时）
-- ❌ **GSC「请求索引」无 API**：URL Inspection 只读、Indexing API 仅限 JobPosting 且未启用
+- ✅ **人工「请求索引」已执行**（用户 2026-09-05 在 GSC 后台 UI 逐个提交）——该动作无 API，现已补齐
 
-**唯一剩余动作（需人工）**：在 GSC 后台 UI 对 3 个 URL 逐个点「请求索引」（有日配额）。否则等自然抓取 3–7 天（已靠新内链 + sitemap 重提抬升优先级）。
+**复检点：2026-09-07 前后**用 GSC URL Inspection 复查 3 页是否 `Submitted and indexed`（PASS）。手动请求后 Google 通常 1 天内抓取；若仍 `Discovered-not-indexed`，则等自然抓取并复查内链/canonical。
 
 ## 就绪（下一轮候选，按优先级）
 
