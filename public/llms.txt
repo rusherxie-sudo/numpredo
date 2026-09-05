@@ -12,8 +12,11 @@
 - [超難問](/play/extreme/) — X-Wing・スワードフィッシュ
 
 ### デイリー・印刷
-- [毎日の数独](/daily/) — 日替わり 5 問、連続記録で遊べる
+- [毎日の数独](/daily/) — 日替わり 7 問、連続記録で遊べる
+- [ナンプレアーカイブ](/daily/archive/) — 過去の日替わり問題
 - [無料 PDF 問題集](/print/) — 難易度別に印刷して紙で解く
+- [高齢者向け・大きなナンプレ](/print/senior/) — 大きい文字の無料プリント
+- [テクニック別・解答付き練習](/print/techniques/) — 手筋ごとに印刷して練習
 - [数独の空白マス](/print/blank/) — 数字なしの9×9盤面を1面・2面・4面で印刷・PDF保存
 
 ### 解き方ガイド
@@ -21,29 +24,44 @@
 - [5段階の実戦例題集](/guide/solving-examples/) — 実際の5問を独自エンジンで解き、一手ずつ盤面図で比較
 - [ルール・遊び方](/guide/rules/) — 9×9 の基本ルール
 - [初心者のコツ](/guide/beginner/) — 単数の見つけ方・候補メモ
+- [ナンプレ中級の解き方](/guide/intermediate/) — 候補メモと区画の絞り込み
 - [上級テクニック](/guide/advanced/) — ペア・区画の絞り込み・X-Wing
+- [難問ナンプレの解き方](/guide/hard-sudoku-solving/) — 候補メモから三国同盟まで
+- [数独のテクニック一覧](/guide/tips/) — 覚える順番と解き方のコツ
 - [行き詰まったとき](/guide/when-stuck/) — 詰まり解決チェックリスト
-- [数独をプログラムで解くアルゴリズム](/guide/sudoku-algorithm/) — バックトラッキング・MRV・候補法・唯一解判定の実装
+- [数独とナンプレの違い](/guide/sudoku-vs-numpre/) — 同じパズルなのか1分で解説
 - [ナンバープレイスとは](/guide/number-place/) — 数独・ナンプレとの関係と無料で遊ぶ方法
+- [数独の歴史・発祥](/guide/sudoku-history/) — アメリカ生まれ・名前の由来は日本
+- [数独・ナンプレ用語集](/guide/glossary/) — 基本からテクニックまで
+- [数独と脳トレ](/guide/brain-training/) — 研究でわかる効果と注意点
+- [子ども向け・何歳から](/guide/for-kids/) — 6〜8歳を目安に始める方法
+- [新聞の数独の答え合わせ](/guide/newspaper/) — 読売新聞などの自動解答
+- [数独をプログラムで解くアルゴリズム](/guide/sudoku-algorithm/) — バックトラッキング・MRV・候補法・唯一解判定の実装
 
 ### テクニック図解（一手ずつ）
+- [裸の単数（ネイキッドシングル）](/guide/techniques/naked-single/)
+- [隠れた単数（ヒドゥンシングル）](/guide/techniques/hidden-single/)
 - [ネイキッドペア（二国同盟）](/guide/techniques/naked-pair/)
 - [区画の絞り込み（ポインティング）](/guide/techniques/pointing/)
 - [隠れたペア](/guide/techniques/hidden-pair/)
 - [ネイキッドトリプル（三国同盟）](/guide/techniques/naked-triple/)
 - [X-Wing](/guide/techniques/x-wing/)
+- [XY-Wing](/guide/techniques/xy-wing/)
 - [スカイスクレイパー](/guide/techniques/skyscraper/)
 - [スワードフィッシュ](/guide/techniques/swordfish/)
 
 ### 変種数独
-- [キラー数独](/variants/killer/) — 足し算ヒント付き
+- [4×4 ミニ数独](/variants/4x4/) — 1〜4だけで子ども向け12問（プレイ・印刷できます）
 - [6×6 ミニ数独](/variants/6x6/) — 子供向け入門
+- [キラー数独](/variants/killer/) — 足し算ヒント付き（プレイできます）
 - [不等号ナンプレ](/variants/inequality/) — 隣接マスの大小関係
-- [対角線数独](/variants/diagonal/) — 対角線にも 1〜9
+- [対角線数独](/variants/diagonal/) — 対角線にも 1〜9（プレイできます）
+- [16×16 数独](/variants/16x16/) — 1〜9とA〜Gの自動解答ソルバー
 
 ### ツール
 - [自動解答ソルバー](/tools/solver/) — マス入力または写真読み取りで答え表示
 - [候補数字・次の一手チェッカー](/tools/candidate-checker/) — 候補と入らない理由を行・列・ブロック単位で診断
+- [数独作成ツール](/tools/generator/) — 問題の生成・印刷
 - [次の一手・実力診断](/practice/) — 実題から作った5局面で手筋を練習
 
 ### 品質・運営情報
