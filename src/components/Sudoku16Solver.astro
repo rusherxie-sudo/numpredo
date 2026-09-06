@@ -1,5 +1,44 @@
 ---
-const symbols = '123456789ABCDEFG'.split('');
+const SYMBOLS = '123456789ABCDEFG'.split('');
+
+const SAMPLE_PUZZLES = [
+  {
+    id: 's16-a',
+    label: '例題 A｜232 手がかり',
+    clueLabel: 'いちばんやさしい',
+    puzzle: '..BC2ED1763F5A84D12EBCG948...367A4856F379BGCED21376F8...12DECGB99BCAE3126F7GD458...3CA9B854DG7F676FG5D482E1...CB485DFG76BC9A31E22E37A4..5D8196GF6FG9D185E3274BACB..4372EFG6918D585D1G96FCAB4..3EE37648CAD152BF9GFG9B125..7E68C4A5D129BFGA4C86E73CA..76E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+  {
+    id: 's16-b',
+    label: '例題 B｜228 手がかり',
+    clueLabel: '軽い練習',
+    puzzle: '.9BC2ED1763F5A84D12EBCG94...F367A4856F379BGCED21376F...412DECGB99BCAE3126F7GD4...2E3CA9B854DG7F676FG5D482...A9CB485DFG76BC9A31E22E37...C5D8196GF6FG9D185E3274BA...A4372EFG6918D585D1G96FCA...23EE37648CAD152BF9GFG9B1...37E68C4A5D129BFGA4C86E73...876E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+  {
+    id: 's16-c',
+    label: '例題 C｜224 手がかり',
+    clueLabel: '標準試験',
+    puzzle: 'G9BC2ED1763F5A84D12EBCG....5F367A4856F379BGCED2137....A412DECGB99BCAE3126F7GD....2E3CA9B854DG7F676FG5D48....A9CB485DFG76BC9A31E22E3....C5D8196GF6FG9D185E3274B...CA4372EFG6918D585D1G96FC...723EE37648CAD152BF9GFG9B...D37E68C4A5D129BFGA4C86E7...4876E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+  {
+    id: 's16-d',
+    label: '例題 D｜220 手がかり',
+    clueLabel: 'やや少なめ',
+    puzzle: 'G9BC2ED1763F5A84D12EBC....A5F367A4856F379BGCED213....5A412DECGB99BCAE3126F7G....12E3CA9B854DG7F676FG5D4....3A9CB485DFG76BC9A31E22....4BC5D8196GF6FG9D185E327....BCA4372EFG6918D585D1G96....4723EE37648CAD152BF9GFG....5D37E68C4A5D129BFGA4C86....A4876E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+  {
+    id: 's16-e',
+    label: '例題 E｜216 手がかり',
+    clueLabel: 'いちばん難しい',
+    puzzle: 'G9BC2ED1763F5A84D12E.....8A5F367A4856F379BGCED2.....85A412DECGB99BCAE3126F.....812E3CA9B854DG7F676FG5.....13A9CB485DFG76BC9A31E2....A4BC5D8196GF6FG9D185E32....CBCA4372EFG6918D585D1G9....B4723EE37648CAD152BF9GF....25D37E68C4A5D129BFGA4C8....CA4876E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+] as const;
+
 ---
 
 <section class="s16" data-s16 aria-labelledby="s16-title">
@@ -34,7 +73,7 @@ const symbols = '123456789ABCDEFG'.split('');
   </div>
 
   <div class="s16-pad" aria-label="入力する記号">
-    {symbols.map((symbol) => <button type="button" data-symbol={symbol}>{symbol}</button>)}
+    {SYMBOLS.map((symbol) => <button type="button" data-symbol={symbol}>{symbol}</button>)}
     <button type="button" class="s16-delete" data-delete>消去</button>
   </div>
 
@@ -45,12 +84,60 @@ const symbols = '123456789ABCDEFG'.split('');
   </div>
   <p class="s16-message" data-message aria-live="polite">マスを選び、下の1〜9・A〜Gまたはキーボードで入力してください。</p>
 
+  <section class="s16-pilot" aria-labelledby="s16-pilot-title">
+    <div class="s16-pilot-head">
+      <div>
+        <h3 id="s16-pilot-title">可玩＋可印刷答案の試作</h3>
+        <p>3〜5問の例題を用意し、上の盤面でそのまま遊べます。右の「印刷」ボタンで、選択中の問題と答えを同じURLからそのまま出力できます。</p>
+      </div>
+      <p class="s16-pilot-state" data-sample-label>例題 A を読み込み中…</p>
+    </div>
+
+    <div class="s16-sample-grid" role="list" aria-label="16×16例題選択">
+      {SAMPLE_PUZZLES.map((sample, index) => (
+        <button type="button" class="s16-sample-card" data-sample-button={index} role="listitem">
+          <strong>{sample.label}</strong>
+          <span>{sample.clueLabel}</span>
+          <em>読み込み後、そのまま印刷できます</em>
+        </button>
+      ))}
+    </div>
+
+    <div class="s16-pilot-actions">
+      <button type="button" data-print-sample>現在の問題と解答を印刷</button>
+      <button type="button" data-reset-sample>例題 A に戻す</button>
+    </div>
+  </section>
+
   <details class="s16-bulk">
     <summary>256文字をまとめて入力する</summary>
     <p>上の行から順に1〜9・A〜Gを入力し、空きマスは「.」「0」「*」のいずれかで表します。改行や空白、区切り記号は無視されます。</p>
     <textarea data-bulk rows="6" spellcheck="false" aria-label="16×16ナンプレの一括入力"></textarea>
     <button type="button" data-import>盤面へ反映</button>
   </details>
+
+  <section class="s16-print-sheet" aria-label="16×16ナンプレ印刷用シート">
+    <header>
+      <div>
+        <strong data-print-title>例題 A</strong>
+        <span data-print-subtitle>問題 + 解答</span>
+      </div>
+      <span data-print-meta>numpredo.com / 16×16 pilot</span>
+    </header>
+    <div class="s16-print-note">
+      <p>上段が問題、下段が解答です。印刷ダイアログでPDF保存すれば、試し解き用の小さな問題集になります。</p>
+    </div>
+    <div class="s16-print-boards">
+      <section>
+        <h4>問題</h4>
+        <div class="s16-print-board" data-print-puzzle></div>
+      </section>
+      <section>
+        <h4>解答</h4>
+        <div class="s16-print-board answer" data-print-answer></div>
+      </section>
+    </div>
+  </section>
 </section>
 
 <script>
@@ -76,8 +163,8 @@ const symbols = '123456789ABCDEFG'.split('');
   .s16-cell.s16-solved { color: var(--num-user); }
   .s16-cell.s16-error { color: var(--num-error); background: var(--cell-error-bg); }
   .s16-pad { display: grid; grid-template-columns: repeat(9, minmax(34px, 1fr)); gap: 6px; max-width: 640px; margin: 14px auto 0; }
-  .s16-pad button, .s16-actions button, .s16-bulk button { min-height: 40px; border: 1px solid var(--key-line); border-radius: 6px; background: var(--key-bg); color: var(--key-ink); font-weight: 700; cursor: pointer; }
-  .s16-pad button:hover, .s16-actions button:hover, .s16-bulk button:hover { border-color: var(--accent); color: var(--accent); }
+  .s16-pad button, .s16-actions button, .s16-bulk button, .s16-pilot-actions button, .s16-sample-card { min-height: 40px; border: 1px solid var(--key-line); border-radius: 6px; background: var(--key-bg); color: var(--key-ink); font-weight: 700; cursor: pointer; }
+  .s16-pad button:hover, .s16-actions button:hover, .s16-bulk button:hover, .s16-pilot-actions button:hover, .s16-sample-card:hover { border-color: var(--accent); color: var(--accent); }
   .s16-pad .s16-delete { grid-column: span 2; font-size: 12px; }
   .s16-actions { display: flex; flex-wrap: wrap; gap: 8px; max-width: 640px; margin: 10px auto 0; }
   .s16-actions button { flex: 1 1 150px; padding: 10px 14px; }
@@ -86,11 +173,24 @@ const symbols = '123456789ABCDEFG'.split('');
   .s16-message { min-height: 1.5em; max-width: 640px; margin: 10px auto 0; color: var(--ink-3); font-size: 13px; }
   .s16-message[data-state='ok'] { color: var(--accent); }
   .s16-message[data-state='error'] { color: var(--num-error); }
+  .s16-pilot { margin: 18px auto 0; max-width: 640px; padding: 14px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface-2); }
+  .s16-pilot-head { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+  .s16-pilot-head h3 { margin: 0 0 4px; font-size: 18px; }
+  .s16-pilot-head p { margin: 0; color: var(--ink-3); font-size: 13px; line-height: 1.7; }
+  .s16-pilot-state { flex: 0 0 auto; padding: 6px 9px; border-radius: 999px; background: var(--surface); color: var(--ink-3); font-size: 12px !important; }
+  .s16-sample-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  .s16-sample-card { display: grid; gap: 3px; padding: 10px 12px; text-align: left; }
+  .s16-sample-card strong { font-size: 14px; }
+  .s16-sample-card span, .s16-sample-card em { font-style: normal; font-size: 12px; color: var(--ink-3); }
+  .s16-sample-card.is-active { border-color: var(--accent); background: var(--accent-soft); }
+  .s16-pilot-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .s16-pilot-actions button { flex: 1 1 220px; padding: 10px 14px; }
   .s16-bulk { max-width: 640px; margin: 12px auto 0; padding-top: 10px; border-top: 1px solid var(--line); }
   .s16-bulk summary { color: var(--accent); font-weight: 700; cursor: pointer; }
   .s16-bulk p { color: var(--ink-3); font-size: 13px; }
   .s16-bulk textarea { box-sizing: border-box; width: 100%; padding: 10px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--washi); color: var(--ink); font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; resize: vertical; }
   .s16-bulk button { width: 100%; margin-top: 7px; }
+  .s16-print-sheet { display: none; }
   @media (max-width: 640px) {
     .s16-head { display: block; }
     .s16-privacy { display: inline-block; margin-top: 9px !important; }
@@ -98,5 +198,27 @@ const symbols = '123456789ABCDEFG'.split('');
     .s16-board { margin-left: 0; }
     .s16-pad { grid-template-columns: repeat(6, 1fr); }
     .s16-pad .s16-delete { grid-column: span 2; }
+    .s16-pilot-head { display: block; }
+    .s16-pilot-state { display: inline-block; margin-top: 10px; }
+    .s16-sample-grid { grid-template-columns: 1fr; }
+  }
+  @page { size: A4 landscape; margin: 10mm; }
+  @media print {
+    .snav, .sfoot, .fsh, .share-bar, .s16-head, .s16-scroll, .s16-board-wrap, .s16-pad, .s16-actions, .s16-message, .s16-pilot, .s16-bulk { display: none !important; }
+    .s16 { margin: 0; padding: 0; border: 0; background: #fff; }
+    .s16-print-sheet { display: block; color: #111; }
+    .s16-print-sheet header { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin-bottom: 4mm; }
+    .s16-print-sheet header strong { display: block; font-size: 13pt; }
+    .s16-print-sheet header span { color: #666; font-size: 8pt; }
+    .s16-print-note { margin-bottom: 4mm; color: #444; font-size: 9pt; }
+    .s16-print-boards { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+    .s16-print-boards h4 { margin: 0 0 2.5mm; font-size: 10pt; }
+    .s16-print-board { display: grid; grid-template-columns: repeat(16, 1fr); width: 100%; aspect-ratio: 1; border: 1.4pt solid #111; border-radius: 4pt; overflow: hidden; }
+    .s16-print-cell { display: grid; place-items: center; border-right: .35pt solid #888; border-bottom: .35pt solid #888; font: 600 8.5pt/1 serif; color: #111; }
+    .s16-print-cell:nth-child(16n) { border-right: 0; }
+    .s16-print-cell:nth-child(n+241) { border-bottom: 0; }
+    .s16-print-cell.br { border-right: 1.2pt solid #111; }
+    .s16-print-cell.bb { border-bottom: 1.2pt solid #111; }
+    .s16-print-board.answer .s16-print-cell { color: #0b3d91; }
   }
 </style>

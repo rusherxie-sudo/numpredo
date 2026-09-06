@@ -10,11 +10,57 @@ type SolveOutcome = {
   aborted: boolean;
 };
 
+type SamplePuzzle = {
+  id: string;
+  label: string;
+  clueLabel: string;
+  puzzle: string;
+  solution: string;
+};
+
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
   }
 }
+
+const SAMPLE_PUZZLES: SamplePuzzle[] = [
+  {
+    id: 's16-a',
+    label: '例題 A｜232 手がかり',
+    clueLabel: 'いちばんやさしい',
+    puzzle: '..BC2ED1763F5A84D12EBCG948...367A4856F379BGCED21376F8...12DECGB99BCAE3126F7GD458...3CA9B854DG7F676FG5D482E1...CB485DFG76BC9A31E22E37A4..5D8196GF6FG9D185E3274BACB..4372EFG6918D585D1G96FCAB4..3EE37648CAD152BF9GFG9B125..7E68C4A5D129BFGA4C86E73CA..76E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+  {
+    id: 's16-b',
+    label: '例題 B｜228 手がかり',
+    clueLabel: '軽い練習',
+    puzzle: '.9BC2ED1763F5A84D12EBCG94...F367A4856F379BGCED21376F...412DECGB99BCAE3126F7GD4...2E3CA9B854DG7F676FG5D482...A9CB485DFG76BC9A31E22E37...C5D8196GF6FG9D185E3274BA...A4372EFG6918D585D1G96FCA...23EE37648CAD152BF9GFG9B1...37E68C4A5D129BFGA4C86E73...876E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+  {
+    id: 's16-c',
+    label: '例題 C｜224 手がかり',
+    clueLabel: '標準試験',
+    puzzle: 'G9BC2ED1763F5A84D12EBCG....5F367A4856F379BGCED2137....A412DECGB99BCAE3126F7GD....2E3CA9B854DG7F676FG5D48....A9CB485DFG76BC9A31E22E3....C5D8196GF6FG9D185E3274B...CA4372EFG6918D585D1G96FC...723EE37648CAD152BF9GFG9B...D37E68C4A5D129BFGA4C86E7...4876E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+  {
+    id: 's16-d',
+    label: '例題 D｜220 手がかり',
+    clueLabel: 'やや少なめ',
+    puzzle: 'G9BC2ED1763F5A84D12EBC....A5F367A4856F379BGCED213....5A412DECGB99BCAE3126F7G....12E3CA9B854DG7F676FG5D4....3A9CB485DFG76BC9A31E22....4BC5D8196GF6FG9D185E327....BCA4372EFG6918D585D1G96....4723EE37648CAD152BF9GFG....5D37E68C4A5D129BFGA4C86....A4876E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+  {
+    id: 's16-e',
+    label: '例題 E｜216 手がかり',
+    clueLabel: 'いちばん難しい',
+    puzzle: 'G9BC2ED1763F5A84D12E.....8A5F367A4856F379BGCED2.....85A412DECGB99BCAE3126F.....812E3CA9B854DG7F676FG5.....13A9CB485DFG76BC9A31E2....A4BC5D8196GF6FG9D185E32....CBCA4372EFG6918D585D1G9....B4723EE37648CAD152BF9GF....25D37E68C4A5D129BFGA4C8....CA4876E3G9FB251D',
+    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
+  },
+];
 
 function boxIndex(row: number, col: number): number {
   return Math.floor(row / 4) * 4 + Math.floor(col / 4);
@@ -28,6 +74,28 @@ function bitCount(value: number): number {
   value -= (value >>> 1) & 0x55555555;
   value = (value & 0x33333333) + ((value >>> 2) & 0x33333333);
   return (((value + (value >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24;
+}
+
+function parseGrid(text: string): Uint8Array<ArrayBuffer> {
+  const symbols = text.toUpperCase().match(/[1-9A-G.0*]/g) ?? [];
+  const values = new Uint8Array(symbols.length);
+  for (let i = 0; i < symbols.length; i++) {
+    const index = SYMBOLS.indexOf(symbols[i]);
+    values[i] = index >= 0 ? index + 1 : 0;
+  }
+  return values;
+}
+
+function renderBoard(el: HTMLElement, grid: Uint8Array): void {
+  el.innerHTML = '';
+  for (let i = 0; i < CELL_COUNT; i++) {
+    const row = Math.floor(i / SIZE);
+    const col = i % SIZE;
+    const cell = document.createElement('div');
+    cell.className = ['s16-print-cell', col === 3 || col === 7 || col === 11 ? 'br' : '', row === 3 || row === 7 || row === 11 ? 'bb' : ''].filter(Boolean).join(' ');
+    cell.textContent = grid[i] ? SYMBOLS[grid[i] - 1] : '·';
+    el.appendChild(cell);
+  }
 }
 
 function solve16(input: Uint8Array, limit = 2): SolveOutcome {
@@ -112,7 +180,6 @@ function examplePuzzle(): Uint8Array {
   for (let row = 0; row < SIZE; row++) {
     for (let col = 0; col < SIZE; col++) {
       const value = ((row * 4 + Math.floor(row / 4) + col) % SIZE) + 1;
-      // 每行保留 12 个提示。删格位置按行错开，既便于演示，也避免整列同时变空。
       if ((col + row * 3) % 4 !== 0) values[row * SIZE + col] = value;
     }
   }
@@ -123,17 +190,56 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
   const cells = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-cell]'));
   const message = root.querySelector<HTMLElement>('[data-message]');
   const bulk = root.querySelector<HTMLTextAreaElement>('[data-bulk]');
-  let values = new Uint8Array(CELL_COUNT);
-  let original = new Uint8Array(CELL_COUNT);
+  const sampleButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-sample-button]'));
+  const sampleLabel = root.querySelector<HTMLElement>('[data-sample-label]');
+  const printTitle = root.querySelector<HTMLElement>('[data-print-title]');
+  const printSubtitle = root.querySelector<HTMLElement>('[data-print-subtitle]');
+  const printPuzzle = root.querySelector<HTMLElement>('[data-print-puzzle]');
+  const printAnswer = root.querySelector<HTMLElement>('[data-print-answer]');
+  let values: Uint8Array<ArrayBufferLike> = new Uint8Array(CELL_COUNT);
+  let original: Uint8Array<ArrayBufferLike> = new Uint8Array(CELL_COUNT);
   let selected = 0;
   let showingSolution = false;
+  let activeSample = 0;
+  let currentSolution = parseGrid(SAMPLE_PUZZLES[0].solution);
 
-  const track = (name: string, params: Record<string, unknown> = {}) => window.gtag?.('event', name, params);
+  const track = (name: string, params: Record<string, unknown> = {}) => {
+    const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+    gtag?.('event', name, params);
+  };
   const setMessage = (text: string, state: '' | 'ok' | 'error' = '') => {
     if (!message) return;
     message.textContent = text;
     message.dataset.state = state;
   };
+
+  const syncSampleMeta = () => {
+    const sample = SAMPLE_PUZZLES[activeSample];
+    if (sampleLabel) sampleLabel.textContent = `${sample.label} を表示中`;
+    if (printTitle) printTitle.textContent = sample.label;
+    if (printSubtitle) printSubtitle.textContent = sample.clueLabel;
+    sampleButtons.forEach((button, index) => button.classList.toggle('is-active', index === activeSample));
+  };
+
+  const syncPrintSheet = () => {
+    if (printPuzzle) renderBoard(printPuzzle, values);
+    if (printAnswer) renderBoard(printAnswer, currentSolution);
+  };
+
+  const loadSample = (index: number, announce = true) => {
+    const sample = SAMPLE_PUZZLES[index];
+    activeSample = index;
+    values = parseGrid(sample.puzzle);
+    original = values.slice();
+    currentSolution = parseGrid(sample.solution);
+    showingSolution = false;
+    if (announce) setMessage(`${sample.label} を読み込みました。必要なら「自動解答」で答えを確認できます。`, 'ok');
+    track('solver16_sample', { sample_id: sample.id, clue_label: sample.clueLabel });
+    syncSampleMeta();
+    syncPrintSheet();
+    render();
+  };
+
   const render = () => {
     cells.forEach((cell, index) => {
       const value = values[index];
@@ -150,10 +256,12 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
       cell.setAttribute('aria-label', `${row + 1}行${col + 1}列、${value ? SYMBOLS[value - 1] : '空欄'}`);
     });
   };
+
   const setSelectedValue = (value: number) => {
     values[selected] = value;
     original[selected] = value;
     showingSolution = false;
+    syncPrintSheet();
     render();
   };
 
@@ -172,6 +280,7 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
     original = new Uint8Array(CELL_COUNT);
     showingSolution = false;
     setMessage('盤面を消去しました。');
+    syncPrintSheet();
     render();
   });
 
@@ -181,7 +290,17 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
     showingSolution = false;
     setMessage('例題を入力しました。「自動解答」で答えを確認できます。', 'ok');
     track('solver16_example');
+    syncPrintSheet();
     render();
+  });
+
+  sampleButtons.forEach((button, index) => button.addEventListener('click', () => loadSample(index)));
+
+  root.querySelector('[data-reset-sample]')?.addEventListener('click', () => loadSample(0));
+  root.querySelector('[data-print-sample]')?.addEventListener('click', () => {
+    syncPrintSheet();
+    track('solver16_print', { sample_id: SAMPLE_PUZZLES[activeSample].id });
+    window.print();
   });
 
   root.querySelector('[data-import]')?.addEventListener('click', () => {
@@ -198,6 +317,7 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
     showingSolution = false;
     setMessage('一括入力を盤面へ反映しました。', 'ok');
     track('solver16_import');
+    syncPrintSheet();
     render();
   });
 
@@ -216,10 +336,12 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
         return;
       }
       values = new Uint8Array(result.solution);
+      currentSolution = new Uint8Array(result.solution);
       showingSolution = true;
       const status = result.aborted ? '答えの一例を表示しました（探索上限のため唯一解判定は未完了です）。' : result.count > 1 ? '答えの一例を表示しました。この問題には複数の答えがあります。' : '自動解答が完了しました。答えは一つです。';
       setMessage(status, result.count === 1 && !result.aborted ? 'ok' : '');
       track('solver16_solve', { result: result.aborted ? 'aborted' : result.count > 1 ? 'multiple' : 'unique', givens });
+      syncPrintSheet();
       render();
     }, 20);
   });
@@ -256,9 +378,14 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
     if (parsed.length === CELL_COUNT) {
       values = Uint8Array.from(parsed, (symbol) => Math.max(0, SYMBOLS.indexOf(symbol) + 1));
       original = values.slice();
+      showingSolution = false;
     }
   }
+
+  syncSampleMeta();
+  syncPrintSheet();
   render();
+  loadSample(0, false);
 });
 
 export { solve16 };
