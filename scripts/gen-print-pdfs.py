@@ -21,6 +21,8 @@ JAPANESE_FONT_CANDIDATES = [
     Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"),
     Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
     Path("/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"),
+    Path("/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf"),
+    Path("/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf"),
 ]
 INK = HexColor("#17211d")
 MUTED = HexColor("#66736d")
@@ -28,11 +30,12 @@ ACCENT = HexColor("#1d7f65")
 LIGHT = HexColor("#d5ddd9")
 
 LEVELS = [
-    ("beginner", "初級", "はじめての方・子ども・毎日の脳トレに"),
-    ("intermediate", "中級", "ほどよい歯ごたえの日課向け"),
-    ("advanced", "上級", "候補メモを使う本格問題"),
-    ("hard", "難問", "複数のテクニックを組み合わせる手強い問題"),
-    ("extreme", "超難問", "最後まで論理で解ける最高難度"),
+    ("beginner", "初級", "はじめての方・子ども・毎日の脳トレに", "beginner"),
+    ("intermediate", "中級", "ほどよい歯ごたえの日課向け", "intermediate"),
+    ("advanced", "上級", "候補メモを使う本格問題", "advanced"),
+    ("hard", "難問", "複数のテクニックを組み合わせる手強い問題", "hard"),
+    ("extreme", "超難問", "最後まで論理で解ける最高難度", "extreme"),
+    ("senior", "高齢者向け", "大きなマスで初級を楽しむ方向け", "beginner"),
 ]
 
 
@@ -109,8 +112,8 @@ def draw_footer(pdf: Canvas, page: int, total: int) -> None:
     pdf.drawRightString(width - 18 * mm, 10 * mm, f"{page} / {total}")
 
 
-def build_pdf(slug: str, level_ja: str, subtitle: str, count: int) -> Path:
-    puzzles = load_puzzles(slug, count)
+def build_pdf(slug: str, level_ja: str, subtitle: str, count: int, source_slug: str | None = None) -> Path:
+    puzzles = load_puzzles(source_slug or slug, count)
     output = OUTPUT_DIR / f"numpredo-{slug}-{count}.pdf"
     problem_pages = count // 2
     answer_pages = (count + 5) // 6
@@ -173,9 +176,9 @@ def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     expected = set()
-    for slug, level_ja, subtitle in LEVELS:
+    for slug, level_ja, subtitle, source_slug in LEVELS:
         for count in (12, 60):
-            path = build_pdf(slug, level_ja, subtitle, count)
+            path = build_pdf(slug, level_ja, subtitle, count, source_slug)
             expected.add(path.name)
             print(f"生成: {path.relative_to(ROOT)}")
 

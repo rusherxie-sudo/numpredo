@@ -43,6 +43,24 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 
   <PrintTool defaultLevel="beginner" defaultCount={2} defaultPreset="senior" />
 
+  <section class="screen-only pdf-download" aria-labelledby="senior-pdf-title">
+    <div>
+      <h2 id="senior-pdf-title">高齢者向けの12問・60問PDFをまとめてダウンロード</h2>
+      <p>大きなマスの2問版に加えて、検証済みの初級問題を使った12問・60問のPDFも選べます。保存して、必要なときに何度でも印刷してください。</p>
+      <p class="pdf-license">学校・介護施設などでの非営利・無料配布は許可されています。<a href="/terms/#print-license">利用条件を見る</a></p>
+    </div>
+    <div class="pdf-download-actions">
+      <a class="pdf-download-btn" href="/downloads/numpredo-senior-12.pdf" download data-pdf-download="senior" data-pdf-count="12">
+        高齢者向け12問PDF
+        <small>答え付き・無料</small>
+      </a>
+      <a class="pdf-download-btn" href="/downloads/numpredo-senior-60.pdf" download data-pdf-download="senior" data-pdf-count="60">
+        高齢者向け60問PDF
+        <small>答え付き・無料</small>
+      </a>
+    </div>
+  </section>
+
   <div class="screen-only senior-content">
     <section>
       <h2>大きなマスで印刷できる初級ナンプレ</h2>
@@ -88,11 +106,20 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     .senior-content { max-width: 880px; margin: 32px auto 0; }
     .senior-content section { margin-top: 34px; }
     .senior-content h2 { margin-bottom: 12px; }
+    .pdf-download { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 28px 0 34px; padding: 22px 24px; border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--surface); }
+    .pdf-download h2 { margin: 0 0 8px; font-size: var(--text-lg); }
+    .pdf-download p { margin: 0; color: var(--ink-3); font-size: var(--text-sm); }
+    .pdf-download .pdf-license { margin-top: 8px; font-size: var(--text-xs); }
+    .pdf-download-actions { flex: 0 0 auto; display: grid; gap: 8px; min-width: 220px; }
+    .pdf-download-btn { display: grid; gap: 2px; padding: 13px 18px; border-radius: var(--radius); background: var(--accent); color: var(--accent-on) !important; text-align: center; text-decoration: none; font-weight: 700; }
+    .pdf-download-btn:hover { background: var(--accent-ink); }
+    .pdf-download-btn small { font-size: 11px; font-weight: 500; opacity: .85; }
     .use-steps { display: grid; gap: 10px; padding-left: 1.4em; }
     .difficulty-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
     .difficulty-grid article { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
     .difficulty-grid h3 { margin: 0 0 8px; }
     .difficulty-grid p { margin: 0 0 10px; }
+    @media (max-width: 680px) { .pdf-download { display: grid; padding: 18px; } .pdf-download-actions, .pdf-download-btn { width: 100%; min-width: 0; } }
     @media (max-width: 640px) { .difficulty-grid { grid-template-columns: 1fr; } }
   </style>
 </Base>
