@@ -46,8 +46,8 @@ const LEVEL_JA: Record<string, string> = { beginner: '初級', intermediate: '�
 const poolTotal = POOLS5.reduce((s, p) => s + p.puzzles.length, 0);
 const runwayDays = Math.min(...POOLS5.map((p) => p.puzzles.length - SETS_SKIP)); // 最小池基準の連続日数
 
-const title = '日替わりナンプレ毎日7問｜初級〜超難問の無料数独 - numpredo';
-const description = '日替わりナンプレを毎日7問、0時に無料更新。初級2問・中級2問・上級・難問・超難問から選べます。全員に同じ検証済み問題を出題。登録不要、スマホ・PC対応です。';
+const title = '日替わりナンプレ｜今日の無料問題7問・初級〜超難問 - numpredo';
+const description = '今日のナンプレを無料で7問。初級・中級・上級・難問・超難問から選べ、毎日0時に更新します。登録不要でスマホ・PC対応、すべて唯一解を検証済みです。';
 const url = 'https://numpredo.com/daily/';
 
 const faq = [
@@ -104,7 +104,7 @@ const breadcrumbSchema = {
   <SudokuGame level="advanced" levelJa="毎日" daily multi url={url} set={set} daystart={dayStart} />
 
   <div class="px-text">
-    <p class="lead">今日の日替わりナンプレを無料でプレイ。毎日0時に、初級2問・中級2問・上級・難問・超難問の<strong>7問</strong>へ更新されます。どれか1問で連続記録が伸び、7問すべて解けば「一日七問」。すべて唯一解・論理だけで解ける高品質問題です。</p>
+    <p class="lead">今日の日替わりナンプレを無料でプレイ。毎日0時に、初級2問・中級2問・上級・難問・超難問の<strong>7問</strong>へ更新されます。どれか1問で連続記録が伸び、7問すべて解けば「一日七問」。すべて唯一解・論理だけで解ける高品質問題です。まずは<a href="/play/beginner/">初級の練習問題</a>から始めることも、手元の問題を<a href="/tools/solver/">自動解答</a>することもできます。</p>
 
     <h2>毎日の数独・ナンプレについて</h2>
     <p>毎日0時に、5段階の新しい7問が出題されます。取り組みやすい初級と中級は2問ずつ、上級・難問・超難問は1問ずつです。盤面上のタブで切り替えられ、全員に同じ問題が配られるので、タイムや連続記録（ストリーク）に挑戦できます。今日は気軽に1問だけ、週末は7問完走——自分のペースでどうぞ。</p>
