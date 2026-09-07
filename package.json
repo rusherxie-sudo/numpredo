@@ -15,9 +15,10 @@
     "check:daily": "node scripts/check-daily-runway.ts",
     "check:seo": "node scripts/check-seo-output.ts",
     "check": "astro check && tsc --noEmit",
+    "check:value": "node scripts/check-content-value.ts",
     "dev": "astro dev",
     "build": "astro build",
-    "postbuild": "npm run check:seo",
+    "postbuild": "npm run check:seo && npm run check:value",
     "preview": "astro preview",
     "gen:llms": "node scripts/gen-llms-full.ts",
     "gen:analysis-data": "node scripts/gen-analysis-data.ts"

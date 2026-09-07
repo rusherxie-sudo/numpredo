@@ -2,6 +2,7 @@
 // 求解は既存エンジンを完全再利用（純客户端・大模型不要）。識別は Tesseract.js を
 // 必要時のみ CDN から動的 import。識別が不完全でも盤面で手修正できるのが肝。
 import { solveOne, countSolutions } from '../engine/countSolver.ts';
+import { SOLVER_SAMPLE } from '../data/solver-sample.ts';
 import { track } from './track.ts';
 
 const app = document.getElementById('sv-app');
@@ -12,7 +13,6 @@ function setup(app: HTMLElement): void {
   const stepsEl = document.getElementById('sv-steps') as HTMLElement | null;
   const photoInputs = Array.from(document.querySelectorAll<HTMLInputElement>('[data-photo]'));
 
-  const SAMPLE = '..42.....3......6.5..3...71..5.72.43..39.65..21.53.6..15...3..4.8......5.....17..';
   let grid: number[] = new Array(81).fill(0); // ユーザー入力（0=空）
   let sel = -1;
   let solved: number[] | null = null; // 解答盤（表示中は同じ盤面に直接反映）
@@ -75,7 +75,7 @@ function setup(app: HTMLElement): void {
   const btnSample = el('button', 'sv-sub');
   btnSample.textContent = 'サンプル';
   btnSample.addEventListener('click', () => {
-    grid = strToGrid(SAMPLE);
+    grid = strToGrid(SOLVER_SAMPLE);
     ocrUncertain.clear();
     inputSource = 'sample';
     sel = -1;

@@ -1,6 +1,7 @@
 ---
 import '../styles/tokens.css';
 import FloatingShare from '../components/FloatingShare.astro';
+import { LEVELS } from '../data/levels.ts';
 
 interface Props {
   title: string;
@@ -29,6 +30,8 @@ const {
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 const ogImageURL = new URL(ogImage, Astro.site).href;
 const adsensePublisherId = 'ca-pub-1382715204285550';
+const standardLabel = LEVELS.reduce((sum, level) => sum + level.puzzles.length, 0).toLocaleString('ja-JP');
+const analysisLabel = `全${standardLabel}問の分析データ`;
 
 // サイト実体（Organization）と個人運営責任者を全ページに注入：各テンプレの
 // publisher は #organization、author は #operator を参照する。
@@ -130,7 +133,7 @@ const footerCols = [
       ['数独ソルバー（解答）', '/tools/solver/'],
       ['候補数字・次の一手', '/tools/candidate-checker/'],
       ['数独作成ツール（生成・印刷）', '/tools/generator/'],
-      ['全4,395問の分析データ', '/research/puzzle-analysis/'],
+      [analysisLabel, '/research/puzzle-analysis/'],
       ['新聞の数独の答え合わせ', '/guide/newspaper/'],
       ['あなたの統計・実績', '/stats/'],
       ['このサイトについて', '/about/'],

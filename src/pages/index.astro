@@ -8,6 +8,8 @@ const title = '数独無料ゲーム・ナンプレ無料問題集｜登録不�
 const description =
   '数独無料ゲーム・ナンプレ無料問題を登録不要ですぐに楽しめます。初級から超難問まで、すべて唯一解・論理だけで解ける高品質問題。解き方、自動解答ソルバー、答え付きPDF印刷にも無料で対応。';
 const totalPuzzles = LEVELS.reduce((sum, level) => sum + level.puzzles.length, 0);
+// 全題庫计数口径：只计标准9×9的5档（LEVELS）问题；キラー・対角線・ミニ4×4 属别规则问题集，不含在计数内。
+const standardLabel = totalPuzzles.toLocaleString('ja-JP');
 
 // hero の盤面：実題を構築期に SVG 化（CSS 変数主題で明暗自動追随）
 const heroGrid = gridFromString(advanced.puzzles[0].puzzle);
@@ -34,10 +36,10 @@ const tools: [string, string, string, string][] = [
   ['刷', '数独無料問題集・プリント', '/print/', '答え付きの問題集を、難易度と問題数を選んで無料で印刷・PDF保存。'],
   ['答', '画像・カメラ自動解答', '/tools/solver/', '写真を撮るか81マスを入力すると答えを自動計算。新聞の答え合わせにも。'],
   ['変', '変わり種数独', '/variants/', 'キラー数独・6×6・不等号・対角線などのルール紹介。'],
-  ['研', '全4,395問の分析', '/research/puzzle-analysis/', 'ヒント数、論理手数、手筋の使用頻度を全題庫から実測して公開。'],
+  ['研', `全${standardLabel}問の分析`, '/research/puzzle-analysis/', 'ヒント数、論理手数、手筋の使用頻度を標準9×9問題から実測して公開。'],
 ];
 const why: [string, string, string][] = [
-  [totalPuzzles.toLocaleString('ja-JP'), '全問題を三重に検証', '唯一解・論理だけで完答・生成解との一致を、公開前に全問チェックしています。'],
+  [totalPuzzles.toLocaleString('ja-JP'), '標準9×9を三重に検証', '公開する標準9×9問題すべてを、唯一解・論理だけで完答・生成解との一致の3条件で公開前に全問チェック。キラー数独・対角線数独も、同じ検査を通した問題だけを公開しています。'],
   ['技', '解法で決める難易度', '空きマス数ではなく、実際に必要な最難テクニックと手数で5段階に分類。'],
   ['図', '実際の解答手順を図解', '一般的な説明の使い回しではなく、その盤面を解いた手順から次の一手を表示します。'],
   ['独', '独自エンジンと無料ツール', '問題生成・自動解答・印刷まで同じ検証済みエンジンを使い、第三者問題を転載しません。'],
@@ -145,7 +147,7 @@ const homeFaqSchema = {
     </div>
   </section>
 
-  <p class="hp-method-link">問題の作り方、検証条件、記事の編集方針は<a href="/about/#editorial-policy">品質検証と編集方針</a>で公開しています。題庫全体の実測値は<a href="/research/puzzle-analysis/">全4,395問の分析データ</a>で確認できます。</p>
+  <p class="hp-method-link">問題の作り方、検証条件、記事の編集方針は<a href="/about/#editorial-policy">品質検証と編集方針</a>で公開しています。標準9×9の題庫全体の実測値は<a href="/research/puzzle-analysis/">全{standardLabel}問の分析データ</a>で確認できます。</p>
 
   <section class="hp-sec hp-var-sec">
     <div class="hp-var">

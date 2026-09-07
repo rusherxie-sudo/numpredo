@@ -1,7 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
+import { LEVELS } from '../data/levels.ts';
 const title = 'numpredo（ナンプレdo）について｜運営方針と問題の作り方 - numpredo';
 const description = 'numpredoは無料・登録不要で遊べる日本語の数独・ナンプレサイトです。個人開発者が問題生成エンジン、論理ソルバー、解き方記事を制作し、全問題の唯一解と論理完答を検証しています。';
+// 分析页的集計対象：仅标准9×9的5档（LEVELS）问题；キラー・対角線・ミニ4×4 属别规则问题集，不含在分析页统计内。
+const stdLabel = LEVELS.reduce((sum, level) => sum + level.puzzles.length, 0).toLocaleString('ja-JP');
 
 // 「numpredo とは何か」を機械可読に（mainEntity は Base.astro 注入の Organization を参照）
 const aboutSchema = {
@@ -81,7 +84,7 @@ const aboutSchema = {
 
   <h2>検証結果を公開しています</h2>
   <p>
-    品質方針を文章で宣言するだけでなく、<a href="/research/puzzle-analysis/">全4,395問のヒント数・論理手数・使用テクニック</a>を、題庫から再計算した集計と逐題CSVデータとして公開しています。
+    品質方針を文章で宣言するだけでなく、公開中の<strong>標準9×9問題{stdLabel}問</strong>（初級〜超難問の5段階）を対象に、<a href="/research/puzzle-analysis/">ヒント数・論理手数・使用テクニック</a>を題庫から再計算した集計と逐題CSVデータとして公開しています。この分析ページの集計対象は標準9×9だけで、キラー数独・対角線数独・ミニ4×4などの別ルールの問題集は含めていません。
     また、<a href="/practice/">数独テクニック練習</a>の局面と解説も、実際の問題を独自ソルバーが解いた履歴から作成しています。
   </p>
 
