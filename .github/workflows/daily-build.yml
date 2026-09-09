@@ -38,19 +38,27 @@ jobs:
       - name: 引擎品质断言
         run: npm run demo
 
-      - name: 更新 lastmod + published
-        run: |
-          npm run gen:sitemap
-          npm run gen:published
-
-      - name: Commit & push（CF Pages 会自动 build + deploy）
+      - name: 生成并安全推送日次数据（CF Pages 会自动 build + deploy）
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/data/sitemap-lastmod.json src/data/published.json
-          if git diff --staged --quiet; then
-            echo "无变更，跳过 commit"
-            exit 0
-          fi
-          git commit -m "chore: 每日更新日次数据（lastmod + published）"
-          git push
+          # 内容提交可能恰好与定时任务重叠。每次尝试都从最新 main 重新生成派生数据，
+          # 不 rebase 可能冲突的生成文件，也不 force push。
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            npm run gen:sitemap
+            npm run gen:published
+            git add src/data/sitemap-lastmod.json src/data/published.json
+            if git diff --staged --quiet; then
+              echo "无变更，跳过 commit"
+              exit 0
+            fi
+            git commit -m "chore: 每日更新日次数据（lastmod + published）"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "main 在推送期间更新；重新生成后重试（${attempt}/3）"
+          done
+          echo "三次安全重试后仍无法推送；保留失败以便排查，未覆盖远端提交。" >&2
+          exit 1
