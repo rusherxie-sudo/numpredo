@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import EditorialNote from '../../components/EditorialNote.astro';
+import InequalityFullExample from '../../components/InequalityFullExample.astro';
 import { VARIANTS, type Variant } from '../../data/variants.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
 import publishedJson from '../../data/published.json';
@@ -79,6 +80,8 @@ const breadcrumbSchema = {
       )}
     </>
   ))}
+
+  {v.slug === 'inequality' && <InequalityFullExample />}
 
   {v.howTo && (
     <>

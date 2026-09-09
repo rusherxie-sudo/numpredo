@@ -1,0 +1,28 @@
+---
+import { INEQUALITY_EXAMPLE } from '../data/inequality-example.ts';
+const { puzzle, solution } = INEQUALITY_EXAMPLE;
+const horizontal = new Map(INEQUALITY_EXAMPLE.horizontal.map(([a, b, sign]) => [`${a}-${b}`, sign]));
+const vertical = new Map(INEQUALITY_EXAMPLE.vertical.map(([a, b, sign]) => [`${a}-${b}`, sign]));
+const cell = (i: number) => puzzle[i] === '0' ? '' : puzzle[i];
+const sign = (a: number, b: number, map: Map<string, string>) => map.get(`${a}-${b}`) ?? '';
+---
+<section class="ineq-full" aria-labelledby="ineq-full-title">
+  <h2 id="ineq-full-title">1問まるごと解く：不等号ナンプレ実戦例</h2>
+  <p>通常の9×9数独に不等号を加えた<strong>1問分の問題</strong>です。太字の数字が最初から入っているヒント、＜・＞が追加ルールです。行・列・3×3ブロックの重複禁止も同時に使います。</p>
+  <div class="ineq-board" role="grid" aria-label="不等号ナンプレの問題">
+    {Array.from({ length: 9 }, (_, r) => <>{Array.from({ length: 9 }, (_, c) => {
+      const i = r * 9 + c;
+      return <><span class:list={['ineq-cell', { given: puzzle[i] !== '0', br: c === 2 || c === 5, bb: r === 2 || r === 5 }]} role="gridcell" aria-label={`${r + 1}行${c + 1}列 ${cell(i) || '空欄'}`}>{cell(i)}</span>{c < 8 && <span class="ineq-sign h" aria-hidden="true">{sign(i, i + 1, horizontal)}</span>}</>;
+    })}{r < 8 && Array.from({ length: 9 }, (_, c) => { const i = r * 9 + c; return <span class:list={['ineq-sign', 'v', { bb: r === 2 || r === 5 }]} aria-hidden="true">{sign(i, i + 9, vertical)}</span>; })}</>)}
+  </div>
+  <ol class="ineq-steps">
+    <li><strong>連鎖の端を絞る。</strong> 1行目の「3 ＜ 4 ＜ □」では、□は4より大きい。行にある5・7を除くので候補は6・8・9です。単独の記号だけで決めず、行の候補と重ねます。</li>
+    <li><strong>列とブロックに戻る。</strong> 左上ブロックでは、1列目の「5 ＜ 6」と3行目の1・9を合わせ、空欄の候補を減らします。通常数独の隠れた単数を探します。</li>
+    <li><strong>決まった数字で向きを再確認する。</strong> 4行目の「8 ＞ □」と同じ列の既存数字を使い、□に入れない大きい数字を消します。数字が一つ決まるごとに、接する不等号へ戻ります。</li>
+    <li><strong>最後まで同じ循環を繰り返す。</strong> 不等号で候補を減らす → 行・列・ブロックで単数を置く → 隣の不等号を確認する、の順です。</li>
+  </ol>
+  <details class="ineq-answer"><summary>答えと検算を見る</summary><p>この問題は通常数独の制約と下の不等号を同時に満たす解が<strong>1通り</strong>になることを検証しています。</p><div class="ineq-solution" aria-label="不等号ナンプレの解答">{Array.from(solution).map((n, i) => <span class:list={{ br: i % 9 === 2 || i % 9 === 5, bb: Math.floor(i / 9) === 2 || Math.floor(i / 9) === 5 }}>{n}</span>)}</div><p><a href="/play/beginner/">不等号なしの初級ナンプレ</a>で単数を練習してから、もう一度この問題を解くと、不等号が候補を減らす役割を比べられます。</p></details>
+</section>
+<style>
+.ineq-full{margin:30px 0;padding:22px;border:1px solid var(--line-2);border-radius:var(--radius-lg);background:var(--surface)}.ineq-full h2{margin-top:0}.ineq-board{display:grid;grid-template-columns:repeat(17,minmax(0,1fr));grid-template-rows:repeat(17,minmax(0,1fr));width:min(100%,620px);aspect-ratio:1;margin:18px auto;border:2px solid var(--ink);background:var(--bg)}.ineq-cell{display:grid;place-items:center;min-width:0;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);font:400 clamp(13px,3vw,22px)/1 var(--font-mincho)}.ineq-cell.given{font-weight:700;color:var(--accent-ink)}.ineq-cell.br{border-right:2px solid var(--ink)}.ineq-cell.bb{border-bottom:2px solid var(--ink)}.ineq-sign{display:grid;place-items:center;min-width:0;color:var(--ink-3);font:700 clamp(11px,2.5vw,18px)/1 var(--font-sans)}.ineq-sign.v{transform:rotate(90deg)}.ineq-sign.bb{border-bottom:2px solid var(--ink)}.ineq-steps{display:grid;gap:10px;padding-left:1.3em}.ineq-answer{margin-top:16px}.ineq-answer summary{cursor:pointer;color:var(--accent);font-weight:700}.ineq-solution{display:grid;grid-template-columns:repeat(9,1fr);width:min(100%,360px);margin:14px 0;border:2px solid var(--ink)}.ineq-solution span{display:grid;aspect-ratio:1;place-items:center;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);font-family:var(--font-mincho)}.ineq-solution span.br{border-right:2px solid var(--ink)}.ineq-solution span.bb{border-bottom:2px solid var(--ink)}@media(max-width:640px){.ineq-full{padding:16px}}
+</style>

@@ -29,6 +29,12 @@ const DYNAMIC_DATA: Record<string, string> = {
   'variants/[slug].astro': 'src/data/variants.ts',
   'print/[level].astro': 'src/data/print-levels.ts',
 };
+// 动态页中仅某个 slug 消费的独立组件/数据。模板改动仍影响同组，专属例题只更新自身 URL。
+const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
+  'variants/[slug].astro': {
+    inequality: ['src/components/InequalityFullExample.astro', 'src/data/inequality-example.ts'],
+  },
+};
 
 // 静态页里「内容也来自数据文件」的例外 → 附加内容源。
 // 例：variants/diagonal.astro 是独立可玩路由，但文案在 variants.ts、题库在 diagonal.json——
@@ -182,7 +188,11 @@ for (const rel of [...allPages.filter((p) => p.includes('[')), ...allPages.filte
     const dir = rel.replace(/\/?\[[^/]+\]\.astro$/, ''); // play / guide / guide/techniques / variants / print
     const templateDate = gitLastmod([`${PAGES}/${rel}`]);
     for (const slug of slugsFromData(dataFile)) {
-      const date = latestIso(templateDate, gitSlugLastmod(dataFile, slug));
+      const date = latestIso(
+        templateDate,
+        gitSlugLastmod(dataFile, slug),
+        gitLastmod(DYNAMIC_SLUG_EXTRA[rel]?.[slug] ?? []),
+      );
       if (date) map[dir ? `/${dir}/${slug}/` : `/${slug}/`] = date;
     }
   } else {

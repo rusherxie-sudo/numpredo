@@ -15,7 +15,7 @@
     "check:daily": "node scripts/check-daily-runway.ts",
     "check:seo": "node scripts/check-seo-output.ts",
     "check": "astro check && tsc --noEmit",
-    "check:value": "node scripts/check-content-value.ts",
+    "check:value": "node scripts/check-content-value.ts && node scripts/check-inequality-example.ts",
     "dev": "astro dev",
     "build": "astro build",
     "postbuild": "npm run check:seo && npm run check:value",
