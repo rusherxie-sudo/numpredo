@@ -82,7 +82,7 @@ public/downloads/ 有 12 个预制 PDF（五档 + 高龄者，各 12 题/60 题�
 
 .github/workflows/ci.yml 在 push/PR 跑类型检查、引擎验证、构建及 postbuild。daily-build.yml 配置每日 UTC 16:00（JST 01:00）执行余量、类型、引擎检查，生成时间数据，有 diff 才 commit/push。**当前时间生成器已不简单按每天推进全部页面时间，因此工作流不保证每天产生提交或部署。** 2026-09-07 的运行 `34155793527` 曾因 main 并发更新而推送失败；安全重试修复现已提交并部署。9/11 UTC 的运行 `34635757133` 成功生成 `54a952f`，证明修复后的题库、生成和推送链正常。
 
-仓库说明与配置指向 Cloudflare Pages Git 集成、项目 numpredo2，GitHub 仓库为 rusherxie-sudo/numpredo。2026-09-12 已通过 Wrangler 读取生产部署：最新 production source 为 `54a952f`，与 GitHub 日次提交一致；线上每日题窗口为 2026-09-10～11-08，归档到 09-10。
+仓库说明与配置指向 Cloudflare Pages Git 集成、项目 numpredo2，GitHub 仓库为 rusherxie-sudo/numpredo。2026-09-12 已通过 Wrangler 确认日次提交 `54a952f` 成功进入 production，关闭了部署 SHA 的可观测性缺口；线上每日题窗口为 2026-09-10～11-08，归档到 09-10。后续文档或代码提交会产生新的 production source，不把 `54a952f` 写成永久“最新”版本。
 
 ## SEO 实现与边界
 
