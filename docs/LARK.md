@@ -25,6 +25,7 @@
 | BASELINE.md 第 11～12 节（执行计划摘录） | [30 天执行优先级｜2026-09-10—10-09](https://zjphma1p1w2t.jp.larksuite.com/wiki/HMKuwUYzeiqZBxksx7xjfxhhpNe) | `HMKuwUYzeiqZBxksx7xjfxhhpNe` |
 | docs/2026-09-09-执行台账与运行保障.md | [执行台账与运行保障｜2026-09-09](https://zjphma1p1w2t.jp.larksuite.com/wiki/BOb1wp2g2i1weDkep9JjIvPop8h) | `BOb1wp2g2i1weDkep9JjIvPop8h` |
 | docs/2026-09-10-自然渠道任务衡量口径.md | [自然渠道任务衡量口径｜2026-09-10](https://zjphma1p1w2t.jp.larksuite.com/wiki/SEBYwihXhifAcuk7dJHjCDUJpYg) | `SEBYwihXhifAcuk7dJHjCDUJpYg` |
+| docs/2026-09-12-发布收尾与搜索数据快照.md | [发布收尾与搜索数据快照｜2026-09-12](https://zjphma1p1w2t.jp.larksuite.com/wiki/D1ScwubiiiOAmZk7iFyjzbcQptb) | `D1ScwubiiiOAmZk7iFyjzbcQptb` |
 
 知识库导航与分类维护规范对应本文件；首页保存面向读者的导航说明。技术与运维、历史归档已设分类入口，尚无独立报告，不将历史待办冒充当前任务。
 
