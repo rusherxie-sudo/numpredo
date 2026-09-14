@@ -49,6 +49,7 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
+  'tools/solver.astro': ['src/client/ocr-solve.ts','src/data/solver-sample.ts'],
   'guide/solving-examples.astro': ['src/data/teaching-cases.ts'],
   'tools/candidate-checker.astro': ['src/client/candidate-checker.ts'],
   'variants/4x4.astro': ['src/data/mini4.ts', 'src/components/MiniSudoku4.astro', 'src/client/mini-sudoku4.ts'],
