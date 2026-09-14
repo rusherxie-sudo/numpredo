@@ -10,13 +10,6 @@ type SolveOutcome = {
   aborted: boolean;
 };
 
-type SamplePuzzle = {
-  id: string;
-  label: string;
-  clueLabel: string;
-  puzzle: string;
-  solution: string;
-};
 
 declare global {
   interface Window {
@@ -24,43 +17,7 @@ declare global {
   }
 }
 
-const SAMPLE_PUZZLES: SamplePuzzle[] = [
-  {
-    id: 's16-a',
-    label: '例題 A｜232 手がかり',
-    clueLabel: 'いちばんやさしい',
-    puzzle: '..BC2ED1763F5A84D12EBCG948...367A4856F379BGCED21376F8...12DECGB99BCAE3126F7GD458...3CA9B854DG7F676FG5D482E1...CB485DFG76BC9A31E22E37A4..5D8196GF6FG9D185E3274BACB..4372EFG6918D585D1G96FCAB4..3EE37648CAD152BF9GFG9B125..7E68C4A5D129BFGA4C86E73CA..76E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-  {
-    id: 's16-b',
-    label: '例題 B｜228 手がかり',
-    clueLabel: '軽い練習',
-    puzzle: '.9BC2ED1763F5A84D12EBCG94...F367A4856F379BGCED21376F...412DECGB99BCAE3126F7GD4...2E3CA9B854DG7F676FG5D482...A9CB485DFG76BC9A31E22E37...C5D8196GF6FG9D185E3274BA...A4372EFG6918D585D1G96FCA...23EE37648CAD152BF9GFG9B1...37E68C4A5D129BFGA4C86E73...876E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-  {
-    id: 's16-c',
-    label: '例題 C｜224 手がかり',
-    clueLabel: '標準試験',
-    puzzle: 'G9BC2ED1763F5A84D12EBCG....5F367A4856F379BGCED2137....A412DECGB99BCAE3126F7GD....2E3CA9B854DG7F676FG5D48....A9CB485DFG76BC9A31E22E3....C5D8196GF6FG9D185E3274B...CA4372EFG6918D585D1G96FC...723EE37648CAD152BF9GFG9B...D37E68C4A5D129BFGA4C86E7...4876E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-  {
-    id: 's16-d',
-    label: '例題 D｜220 手がかり',
-    clueLabel: 'やや少なめ',
-    puzzle: 'G9BC2ED1763F5A84D12EBC....A5F367A4856F379BGCED213....5A412DECGB99BCAE3126F7G....12E3CA9B854DG7F676FG5D4....3A9CB485DFG76BC9A31E22....4BC5D8196GF6FG9D185E327....BCA4372EFG6918D585D1G96....4723EE37648CAD152BF9GFG....5D37E68C4A5D129BFGA4C86....A4876E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-  {
-    id: 's16-e',
-    label: '例題 E｜216 手がかり',
-    clueLabel: 'いちばん難しい',
-    puzzle: 'G9BC2ED1763F5A84D12E.....8A5F367A4856F379BGCED2.....85A412DECGB99BCAE3126F.....812E3CA9B854DG7F676FG5.....13A9CB485DFG76BC9A31E2....A4BC5D8196GF6FG9D185E32....CBCA4372EFG6918D585D1G9....B4723EE37648CAD152BF9GF....25D37E68C4A5D129BFGA4C8....CA4876E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-];
+import { SAMPLE_PUZZLES } from '../data/sudoku16-samples.ts';
 
 function boxIndex(row: number, col: number): number {
   return Math.floor(row / 4) * 4 + Math.floor(col / 4);
@@ -99,6 +56,7 @@ function renderBoard(el: HTMLElement, grid: Uint8Array): void {
 }
 
 function solve16(input: Uint8Array, limit = 2): SolveOutcome {
+  if (input.length !== CELL_COUNT || input.some(v => v > SIZE)) return { count: 0, aborted: false };
   const board = input.slice();
   const rowMask = new Uint32Array(SIZE);
   const colMask = new Uint32Array(SIZE);
@@ -186,7 +144,7 @@ function examplePuzzle(): Uint8Array {
   return values;
 }
 
-document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
+if (typeof document !== 'undefined') document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
   const cells = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-cell]'));
   const message = root.querySelector<HTMLElement>('[data-message]');
   const bulk = root.querySelector<HTMLTextAreaElement>('[data-bulk]');
@@ -215,14 +173,14 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
 
   const syncSampleMeta = () => {
     const sample = SAMPLE_PUZZLES[activeSample];
-    if (sampleLabel) sampleLabel.textContent = `${sample.label} を表示中`;
-    if (printTitle) printTitle.textContent = sample.label;
-    if (printSubtitle) printSubtitle.textContent = sample.clueLabel;
+    if (sampleLabel) sampleLabel.textContent = sample ? `${sample.label} を表示中` : '入力した問題を表示中';
+    if (printTitle) printTitle.textContent = sample?.label ?? '入力した16×16ナンプレ';
+    if (printSubtitle) printSubtitle.textContent = sample?.clueLabel ?? '入力内容から解答を再計算';
     sampleButtons.forEach((button, index) => button.classList.toggle('is-active', index === activeSample));
   };
 
   const syncPrintSheet = () => {
-    if (printPuzzle) renderBoard(printPuzzle, values);
+    if (printPuzzle) renderBoard(printPuzzle, original);
     if (printAnswer) renderBoard(printAnswer, currentSolution);
   };
 
@@ -258,9 +216,13 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
   };
 
   const setSelectedValue = (value: number) => {
+    if (showingSolution) values = original.slice();
     values[selected] = value;
     original[selected] = value;
     showingSolution = false;
+    activeSample = -1;
+    currentSolution = new Uint8Array(CELL_COUNT);
+    syncSampleMeta();
     syncPrintSheet();
     render();
   };
@@ -280,6 +242,9 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
     original = new Uint8Array(CELL_COUNT);
     showingSolution = false;
     setMessage('盤面を消去しました。');
+    activeSample = -1;
+    currentSolution = new Uint8Array(CELL_COUNT);
+    syncSampleMeta();
     syncPrintSheet();
     render();
   });
@@ -290,6 +255,9 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
     showingSolution = false;
     setMessage('例題を入力しました。「自動解答」で答えを確認できます。', 'ok');
     track('solver16_example');
+    activeSample = -1;
+    currentSolution = new Uint8Array(CELL_COUNT);
+    syncSampleMeta();
     syncPrintSheet();
     render();
   });
@@ -298,8 +266,18 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
 
   root.querySelector('[data-reset-sample]')?.addEventListener('click', () => loadSample(0));
   root.querySelector('[data-print-sample]')?.addEventListener('click', () => {
+    if (original.filter(Boolean).length < 32) {
+      setMessage('答え付き印刷には少なくとも32マス入力してください。', 'error');
+      return;
+    }
+    const result = solve16(original, 2);
+    if (!result.solution || result.aborted || result.count !== 1) {
+      setMessage(result.aborted ? '探索上限のため唯一解を確認できません。印刷を中止しました。' : result.count > 1 ? '複数の答えがあります。問題を確認してから印刷してください。' : 'この盤面には答えがありません。入力を確認してください。', 'error');
+      return;
+    }
+    currentSolution = new Uint8Array(result.solution);
     syncPrintSheet();
-    track('solver16_print', { sample_id: SAMPLE_PUZZLES[activeSample].id });
+    track('solver16_print', { sample_id: SAMPLE_PUZZLES[activeSample]?.id ?? 'custom' });
     window.print();
   });
 
@@ -317,19 +295,22 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
     showingSolution = false;
     setMessage('一括入力を盤面へ反映しました。', 'ok');
     track('solver16_import');
+    activeSample = -1;
+    currentSolution = new Uint8Array(CELL_COUNT);
+    syncSampleMeta();
     syncPrintSheet();
     render();
   });
 
   root.querySelector('[data-solve]')?.addEventListener('click', () => {
-    const givens = values.reduce((sum, value) => sum + Number(Boolean(value)), 0);
+    const givens = original.reduce((sum, value) => sum + Number(Boolean(value)), 0);
     if (givens < 32) {
       setMessage(`現在の入力は${givens}マスです。計算が極端に長くならないよう、少なくとも32マス入力してください。`, 'error');
       return;
     }
     setMessage('答えを計算しています…');
     window.setTimeout(() => {
-      const result = solve16(values, 2);
+      const result = solve16(original, 2);
       if (!result.solution) {
         setMessage(result.aborted ? '探索量が上限を超えました。入力漏れや誤りがないか確認してください。' : 'この盤面には答えがありません。行・列・4×4ブロックの重複を確認してください。', 'error');
         track('solver16_solve', { result: result.aborted ? 'aborted' : 'none', givens });
@@ -348,6 +329,7 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
 
   root.addEventListener('keydown', (event) => {
     if (!(event instanceof KeyboardEvent)) return;
+    if (event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement) return;
     const key = event.key.toUpperCase();
     const value = SYMBOLS.indexOf(key) + 1;
     if (value > 0) {
@@ -372,6 +354,7 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
     render();
   });
 
+  loadSample(0, false);
   const queryGrid = new URLSearchParams(location.search).get('grid');
   if (queryGrid && queryGrid.length === CELL_COUNT) {
     const parsed = queryGrid.toUpperCase().match(/[1-9A-G.0*]/g) ?? [];
@@ -379,13 +362,14 @@ document.querySelectorAll<HTMLElement>('[data-s16]').forEach((root) => {
       values = Uint8Array.from(parsed, (symbol) => Math.max(0, SYMBOLS.indexOf(symbol) + 1));
       original = values.slice();
       showingSolution = false;
+      activeSample = -1;
+      currentSolution = new Uint8Array(CELL_COUNT);
     }
   }
 
   syncSampleMeta();
   syncPrintSheet();
   render();
-  loadSample(0, false);
 });
 
 export { solve16 };

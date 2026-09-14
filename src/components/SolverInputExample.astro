@@ -1,0 +1,53 @@
+---
+import { SOLVER_SAMPLE } from '../data/solver-sample.ts';
+import { countSolutions, gridFromString, solveOne, renderBoardSvg } from '../engine/index.ts';
+interface Props { mode: 'newspaper' | 'algorithm'; }
+const {mode}=Astro.props;
+const grid=gridFromString(SOLVER_SAMPLE);
+const answer=solveOne(grid.slice());
+if(!answer||countSolutions(grid.slice(),2)!==1)throw new Error('Invalid input example');
+const invalid=grid.slice();invalid[0]=1;invalid[1]=1;
+if(countSolutions(invalid.slice(),2)!==0)throw new Error('Invalid conflict fixture');
+const input=grid.map(d=>d||'.').join('');
+const inputRows=input.match(/.{9}/g)!;
+const puzzleSvg=renderBoardSvg(grid,{cell:36,given:grid.map(Boolean),title:'入力練習用の数独問題'});
+const answerSvg=renderBoardSvg(answer,{cell:36,given:grid.map(Boolean),title:'入力例題の唯一解'});
+const answerRows=answer.join('').match(/.{9}/g)!.join('\n');
+---
+<section class="input-example" id="input-example">
+  <h2>{mode==='newspaper'?'実演：紙の盤面を入力して、答えを照合する':'実装の検算用：唯一解・矛盾・複数解の入力例'}</h2>
+  <p>{mode==='newspaper'?'下はnumpredo独自の例題です。新聞の掲載問題ではありません。紙面でも同じように、最初から印刷されていた数字だけを上の行から入力します。自分で書き込んだ数字や候補メモは、最初の答え合わせでは混ぜないでください。':'下の81文字を自分のプログラムへ渡し、右の期待結果と比較してください。空きマスはピリオド、各行は9文字です。先に形式と与えられた数字の重複を検査し、それから探索します。'}</p>
+  <div class="input-layout"><figure><div set:html={puzzleSvg}></div><figcaption>入力する題面（自作例題）</figcaption></figure><div><h3>81文字で入力する場合</h3><pre aria-label="コピーできる9行の入力例">{inputRows.join('\n')}</pre><p>各行9文字、全9行です。空きを省略すると後ろの数字がずれるため、「.」を残して貼り付けます。</p><a href={`/tools/solver/?grid=${input}`}>この例題を入力したソルバーを開く →</a></div></div>
+  {mode === 'newspaper' && <div>
+    <h3>写真を使う場合の確認順</h3>
+    <ol><li>盤面を正面から撮り、影や折り目を避けます。周囲の見出し・広告・別の問題を入れず、9×9の外枠を含めます。</li><li>読み取り後の数字を紙面と1行ずつ比較します。特に1と7、3と8、薄い数字、手書きメモを確認し、違うマスを修正します。</li><li>「解く」を押して結果を確認します。重複がない入力でも誤読は残りうるので、答えが出たことだけで転記が正しいとは判断しません。</li></ol>
+    <details><summary>この例題の答えを確認する</summary><figure><div set:html={answerSvg}></div><figcaption>唯一解。最初の行は{answer.slice(0,9).join('・')}です。</figcaption></figure></details>
+    <h3>答えが出ない・複数解と表示されるとき</h3>
+    <ul><li>重複：同じ行・列・ブロックに同じ数字がないか確認する。</li><li>解なし：重複がなくても、別の数字に読み違えたマスや、ずれて入力した行がないか紙面と照合する。</li><li>複数解：空きとして読み取られた印刷数字や、入力し忘れた数字を確認する。複数の答えの一例を、紙面の公式正解として扱わない。</li></ul>
+  </div>}
+  {mode === 'algorithm' && <div>
+    <div class="input-table"><table><thead><tr><th>入力</th><th>期待する結果</th><th>確認点</th></tr></thead><tbody>
+    <tr><td>上の81文字</td><td>解数1、答えは下記</td><td>元の数字を変更せず完答する</td></tr>
+    <tr><td>先頭2文字を「11」に変更</td><td>解数0</td><td>最初の行の重複を見逃さない</td></tr>
+    <tr><td>「.」を81個</td><td>上限2で数えると2</td><td>最初の答えが見つかっても唯一解とはしない</td></tr>
+    <tr><td>80文字、または数字の範囲外</td><td>入力エラー</td><td>探索前に形式を検査する</td></tr>
+    </tbody></table></div>
+    <details><summary>唯一解の期待値（81文字）</summary><pre>{answerRows}</pre></details>
+    <p>探索を時間・回数で打ち切った場合は「不明」と「解なし」を分けます。解を一つ見つけた後、残りの探索が未完了なら唯一解とは証明できません。</p>
+  </div>}
+</section>
+<style>
+  .input-example { margin:24px 0; padding:18px; border:1px solid var(--line); border-radius:var(--radius); }
+  .input-example h2 { margin-top:0; }
+  .input-layout { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:center; }
+  figure { max-width:400px; margin:12px auto; }
+  .input-example :global(svg) { display:block; width:100%; height:auto; }
+  figcaption { color:var(--ink-3); font-size:13px; }
+  pre { font:16px/1.6 var(--font-mono); letter-spacing:.1em; padding:12px; background:var(--surface-2); overflow:auto; }
+  summary { cursor:pointer; color:var(--accent); padding:12px 0; }
+  a { color:var(--accent); }
+  .input-table { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  td,th { border:1px solid var(--line); padding:9px; text-align:left; }
+  @media(max-width:700px) { .input-layout { grid-template-columns:1fr; } }
+</style>

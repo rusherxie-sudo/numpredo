@@ -30,11 +30,13 @@ function pick(s: SolveStep, variants: Array<(el: Array<[number, number]>) => str
 export const TECH_INFO: Record<string, { ja: string; slug?: string; desc: (s: SolveStep) => string }> = {
   nakedSingle: {
     ja: '裸の単数',
+    slug: 'naked-single',
     desc: (s) => `${rcJa(s.cell ?? 0)}のマスは、残る候補が${s.digit}だけ。ここは${s.digit}で確定します。`,
   },
   hiddenSingle: {
     ja: '隠れた単数',
-    desc: (s) => `${rcJa(s.cell ?? 0)}のマスに注目。この行・列・ブロックで${s.digit}が入れるのはここだけなので、${s.digit}で確定します。`,
+    slug: 'hidden-single',
+    desc: (s) => `${rcJa(s.cell ?? 0)}のマスに注目。このマスを含む行・列・ブロックのいずれかで${s.digit}が入れる場所がここだけなので、${s.digit}で確定します。`,
   },
   lockedCandidates: {
     ja: '区画の絞り込み',

@@ -8,18 +8,18 @@ const { verification } = Astro.props;
 
 <aside class="editorial-note" aria-label="制作・検証情報">
   <p><strong>執筆・検証：<a href="/about/#operator">numpredo 運営責任者</a></strong>（個人運営）</p>
-  <p>{verification}</p>
-  <p class="editorial-links"><a href="/about/#editorial-policy">制作方法・品質方針</a> ／ <a href="/contact/">誤りの報告・お問い合わせ</a></p>
+  <details>
+    <summary>検証方法・訂正窓口</summary>
+    <p>{verification}</p>
+    <p class="editorial-links"><a href="/about/#editorial-policy">制作方法・品質方針</a> ／ <a href="/contact/">誤りの報告・お問い合わせ</a></p>
+  </details>
 </aside>
 
 <style>
   .editorial-note {
     margin: 0 0 22px;
-    padding: 12px 14px;
-    border: 1px solid var(--line-2);
-    border-left: 3px solid var(--accent);
-    border-radius: var(--radius-sm);
-    background: var(--surface-2);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line-2);
     color: var(--ink-3);
     font-size: 13px;
   }
@@ -31,6 +31,8 @@ const { verification } = Astro.props;
   .editorial-note p + p {
     margin-top: 5px;
   }
+  summary { cursor: pointer; color: var(--accent); padding: 6px 0; }
+  details[open] { padding-bottom: 8px; }
 
   .editorial-note strong {
     color: var(--ink);

@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import EditorialNote from '../../components/EditorialNote.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import { LEVELS } from '../../data/levels.ts';
+import { teachingCase, type CaseSpec } from '../../data/teaching-cases.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
 import publishedJson from '../../data/published.json';
 import {
@@ -12,7 +13,6 @@ import {
   logicalSolve,
   renderBoardSvg,
   renderStepFigures,
-  traceKeySteps,
 } from '../../engine/index.ts';
 
 const title = '数独の解き方例題集｜初級から超難問まで5問を一手ずつ図解 - numpredo';
@@ -31,14 +31,16 @@ const examples = LEVELS.map((level) => {
   const given = grid.map((value) => value !== 0);
   const result = logicalSolve(gridFromString(raw.puzzle));
   const hardestInfo = TECH_INFO[result.hardest ?? 'nakedSingle'] ?? TECH_INFO.nakedSingle;
+  const lesson = teachingCase({level:level.slug as CaseSpec['level'],number,technique:result.hardest ?? 'nakedSingle',heading:'',question:''});
   return {
     level,
     number,
     clues: grid.filter(Boolean).length,
     result,
     hardestInfo,
+    lesson,
     puzzleSvg: renderBoardSvg(grid, { given, theme: TOKEN_THEME, cell: 34, title: `${level.ja}の代表例題`, desc: `${level.ja}の検証済み数独問題` }),
-    figures: renderStepFigures(traceKeySteps(gridFromString(raw.puzzle), { maxSteps: 4 }), given, 32),
+    figures: renderStepFigures([{...lesson.before,step:lesson.step}], given, 38),
   };
 });
 
@@ -90,8 +92,10 @@ const breadcrumbSchema = {
         <figure class="puzzle"><Fragment set:html={example.puzzleSvg} /><figcaption>{example.level.ja}の問題（太字が最初のヒント）</figcaption></figure>
         <div><h3>この盤面で見るポイント</h3><ul><li>解は一つだけで、仮置きは不要です。</li><li>独自ソルバーは{example.result.steps.length}回の論理手順で完成しました。</li><li>候補消去の後は、もう一度単数がないか確認します。</li></ul><p><a href={`/play/${example.level.slug}/?n=${example.number}`}>この問題を自分で解く</a>{example.hardestInfo.slug && <> ／ <a href={`/guide/techniques/${example.hardestInfo.slug}/`}>{example.hardestInfo.ja}の詳しい解説</a></>}</p></div>
       </div>
-      <h3>重要な手順を盤面で確認</h3>
-      <div class="steps">{example.figures.map((figure) => <figure class="step"><Fragment set:html={figure.svg} /><figcaption><strong>{figure.label}</strong>{figure.slug && <> — <a href={`/guide/techniques/${figure.slug}/`}>手筋の解説</a></>}</figcaption><p>{figure.text}</p></figure>)}</div>
+      <h3>この問題の最難手筋：{example.lesson.stepNumber}手目を抜粋</h3>
+      <p>下図は全手順のうち、この難易度を決める一手です。それ以前の確定・候補消去を反映した途中盤面で、最初の一手とは限りません。</p>
+      <p>{example.lesson.premise.text}</p>
+      <div class="steps">{example.figures.map((figure) => <figure class="step"><Fragment set:html={figure.svg.replace(/手順1/g,`${example.lesson.stepNumber}手目`)} /><figcaption><strong>{example.lesson.stepNumber}手目：{example.hardestInfo.ja}</strong>{figure.slug && <> — <a href={`/guide/techniques/${figure.slug}/`}>手筋の解説</a></>}</figcaption><p>{example.lesson.outcome}</p></figure>)}</div>
     </section>
   ))}
 

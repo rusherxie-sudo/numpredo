@@ -1,0 +1,53 @@
+---
+import SmallNumberBoard from './SmallNumberBoard.astro';
+import { MINI6_PUZZLES, traceMini6 } from '../data/mini6.ts';
+const examples=MINI6_PUZZLES.map(p=>{const trace=traceMini6(p.puzzle);if(trace.solution!==p.solution)throw new Error('6×6 answer mismatch');return {...p,...trace};});
+const first=examples[0].steps[0];
+const r=Math.floor(first.cell/6), c=first.cell%6;
+const row=first.before.slice(r*6,r*6+6).filter(Boolean);
+const col=first.before.filter((_,i)=>i%6===c).filter(Boolean);
+const box=first.before.filter((_,i)=>Math.floor(i/12)===Math.floor(first.cell/12)&&Math.floor(i%6/3)===Math.floor(c/3)).filter(Boolean);
+---
+<section class="mini6-lesson" id="mini6-practice" data-mini6-lesson>
+  <h2>6×6を1問解いてみる：問題・答え・最初の一手</h2>
+  <p>1〜6を各行・列・太線の2行×3列ブロックに1回ずつ入れます。下の6問はそれぞれ答えが一つで、候補が一つのマスを順に埋めるだけで完成します。紙に写すか印刷して解き、答えは解いてから開いてください。</p>
+  <button class="mini6-print" type="button" onclick="window.print()">6問と答えを印刷・PDF保存</button>
+  <div class="mini6-grid">{examples.map((p,i)=><article data-mini6-puzzle={p.puzzle}>
+    <h3>問題 {i+1}（ヒント{p.puzzle.replace(/\./g,'').length}個）</h3>
+    <SmallNumberBoard size={6} grid={p.puzzle} label={`6×6の問題${i+1}`} highlight={i===0?first.cell:undefined}/>
+    <details><summary>問題{i+1}の答えを見る</summary><SmallNumberBoard size={6} grid={p.solution} label={`6×6の問題${i+1}の答え`}/></details>
+  </article>)}</div>
+  <section class="mini6-print-answers" aria-label="印刷用解答">
+    <h2>6×6ナンプレ：解答 — numpredo.com</h2>
+    <div class="mini6-grid">{examples.map((p,i)=><article><h3>問題{i+1}の答え</h3><SmallNumberBoard size={6} grid={p.solution} label={`印刷用の答え${i+1}`}/></article>)}</div>
+  </section>
+  <h3>問題1の最初の一手：{r+1}行{c+1}列に注目</h3>
+  <p>色の付いたマスと同じ行には{row.join('・')}、同じ列には{col.join('・')}、同じ2×3ブロックには{box.join('・')}があります。1〜6からこれらを除くと、残るのは<strong>{first.digit}</strong>だけです。</p>
+  <details class="mini6-trace"><summary>問題1の最後までの手順を確認する</summary>
+    <p>以下は上の問題1から順番に進める手順です。一つ埋めるたび、同じ行・列・ブロックの候補を更新します。</p>
+    <ol>{examples[0].steps.map(s=><li>{Math.floor(s.cell/6)+1}行{s.cell%6+1}列：候補は{s.digit}だけなので、{s.digit}を入れる。</li>)}</ol>
+  </details>
+</section>
+<style>
+  .mini6-lesson { margin:28px 0; }
+  .mini6-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  article { border:1px solid var(--line); border-radius:var(--radius); padding:14px; break-inside:avoid; }
+  h3 { margin-top:0; }
+  summary { padding:10px 0; cursor:pointer; color:var(--accent); }
+  .mini6-print { border:0; background:var(--accent); color:var(--accent-on); border-radius:var(--radius); padding:12px 18px; margin:4px 0 18px; cursor:pointer; }
+  .mini6-trace { margin-bottom:24px; }
+  .mini6-print-answers { display:none; }
+  @media(max-width:600px) { .mini6-grid { grid-template-columns:1fr; } }
+  @media print {
+    .mini6-lesson { margin:0; }
+    .mini6-print, details, .mini6-lesson > p, .mini6-lesson > h3 { display:none; }
+    .mini6-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    article { break-inside:avoid; padding:5px; }
+    .mini6-print-answers { display:block; break-before:page; }
+    :global(body:has(.mini6-lesson)) { background:white; }
+    :global(body:has(.mini6-lesson) header), :global(body:has(.mini6-lesson) footer), :global(body:has(.mini6-lesson) .fsh), :global(body:has(.mini6-lesson) main > :not(.mini6-lesson)) { display:none !important; }
+    :global(body:has(.mini6-lesson) main) { margin:0; padding:0; max-width:none; }
+    :global(.mini6-lesson .small-board) { max-width:220px !important; margin:5px auto !important; }
+    :global(.mini6-lesson .small-board td) { height:27px !important; font-size:18px !important; }
+  }
+</style>

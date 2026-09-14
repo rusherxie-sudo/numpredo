@@ -2,6 +2,10 @@
 import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import EditorialNote from '../../components/EditorialNote.astro';
+import TeachingCase from '../../components/TeachingCase.astro';
+import ParentLesson from '../../components/ParentLesson.astro';
+import SolverInputExample from '../../components/SolverInputExample.astro';
+import { guideCases } from '../../data/teaching-cases.ts';
 import { GUIDES, type GuideArticle } from '../../data/guides.ts';
 import { TECHNIQUES } from '../../data/techniques.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
@@ -84,12 +88,17 @@ const techniqueListSchema = g.slug === 'tips' ? {
   <p class="lead">{g.lead}</p>
   <EditorialNote verification={g.verification ?? '本文のルール、候補消去、内部リンクを公開前に確認しています。掲載している問題は独自エンジンで唯一解と論理解法を検証しています。'} />
 
+  {guideCases[g.slug] && <TeachingCase spec={guideCases[g.slug]} />}
+  {g.slug === 'for-kids' && <ParentLesson />}
+  {g.slug === 'newspaper' && <SolverInputExample mode="newspaper" />}
+  {g.slug === 'sudoku-algorithm' && <SolverInputExample mode="algorithm" />}
+
   {g.sections.map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => (/^\s*<(table|div|ul|ol|figure)/.test(p) ? <Fragment set:html={p} /> : <p set:html={p} />))}</>))}
 
   <h2>解き方ガイドに戻る</h2>
   <ul>
     <li><a href="/guide/how-to-solve/">解き方完全ガイド</a></li>
-    <li><a href="/play/advanced/">上級をプレイして練習</a></li>
+    <li><a href={`/play/${guideCases[g.slug]?.level ?? 'beginner'}/`}>自分で問題を解いて練習</a></li>
   </ul>
 
   <ShareBar url={url} title={g.title} cta="この解説が役に立ったらシェア" />

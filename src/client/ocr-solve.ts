@@ -1,6 +1,6 @@
 // 数独ソルバー（写真・画像から読み取り → 可視盤面で確認・修正 → 自動求解）。
 // 求解は既存エンジンを完全再利用（純客户端・大模型不要）。識別は Tesseract.js を
-// 必要時のみ CDN から動的 import。識別が不完全でも盤面で手修正できるのが肝。
+// 必要時のみ別チャンクから動的 import。識別が不完全でも盤面で手修正できるのが肝。
 import { solveOne, countSolutions } from '../engine/countSolver.ts';
 import { SOLVER_SAMPLE } from '../data/solver-sample.ts';
 import { track } from './track.ts';
@@ -249,7 +249,9 @@ function setup(app: HTMLElement): void {
       setMsg(`写真から ${filled} マスを読み取りました。${review}確認後に「解く」を押してください。`, 'ok');
       track('solver_ocr', { cells: filled, uncertain: ocrUncertain.size });
     } catch (e) {
-      setMsg('画像の読み取りに失敗しました。明るく正面から撮り直すか、盤面に手入力してください。', 'err');
+      setMsg(e instanceof Error && e.message === 'ocr-engine-load'
+        ? '文字認識エンジンを読み込めませんでした。通信状態を確認して再試行するか、盤面に手入力してください。写真の撮り直しは不要です。'
+        : '画像を読み取れませんでした。通信状態と画像形式を確認してください。盤面は正面から撮り、外枠に合わせて切り抜くか、手入力してください。', 'err');
     } finally {
       photoInputs.forEach((i) => (i.disabled = false));
     }
@@ -389,16 +391,12 @@ async function recognizeImage(file: File, onProgress?: (done: number) => void): 
   }
 
   const cellPx = S / 9;
-  const tess = await loadTesseract();
-  const worker = await tess.createWorker('eng');
-  await worker.setParameters({
-    tessedit_char_whitelist: '123456789',
-    tessedit_pageseg_mode: '10', // single char
-  });
+  const { worker, singleChar } = await createOcrWorker();
 
   const out: string[] = [];
   const uncertain: number[] = [];
   try {
+    await worker.setParameters({ tessedit_char_whitelist: '123456789', tessedit_pageseg_mode: singleChar });
     for (let i = 0; i < 81; i++) {
       const r = (i / 9) | 0;
       const c = i % 9;
@@ -460,10 +458,13 @@ function fileToImage(file: File): Promise<HTMLImageElement> {
   });
 }
 
-// Tesseract.js を必要時のみ CDN から動的ロード（本体バンドルに含めない）。
-// バージョンは**厳密固定**：範囲指定（@5）だと esm.sh 側の解決が変わった日に挙動が変わる。
-async function loadTesseract(): Promise<any> {
-  // @ts-expect-error -- リモート URL import には型定義がない（実行時は Vite が素通しする）
-  const mod: any = await import(/* @vite-ignore */ 'https://esm.sh/tesseract.js@5.1.1');
-  return mod.default ?? mod;
+// 本体は固定バージョンをビルドし同一サイトから遅延ロード。実行時のESM変換サービスに依存しない。
+// Worker・WASM・言語データはライブラリ既定の配信元から初回のみ取得する。
+async function createOcrWorker() {
+  try {
+    const { createWorker, PSM } = await import('tesseract.js');
+    return { worker: await createWorker('eng'), singleChar: PSM.SINGLE_CHAR };
+  } catch {
+    throw new Error('ocr-engine-load');
+  }
 }

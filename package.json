@@ -15,7 +15,7 @@
     "check:daily": "node scripts/check-daily-runway.ts",
     "check:seo": "node scripts/check-seo-output.ts",
     "check": "astro check && tsc --noEmit",
-    "check:value": "node scripts/check-content-value.ts && node scripts/check-inequality-example.ts",
+    "check:value": "node scripts/check-content-value.ts && node scripts/check-inequality-example.ts && node scripts/check-teaching-cases.ts",
     "dev": "astro dev",
     "build": "astro build",
     "postbuild": "npm run check:seo && npm run check:value",
@@ -29,7 +29,8 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
     "astro": "^7.2.6",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "tesseract.js": "5.1.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",

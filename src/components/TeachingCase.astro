@@ -1,0 +1,44 @@
+---
+import { teachingCase, levelNames, rc, type CaseSpec } from '../data/teaching-cases.ts';
+import { bit, renderBoardSvg } from '../engine/index.ts';
+interface Props { spec: CaseSpec; }
+const { spec } = Astro.props;
+const c = teachingCase(spec);
+const given = c.initial.map(Boolean);
+const base = { given, cell: 42, cellHighlights: c.premise.cells.map(cell=>({cell})) };
+const beforeSvg = renderBoardSvg(c.before.grid, { ...base, candidates: c.before.candidates, title: `${c.name}を探す問題`, desc: spec.question });
+const afterSvg = renderBoardSvg(c.after.grid, { ...base, candidates: c.after.candidates, title: `${c.name}を使った後の盤面`, desc: c.outcome });
+const marks = c.premise.cells.flatMap(cell=>c.premise.digits.filter(d=>c.before.candidates[cell]&bit(d)).map(digit=>({cell,digit,type:'highlight' as const})));
+const proofSvg = renderBoardSvg(c.before.grid, { ...base, candidates: c.before.candidates, candidateMarks:[...marks,...(c.step.eliminations??[]).map(([cell,digit])=>({cell,digit,type:'eliminate' as const}))],title:`${c.name}の根拠と消去先`,desc:c.premise.text });
+---
+<section class="teaching-case" id="worked-example" data-teaching-case data-level={spec.level} data-number={spec.number} data-technique={spec.technique} data-step={c.stepNumber}>
+  <h2>{spec.heading}</h2>
+  <p>{spec.question}</p>
+  <p class="case-source">{levelNames[spec.level]} No.{spec.number}の{c.stepNumber===1?'最初の一手':`${c.stepNumber}手目の直前`}です。{c.stepNumber>1&&<>それまでの確定・候補消去を反映した途中盤面です。</>} rは上から1〜9行、cは左から1〜9列。色の付いたマス：{c.premise.cells.map(rc).join('・')}。</p>
+  <figure class="case-board"><Fragment set:html={beforeSvg}/><figcaption>まず自分で考える：小さな数字は、その時点で残っている候補です。</figcaption></figure>
+  <details class="case-answer">
+    <summary>答えと「なぜそうなるか」を見る</summary>
+    <h3>{c.name}で進めます</h3>
+    <p>{c.premise.text}</p>
+    <p><strong>{c.outcome}</strong></p>
+    <div class="case-comparison">
+      <figure><Fragment set:html={proofSvg}/><figcaption>根拠の候補を色で強調。赤い斜線は消せる候補です。</figcaption></figure>
+      <figure><Fragment set:html={afterSvg}/><figcaption>この一手を反映した後。確定または候補消去だけを進めています。</figcaption></figure>
+    </div>
+    <p>成立条件を満たしている範囲だけに適用します。候補が図と違うときは、同じ形に見えてもこの一手をそのまま使わず、数字の書き間違いや候補の抜けを先に確認してください。</p>
+  </details>
+  <p><a href={`/play/${spec.level}/?n=${spec.number}`}>この問題を最初から解く →</a> ／ <a href={`/tools/solver/?grid=${c.raw.puzzle}`}>元の問題の全解答を確認する</a></p>
+</section>
+<style>
+  .teaching-case { margin: 28px 0; padding: clamp(12px,3vw,22px); border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); }
+  .teaching-case h2 { margin-top:0; }
+  .case-source, figcaption { color:var(--ink-3); font-size:13px; line-height:1.7; }
+  .case-board { max-width:460px; margin:20px auto; }
+  .teaching-case :global(svg) { width:100%; height:auto; display:block; }
+  .case-answer { padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  summary { cursor:pointer; color:var(--accent); font-weight:700; padding:6px 0; }
+  .case-comparison { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .case-comparison figure { margin:0; min-width:0; }
+  a { color:var(--accent); }
+  @media(max-width:700px) { .case-comparison { grid-template-columns:1fr; } }
+</style>

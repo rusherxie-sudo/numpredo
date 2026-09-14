@@ -1,0 +1,13 @@
+---
+import SmallNumberBoard from './SmallNumberBoard.astro';
+import { MINI4_PUZZLES } from '../data/mini4.ts';
+const p=MINI4_PUZZLES[0];
+---
+<section id="parent-practice">
+  <h2>親子で試す：答えを言わずに1マスを見つける</h2>
+  <p>まずは1〜4だけを使う問題です。4×4の問題1を例に、色の付いた1行1列を一緒に見てください。タイムや年齢で評価せず、どこを見て考えたかを聞きます。</p>
+  <SmallNumberBoard size={4} grid={p.puzzle} highlight={0} label="親子で解く4×4の問題1"/>
+  <ol><li>大人：「いちばん上の横の行に、まだない数字は？」</li><li>子どもが1と4を挙げたら：「左上に1を置くと、その下の1と同じ縦の列にならないかな？」</li><li>4を選んだ後：「横の行と、太い線の小さな四角にも同じ数字がないかな？」</li></ol>
+  <details><summary>答えと教え方の確認</summary><p>1行1列は<strong>{p.solution[0]}</strong>です。行から候補を1・4に絞り、列にある1を除くと4だけが残ります。答えの数字だけでなく「横と縦を順番に見た」と説明できれば、次のマスでも同じ考え方を試せます。</p></details>
+  <p>難しければ、数字カードを一つずつ除く方法でも構いません。説明を聞いて疲れたら途中で終え、続きを別の日に回してください。<a href="/variants/4x4/">同じ4×4問題を画面で解く</a> ／ <a href="/variants/6x6/#mini6-practice">6×6の答え付き練習へ</a></p>
+</section>

@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import EditorialNote from '../../components/EditorialNote.astro';
 import InequalityFullExample from '../../components/InequalityFullExample.astro';
+import Mini6Lesson from '../../components/Mini6Lesson.astro';
 import { VARIANTS, type Variant } from '../../data/variants.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
 import publishedJson from '../../data/published.json';
@@ -69,6 +70,8 @@ const breadcrumbSchema = {
   <EditorialNote verification={`${v.name}固有のルール、盤面例、FAQを照合し、通常の9×9数独との違いが盤面上で再現できることを確認しています。`} />
 
   <figure class="var-fig"><Fragment set:html={v.svg} /><figcaption>{v.svgCaption}</figcaption></figure>
+
+  {v.slug === '6x6' && <Mini6Lesson />}
 
   {v.sections.map((s) => (
     <>

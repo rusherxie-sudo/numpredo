@@ -1,43 +1,7 @@
 ---
 const SYMBOLS = '123456789ABCDEFG'.split('');
 
-const SAMPLE_PUZZLES = [
-  {
-    id: 's16-a',
-    label: '例題 A｜232 手がかり',
-    clueLabel: 'いちばんやさしい',
-    puzzle: '..BC2ED1763F5A84D12EBCG948...367A4856F379BGCED21376F8...12DECGB99BCAE3126F7GD458...3CA9B854DG7F676FG5D482E1...CB485DFG76BC9A31E22E37A4..5D8196GF6FG9D185E3274BACB..4372EFG6918D585D1G96FCAB4..3EE37648CAD152BF9GFG9B125..7E68C4A5D129BFGA4C86E73CA..76E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-  {
-    id: 's16-b',
-    label: '例題 B｜228 手がかり',
-    clueLabel: '軽い練習',
-    puzzle: '.9BC2ED1763F5A84D12EBCG94...F367A4856F379BGCED21376F...412DECGB99BCAE3126F7GD4...2E3CA9B854DG7F676FG5D482...A9CB485DFG76BC9A31E22E37...C5D8196GF6FG9D185E3274BA...A4372EFG6918D585D1G96FCA...23EE37648CAD152BF9GFG9B1...37E68C4A5D129BFGA4C86E73...876E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-  {
-    id: 's16-c',
-    label: '例題 C｜224 手がかり',
-    clueLabel: '標準試験',
-    puzzle: 'G9BC2ED1763F5A84D12EBCG....5F367A4856F379BGCED2137....A412DECGB99BCAE3126F7GD....2E3CA9B854DG7F676FG5D48....A9CB485DFG76BC9A31E22E3....C5D8196GF6FG9D185E3274B...CA4372EFG6918D585D1G96FC...723EE37648CAD152BF9GFG9B...D37E68C4A5D129BFGA4C86E7...4876E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-  {
-    id: 's16-d',
-    label: '例題 D｜220 手がかり',
-    clueLabel: 'やや少なめ',
-    puzzle: 'G9BC2ED1763F5A84D12EBC....A5F367A4856F379BGCED213....5A412DECGB99BCAE3126F7G....12E3CA9B854DG7F676FG5D4....3A9CB485DFG76BC9A31E22....4BC5D8196GF6FG9D185E327....BCA4372EFG6918D585D1G96....4723EE37648CAD152BF9GFG....5D37E68C4A5D129BFGA4C86....A4876E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-  {
-    id: 's16-e',
-    label: '例題 E｜216 手がかり',
-    clueLabel: 'いちばん難しい',
-    puzzle: 'G9BC2ED1763F5A84D12E.....8A5F367A4856F379BGCED2.....85A412DECGB99BCAE3126F.....812E3CA9B854DG7F676FG5.....13A9CB485DFG76BC9A31E2....A4BC5D8196GF6FG9D185E32....CBCA4372EFG6918D585D1G9....B4723EE37648CAD152BF9GF....25D37E68C4A5D129BFGA4C8....CA4876E3G9FB251D',
-    solution: 'G9BC2ED1763F5A84D12EBCG948A5F367A4856F379BGCED21376F85A412DECGB99BCAE3126F7GD45812E3CA9B854DG7F676FG5D482E13A9CB485DFG76BC9A31E22E37A4BC5D8196GF6FG9D185E3274BACBCA4372EFG6918D585D1G96FCAB4723EE37648CAD152BF9GFG9B125D37E68C4A5D129BFGA4C86E73CA4876E3G9FB251D',
-  },
-] as const;
+import { SAMPLE_PUZZLES } from '../data/sudoku16-samples.ts';
 
 ---
 
@@ -87,8 +51,8 @@ const SAMPLE_PUZZLES = [
   <section class="s16-pilot" aria-labelledby="s16-pilot-title">
     <div class="s16-pilot-head">
       <div>
-        <h3 id="s16-pilot-title">可玩＋可印刷答案の試作</h3>
-        <p>3〜5問の例題を用意し、上の盤面でそのまま遊べます。右の「印刷」ボタンで、選択中の問題と答えを同じURLからそのまま出力できます。</p>
+        <h3 id="s16-pilot-title">16×16の例題を解く・答え付きで印刷する</h3>
+        <p>{SAMPLE_PUZZLES.length}種類の入門例から選び、上の盤面で入力できます。同じ完成盤面から空きマスを24〜40個に変えた練習です。「現在の問題と解答を印刷」は、解答前の入力盤面から答えを再計算します。32マス以上の入力があり、答えが一つと確認できた問題を印刷・PDF保存できます。</p>
       </div>
       <p class="s16-pilot-state" data-sample-label>例題 A を読み込み中…</p>
     </div>
@@ -122,10 +86,10 @@ const SAMPLE_PUZZLES = [
         <strong data-print-title>例題 A</strong>
         <span data-print-subtitle>問題 + 解答</span>
       </div>
-      <span data-print-meta>numpredo.com / 16×16 pilot</span>
+      <span data-print-meta>numpredo.com / 16×16</span>
     </header>
     <div class="s16-print-note">
-      <p>上段が問題、下段が解答です。印刷ダイアログでPDF保存すれば、試し解き用の小さな問題集になります。</p>
+      <p>左が問題、右が解答です。各行・列・4×4ブロックに1〜9・A〜Gを1回ずつ入れます。</p>
     </div>
     <div class="s16-print-boards">
       <section>
@@ -204,6 +168,10 @@ const SAMPLE_PUZZLES = [
   }
   @page { size: A4 landscape; margin: 10mm; }
   @media print {
+    :global(body:has([data-s16])) { background:white; }
+    :global(body:has([data-s16]) .snav), :global(body:has([data-s16]) .sfoot), :global(body:has([data-s16]) .fsh), :global(body:has([data-s16]) .s16-text > :not(.s16)) { display:none !important; }
+    :global(body:has([data-s16]) .s16-text) { max-width:none; margin:0; }
+    :global(body:has([data-s16]) main) { margin:0; padding:0; max-width:none; }
     .snav, .sfoot, .fsh, .share-bar, .s16-head, .s16-scroll, .s16-board-wrap, .s16-pad, .s16-actions, .s16-message, .s16-pilot, .s16-bulk { display: none !important; }
     .s16 { margin: 0; padding: 0; border: 0; background: #fff; }
     .s16-print-sheet { display: block; color: #111; }
@@ -213,12 +181,12 @@ const SAMPLE_PUZZLES = [
     .s16-print-note { margin-bottom: 4mm; color: #444; font-size: 9pt; }
     .s16-print-boards { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
     .s16-print-boards h4 { margin: 0 0 2.5mm; font-size: 10pt; }
-    .s16-print-board { display: grid; grid-template-columns: repeat(16, 1fr); width: 100%; aspect-ratio: 1; border: 1.4pt solid #111; border-radius: 4pt; overflow: hidden; }
-    .s16-print-cell { display: grid; place-items: center; border-right: .35pt solid #888; border-bottom: .35pt solid #888; font: 600 8.5pt/1 serif; color: #111; }
-    .s16-print-cell:nth-child(16n) { border-right: 0; }
-    .s16-print-cell:nth-child(n+241) { border-bottom: 0; }
-    .s16-print-cell.br { border-right: 1.2pt solid #111; }
-    .s16-print-cell.bb { border-bottom: 1.2pt solid #111; }
-    .s16-print-board.answer .s16-print-cell { color: #0b3d91; }
+    .s16-print-board { display: grid; grid-template-columns: repeat(16, minmax(0,1fr)); grid-template-rows:repeat(16,minmax(0,1fr)); width: 100%; aspect-ratio: 1; border: 1.4pt solid #111; border-radius: 4pt; overflow: hidden; }
+    .s16-print-board :global(.s16-print-cell) { display: grid; place-items: center; border-right: .35pt solid #888; border-bottom: .35pt solid #888; font: 600 8.5pt/1 serif; color: #111; }
+    .s16-print-board :global(.s16-print-cell:nth-child(16n)) { border-right: 0; }
+    .s16-print-board :global(.s16-print-cell:nth-child(n+241)) { border-bottom: 0; }
+    .s16-print-board :global(.s16-print-cell.br) { border-right: 1.2pt solid #111; }
+    .s16-print-board :global(.s16-print-cell.bb) { border-bottom: 1.2pt solid #111; }
+    .s16-print-board.answer :global(.s16-print-cell) { color: #0b3d91; }
   }
 </style>

@@ -1,0 +1,16 @@
+---
+interface Props { grid: string | number[]; size: 4 | 6; label: string; highlight?: number; }
+const { grid, size, label, highlight } = Astro.props;
+const values=typeof grid==='string'?[...grid].map(c=>c==='.'?0:Number(c)):grid;
+---
+<table class="small-board" aria-label={label}>
+  <tbody>{Array.from({length:size},(_,r)=><tr>{Array.from({length:size},(_,c)=><td class:list={{'block-right':(c+1)%(size/2)===0&&c<size-1,'block-bottom':(r+1)%2===0&&r<size-1,focus:r*size+c===highlight}} aria-label={`${r+1}行${c+1}列：${values[r*size+c]||'空きマス'}`}>{values[r*size+c]||<span aria-hidden="true">&#160;</span>}</td>)}</tr>)}</tbody>
+</table>
+<style>
+  .small-board { width:100%; max-width:340px; table-layout:fixed; border-collapse:collapse; border:2px solid var(--ink); background:var(--surface); margin:12px auto; }
+  .small-board td { width:16.66%; height:44px; border:1px solid var(--line); text-align:center; font:600 23px/1 var(--font-sans); padding:0; color:var(--ink); }
+  .small-board .block-right { border-right:2px solid var(--ink); }
+  .small-board .block-bottom { border-bottom:2px solid var(--ink); }
+  .small-board .focus { background:var(--accent-tint); outline:2px solid var(--accent); outline-offset:-3px; }
+  @media print { .small-board { background:white; border-color:black; } .small-board td { color:black; border-color:#777; } }
+</style>
