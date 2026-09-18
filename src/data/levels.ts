@@ -69,7 +69,7 @@ export const LEVELS: LevelMeta[] = [
     ],
     nextActions: [
       { label: '初級を一問ずつ練習する', body: 'このページでは登録不要で初級問題を何度でも遊べます。解き方を盤面で確認したいときは、<a href="/guide/solving-examples/#beginner">初級の代表例題と一手ずつ図解</a>から始めましょう。' },
-      { label: 'やさしい問題を紙で解く', body: 'お子さまの練習や毎日の脳トレには、<a href="/print/beginner/">初級の数独・ナンプレ無料プリント（答え付きPDF）</a>が便利です。大きなマス目や12問の問題集を無料で印刷できます。' },
+      { label: 'やさしい問題を紙で解く', body: 'お子さまの練習や毎日の脳トレには、<a href="/print/beginner/">初級の数独・ナンプレ無料プリント（答え付きPDF）</a>が便利です。大きなマスでゆっくり解きたい方は、<a href="/print/senior/">高齢者・シニア向けの初級2問・答え付きプリント</a>を選べます。' },
       { label: '単数の見つけ方を覚える', body: '次の一手が見つからないときは、<a href="/guide/beginner/">初心者向けの解き方</a>と<a href="/guide/techniques/hidden-single/">隠れた単数の図解</a>を確認してから盤面に戻りましょう。' },
     ],
     faq: [
