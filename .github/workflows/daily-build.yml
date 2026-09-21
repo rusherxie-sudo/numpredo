@@ -1,5 +1,6 @@
-# 每日生成 sitemap-lastmod.json + published.json → commit push 到 main
-# CF Pages 已配置 Git 集成（项目 numpredo2），push 后自动 build + deploy
+# 每日生成 sitemap-lastmod.json + published.json，并确保 main 获得一个新 commit。
+# 即使派生数据未变化，也要用空 commit 触发 CF Pages 每日 build + deploy；
+# /daily/ 的滚动题目窗口与 /daily/archive/ 的昨日上限都依赖构建日期。
 # 无需 GitHub Secrets：GITHUB_TOKEN 由 Actions 自动注入，写权限限定本仓库
 name: Daily Data Update
 
@@ -51,10 +52,11 @@ jobs:
             npm run gen:published
             git add src/data/sitemap-lastmod.json src/data/published.json
             if git diff --staged --quiet; then
-              echo "无变更，跳过 commit"
-              exit 0
+              echo "派生数据无变更；创建空提交以触发日替题每日重建"
+              git commit --allow-empty -m "chore: 触发日替题每日重建"
+            else
+              git commit -m "chore: 每日更新日次数据（lastmod + published）"
             fi
-            git commit -m "chore: 每日更新日次数据（lastmod + published）"
             if git push origin HEAD:main; then
               exit 0
             fi
