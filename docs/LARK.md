@@ -30,6 +30,8 @@
 | docs/2026-09-14-AdSense全站评估与整改.md | [AdSense 全站评估与整改｜2026-09-14](https://zjphma1p1w2t.jp.larksuite.com/wiki/Iw4pwoPKPiFcsfksflSjdag3phg) | `Iw4pwoPKPiFcsfksflSjdag3phg` |
 | docs/2026-09-18-流量增长提前执行记录.md | [流量增长提前执行记录｜2026-09-18](https://zjphma1p1w2t.jp.larksuite.com/wiki/LOOjwU3zbiKcirkaiH3juTGYpBc) | `LOOjwU3zbiKcirkaiH3juTGYpBc` |
 
+本次新增：`docs/2026-09-23-增长执行与验证.md` → [增长执行与验证｜2026-09-23](https://zjphma1p1w2t.jp.larksuite.com/wiki/MAVYwYdwmirKSukWylQjuM1HpYf)，节点 `MAVYwYdwmirKSukWylQjuM1HpYf`；位于04执行与复盘。文中同时保存9/23外联更新稿。
+
 知识库导航与分类维护规范对应本文件；首页保存面向读者的导航说明。技术与运维、历史归档已设分类入口，尚无独立报告，不将历史待办冒充当前任务。
 
 ## 发布与同步规则
