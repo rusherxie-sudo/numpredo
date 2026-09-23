@@ -22,7 +22,7 @@ const preview = renderBoardSvg(grid, {given:grid.map(Boolean),cell:30,title:'配
   <p>新しい組み合わせが必要なら、上の印刷ツールで作成できます。個別の答えの理由は<a href="/tools/solver/">写真対応の数独ソルバー</a>で確認できます。</p>
 </section>
 <style>
-  .activity-pack { max-width:1060px; margin:28px auto; padding:clamp(12px,3vw,22px); border:1px solid var(--line); border-radius:var(--radius); }
+  .activity-pack { scroll-margin-top:88px; max-width:1060px; margin:28px auto; padding:clamp(12px,3vw,22px); border:1px solid var(--line); border-radius:var(--radius); }
   .activity-layout { display:grid; grid-template-columns:minmax(0,300px) minmax(0,1fr); gap:24px; align-items:center; }
   figure { margin:0; } figure :global(svg) { width:100%; height:auto; } figcaption { font-size:12px; color:var(--ink-3); }
   a { color:var(--accent); } [download] { display:inline-block; padding:12px; border:1px solid var(--line); border-radius:6px; }
