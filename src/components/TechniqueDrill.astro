@@ -1,0 +1,57 @@
+---
+import { DRILL_SPECS, buildDrill } from '../data/technique-drills.ts';
+import { rc, levelNames } from '../data/teaching-cases.ts';
+import { renderBoardSvg } from '../engine/index.ts';
+interface Props { slug: string; }
+const { slug } = Astro.props;
+const lessons = (DRILL_SPECS[slug] ?? []).map(buildDrill);
+---
+{lessons.length > 0 && <section class="tech-drill" id="practice" data-tech-drill data-technique={slug}>
+  <h2>自分で一手を選ぶ：2問の練習</h2>
+  <p>手筋の名前ではなく、入れる数字・消せる候補を選びます。色の付いた根拠のマスと、指定されたマスを見比べてください。</p>
+  {lessons.map((c, i) => <article data-drill-card hidden={i > 0} data-answer={c.answer}>
+    <h3 tabindex="-1">練習 {i+1} / {lessons.length}：{rc(c.cell)}{c.placing ? 'に入る数字は？' : 'から消せる候補は？'}</h3>
+    <p>{levelNames[c.spec.level]} No.{c.spec.number}・{c.stepNumber}手目の直前。小さな数字は、それまでの候補消去も反映しています。</p>
+    <div class="drill-board"><Fragment set:html={renderBoardSvg(c.before.grid, { candidates: c.before.candidates, given: c.initial.map(Boolean), cell: 35, cellHighlights: c.premise.cells.map(cell=>({cell})), title: `${rc(c.cell)}の一手を選ぶ`, desc: c.spec.question })} /></div>
+    <div class="drill-options" aria-label="回答を選択">{c.options.map(d=><button type="button" data-drill-choice={d}>{d}{c.placing ? 'を入れる' : 'を消す'}</button>)}</div>
+    <p data-drill-feedback role="status"></p>
+    <details data-drill-explanation>
+      <summary>理由と答えを確認する</summary>
+      <p>{c.premise.text}</p><p><strong>{c.outcome}</strong></p>
+      <p><a href={`/play/${c.spec.level}/?n=${c.spec.number}`}>この問題を最初から解く →</a></p>
+    </details>
+    <button type="button" data-drill-next>{i === lessons.length-1 ? '最初の練習に戻る' : '別の局面でもう一問 →'}</button>
+  </article>)}
+  <p><a href="/tools/candidate-checker/">手元の問題の次の一手を調べる</a> ／ <a href="/practice/">5つの手筋を見分ける診断へ</a></p>
+  <noscript><p>数字を選んで判定するにはJavaScriptが必要です。「理由と答えを確認する」はそのまま読めます。</p></noscript>
+<script is:inline>
+  function trackDrill(name, params) {
+    try { function gtag() { (window.dataLayer = window.dataLayer || []).push(arguments); } gtag('event', name, params); } catch {}
+  }
+  document.querySelectorAll('[data-tech-drill]').forEach(root => {
+    const cards = Array.from(root.querySelectorAll('[data-drill-card]'));
+    cards.forEach((card, index) => {
+      let attempted = false;
+      card.querySelectorAll('[data-drill-choice]').forEach(button => button.addEventListener('click', () => {
+        const correct = button.dataset.drillChoice === card.dataset.answer;
+        card.querySelector('[data-drill-feedback]').textContent = correct ? '正解です。成立条件を確認してから、次の局面へ進みましょう。' : 'この一手では選べません。根拠のマスと指定されたマスを比べ、理由を確認してみましょう。';
+        card.querySelector('[data-drill-explanation]').open = true;
+        if (!attempted) trackDrill('technique_drill_answer', { technique: root.dataset.technique, question: index+1, correct });
+        attempted = true;
+      }));
+      card.querySelector('[data-drill-next]')?.addEventListener('click', () => {
+        card.hidden = true;
+        const next = cards[(index+1)%cards.length]; next.hidden = false;
+        next.querySelector('h3')?.focus();
+      });
+    });
+  });
+</script>
+</section>}
+<style>
+  .tech-drill { border:1px solid var(--line); border-radius:var(--radius); padding:clamp(12px,3vw,22px); margin:24px 0; }
+  .drill-board { max-width:420px; margin:18px auto; } .drill-board :global(svg) { width:100%; height:auto; }
+  .drill-options { display:flex; gap:10px; flex-wrap:wrap; }
+  button { min-height:44px; padding:10px 16px; border:1px solid var(--line); border-radius:6px; color:var(--ink); background:var(--surface); cursor:pointer; font:inherit; }
+  [data-drill-next] { margin:16px 0; } details { padding:12px 0; } summary,a { color:var(--accent); } summary { cursor:pointer; }
+</style>

@@ -3,6 +3,7 @@
 // 必要時のみ別チャンクから動的 import。識別が不完全でも盤面で手修正できるのが肝。
 import { solveOne, countSolutions } from '../engine/countSolver.ts';
 import { SOLVER_SAMPLE } from '../data/solver-sample.ts';
+import { addReturnLink, carriedParam, toolLink } from './learning-transfer.ts';
 import { track } from './track.ts';
 
 const app = document.getElementById('sv-app');
@@ -100,7 +101,13 @@ function setup(app: HTMLElement): void {
   const left = el('div', 'sv-left');
   left.append(board);
   const right = el('div', 'sv-right');
-  right.append(pad, ctrl);
+  const candidateLink = document.createElement('a');
+  candidateLink.textContent = '答えを見ずに、候補と次の一手を調べる →';
+  candidateLink.dataset.solverCandidate = '';
+  candidateLink.addEventListener('click', () => track('solver_to_candidate'));
+  const candidateNav = document.createElement('p'); candidateNav.append(candidateLink);
+  right.append(pad, ctrl, candidateNav);
+  addReturnLink(right);
   layout.append(left, right);
   app.append(layout);
 
@@ -167,6 +174,7 @@ function setup(app: HTMLElement): void {
   }
 
   function render(): void {
+    candidateLink.href = toolLink('/tools/candidate-checker/', grid);
     const conf = solved ? null : conflicts(grid);
     for (let i = 0; i < 81; i++) {
       const c = cells[i];
@@ -312,7 +320,7 @@ function setup(app: HTMLElement): void {
   // 初期表示：空盤面から（サンプルを預填すると、自分の問題を打ち込む際に混ざる罠になる。
   // 動作を試したい人は「サンプル」ボタンで読み込める）。
   // 例外：?grid=（ゲーム側「ソルバーで解説」動線の持ち込み盤面、81桁の 1-9/./0）は預填する。
-  const urlGrid = (new URLSearchParams(location.search).get('grid') ?? '').replace(/[^0-9.]/g, '');
+  const urlGrid = (carriedParam('grid') ?? '').replace(/[^0-9.]/g, '');
   if (urlGrid.length === 81 && /[1-9]/.test(urlGrid)) {
     grid = strToGrid(urlGrid);
     inputSource = 'game';

@@ -1,4 +1,5 @@
 import { PEERS, boxOf, colOf, computeCandidates, digitsOf, logicalSolve, popcount, rowOf, TECH_INFO } from '../engine/index.ts';
+import { addReturnLink, carriedParam, toolLink } from './learning-transfer.ts';
 import { track } from './track.ts';
 
 const root = document.querySelector<HTMLElement>('[data-candidate-checker]');
@@ -6,7 +7,8 @@ if (root) setup(root);
 
 function setup(root: HTMLElement): void {
   const SAMPLE = '..42.....3......6.5..3...71..5.72.43..39.65..21.53.6..15...3..4.8......5.....17..';
-  let grid = new Array<number>(81).fill(0);
+  const urlGrid = carriedParam('grid') ?? '';
+  let grid = /^[0-9.]{81}$/.test(urlGrid) ? parse(urlGrid) : new Array<number>(81).fill(0);
   let selected = 0;
   let candidates = computeCandidates(grid);
   let useTracked = false;
@@ -76,6 +78,7 @@ function setup(root: HTMLElement): void {
   left.append(board);
   const right = document.createElement('div');
   right.append(pad, controls, result);
+  addReturnLink(right);
   layout.append(left, right);
   root.replaceChildren(layout);
   render();
@@ -151,13 +154,15 @@ function setup(root: HTMLElement): void {
     const singles = candidates.filter((value) => popcount(value) === 1).length;
     const logic = logicalSolve(grid);
     const first = logic.steps[0];
+    const lessonSlug = first && TECH_INFO[first.technique]?.slug;
+    const lesson = lessonSlug ? `<p><a href="/guide/techniques/${lessonSlug}/#${['hidden-single','pointing','naked-pair'].includes(lessonSlug) ? 'practice' : 'worked-example'}" target="_blank" rel="noopener">この手筋の理由と練習を別タブで見る</a>（この盤面はそのまま残ります）</p>` : '';
     const next = first
       ? `${TECH_INFO[first.technique]?.ja ?? first.technique}：${TECH_INFO[first.technique]?.desc(first) ?? '論理手順が見つかりました。'}`
       : '現在の盤面から、対応している手筋による次の一手は見つかりませんでした。入力を確認するか、ソルバーで解の有無を確認してください。';
     const reasons = grid[selected]
       ? `<p>${pos}にはすでに<strong>${grid[selected]}</strong>が入っています。空きマスを選ぶと候補の理由を表示します。</p>`
       : `<p><strong>${pos}の候補：${allowed.length ? allowed.join('・') : 'なし'}</strong></p>${[1,2,3,4,5,6,7,8,9].map((digit) => `<span class="cc-reason ${allowed.includes(digit) ? 'ok' : 'ng'}">${digit}：${allowed.includes(digit) ? '行・列・ブロックに同じ数字なし' : blockedReason(selected, digit)}</span>`).join('')}`;
-    return `${reasons}<p class="cc-summary">空き${empty}マス ／ 候補が1つのマス${singles}個</p><p><strong>現在の次の一手</strong><br>${next}</p><p><a href="/tools/solver/?grid=${grid.map((v) => v || '.').join('')}">この盤面の唯一解と全手順をソルバーで確認</a></p>`;
+    return `${reasons}<p class="cc-summary">空き${empty}マス ／ 候補が1つのマス${singles}個</p><p><strong>現在の次の一手</strong><br>${next}</p>${lesson}<p><a href="${toolLink('/tools/solver/', grid)}">この盤面の唯一解と全手順をソルバーで確認</a></p>`;
   }
 
   function blockedReason(cell: number, digit: number): string {

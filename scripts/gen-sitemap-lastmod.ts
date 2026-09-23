@@ -37,7 +37,7 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
     newspaper: ['src/components/SolverInputExample.astro','src/data/solver-sample.ts'],
     'sudoku-algorithm': ['src/components/SolverInputExample.astro','src/data/solver-sample.ts'],
   },
-  'guide/techniques/[slug].astro': Object.fromEntries(['naked-single','hidden-single','pointing','naked-pair','hidden-pair','naked-triple','x-wing','swordfish','skyscraper'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts']])),
+  'guide/techniques/[slug].astro': Object.fromEntries(['naked-single','hidden-single','pointing','naked-pair','hidden-pair','naked-triple','x-wing','swordfish','skyscraper'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts', ...(['hidden-single','pointing','naked-pair'].includes(slug) ? ['src/components/TechniqueDrill.astro','src/data/technique-drills.ts'] : [])]])),
   'variants/[slug].astro': {
     '6x6': ['src/components/Mini6Lesson.astro','src/components/SmallNumberBoard.astro','src/data/mini6.ts'],
     inequality: ['src/components/InequalityFullExample.astro', 'src/data/inequality-example.ts'],
@@ -49,9 +49,10 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
-  'tools/solver.astro': ['src/client/ocr-solve.ts','src/data/solver-sample.ts'],
+  'tools/solver.astro': ['src/client/ocr-solve.ts','src/data/solver-sample.ts','src/client/learning-transfer.ts'],
+  'print/senior.astro': ['src/components/ActivityPack.astro','scripts/gen-activity-pack.py','public/downloads/activity/manifest.json'],
   'guide/solving-examples.astro': ['src/data/teaching-cases.ts'],
-  'tools/candidate-checker.astro': ['src/client/candidate-checker.ts'],
+  'tools/candidate-checker.astro': ['src/client/candidate-checker.ts','src/client/learning-transfer.ts'],
   'variants/4x4.astro': ['src/data/mini4.ts', 'src/components/MiniSudoku4.astro', 'src/client/mini-sudoku4.ts'],
   'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts','src/data/sudoku16-samples.ts'],
   'variants/diagonal.astro': ['src/data/puzzles/diagonal.json'],

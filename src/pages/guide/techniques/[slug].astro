@@ -1,6 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import EditorialNote from '../../../components/EditorialNote.astro';
+import TechniqueDrill from '../../../components/TechniqueDrill.astro';
 import TeachingCase from '../../../components/TeachingCase.astro';
 import { techniqueCases } from '../../../data/teaching-cases.ts';
 import { TECHNIQUES, type Technique, type TechFig } from '../../../data/techniques.ts';
@@ -83,6 +84,8 @@ const breadcrumbSchema = {
   {t.sections.filter(s=>s.h !== '実際の盤面で確かめる根拠').map((s) => (<><h2>{s.h}</h2>{s.body.map((p) => <p set:html={p} />)}</>))}
 
   {t.slug === 'xy-wing' && <figure class="guide-fig"><Fragment set:html={svg} /><figcaption>{t.figCaption} 成立条件だけを示す模式図で、空欄の候補は省略しています。完全な問題盤面ではありません。</figcaption></figure>}
+
+  <TechniqueDrill slug={t.slug} />
 
   <h2>他のテクニック</h2>
   <p><a href="/guide/tips/">数独テクニック一覧で、初級から超難問までの手筋と覚える順番を見る</a></p>

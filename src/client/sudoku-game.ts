@@ -7,6 +7,7 @@ import {
   DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, buildKillerContext, makeCageComboTechnique, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf, boxOf,
   gridFromString, solveOne, traceFirstElimination, logicalSolve, computeCandidates, type Grid, type TechniqueFn,
 } from '../engine/index.ts';
+import { toolLink } from './learning-transfer.ts';
 import { track } from './track.ts';
 import { ACHIEVEMENTS, computeUnlocked, readStats, readDailyLog, readDailyLog5, readStreak } from './achievements.ts';
 
@@ -328,14 +329,27 @@ function setup(root: HTMLElement): void {
   // 「唯一解」の信頼標語を裏切るため、変体ページではボタン自体を出さない。
   ctrl3.append(cbtn('wand', '自動メモ', () => autoNotes()));
   if (!variant) {
+    ctrl3.append(cbtn('search', '候補・次の一手', () => {
+      if (paused) return;
+      save();
+      track('game_to_candidate', { level: levelJa, daily, archive });
+      location.href = toolLink('/tools/candidate-checker/', cur, gameReturnPath());
+    }));
     ctrl3.append(
       cbtn('search', 'ソルバーで解説', () => {
         if (paused) return; // 停表盯盘対策：一時停止中は答えを見に行けない
         track('solver_jump', { level: levelJa, daily, archive });
-        const href = '/tools/solver/?grid=' + cur.map((v) => v || '.').join('');
+        save();
+        const href = toolLink('/tools/solver/', cur, gameReturnPath());
         setTimeout(() => { location.href = href; }, 150); // 直遷移だと dataLayer のイベントが載る前に unload しうる
       }),
     );
+  }
+
+  function gameReturnPath(): string {
+    const params = new URLSearchParams(location.search);
+    if (!daily) params.set('n', String(poolIdx + 1));
+    return location.pathname + (params.size ? '?' + params : '') + location.hash;
   }
 
   // —— 间違いチェック开关 ——

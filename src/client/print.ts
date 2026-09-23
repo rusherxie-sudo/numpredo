@@ -71,7 +71,7 @@ function setup(): void {
       track('print_pdf_download', {
         level: link.dataset.pdfDownload ?? 'unknown',
         count: Number(link.dataset.pdfCount ?? '12'),
-        format: 'a4_with_answers',
+        format: link.dataset.pdfFormat ?? 'a4_with_answers',
       }),
     ),
   );
