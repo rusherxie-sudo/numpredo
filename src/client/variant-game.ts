@@ -10,7 +10,7 @@ function setup(root:HTMLElement):void {
   const board=root.querySelector<HTMLElement>('[data-board]')!,status=root.querySelector<HTMLElement>('[data-status]')!;
   const cells:HTMLButtonElement[]=[];board.style.gridTemplateColumns=`repeat(${size},minmax(0,1fr))`;
   for(let r=0;r<size;r++) {const row=document.createElement('div');row.className='vg-row';row.setAttribute('role','row');board.append(row);
-    for(let c=0;c<size;c++){const i=r*size+c,b=document.createElement('button');b.type='button';b.setAttribute('role','gridcell');b.addEventListener('click',()=>{selected=i;render();});row.append(b);cells.push(b);}
+    for(let c=0;c<size;c++){const i=r*size+c,b=document.createElement('button');b.type='button';b.setAttribute('role','gridcell');b.addEventListener('click',()=>{selected=i;render();});b.addEventListener('focus',()=>{if(selected!==i){selected=i;render();}});row.append(b);cells.push(b);}
   }
   const original=()=>Array.from(puzzles[index].puzzle,c=>c==='.'?0:Number(c));
   function save():void { try {localStorage.setItem(storageKey,String(index));localStorage.setItem(`${storageKey}.${puzzles[index].id}`,JSON.stringify({grid,notes}));}catch{} }
