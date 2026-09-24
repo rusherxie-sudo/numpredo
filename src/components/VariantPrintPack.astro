@@ -12,9 +12,9 @@ const pages=Math.ceil(pack.puzzles.length/pack.perPage);
 <Base title={`${info.title} - numpredo`} description={info.description}>
 <nav class="crumb"><a href="/">ホーム</a> › <a href="/print/">無料プリント</a> › {info.name}</nav>
 <h1>{info.title}</h1><p class="lead">{info.lead}</p>
-<section class="downloads" aria-label="PDFダウンロード">
+<section class="downloads" aria-label="PDFダウンロード" data-variant-pack={slug} data-count={pack.puzzles.length}>
 <h2>セット01をダウンロード</h2>
-<p><a href={path('questions')} download>問題PDF（{pack.puzzles.length}問・{pages}ページ）</a>　<a href={path('answers')} download>解答PDF（{pages}ページ）</a></p>
+<p><a href={path('questions')} download data-pack-format="questions_only">問題PDF（{pack.puzzles.length}問・{pages}ページ）</a>　<a href={path('answers')} download data-pack-format="answers_only">解答PDF（{pages}ページ）</a></p>
 <p>A4・縦／登録不要・無料。解答を配りたくない場合は「問題PDF」だけを印刷してください。</p>
 </section>
 <details><summary>最初の問題を見る（{sample.id}）</summary>
@@ -27,6 +27,14 @@ const pages=Math.ceil(pack.puzzles.length/pack.perPage);
 <p><a href={`/variants/${slug}/`}>{info.name}の{slug==='16x16'?'専用ソルバーとルール':'オンライン版と解き方'} →</a></p>
 <p><a href="/print/">種類・用途からほかのプリントを探す →</a></p>
 </Base>
+<script>
+import {track} from '../client/track.ts';
+document.querySelectorAll<HTMLElement>('[data-variant-pack]').forEach(root=>{
+  root.querySelectorAll<HTMLAnchorElement>('[data-pack-format]').forEach(link=>link.addEventListener('click',()=>track('print_pdf_download',{
+    level:root.dataset.variantPack,count:Number(root.dataset.count),format:link.dataset.packFormat,
+  })));
+});
+</script>
 <style>
 .downloads {padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:24px 0}.downloads a{display:inline-block;padding:12px 0;font-weight:700}summary{cursor:pointer;padding:12px 0;font-weight:700}.sample{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));max-width:560px;border:2px solid var(--ink);margin:20px auto}.cell{aspect-ratio:1;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;position:relative;font-size:clamp(12px,3vw,23px)}.cell.right{border-right:2px solid var(--ink)}.cell.bottom{border-bottom:2px solid var(--ink)}small{position:absolute;background:var(--surface);z-index:1;font-size:12px;line-height:12px}.horizontal{right:-5px}.vertical{bottom:-6px}section{margin-block:24px}
 </style>
