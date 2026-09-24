@@ -1,0 +1,6 @@
+---
+import VariantPlayPage from '../../components/VariantPlayPage.astro';
+import VariantGame from '../../components/VariantGame.astro';
+import { INEQUALITY_PUZZLES } from '../../data/inequality-puzzles.ts';
+---
+<VariantPlayPage slug="inequality"><VariantGame puzzles={INEQUALITY_PUZZLES} size={9} blockRows={3} blockCols={3} kind="inequality" /><p>この6問は標準の初級題庫No.101〜106に、答えと一致する不等号を加えた入門問題です。不等号がなくても唯一解ですが、大小関係を使うと候補を絞る練習ができます。</p><p><a href="/print/inequality/">不等号付き6問を印刷する →</a></p></VariantPlayPage>

@@ -78,6 +78,7 @@ const breadcrumbSchema = {
   <div class="px-text">
     <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › {v.name}</nav>
     <h1>{v.h1}</h1>
+  <p><a href="/tools/killer-combinations/">キラー数独：合計とマス数から組み合わせを調べる →</a></p>
     {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
     <p class="lead">{v.lead}</p>
     <EditorialNote verification="掲載するキラー数独30問は、各ケージの合計・ケージ内の重複禁止・通常数独の制約を同時に満たし、唯一解になることを公開前に検証しています。" />

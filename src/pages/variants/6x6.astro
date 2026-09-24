@@ -1,0 +1,7 @@
+---
+import VariantPlayPage from '../../components/VariantPlayPage.astro';
+import VariantGame from '../../components/VariantGame.astro';
+import { MINI6_PUZZLES } from '../../data/mini6.ts';
+const puzzles=MINI6_PUZZLES.map((p,i)=>({...p,id:`mini6-${i+1}`}));
+---
+<VariantPlayPage slug="6x6"><VariantGame puzzles={puzzles} size={6} blockRows={2} blockCols={3} kind="6x6" /><p><a href="/print/6x6/">6×6入門プリント：問題と答えを別々にダウンロード →</a></p></VariantPlayPage>

@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+const title='キラー数独の組み合わせ計算｜合計・マス数で候補を絞る - numpredo';
+const description='キラーナンプレのケージの合計とマス数から、1〜9を重複させない組み合わせを無料計算。必ず使う数字・除外する数字でも絞り込み、候補の見落としを確認できます。';
+const url='https://numpredo.com/tools/killer-combinations/';
+const schema={'@context':'https://schema.org','@type':'WebApplication',name:'キラー数独の組み合わせ計算',description,url,applicationCategory:'EducationalApplication',operatingSystem:'Web',inLanguage:'ja',offers:{'@type':'Offer',price:'0',priceCurrency:'JPY'}};
+---
+<Base title={title} description={description} canonical={url}>
+<script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)}/>
+<nav><a href="/variants/">変わり種数独</a> › <a href="/variants/killer/">キラー数独</a> › 組み合わせ計算</nav>
+<h1>キラー数独の組み合わせ計算</h1>
+<p>ケージの合計とマス数を入力すると、1〜9を重複なく使う組み合わせをすべて表示します。計算は端末内で行い、登録は不要です。</p>
+<form data-killer-form>
+<div class="fields"><label>マス数（1〜9）<input name="count" type="number" min="1" max="9" value="2" required /></label><label>合計（1〜45）<input name="sum" type="number" min="1" max="45" value="10" required /></label><label>必ず使う数字<input name="required" inputmode="numeric" placeholder="例：1,3" /></label><label>使わない数字<input name="excluded" inputmode="numeric" placeholder="例：2,5" /></label></div>
+<button type="submit">組み合わせを調べる</button><p>数字はカンマまたは空白で区切れます。空欄なら絞り込みません。</p>
+<p data-combo-status role="status">2マス・合計10の組み合わせ：1＋9、2＋8、3＋7、4＋6。</p><ul data-combo-results></ul>
+</form>
+<h2>結果は「数字の集合」です</h2>
+<p>たとえば2マス・合計10は、1と9、2と8、3と7、4と6の4組です。5と5は合計10でも、同じケージで同じ数字を使えないため除外します。1＋9と9＋1は同じ組み合わせとして一度だけ表示します。左右のどちらに1を置くかまでは、この計算だけでは決まりません。</p>
+<h2>必ず使う数字と除外する数字</h2>
+<p>ケージの一部に1が確定しているなら「必ず使う数字」に1を入れます。マス数と合計はケージ全体の値をそのまま入力してください。すでに確定した数字の分を二重に引かないよう注意します。ケージ全体のどこにも置けない数字だけを「使わない数字」に入れます。一つのマスに置けないだけの数字は、ケージ全体から除外できるとは限りません。</p>
+<h2>候補が一組になっても、配置は別に考える</h2>
+<p>3マスで合計6なら1・2・3だけです。しかし、3マスへの入れ方には複数の順番があります。同じ行や列の確定数字、3×3ブロック、他のケージの情報を重ねて配置を決めます。このツールは盤面の位置を入力しないため、行・列・ブロックとの矛盾や、盤面全体の唯一解は判定しません。</p>
+<h2>「組み合わせなし」の確認順</h2>
+<p>まず合計とマス数の読み違いを確認します。2マスの最小合計は1＋2＝3、最大合計は8＋9＝17です。3マスなら最小6、最大24となります。次に「必ず使う数字」と「使わない数字」に同じ数字が入っていないかを確認してください。絞り込みを空欄に戻して組み合わせが復活する場合は、追加した条件を見直します。</p>
+<h2>組み合わせから実戦へ</h2>
+<p><a href="/variants/killer/">キラー数独の30問を無料で遊ぶ</a>と、実際のケージでこの確認方法を試せます。エキスパートでは候補の集合だけでなく、行・列・ブロックの制約や45の合計も併せて使います。通常の数独の候補を復習したい場合は<a href="/tools/candidate-checker/">候補数字チェッカー</a>を使えますが、そちらはケージの合計には対応していません。</p>
+<h2>無料で何度でも使えます</h2><p>一覧は全組み合わせを表示し、件数で省略しません。並び順を増やして同じ数字の集合を重複表示することもありません。印刷教材や紙の問題を解く際にも使えます。入力を変更して再計算すると直前の結果が置き換わるので、比べたい結果は手元にメモしておくと便利です。</p>
+<script>
+import {killerCombinations} from '../../engine/variant-grid.ts';
+import {track} from '../../client/track.ts';
+const form=document.querySelector<HTMLFormElement>('[data-killer-form]')!;
+form.addEventListener('submit',e=>{e.preventDefault();const data=new FormData(form),status=document.querySelector('[data-combo-status]')!,list=document.querySelector('[data-combo-results]')!;list.replaceChildren();
+const parse=(s:string)=>s.trim()?s.trim().split(/[,、\s]+/).map(Number):[];
+const required=parse(String(data.get('required')??'')),excluded=parse(String(data.get('excluded')??''));
+if([...required,...excluded].some(d=>!Number.isInteger(d)||d<1||d>9)||new Set(required).size!==required.length||new Set(excluded).size!==excluded.length||required.some(d=>excluded.includes(d))){status.textContent='数字は1〜9を重複なく入力し、必須と除外に同じ数字を指定しないでください。';return;}
+const combos=killerCombinations(Number(data.get('count')),Number(data.get('sum')),required,excluded);status.textContent=combos.length?`${combos.length}組あります。数字の位置は行・列・ブロックで別に確認してください。`:'組み合わせはありません。合計、マス数、絞り込み条件を確認してください。';
+combos.forEach(ds=>{const li=document.createElement('li');li.textContent=ds.join(' ＋ ');list.append(li);});track('killer_combinations',{count:Number(data.get('count')),matches:combos.length});});
+</script>
+<style>.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:grid;gap:6px}input,button{font:inherit;padding:10px;min-height:44px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}form{padding:18px;border:1px solid var(--line);margin:20px 0}button{margin-top:14px;cursor:pointer}a{color:var(--accent)}@media(max-width:500px){.fields{grid-template-columns:1fr}}</style>
+</Base>

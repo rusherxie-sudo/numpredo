@@ -175,7 +175,9 @@ for (const rel of listPages()) {
     }
   } else {
     const date = gitPublished([`${PAGES}/${rel}`]);
-    if (date) map[fileToUrl(rel)] = date;
+    // Preserve the original URL publication date when a dynamic page becomes static.
+    const url=fileToUrl(rel);
+    if (date && (!map[url] || Date.parse(date)<Date.parse(map[url]))) map[url] = date;
   }
 }
 

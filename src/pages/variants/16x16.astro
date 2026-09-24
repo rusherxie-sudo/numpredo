@@ -76,6 +76,7 @@ const breadcrumbSchema = {
   <div class="s16-text">
     <nav class="crumb"><a href="/">ホーム</a> › <a href="/variants/">変わり種数独</a> › {v.name}</nav>
     <h1>{v.h1}</h1>
+<p><a href="/print/16x16/">16×16入門4問の無料プリント：問題・解答別PDF →</a></p>
     {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
     <p class="lead">{v.lead}</p>
     <EditorialNote verification="16×16ソルバーは各行・列・4×4ブロックの重複を検査し、探索上限内で解なし・唯一解・複数解を判定できることを公開前に例題と不正盤面で確認しています。" />

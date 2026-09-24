@@ -111,7 +111,7 @@ function contentShingles(text: string, size = 5): Set<string> {
 function isContentOnlyPath(pathname: string): boolean {
   return pathname.startsWith('/guide/')
     || pathname.startsWith('/research/')
-    || ['/about/', '/contact/', '/privacy/', '/terms/', '/variants/', '/variants/6x6/', '/variants/inequality/'].includes(pathname);
+    || ['/about/', '/contact/', '/privacy/', '/terms/', '/variants/'].includes(pathname);
 }
 
 // 递归统计入口脚本的静态 import 图；动态 import（OCR 等）不属于首屏下载，不计入预算。

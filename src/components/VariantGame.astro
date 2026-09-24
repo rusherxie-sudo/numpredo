@@ -1,0 +1,35 @@
+---
+import type { VariantPuzzle } from '../engine/variant-grid.ts';
+interface Props { puzzles: VariantPuzzle[]; size: number; blockRows: number; blockCols: number; kind: string; }
+const {puzzles,size,blockRows,blockCols,kind}=Astro.props;
+---
+<section class="vg" id="variant-game" data-variant-game data-puzzles={JSON.stringify(puzzles)} data-size={size} data-br={blockRows} data-bc={blockCols} data-kind={kind}>
+  <h2>{size===6?'6×6をオンラインで解く':'不等号ナンプレをオンラインで解く'}</h2>
+  <p>{puzzles.length}問・登録不要。途中経過はこのブラウザに保存します。空きマスを選んで数字を入力してください。</p>
+  {size===9&&<p>各行・列・3×3に1〜9。横の「＜」は左が小さく、縦の「∧」は上が小さい意味です。「∨」は上が大きい意味です。</p>}
+  <div class="vg-toolbar"><button type="button" data-prev>前の問題</button><strong data-label></strong><button type="button" data-next>次の問題</button></div>
+  <div class="vg-layout"><div data-board class="vg-board" role="grid" aria-label={`${size}×${size}の盤面`}></div><div>
+    <div class="vg-pad">{Array.from({length:size},(_,i)=><button type="button" data-digit={i+1}>{i+1}</button>)}<button type="button" data-digit="0">消す</button></div>
+    <div class="vg-actions"><button type="button" data-memo aria-pressed="false">メモ</button><button type="button" data-undo>元に戻す</button><button type="button" data-check>答え合わせ</button><button type="button" data-hint>次の一手</button><button type="button" data-reset>最初から</button></div>
+    <p data-status role="status">盤面を準備しています…</p>
+  </div></div>
+  <noscript>オンライン入力にはJavaScriptが必要です。下の例題や印刷問題はそのまま利用できます。</noscript>
+</section>
+<script>import '../client/variant-game.ts';</script>
+<style is:global>
+  .vg { margin:24px 0; padding:clamp(8px,2vw,18px); border:1px solid var(--line); border-radius:var(--radius); scroll-margin-top:88px; }
+  .vg-toolbar { display:flex; justify-content:space-between; align-items:center; gap:8px; margin:14px 0; }
+  .vg button { min-height:44px; border:1px solid var(--line-2); border-radius:5px; background:var(--surface); color:var(--ink); padding:7px; font:inherit; cursor:pointer; }
+  .vg-layout { display:grid; grid-template-columns:minmax(0,440px) minmax(0,1fr); gap:20px; }
+  .vg-board { display:grid; aspect-ratio:1; border:2px solid var(--ink); background:var(--surface); }
+  .vg-row { display:contents; } .vg .vg-cell { min-height:0; min-width:0; border:0; border-right:1px solid var(--line-2); border-bottom:1px solid var(--line-2); border-radius:0; padding:1px; position:relative; font-size:clamp(16px,4vw,24px); aspect-ratio:1; }
+  .vg-cell.fixed { font-weight:800; } .vg-cell.user { color:var(--accent); } .vg-cell.selected { background:var(--accent-tint); outline:2px solid var(--accent); outline-offset:-3px; }
+  .vg .vg-cell.br { border-right:2px solid var(--ink); } .vg .vg-cell.bb { border-bottom:2px solid var(--ink); }
+  .vg-cell.wrong { background:#ffe5e5; color:#9b1c1c; } .vg-cell .notes { font-size:10px; overflow-wrap:anywhere; display:block; line-height:1.3; }
+  .vg-sign { position:absolute; font-size:12px; line-height:13px; width:12px; height:13px; color:var(--ink); background:var(--surface); z-index:2; font-weight:bold; }
+  .vg-sign.horizontal { right:-6px; top:calc(50% - 6px); } .vg-sign.vertical { bottom:-7px; left:calc(50% - 6px); }
+  .vg-pad { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; } .vg-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .vg [aria-pressed="true"] { background:var(--accent); color:var(--accent-on); }
+  @media(max-width:760px) { .vg-layout { grid-template-columns:1fr; } .vg-board { width:100%; max-width:440px; margin:auto; } }
+  @media print { .vg { display:none; } }
+</style>

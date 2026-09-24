@@ -49,6 +49,10 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
+  'variants/6x6.astro': ['src/components/VariantPlayPage.astro','src/components/VariantGame.astro','src/client/variant-game.ts','src/engine/variant-grid.ts','src/data/mini6.ts','src/components/Mini6Lesson.astro'],
+  'variants/inequality.astro': ['src/components/VariantPlayPage.astro','src/components/VariantGame.astro','src/client/variant-game.ts','src/engine/variant-grid.ts','src/data/inequality-puzzles.ts','src/components/InequalityFullExample.astro','src/data/inequality-example.ts'],
+  'tools/killer-combinations.astro': ['src/engine/variant-grid.ts'],
+  ...Object.fromEntries(['6x6','16x16','inequality'].map(slug=>[`print/${slug}.astro`,['src/components/VariantPrintPack.astro','src/data/variant-print.ts','public/downloads/variants/manifest.json','scripts/gen-variant-pdfs.py']])),
   'tools/solver.astro': ['src/client/ocr-solve.ts','src/data/solver-sample.ts','src/client/learning-transfer.ts'],
   'print/senior.astro': ['src/components/ActivityPack.astro','scripts/gen-activity-pack.py','public/downloads/activity/manifest.json'],
   'guide/solving-examples.astro': ['src/data/teaching-cases.ts'],
@@ -59,6 +63,8 @@ const STATIC_EXTRA_DATA: Record<string, string[]> = {
   'variants/killer.astro': ['src/data/puzzles/killer.json'],
 };
 const STATIC_SLUG_DATA: Record<string, { file: string; slug: string }> = {
+  'variants/6x6.astro': {file:'src/data/variants.ts',slug:'6x6'},
+  'variants/inequality.astro': {file:'src/data/variants.ts',slug:'inequality'},
   'variants/4x4.astro': { file: 'src/data/variants.ts', slug: '4x4' },
   'variants/16x16.astro': { file: 'src/data/variants.ts', slug: '16x16' },
   'variants/diagonal.astro': { file: 'src/data/variants.ts', slug: 'diagonal' },
