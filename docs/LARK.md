@@ -46,3 +46,5 @@
 - 此规范是执行约定，不代表已经部署后台双向同步、定时发布或自动归档服务；每次文档交付由当前执行者完成同步。
 
 本次新增：`docs/2026-09-25-变体产品与打印资源交付.md` → [变体产品与打印资源交付｜2026-09-25](https://zjphma1p1w2t.jp.larksuite.com/wiki/VqzFwubsfiPYFhk1yiFjCEtrpfe)，节点 `VqzFwubsfiPYFhk1yiFjCEtrpfe`；位于04执行与复盘。对应用户授权方向1/2，含生产验证及效果观察边界。
+
+本次新增：`docs/2026-09-26-Bing主词与打印传播交付.md` → [Bing主词恢复实验与打印传播交付｜2026-09-26](https://zjphma1p1w2t.jp.larksuite.com/wiki/QrZXwxBUkiIeWEkx3xajrNRRpTg)，节点 `QrZXwxBUkiIeWEkx3xajrNRRpTg`，位于04执行与复盘。含页面×查询证据、窗口差异、首页实验及四套资源传播验证。

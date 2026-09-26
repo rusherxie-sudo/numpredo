@@ -1,0 +1,397 @@
+{
+  "retrievedAt": "2026-09-26",
+  "site": "https://numpredo.com/",
+  "notes": [
+    "Weekly markers are provider aggregation dates, not exact daily windows.",
+    "Query report reaches September 25; page and page-query reports reach September 18. Do not combine these as one period.",
+    "GetUrlInfo HttpStatus=0 is not an HTTP success code. Live browser checks independently returned 200."
+  ],
+  "query": [
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 3,
+      "Clicks": 206,
+      "Date": "2026-09-04",
+      "Impressions": 14923,
+      "Query": "数独無料ゲーム"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 3,
+      "Clicks": 162,
+      "Date": "2026-09-04",
+      "Impressions": 6222,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 4,
+      "Clicks": 160,
+      "Date": "2026-09-11",
+      "Impressions": 7385,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 4,
+      "Clicks": 105,
+      "Date": "2026-09-11",
+      "Impressions": 8100,
+      "Query": "数独無料ゲーム"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 4,
+      "Clicks": 154,
+      "Date": "2026-09-18",
+      "Impressions": 6550,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 25,
+      "Clicks": 12,
+      "Date": "2026-09-18",
+      "Impressions": 501,
+      "Query": "数独無料ゲーム"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 4,
+      "Clicks": 142,
+      "Date": "2026-09-25",
+      "Impressions": 6231,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 21,
+      "Clicks": 9,
+      "Date": "2026-09-25",
+      "Impressions": 302,
+      "Query": "数独無料ゲーム"
+    }
+  ],
+  "page": [
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 4,
+      "Clicks": 275,
+      "Date": "2026-09-04",
+      "Impressions": 21175,
+      "Query": "https://numpredo.com/"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 6,
+      "Clicks": 172,
+      "Date": "2026-09-04",
+      "Impressions": 7675,
+      "Query": "https://numpredo.com/play/"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 4,
+      "Clicks": 140,
+      "Date": "2026-09-04",
+      "Impressions": 5773,
+      "Query": "https://numpredo.com/daily/"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 5,
+      "Clicks": 157,
+      "Date": "2026-09-11",
+      "Impressions": 13592,
+      "Query": "https://numpredo.com/"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 6,
+      "Clicks": 144,
+      "Date": "2026-09-11",
+      "Impressions": 6372,
+      "Query": "https://numpredo.com/play/"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 4,
+      "Clicks": 101,
+      "Date": "2026-09-11",
+      "Impressions": 5261,
+      "Query": "https://numpredo.com/daily/"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 6,
+      "Clicks": 166,
+      "Date": "2026-09-18",
+      "Impressions": 5728,
+      "Query": "https://numpredo.com/play/"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 7,
+      "Clicks": 57,
+      "Date": "2026-09-18",
+      "Impressions": 5447,
+      "Query": "https://numpredo.com/"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 4,
+      "Clicks": 37,
+      "Date": "2026-09-18",
+      "Impressions": 4238,
+      "Query": "https://numpredo.com/daily/"
+    }
+  ],
+  "homequeries": [
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 3,
+      "Clicks": 198,
+      "Date": "2026-09-04",
+      "Impressions": 14447,
+      "Query": "数独無料ゲーム"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 4,
+      "Clicks": 41,
+      "Date": "2026-09-04",
+      "Impressions": 3034,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 3,
+      "Clicks": 101,
+      "Date": "2026-09-11",
+      "Impressions": 7835,
+      "Query": "数独無料ゲーム"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 5,
+      "Clicks": 43,
+      "Date": "2026-09-11",
+      "Impressions": 3659,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 5,
+      "Clicks": 33,
+      "Date": "2026-09-18",
+      "Impressions": 3216,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 9,
+      "Clicks": 0,
+      "Date": "2026-09-18",
+      "Impressions": 119,
+      "Query": "数独無料ゲーム"
+    }
+  ],
+  "playqueries": [
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 3,
+      "Clicks": 117,
+      "Date": "2026-09-04",
+      "Impressions": 3053,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 12,
+      "Clicks": 0,
+      "Date": "2026-09-04",
+      "Impressions": 239,
+      "Query": "数独無料ゲーム"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 3,
+      "Clicks": 116,
+      "Date": "2026-09-11",
+      "Impressions": 3663,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 16,
+      "Clicks": 2,
+      "Date": "2026-09-11",
+      "Impressions": 138,
+      "Query": "数独無料ゲーム"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 3,
+      "Clicks": 116,
+      "Date": "2026-09-18",
+      "Impressions": 3232,
+      "Query": "数独無料ゲーム数独問題集"
+    },
+    {
+      "AvgClickPosition": -1,
+      "AvgImpressionPosition": 27,
+      "Clicks": 7,
+      "Date": "2026-09-18",
+      "Impressions": 124,
+      "Query": "数独無料ゲーム"
+    }
+  ],
+  "crawl": [
+    {
+      "AllOtherCodes": 12,
+      "BlockedByRobotsTxt": 0,
+      "Code2xx": 361,
+      "Code301": 400,
+      "Code302": 0,
+      "Code4xx": 0,
+      "Code5xx": 0,
+      "ConnectionTimeout": 0,
+      "ContainsMalware": 0,
+      "CrawledPages": 161,
+      "CrawlErrors": 0,
+      "Date": "2026-09-18",
+      "DnsFailures": 0,
+      "InIndex": 86,
+      "InLinks": 1
+    },
+    {
+      "AllOtherCodes": 12,
+      "BlockedByRobotsTxt": 0,
+      "Code2xx": 361,
+      "Code301": 400,
+      "Code302": 0,
+      "Code4xx": 2,
+      "Code5xx": 0,
+      "ConnectionTimeout": 0,
+      "ContainsMalware": 0,
+      "CrawledPages": 169,
+      "CrawlErrors": 3,
+      "Date": "2026-09-19",
+      "DnsFailures": 0,
+      "InIndex": 86,
+      "InLinks": 1
+    },
+    {
+      "AllOtherCodes": 12,
+      "BlockedByRobotsTxt": 0,
+      "Code2xx": 361,
+      "Code301": 400,
+      "Code302": 0,
+      "Code4xx": 0,
+      "Code5xx": 0,
+      "ConnectionTimeout": 0,
+      "ContainsMalware": 0,
+      "CrawledPages": 139,
+      "CrawlErrors": 1,
+      "Date": "2026-09-20",
+      "DnsFailures": 0,
+      "InIndex": 86,
+      "InLinks": 1
+    },
+    {
+      "AllOtherCodes": 12,
+      "BlockedByRobotsTxt": 0,
+      "Code2xx": 361,
+      "Code301": 400,
+      "Code302": 0,
+      "Code4xx": 0,
+      "Code5xx": 0,
+      "ConnectionTimeout": 0,
+      "ContainsMalware": 0,
+      "CrawledPages": 159,
+      "CrawlErrors": 0,
+      "Date": "2026-09-21",
+      "DnsFailures": 0,
+      "InIndex": 86,
+      "InLinks": 1
+    },
+    {
+      "AllOtherCodes": 11,
+      "BlockedByRobotsTxt": 0,
+      "Code2xx": 349,
+      "Code301": 376,
+      "Code302": 0,
+      "Code4xx": 0,
+      "Code5xx": 0,
+      "ConnectionTimeout": 0,
+      "ContainsMalware": 0,
+      "CrawledPages": 177,
+      "CrawlErrors": 0,
+      "Date": "2026-09-22",
+      "DnsFailures": 0,
+      "InIndex": 80,
+      "InLinks": 1
+    },
+    {
+      "AllOtherCodes": 10,
+      "BlockedByRobotsTxt": 0,
+      "Code2xx": 349,
+      "Code301": 361,
+      "Code302": 0,
+      "Code4xx": 0,
+      "Code5xx": 0,
+      "ConnectionTimeout": 0,
+      "ContainsMalware": 0,
+      "CrawledPages": 128,
+      "CrawlErrors": 0,
+      "Date": "2026-09-23",
+      "DnsFailures": 0,
+      "InIndex": 80,
+      "InLinks": 1
+    },
+    {
+      "AllOtherCodes": 10,
+      "BlockedByRobotsTxt": 0,
+      "Code2xx": 348,
+      "Code301": 341,
+      "Code302": 0,
+      "Code4xx": 0,
+      "Code5xx": 0,
+      "ConnectionTimeout": 0,
+      "ContainsMalware": 0,
+      "CrawledPages": 114,
+      "CrawlErrors": 0,
+      "Date": "2026-09-24",
+      "DnsFailures": 0,
+      "InIndex": 80,
+      "InLinks": 1
+    }
+  ],
+  "homeinfo": {
+    "__type": "UrlInfo:#Microsoft.Bing.Webmaster.Api",
+    "AnchorCount": 1,
+    "DiscoveryDate": "/Date(1779778800000)/",
+    "DocumentSize": 45372,
+    "HttpStatus": 0,
+    "IsPage": true,
+    "LastCrawledDate": "/Date(1790388822000)/",
+    "TotalChildUrlCount": 0,
+    "Url": "https://numpredo.com/"
+  },
+  "serp": {
+    "url": "https://www.bing.com/search?q=数独無料ゲーム&cc=jp&setlang=ja",
+    "observedResults": [
+      "sudokugame.org",
+      "sudoku.com/jp",
+      "numpre7.com",
+      "numberplace.net",
+      "si-coding.net/sudoku5.html",
+      "nanpre.adg5.com",
+      "sudoku-game.biz",
+      "sudoku-game.biz/hard/",
+      "www2a.biglobe.ne.jp/qpon/game/numpla/"
+    ],
+    "numpredoInVisibleResults": false,
+    "limits": "Single browser observation using Japan/language parameters, not a verified Japan location or durable ranking. A subsequent site query triggered CAPTCHA; no bypass attempted."
+  }
+}
