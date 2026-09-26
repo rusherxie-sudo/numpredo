@@ -1,0 +1,28 @@
+---
+import resources from '../data/print-resources.json';
+import ShareBar from './ShareBar.astro';
+interface Props {slug:string;}
+const {slug}=Astro.props;
+const r=resources.find(r=>r.slug===slug)!;
+const url=`https://numpredo.com${r.href}`;
+const intro=`${r.intro}\n${url}`;
+---
+<section class="resource-share screen-only" data-resource-share={slug}>
+<h2>このプリントを紹介・共有する</h2>
+<p>家族や担当者には、問題と答えを選べるこのページのURLを共有できます。ウェブで紹介するときも、PDFの転載ではなくページへのリンクをご利用ください。</p>
+<ShareBar url={url} title={r.name} cta="プリントを共有" />
+<details><summary>紹介文をコピーする</summary><label for={`intro-${slug}`}>紹介用の文章（必要に応じて編集できます）</label><textarea id={`intro-${slug}`} rows="6">{intro}</textarea><button type="button" data-copy-intro>紹介文をコピー</button><p role="status" data-copy-status></p></details>
+</section>
+<script>
+import {track} from '../client/track.ts';
+document.querySelectorAll<HTMLElement>('[data-resource-share]').forEach(root=>{
+ const slug=root.dataset.resourceShare;
+ root.querySelector<HTMLButtonElement>('[data-copy-intro]')!.addEventListener('click',async()=>{
+  const area=root.querySelector('textarea')!,status=root.querySelector('[data-copy-status]')!;
+  try {await navigator.clipboard.writeText(area.value);status.textContent='紹介文をコピーしました。';track('print_resource_share',{resource:slug,method:'copy_intro'});}
+  catch {area.focus();area.select();status.textContent='文章を選択しました。端末のコピー操作で保存してください。';}
+ });
+ root.querySelectorAll<HTMLAnchorElement>('.share-btns a').forEach(a=>a.addEventListener('click',()=>track('print_resource_share',{resource:slug,method:a.classList.contains('sbtn-line')?'line':a.classList.contains('sbtn-x')?'x':'hatena'})));
+});
+</script>
+<style>.resource-share{margin:28px 0}summary{cursor:pointer;padding:12px 0;font-weight:700}label{display:block}textarea{width:100%;box-sizing:border-box;resize:vertical;font:inherit;padding:10px;margin:10px 0;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px}button{font:inherit;min-height:44px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);cursor:pointer}</style>

@@ -1,8 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
-import advanced from '../data/puzzles/advanced.json';
+import beginner from '../data/puzzles/beginner.json';
+import SudokuGame from '../components/SudokuGame.astro';
 import { LEVELS } from '../data/levels.ts';
-import { gridFromString, renderBoardSvg } from '../engine/index.ts';
+
 
 const title = '数独無料ゲーム・ナンプレ無料問題集｜登録不要 - numpredo';
 const description =
@@ -11,14 +12,7 @@ const totalPuzzles = LEVELS.reduce((sum, level) => sum + level.puzzles.length, 0
 // 全題庫计数口径：只计标准9×9的5档（LEVELS）问题；キラー・対角線・ミニ4×4 属别规则问题集，不含在计数内。
 const standardLabel = totalPuzzles.toLocaleString('ja-JP');
 
-// hero の盤面：実題を構築期に SVG 化（CSS 変数主題で明暗自動追随）
-const heroGrid = gridFromString(advanced.puzzles[0].puzzle);
-const heroSvg = renderBoardSvg(heroGrid, {
-  given: heroGrid.map((v) => v !== 0),
-  cell: 36,
-  title: '数独の問題例',
-  desc: '9×9に1〜9を、タテ・ヨコ・3×3で重複なく',
-});
+const homeSet=beginner.puzzles.slice(0,12).map(p=>({puzzle:p.puzzle}));
 
 // [Lv, 名前, href, 等級(1-5), 説明]
 const diffs: [string, string, string, number, string][] = [
@@ -82,17 +76,20 @@ const homeFaqSchema = {
       <h1 class="hp-h1">数独無料ゲームを、<br />毎日。</h1>
       <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで全{totalPuzzles.toLocaleString('ja-JP')}題を、唯一解・論理だけで解けることまで検証しています。毎日の問題、図解ガイド、自動で答え合わせできるソルバーも無料です。</p>
       <div class="hp-cta">
-        <a href="/play/beginner/" class="hp-btn hp-btn-p">初級をはじめる</a>
+        <a href="#home-game" class="hp-btn hp-btn-p">初級をはじめる</a>
         <a href="/daily/" class="hp-btn hp-btn-s">日替わりナンプレ・今日の数独 →</a>
         <a href="/print/" class="hp-btn hp-btn-s">無料問題集を印刷 →</a>
       </div>
       <div class="hp-difflinks">またはレベルを選ぶ：<a href="/play/beginner/">初級</a><a href="/play/intermediate/">中級</a><a href="/play/advanced/">上級</a><a href="/play/hard/">難問</a><a href="/play/extreme/">超難問</a></div>
       <div class="hp-meta"><span>全{totalPuzzles.toLocaleString('ja-JP')}題を検証</span><span class="hp-dot">·</span><span>毎日更新</span><span class="hp-dot">·</span><span>登録不要</span></div>
     </div>
-    <div class="hp-hero-r">
-      <div class="hp-board"><Fragment set:html={heroSvg} /></div>
-      <div class="hp-board-cap">9×9に 1–9 を。タテ・ヨコ・3×3で重複なく。</div>
-    </div>
+  </section>
+  <section id="home-game" aria-labelledby="home-game-title">
+    <h2 id="home-game-title">このページで初級ナンプレを始める</h2>
+    <p>空きマスを選んで数字を入力。候補メモ・元に戻す・ヒント付きで、途中経過はこのブラウザに保存します。「別の問題」で初級12問から切り替えられます。</p>
+    <SudokuGame level="home-beginner" levelJa="初級" set={homeSet} url="https://numpredo.com/" />
+    <noscript><p>オンライン入力にはJavaScriptが必要です。<a href="/print/beginner/">初級の問題・答え付きPDF</a>はJavaScriptなしでもダウンロードできます。</p></noscript>
+    <p><a href="/play/">五段階の難易度から選ぶ →</a>　<a href="/daily/">今日の日替わり7問へ →</a></p>
   </section>
 
   <section class="hp-sec">
@@ -172,7 +169,8 @@ const homeFaqSchema = {
   </section>
 
   <style is:global>
-    .hp-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; align-items: center; padding: 32px 0 44px; }
+    #home-game { scroll-margin-top:88px; margin-bottom:32px; }
+    .hp-hero { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: center; padding: 32px 0 44px; }
     .hp-badge { display: inline-flex; align-items: center; gap: 8px; font-size: var(--text-sm); font-weight: 700; color: var(--accent); background: var(--accent-tint); border-radius: 7px; padding: 6px 12px; margin-bottom: 22px; }
     .hp-h1 { font-weight: 700; font-size: clamp(34px, 4.6vw, 52px); line-height: 1.2; letter-spacing: -.02em; margin: 0 0 20px; word-break: keep-all; line-break: strict; }
     .hp-lead { font-size: var(--text-md); line-height: 1.9; color: var(--ink-3); max-width: 470px; margin: 0 0 30px; }

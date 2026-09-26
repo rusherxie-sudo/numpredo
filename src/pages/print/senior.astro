@@ -33,7 +33,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 ] };
 ---
 
-<Base title={title} description={description} wide>
+<Base title={title} description={description} ogImage="/images/print/activity-share.png" ogImageAlt="ナンプレ配布セット01。初級6問と任意の中級2問、問題と答えは各4ページの別PDF。" wide>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />

@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "6x6",
+    "pdf": "/downloads/variants/numpredo-6x6-01-questions.pdf",
+    "pdfSha256": "eaf2e4de3753ce72a585be600a49fafb9393c41067e117cbfc63d738dcdd752d",
+    "previewWidth": 745,
+    "previewHeight": 1053,
+    "shareWidth": 1200,
+    "shareHeight": 630
+  },
+  {
+    "slug": "activity",
+    "pdf": "/downloads/activity/numpredo-activity-01-questions.pdf",
+    "pdfSha256": "11aeb4a4776c9fda89d2786735e53a48f27762c1d22a71a91769c573f7bf56f4",
+    "previewWidth": 745,
+    "previewHeight": 1053,
+    "shareWidth": 1200,
+    "shareHeight": 630
+  },
+  {
+    "slug": "inequality",
+    "pdf": "/downloads/variants/numpredo-inequality-01-questions.pdf",
+    "pdfSha256": "9b7ddb20cd2cc82eb45139526edbaa98bb9c803f6f7f513999b0338e81deb8ee",
+    "previewWidth": 745,
+    "previewHeight": 1053,
+    "shareWidth": 1200,
+    "shareHeight": 630
+  },
+  {
+    "slug": "16x16",
+    "pdf": "/downloads/variants/numpredo-16x16-01-questions.pdf",
+    "pdfSha256": "b029f01422e8392bd4710f591d4b8d7b4bbfc0924627cabd7c3d13f9ba633108",
+    "previewWidth": 745,
+    "previewHeight": 1053,
+    "shareWidth": 1200,
+    "shareHeight": 630
+  }
+]

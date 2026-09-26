@@ -20,6 +20,8 @@ for (const specs of Object.values(DRILL_SPECS)) for (const spec of specs) {
 for (const value of ['https://evil.example/play/', '//evil.example/play/', '/play/../../evil', '/play/\\\\evil.example/', '/tools/solver/', 'javascript:alert(1)']) assert.equal(returnPath(value), null);
 const back = '/play/beginner/?n=63';
 assert.equal(returnPath(back), back);
+assert.equal(returnPath('/?n=2#home-game'), '/?n=2#home-game');
+assert.equal(returnPath('/?n=2\\evil'), null);
 const link = new URL(toolLink('/tools/candidate-checker/', Array(81).fill(0), back), 'https://numpredo.com');
 const transferred = new URLSearchParams(link.hash.slice(1));
 assert.equal(link.search, '');

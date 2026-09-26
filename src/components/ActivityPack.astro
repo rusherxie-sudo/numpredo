@@ -1,14 +1,14 @@
 ---
-import beginner from '../data/puzzles/beginner.json';
-import { gridFromString, renderBoardSvg } from '../engine/index.ts';
-const grid = gridFromString(beginner.puzzles[60].puzzle);
-const preview = renderBoardSvg(grid, {given:grid.map(Boolean),cell:30,title:'配布セット01・A-61の見本',desc:'初級No.61。ダウンロードするPDFと同じ問題です。'});
+import PrintResourceShare from './PrintResourceShare.astro';
+import PrintResourceCards from './PrintResourceCards.astro';
+import previews from '../../public/images/print/manifest.json';
+const preview=previews.find(p=>p.slug==='activity')!;
 ---
 <section class="activity-pack screen-only" id="activity-pack" aria-labelledby="activity-title">
   <h2 id="activity-title">4回分・8問の配布セット01</h2>
   <p>毎回2問ずつ渡せる固定セットです。<strong>A〜Cは初級6問、Dは任意の中級2問</strong>。A4に大きく2問、問題と答えは別ファイルなので、答えを渡してしまう心配がありません。</p>
   <div class="activity-layout">
-    <figure><Fragment set:html={preview}/><figcaption>最初の問題 A-61（初級No.61）。8問はすべて異なり、既存の12問・60問PDFとも重複しません。</figcaption></figure>
+    <figure><a href="/downloads/activity/numpredo-activity-01-questions.pdf"><img src="/images/print/activity-preview.png" width={preview.previewWidth} height={preview.previewHeight} alt="配布セット01・Aの問題用紙。初級No.61と62をA4に大きく2問配置した実際のPDF一ページ目。" loading="lazy" decoding="async" /></a><figcaption>最初の問題 A-61（初級No.61）。8問はすべて異なり、既存の12問・60問PDFとも重複しません。</figcaption></figure>
     <div>
       <ul><li>A：初級 No.61・62</li><li>B：初級 No.63・64</li><li>C：初級 No.65・66</li><li>D：中級 No.61・62（慣れた方だけ）</li></ul>
       <p><a href="/downloads/activity/numpredo-activity-01-questions.pdf" download data-pdf-download="activity" data-pdf-count="8" data-pdf-format="questions_only">参加者用：問題PDF（A4・4ページ）↓</a></p>
@@ -20,11 +20,13 @@ const preview = renderBoardSvg(grid, {given:grid.map(Boolean),cell:30,title:'配
   <ol><li>A4・倍率100％で1枚試し刷りし、数字の大きさと余白を確認します。</li><li>「セット01・A」などの配布記録を残し、次回はBへ。セット番号が同じなら再ダウンロードしても同じ問題です。</li><li>解答は同じA-61などの題番号で照合します。中級Dは無理に配らず、初級だけでも使えます。</li></ol>
   <p>学校・介護施設等での非営利・無料配布に使えます。<a href="/terms/#print-license">利用条件</a>をご確認ください。ウェブで紹介する場合は、このページへのリンクをご利用ください。PDF自体の再掲載・販売はできません。</p>
   <p>新しい組み合わせが必要なら、上の印刷ツールで作成できます。個別の答えの理由は<a href="/tools/solver/">写真対応の数独ソルバー</a>で確認できます。</p>
+<PrintResourceShare slug="activity" />
+<PrintResourceCards exclude="activity" slugs={["6x6","inequality"]} heading="次の活動で使える別のプリント" />
 </section>
 <style>
   .activity-pack { scroll-margin-top:88px; max-width:1060px; margin:28px auto; padding:clamp(12px,3vw,22px); border:1px solid var(--line); border-radius:var(--radius); }
   .activity-layout { display:grid; grid-template-columns:minmax(0,300px) minmax(0,1fr); gap:24px; align-items:center; }
-  figure { margin:0; } figure :global(svg) { width:100%; height:auto; } figcaption { font-size:12px; color:var(--ink-3); }
+  figure { margin:0; } figure img { width:100%; height:auto; } figcaption { font-size:12px; color:var(--ink-3); }
   a { color:var(--accent); } [download] { display:inline-block; padding:12px; border:1px solid var(--line); border-radius:6px; }
   @media(max-width:650px) { .activity-layout { grid-template-columns:1fr; } figure { max-width:300px; margin:auto; } }
 </style>

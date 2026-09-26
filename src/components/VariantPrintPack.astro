@@ -1,5 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
+import PrintResourceCards from './PrintResourceCards.astro';
+import PrintResourceShare from './PrintResourceShare.astro';
+import previews from '../../public/images/print/manifest.json';
 import { VARIANT_PRINT } from '../data/variant-print.ts';
 import manifest from '../../public/downloads/variants/manifest.json';
 interface Props {slug:keyof typeof VARIANT_PRINT;}
@@ -7,9 +10,11 @@ const {slug}=Astro.props;
 const info=VARIANT_PRINT[slug],pack=manifest.packs.find(p=>p.slug===slug)!;
 const sample=pack.puzzles[0];
 const path=(kind:string)=>`/downloads/variants/numpredo-${slug}-01-${kind}.pdf`;
+const preview=previews.find(p=>p.slug===slug)!;
+const imageAlt=`${info.name}セット01：${pack.puzzles.length}問、問題と答えの別PDF。収録問題の見本。`;
 const pages=Math.ceil(pack.puzzles.length/pack.perPage);
 ---
-<Base title={`${info.title} - numpredo`} description={info.description}>
+<Base title={`${info.title} - numpredo`} description={info.description} ogImage={`/images/print/${slug}-share.png`} ogImageAlt={imageAlt}>
 <nav class="crumb"><a href="/">ホーム</a> › <a href="/print/">無料プリント</a> › {info.name}</nav>
 <h1>{info.title}</h1><p class="lead">{info.lead}</p>
 <section class="downloads" aria-label="PDFダウンロード" data-variant-pack={slug} data-count={pack.puzzles.length}>
@@ -17,6 +22,7 @@ const pages=Math.ceil(pack.puzzles.length/pack.perPage);
 <p><a href={path('questions')} download data-pack-format="questions_only">問題PDF（{pack.puzzles.length}問・{pages}ページ）</a>　<a href={path('answers')} download data-pack-format="answers_only">解答PDF（{pages}ページ）</a></p>
 <p>A4・縦／登録不要・無料。解答を配りたくない場合は「問題PDF」だけを印刷してください。</p>
 </section>
+<figure class="pdf-preview"><a href={path('questions')}><img src={`/images/print/${slug}-preview.png`} width={preview.previewWidth} height={preview.previewHeight} alt={`${info.name}の問題PDF一ページ目。${sample.id}から始まるセット01の実際のレイアウト。`} loading="lazy" decoding="async" /></a><figcaption>ダウンロードする問題PDFの一ページ目。印刷には上のPDFをご利用ください。</figcaption></figure>
 <details><summary>最初の問題を見る（{sample.id}）</summary>
 <p>PDFに収録した一問目の見本です。{slug==='inequality'?'マスの右・下にある小さな記号も条件です。':''}</p>
 <div class="sample" style={`--n:${pack.size}`} role="img" aria-label={`${info.name}の問題 ${sample.id}。印刷用PDFに同じ問題を収録。`}>
@@ -26,6 +32,8 @@ const pages=Math.ceil(pack.puzzles.length/pack.perPage);
 <section><h2>利用できる範囲</h2><p>個人の学習に加え、学校・学童・非営利の地域活動・介護福祉施設では、施設内で必要な部数を印刷し、参加者へ無料配布できます。販売、ウェブへの再掲載、商用利用はできません。表示を変更せずに利用し、詳しくは<a href="/terms/#print-license">印刷問題集の利用条件</a>をご確認ください。</p></section>
 <p><a href={`/variants/${slug}/`}>{info.name}の{slug==='16x16'?'専用ソルバーとルール':'オンライン版と解き方'} →</a></p>
 <p><a href="/print/">種類・用途からほかのプリントを探す →</a></p>
+<PrintResourceShare slug={slug} />
+<PrintResourceCards exclude={slug} />
 </Base>
 <script>
 import {track} from '../client/track.ts';
@@ -36,5 +44,6 @@ document.querySelectorAll<HTMLElement>('[data-variant-pack]').forEach(root=>{
 });
 </script>
 <style>
+.pdf-preview{max-width:400px;margin:24px auto}.pdf-preview img{width:100%;height:auto;border:1px solid var(--line)}figcaption{font-size:13px;color:var(--ink-3)}
 .downloads {padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:24px 0}.downloads a{display:inline-block;padding:12px 0;font-weight:700}summary{cursor:pointer;padding:12px 0;font-weight:700}.sample{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));max-width:560px;border:2px solid var(--ink);margin:20px auto}.cell{aspect-ratio:1;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;position:relative;font-size:clamp(12px,3vw,23px)}.cell.right{border-right:2px solid var(--ink)}.cell.bottom{border-bottom:2px solid var(--ink)}small{position:absolute;background:var(--surface);z-index:1;font-size:12px;line-height:12px}.horizontal{right:-5px}.vertical{bottom:-6px}section{margin-block:24px}
 </style>

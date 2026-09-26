@@ -349,7 +349,7 @@ function setup(root: HTMLElement): void {
   function gameReturnPath(): string {
     const params = new URLSearchParams(location.search);
     if (!daily) params.set('n', String(poolIdx + 1));
-    return location.pathname + (params.size ? '?' + params : '') + location.hash;
+    return location.pathname + (params.size ? '?' + params : '') + (location.pathname === '/' ? '#home-game' : location.hash);
   }
 
   // —— 间違いチェック开关 ——

@@ -1,0 +1,11 @@
+---
+import resources from '../data/print-resources.json';
+interface Props {exclude?:string;slugs?:string[];heading?:string;}
+const {exclude,slugs,heading='次に使うプリントを選ぶ'}=Astro.props;
+const items=resources.filter(r=>r.slug!==exclude&&(!slugs||slugs.includes(r.slug)));
+---
+<section class="resource-catalog screen-only">
+<h2>{heading}</h2>
+<div class="resource-cards">{items.map(r=><article><a href={r.href}><img src={`/images/print/${r.slug}-share.png`} width="1200" height="630" alt={`${r.name}：${r.detail}。収録PDFの見本付き。`} loading="lazy" decoding="async"/><h3>{r.name}</h3></a><p><strong>{r.use}</strong></p><p>{r.summary}</p><p>{r.detail}</p><a href={r.href}>見本・使い方とPDFを見る →</a></article>)}</div>
+</section>
+<style>.resource-catalog{margin:28px 0}.resource-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}.resource-cards article{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface)}.resource-cards img{width:100%;height:auto;border-radius:6px}.resource-cards h3{margin:12px 0}.resource-cards p{font-size:14px;line-height:1.7}.resource-cards a{color:var(--accent)}</style>

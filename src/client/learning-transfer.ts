@@ -1,4 +1,7 @@
 export function returnPath(value: string | null): string | null {
+  if (value && /^\/(?:[?#]|$)/.test(value) && !value.includes('\\')) {
+    try { const u=new URL(value,'https://numpredo.com'); if(u.origin==='https://numpredo.com' && u.pathname==='/')return u.pathname+u.search+u.hash; } catch {}
+  }
   if (!value || !/^\/(play|daily)(\/|$)/.test(value) || value.startsWith('//')) return null;
   try { const u = new URL(value, 'https://numpredo.com'); return u.origin === 'https://numpredo.com' && /^\/(play|daily)(\/|$)/.test(u.pathname) && !value.includes('\\') ? u.pathname + u.search + u.hash : null; } catch { return null; }
 }

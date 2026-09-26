@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import PrintResourceCards from '../components/PrintResourceCards.astro';
 import ShareBar from '../components/ShareBar.astro';
 import PrintTool from '../components/PrintTool.astro';
 import { PRINT_LEVELS, printPdfHref } from '../data/print-levels.ts';
@@ -46,7 +47,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
   <h1>数独無料問題集・ナンプレプリント｜答え付きPDF印刷</h1>
   <p class="lead">高齢者向けの大きな2問、毎日の6問、教室・施設向け12問など、用途を選ぶだけで答え付き問題集を作成。見出しも自由に付けられ、A4印刷・PDF保存とも完全無料です。</p>
 
-  <section aria-labelledby="variant-packs"><h2 id="variant-packs">変わり種ナンプレの固定プリント</h2><p>問題と解答を別々に保存できる、A4の入門セットです。問題ID付きなので、配布した内容を記録できます。</p><ul><li><a href="/print/6x6/">6×6：1〜6で練習する6問・一枚2問</a></li><li><a href="/print/inequality/">不等号：大小関係を読む6問・一枚1問</a></li><li><a href="/print/16x16/">16×16：1〜9とA〜Gを使う4問・一枚1問</a></li></ul></section>
+  <PrintResourceCards heading="使う場面から選ぶ・問題と答えが別のPDF" />
   <PrintTool />
   <p class="screen-only"><a href="/print/senior/#activity-pack"><strong>4回分・8問の配布セット（問題と解答を別々にダウンロード）</strong></a> — A〜Cは初級、Dは任意の中級チャレンジ。同じ問題を重複配布しないよう、セット番号と題番号で管理できます。</p>
 
