@@ -1,0 +1,15 @@
+---
+import {EXPERT_PUZZLES,EXPERT_EXAMPLE,EXPERT_COMBOS} from '../data/killer-expert.ts';
+import {TECH_INFO} from '../engine/index.ts';
+const coord=(c:number)=>`${Math.floor(c/9)+1}行${c%9+1}列`;
+---
+<section id="killer-expert" class="expert">
+<h2>キラーナンプレ エキスパート：No.21〜30から選ぶ</h2>
+<p>初期数字の少ない10問です。表の「確認された手筋」は当サイトの論理ソルバーが実際に使ったもの。唯一の解き順や、他サイトの同名難易度との比較を意味しません。数字が少なくても、ケージの合計が追加の手掛かりになります。</p>
+<div class="expert-table"><table><thead><tr><th>問題</th><th>初期数字</th><th>ケージ数</th><th>単数・合計以外で確認された手筋</th></tr></thead><tbody>{EXPERT_PUZZLES.map(p=><tr><td><a href={`/variants/killer/?n=${p.number}#killer-game`}>No.{p.number}を解く</a></td><td>{p.clues}個</td><td>{p.cages}</td><td>{p.tactics.length?p.tactics.map(t=>TECH_INFO[t]?.ja??t).join('・'):'この解法では不要'}</td></tr>)}</tbody></table></div>
+<h3>No.21の実例：3マスの合計24から分かること</h3>
+<p>No.21では、{EXPERT_EXAMPLE.cells.map(coord).join('・')}が合計{EXPERT_EXAMPLE.sum}のケージです。1〜9を重複なく三つ選んで24にする組み合わせは、{EXPERT_COMBOS[0].join('＋')}だけです。この三つのマスに他の数字は入りませんが、どこにどの数字を置くかは行・列・ブロックと重ねて決めます。</p>
+<p><a href="/tools/killer-combinations/?count=3&amp;sum=24">3マス・合計24を組み合わせツールで確認 →</a>　<a href="/variants/killer/?n=21#killer-game">No.21の盤面で探す →</a></p>
+<p>止まったら「自動メモ」で候補を整理し、「ヒント」で次の根拠を確認できます。合計だけで配置を決めたり、通常の9×9ソルバーへ持ち込んだりせず、このページのケージ対応ゲームで続けてください。</p>
+</section>
+<style>.expert{scroll-margin-top:88px;margin:28px 0}.expert-table{overflow-x:auto}table{min-width:460px;border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;border:1px solid var(--line);padding:10px}td:first-child{min-width:100px;white-space:nowrap}th{word-break:keep-all}a{color:var(--accent)}</style>

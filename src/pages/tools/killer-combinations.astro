@@ -36,6 +36,14 @@ const required=parse(String(data.get('required')??'')),excluded=parse(String(dat
 if([...required,...excluded].some(d=>!Number.isInteger(d)||d<1||d>9)||new Set(required).size!==required.length||new Set(excluded).size!==excluded.length||required.some(d=>excluded.includes(d))){status.textContent='数字は1〜9を重複なく入力し、必須と除外に同じ数字を指定しないでください。';return;}
 const combos=killerCombinations(Number(data.get('count')),Number(data.get('sum')),required,excluded);status.textContent=combos.length?`${combos.length}組あります。数字の位置は行・列・ブロックで別に確認してください。`:'組み合わせはありません。合計、マス数、絞り込み条件を確認してください。';
 combos.forEach(ds=>{const li=document.createElement('li');li.textContent=ds.join(' ＋ ');list.append(li);});track('killer_combinations',{count:Number(data.get('count')),matches:combos.length});});
+// Links from concrete cage examples prefill only validated cage size and sum.
+const query=new URLSearchParams(location.search);
+const count=query.get('count'),sum=query.get('sum');
+if(count&&sum&&/^\d+$/.test(count)&&/^\d+$/.test(sum)&&Number(count)>=1&&Number(count)<=9&&Number(sum)>=1&&Number(sum)<=45){
+ form.querySelector<HTMLInputElement>('[name="count"]')!.value=count;
+ form.querySelector<HTMLInputElement>('[name="sum"]')!.value=sum;
+ form.requestSubmit();
+}
 </script>
 <style>.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:grid;gap:6px}input,button{font:inherit;padding:10px;min-height:44px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}form{padding:18px;border:1px solid var(--line);margin:20px 0}button{margin-top:14px;cursor:pointer}a{color:var(--accent)}@media(max-width:500px){.fields{grid-template-columns:1fr}}</style>
 </Base>

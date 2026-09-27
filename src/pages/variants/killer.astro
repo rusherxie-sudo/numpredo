@@ -3,6 +3,7 @@
 // 但走独立静态路由而非 [slug].astro:Astro 的 hoisted script 在条件渲染下也会打包,
 // 混在动态路由会让 6x6/不等号页背上游戏 JS(违反内容页零 JS)。与 diagonal.astro 同一模式。
 // set 每题携带 cages(cage 划分是题面级数据),SudokuGame 岛按 data-variant="killer" 渲染点线与合计。
+import KillerExpert from '../../components/KillerExpert.astro';
 import Base from '../../layouts/Base.astro';
 import EditorialNote from '../../components/EditorialNote.astro';
 import ShareBar from '../../components/ShareBar.astro';
@@ -82,6 +83,7 @@ const breadcrumbSchema = {
     {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
     <p class="lead">{v.lead}</p>
     <EditorialNote verification="掲載するキラー数独30問は、各ケージの合計・ケージ内の重複禁止・通常数独の制約を同時に満たし、唯一解になることを公開前に検証しています。" />
+    <p><a href="#killer-expert">エキスパート10問を手掛かり・手筋から選ぶ →</a></p>
     <nav class="killer-levels" aria-label="キラーナンプレの難易度">
       <a href="/variants/killer/?n=1#killer-game"><strong>やさしい</strong><span>No.1〜10</span></a>
       <a href="/variants/killer/?n=11#killer-game"><strong>ふつう</strong><span>No.11〜20</span></a>
@@ -94,6 +96,7 @@ const breadcrumbSchema = {
   </div>
 
   <div class="px-text">
+    <KillerExpert />
     <ShareBar url={url} title={v.title} cta="この問題をシェア・友達に挑戦状を送ろう" />
 
     <figure class="var-fig"><Fragment set:html={v.svg} /><figcaption>{v.svgCaption}</figcaption></figure>
@@ -125,7 +128,7 @@ const breadcrumbSchema = {
     .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; } .crumb a { color: var(--ink-3); text-decoration: none; }
     .lead { color: var(--ink-3); font-size: 14px; margin: 0 0 16px; }
     .upd { color: var(--ink-4); font-size: 12px; margin: -4px 0 10px; }
-    #killer-game { scroll-margin-top: 16px; }
+    #killer-game { scroll-margin-top: 88px; }
     .killer-levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 14px 0 18px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); overflow: hidden; }
     .killer-levels a { min-width: 0; padding: 10px 8px; color: var(--ink); text-align: center; text-decoration: none; background: var(--surface); }
     .killer-levels a + a { border-left: 1px solid var(--line-2); }

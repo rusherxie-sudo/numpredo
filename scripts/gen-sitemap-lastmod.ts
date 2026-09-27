@@ -31,6 +31,7 @@ const DYNAMIC_DATA: Record<string, string> = {
 };
 // 动态页中仅某个 slug 消费的独立组件/数据。模板改动仍影响同组，专属例题只更新自身 URL。
 const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
+  'play/[level].astro': {beginner:['src/components/BeginnerStart.astro','src/data/beginner-start.ts']},
   'guide/[slug].astro': {
     ...Object.fromEntries(['rules','beginner','intermediate','advanced','hard-sudoku-solving','tips','when-stuck','glossary'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts']])),
     'for-kids': ['src/components/ParentLesson.astro','src/components/SmallNumberBoard.astro'],
@@ -62,7 +63,7 @@ const STATIC_EXTRA_DATA: Record<string, string[]> = {
   'variants/4x4.astro': ['src/data/mini4.ts', 'src/components/MiniSudoku4.astro', 'src/client/mini-sudoku4.ts'],
   'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts','src/data/sudoku16-samples.ts'],
   'variants/diagonal.astro': ['src/data/puzzles/diagonal.json'],
-  'variants/killer.astro': ['src/data/puzzles/killer.json'],
+  'variants/killer.astro': ['src/data/puzzles/killer.json','src/components/KillerExpert.astro','src/data/killer-expert.ts'],
 };
 const STATIC_SLUG_DATA: Record<string, { file: string; slug: string }> = {
   'variants/6x6.astro': {file:'src/data/variants.ts',slug:'6x6'},

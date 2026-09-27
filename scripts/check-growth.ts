@@ -1,3 +1,6 @@
+import {beginnerSteps,START_PUZZLE} from '../src/data/beginner-start.ts';
+import {EXPERT_PUZZLES,EXPERT_EXAMPLE,EXPERT_COMBOS} from '../src/data/killer-expert.ts';
+import killerSource from '../src/data/puzzles/killer.json' with {type:'json'};
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { DRILL_SPECS, buildDrill } from '../src/data/technique-drills.ts';
@@ -39,3 +42,17 @@ for(const p of pack.puzzles) {
   const result=logicalSolve(grid);assert.ok(result.solved);assert.equal(result.grid.join(''),p.solution);
 }
 console.log('✓ Six drill answers and distractors, safe return links, eight unique source-matched activity puzzles verified');
+
+const starter=beginnerSteps();assert.equal(starter.length,3);
+assert.equal(countSolutions(gridFromString(START_PUZZLE.puzzle),2),1);
+for(const [i,s] of starter.entries()){
+ assert.equal(s.before[s.cell],0);assert.equal(s.answer,Number(START_PUZZLE.solution[s.cell]));
+ assert.ok(s.candidates[s.cell]&bit(s.answer));
+ assert.deepEqual(s.before,i?starter[i-1].after:gridFromString(START_PUZZLE.puzzle));
+ assert.equal(s.after.filter((v,c)=>v!==s.before[c]).length,1);
+}
+assert.equal(EXPERT_PUZZLES.length,10);
+for(const p of EXPERT_PUZZLES){const raw=killerSource.puzzles[p.number-1];assert.equal(p.clues,[...raw.puzzle].filter(c=>/[1-9]/.test(c)).length);assert.equal(p.cages,raw.cages.length);}
+assert.deepEqual(EXPERT_COMBOS,[[7,8,9]]);
+assert.deepEqual(EXPERT_EXAMPLE.cells.map(c=>Number(killerSource.puzzles[20].solution[c])).sort(),[7,8,9]);
+console.log('✓ Beginner three-step continuity and answers; ten expert source rows and real cage example verified');

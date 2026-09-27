@@ -1,0 +1,37 @@
+---
+import {beginnerSteps,START_PUZZLE} from '../data/beginner-start.ts';
+import {renderBoardSvg} from '../engine/index.ts';
+const steps=beginnerSteps();
+---
+<section id="beginner-start" class="starter" data-beginner-start>
+<h2>初めての方へ：最初の3手を一緒に練習</h2>
+<p>初級No.1の盤面です。色の付いたマスに入る数字を選び、理由を読んで次へ進みます。小さい数字はそのマスに残る候補です。練習しても上のゲームの途中経過は変わりません。</p>
+{steps.map((s,i)=><article data-start-step hidden={i!==0} data-answer={s.answer}>
+<h3 tabindex="-1">{i+1}手目：{Math.floor(s.cell/9)+1}行{ s.cell%9+1}列に入る数字は？</h3>
+<div class="starter-board"><Fragment set:html={renderBoardSvg(s.before,{given:[...START_PUZZLE.puzzle].map(c=>c!=='.'),candidates:s.candidates.map((m,c)=>c===s.cell?m:0),cell:35,cellHighlights:[{cell:s.cell}],title:`初級No.1の${i+1}手目`,desc:'色の付いた空きマスを行・列・ブロックから考えます。'})}/></div>
+<div class="choices" aria-label="入る数字を選ぶ">{Array.from({length:9},(_,n)=><button type="button" data-start-answer={n+1}>{n+1}</button>)}</div>
+<p role="status" data-start-status></p>
+<details><summary>答えと理由を見る</summary><p>{s.premise.text}</p><p>このマスに{ s.answer }を入れると、次の空きマスを考える手掛かりが増えます。</p></details>
+<button type="button" data-start-next>{i<2?'この数字を確認して次の一手へ':'最初の練習に戻る'}</button>
+</article>)}
+<p><a href="/play/beginner/?n=1#level-game">練習したNo.1を最初から自分で解く →</a></p>
+<p>紙で練習するなら<a href="/print/beginner/">初級の答え付きPDF</a>、9×9が大きく感じる場合は<a href="/variants/6x6/">1〜6だけのミニナンプレ</a>も使えます。</p>
+<noscript>数字の判定にはJavaScriptが必要です。最初の一手の答えと理由はこのまま読めます。</noscript>
+<script is:inline>
+ document.querySelectorAll('[data-beginner-start]').forEach(root=>{
+  const cards=Array.from(root.querySelectorAll('[data-start-step]'));
+  cards.forEach((card,i)=>{
+   let attempted=false;
+   card.querySelectorAll('[data-start-answer]').forEach(b=>b.addEventListener('click',()=>{
+    const correct=b.dataset.startAnswer===card.dataset.answer;
+    card.querySelector('[data-start-status]').textContent=correct?'正解です。理由を確認して次へ進みましょう。':'この数字ではありません。行・列・ブロックを見比べて、理由を確認しましょう。';
+    card.querySelector('details').open=true;
+    if(!attempted){try{function gtag(){(window.dataLayer=window.dataLayer||[]).push(arguments);}gtag('event','beginner_start_answer',{step:i+1,correct});}catch{}}
+    attempted=true;
+   }));
+   card.querySelector('[data-start-next]').addEventListener('click',()=>{card.hidden=true;const next=cards[(i+1)%cards.length];next.hidden=false;next.querySelector('h3').focus();});
+  });
+ });
+</script>
+</section>
+<style>.starter{scroll-margin-top:88px;margin:24px 0;padding:18px;border:1px solid var(--line);border-radius:12px}h3{scroll-margin-top:88px}.starter-board{max-width:400px;margin:auto}.starter-board :global(svg){width:100%;height:auto}.choices{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin:12px 0}button{font:inherit;min-height:44px;min-width:0;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;cursor:pointer;padding:8px}.choices button{padding:4px}summary{cursor:pointer;padding:12px 0}a{color:var(--accent)}</style>
