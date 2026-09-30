@@ -50,3 +50,5 @@
 本次新增：`docs/2026-09-26-Bing主词与打印传播交付.md` → [Bing主词恢复实验与打印传播交付｜2026-09-26](https://zjphma1p1w2t.jp.larksuite.com/wiki/QrZXwxBUkiIeWEkx3xajrNRRpTg)，节点 `QrZXwxBUkiIeWEkx3xajrNRRpTg`，位于04执行与复盘。含页面×查询证据、窗口差异、首页实验及四套资源传播验证。
 
 本次新增：`docs/2026-09-27-初级练习与Killer专家入口交付.md` → [初级练习与Killer专家入口交付｜2026-09-27](https://zjphma1p1w2t.jp.larksuite.com/wiki/KemgwfewxihVmZkrglbjkUVzpNf)，节点 `KemgwfewxihVmZkrglbjkUVzpNf`，位于04执行与复盘；记录GSC最终数据窗口、两项线上功能及观察边界。
+
+本次新增：`docs/2026-09-30-下一轮流量增长机会与数据复核.md` → [下一轮流量增长机会与数据复核｜2026-09-30](https://zjphma1p1w2t.jp.larksuite.com/wiki/UMGwwGckyisDVGkjdb3jQq58pvd)，节点 `UMGwwGckyisDVGkjdb3jQq58pvd`，位于03增长策略与研究。含最终搜索窗口、GA4使用、建议队列与Bing数据缺口；功能状态为未实施建议。
