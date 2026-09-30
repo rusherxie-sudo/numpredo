@@ -11,3 +11,9 @@
 # ハッシュ付き静的アセットは不変 → 1 年キャッシュ（既定の 4h では再訪ごとに再検証が走る）
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Public puzzle widget only. Other pages retain SAMEORIGIN.
+/embed/mini4/*
+  ! X-Frame-Options
+  X-Robots-Tag: noindex, follow
+  Content-Security-Policy: frame-ancestors *

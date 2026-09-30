@@ -1,6 +1,62 @@
 [
-  {"slug":"6x6","name":"6×6入門プリント","summary":"1〜6と2行×3列のルールを練習。親子・教室で一問ずつ。","detail":"6問・問題3ページ／答え3ページ","href":"/print/6x6/","pdf":"/downloads/variants/numpredo-6x6-01-questions.pdf","use":"数字の少ない盤面から始める","intro":"1〜6で解く6×6ナンプレ入門6問。A4に2問ずつ、問題と答えは別PDF。登録不要・無料で使えます。"},
-  {"slug":"activity","name":"4回分のナンプレ配布セット","summary":"初級6問と任意の中級2問。家族・施設の活動に、毎回2問ずつ。","detail":"8問・問題4ページ／答え4ページ","href":"/print/senior/#activity-pack","pdf":"/downloads/activity/numpredo-activity-01-questions.pdf","use":"同じ参加者へ複数回配る","intro":"ナンプレ8問を4回分に分けた無料配布セット。A〜Cは初級、Dは任意の中級です。問題と答えは各4ページの別PDF。学校・介護施設内の非営利・無料配布に利用できます。"},
-  {"slug":"inequality","name":"不等号ナンプレ入門","summary":"隣り合う数字の大小を読む練習。通常の9×9に慣れた方へ。","detail":"6問・問題6ページ／答え6ページ","href":"/print/inequality/","pdf":"/downloads/variants/numpredo-inequality-01-questions.pdf","use":"9×9に新しい条件を加える","intro":"不等号の読み方を練習する入門ナンプレ6問。通常ルールでも唯一解になる初級問題に大小記号を追加。A4一枚に一問、問題と答えは別PDFです。"},
-  {"slug":"16x16","name":"16×16大型ナンプレ","summary":"1〜9とA〜G、4×4区画で解く入門4問。大きな盤面をじっくり。","detail":"4問・問題4ページ／答え4ページ","href":"/print/16x16/","pdf":"/downloads/variants/numpredo-16x16-01-questions.pdf","use":"広い盤面に挑戦する","intro":"1〜9とA〜Gを使う16×16ナンプレ入門4問。A4一枚に一問、問題と答えは各4ページの別PDF。唯一解と基本的な候補絞り込みで解けることを確認しています。"}
+  {
+    "slug": "6x6",
+    "name": "6×6入門プリント",
+    "summary": "1〜6と2行×3列のルールを練習。親子・教室で一問ずつ。",
+    "detail": "6問・問題3ページ／答え3ページ",
+    "href": "/print/6x6/",
+    "pdf": "/downloads/variants/numpredo-6x6-01-questions.pdf",
+    "use": "数字の少ない盤面から始める",
+    "intro": "1〜6で解く6×6ナンプレ入門6問。A4に2問ずつ、問題と答えは別PDF。登録不要・無料で使えます。"
+  },
+  {
+    "slug": "activity",
+    "name": "4回分のナンプレ配布セット",
+    "summary": "初級6問と任意の中級2問。家族・施設の活動に、毎回2問ずつ。",
+    "detail": "8問・問題4ページ／答え4ページ",
+    "href": "/print/senior/#activity-pack",
+    "pdf": "/downloads/activity/numpredo-activity-01-questions.pdf",
+    "use": "同じ参加者へ複数回配る",
+    "intro": "ナンプレ8問を4回分に分けた無料配布セット。A〜Cは初級、Dは任意の中級です。問題と答えは各4ページの別PDF。学校・介護施設内の非営利・無料配布に利用できます。"
+  },
+  {
+    "slug": "inequality",
+    "name": "不等号ナンプレ入門",
+    "summary": "隣り合う数字の大小を読む練習。通常の9×9に慣れた方へ。",
+    "detail": "6問・問題6ページ／答え6ページ",
+    "href": "/print/inequality/",
+    "pdf": "/downloads/variants/numpredo-inequality-01-questions.pdf",
+    "use": "9×9に新しい条件を加える",
+    "intro": "不等号の読み方を練習する入門ナンプレ6問。通常ルールでも唯一解になる初級問題に大小記号を追加。A4一枚に一問、問題と答えは別PDFです。"
+  },
+  {
+    "slug": "16x16",
+    "name": "16×16大型ナンプレ",
+    "summary": "1〜9とA〜G、4×4区画で解く入門4問。大きな盤面をじっくり。",
+    "detail": "4問・問題4ページ／答え4ページ",
+    "href": "/print/16x16/",
+    "pdf": "/downloads/variants/numpredo-16x16-01-questions.pdf",
+    "use": "広い盤面に挑戦する",
+    "intro": "1〜9とA〜Gを使う16×16ナンプレ入門4問。A4一枚に一問、問題と答えは各4ページの別PDF。唯一解と基本的な候補絞り込みで解けることを確認しています。"
+  },
+  {
+    "slug": "activity02",
+    "name": "配布セット02・続きの4回分",
+    "summary": "セット01と異なる初級6問・任意の中級2問。前回の続きに使えます。",
+    "detail": "8問・問題4ページ／答え4ページ",
+    "href": "/print/senior/#activity-pack-02",
+    "pdf": "/downloads/activity/numpredo-activity-02-questions.pdf",
+    "use": "重複を避けて次の活動へ",
+    "intro": "ナンプレ配布セット02は、セット01と重複しない8問。E〜Gは初級、Hは任意の中級。問題・答えは各4ページの別PDFです。学校・介護施設内の非営利・無料配布に利用できます。"
+  },
+  {
+    "slug": "progression",
+    "name": "4×4から6×6へ・入門8問",
+    "summary": "小さな盤面でルールを覚え、2行×3列の枠へ進む親子・教室用資料。",
+    "detail": "8問・問題4ページ／答え4ページ",
+    "href": "/print/progression/",
+    "pdf": "/downloads/progression/numpredo-progression-01-questions.pdf",
+    "use": "数字と太枠を段階的に覚える",
+    "intro": "4×4を4問、6×6を4問の計8問。問題と答えは各4ページ、使い方と進度記録は1ページです。オンライン版と共通の題番号で練習できます。"
+  }
 ]

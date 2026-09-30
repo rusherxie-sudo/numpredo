@@ -97,3 +97,8 @@
 - 言語：日本語
 - 料金：完全無料・登録不要
 - 問い合わせ：contact@numpredo.com
+
+## 追加の資料と設置
+
+- [4×4から6×6へ・入門プリント](https://numpredo.com/print/progression/): 入門8問、問題と答え、配布者用の記録。
+- [ミニナンプレの設置](https://numpredo.com/widgets/): 無料4×4ウィジェットの実演とコピーできる設置コード。

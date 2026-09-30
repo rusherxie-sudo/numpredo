@@ -1,4 +1,5 @@
 ---
+import ActivityContinuation from './ActivityContinuation.astro';
 import PrintResourceShare from './PrintResourceShare.astro';
 import PrintResourceCards from './PrintResourceCards.astro';
 import previews from '../../public/images/print/manifest.json';
@@ -21,6 +22,7 @@ const preview=previews.find(p=>p.slug==='activity')!;
   <p>学校・介護施設等での非営利・無料配布に使えます。<a href="/terms/#print-license">利用条件</a>をご確認ください。ウェブで紹介する場合は、このページへのリンクをご利用ください。PDF自体の再掲載・販売はできません。</p>
   <p>新しい組み合わせが必要なら、上の印刷ツールで作成できます。個別の答えの理由は<a href="/tools/solver/">写真対応の数独ソルバー</a>で確認できます。</p>
 <PrintResourceShare slug="activity" />
+<ActivityContinuation />
 <PrintResourceCards exclude="activity" slugs={["6x6","inequality"]} heading="次の活動で使える別のプリント" />
 </section>
 <style>

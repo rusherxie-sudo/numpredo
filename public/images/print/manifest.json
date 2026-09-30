@@ -34,5 +34,23 @@
     "previewHeight": 1053,
     "shareWidth": 1200,
     "shareHeight": 630
+  },
+  {
+    "slug": "activity02",
+    "pdf": "/downloads/activity/numpredo-activity-02-questions.pdf",
+    "pdfSha256": "63d132ee8aa81f1bc37c05e063783f7e23b7e96e7f85c379987ddf394196fae4",
+    "previewWidth": 745,
+    "previewHeight": 1053,
+    "shareWidth": 1200,
+    "shareHeight": 630
+  },
+  {
+    "slug": "progression",
+    "pdf": "/downloads/progression/numpredo-progression-01-questions.pdf",
+    "pdfSha256": "da8a80d9c3d26c0a98a8f666ca3488f64714ed90c1c79a5527161672a94b3125",
+    "previewWidth": 745,
+    "previewHeight": 1053,
+    "shareWidth": 1200,
+    "shareHeight": 630
   }
 ]

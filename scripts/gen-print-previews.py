@@ -20,7 +20,7 @@ for item in json.loads((ROOT/'src/data/print-resources.json').read_text()):
     draw.rectangle((0,0,18,630),fill='#1d7f65')
     drawtext(draw,(60,48),'numpredo  |  無料プリント',25,'#1d7f65')
     # Explicit line breaks keep every title inside the left column.
-    titles={'6x6':['6×6ナンプレ','入門6問'], 'activity':['ナンプレ配布セット','4回分・8問'], 'inequality':['不等号ナンプレ','入門6問'], '16x16':['16×16ナンプレ','大型4問']}
+    titles={'6x6':['6×6ナンプレ','入門6問'], 'activity':['ナンプレ配布セット','4回分・8問'], 'inequality':['不等号ナンプレ','入門6問'], '16x16':['16×16ナンプレ','大型4問'], 'activity02':['ナンプレ続編セット02','4回分・8問'], 'progression':['4×4から6×6へ','入門8問']}
     for i,line in enumerate(titles[item['slug']]):drawtext(draw,(60,140+i*74),line,48)
     drawtext(draw,(60,334),'問題と答えを別々にダウンロード',27)
     drawtext(draw,(60,390),item['detail'],22)
@@ -31,4 +31,4 @@ for item in json.loads((ROOT/'src/data/print-resources.json').read_text()):
     card.save(OUT/f"{item['slug']}-share.png",optimize=True)
     records.append({'slug':item['slug'],'pdf':item['pdf'],'pdfSha256':hashlib.sha256(pdf.read_bytes()).hexdigest(),'previewWidth':preview.width,'previewHeight':preview.height,'shareWidth':1200,'shareHeight':630})
 (OUT/'manifest.json').write_text(json.dumps(records,ensure_ascii=False,indent=2)+'\n')
-print('Four actual PDF previews + four 1200×630 social cards generated')
+print(f'{len(records)} actual PDF previews + {len(records)} social cards generated')

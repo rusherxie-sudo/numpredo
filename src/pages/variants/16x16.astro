@@ -4,6 +4,8 @@
 import Base from '../../layouts/Base.astro';
 import EditorialNote from '../../components/EditorialNote.astro';
 import ShareBar from '../../components/ShareBar.astro';
+import VariantGame from '../../components/VariantGame.astro';
+import { SUDOKU16_PLAY } from '../../data/sudoku16-play.ts';
 import Sudoku16Solver from '../../components/Sudoku16Solver.astro';
 import { VARIANTS, variantBySlug } from '../../data/variants.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
@@ -20,7 +22,7 @@ const dateModified = lastmod['/variants/16x16/'];
 const webAppSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: '16×16ナンプレ自動解答ソルバー',
+  name: '16×16ナンプレゲーム・自動解答ソルバー',
   description: v.description,
   url,
   applicationCategory: 'UtilitiesApplication',
@@ -81,6 +83,9 @@ const breadcrumbSchema = {
     <p class="lead">{v.lead}</p>
     <EditorialNote verification="16×16ソルバーは各行・列・4×4ブロックの重複を検査し、探索上限内で解なし・唯一解・複数解を判定できることを公開前に例題と不正盤面で確認しています。" />
 
+    <p><a href="#variant-game">入門4問を自分で解く →</a> ／ <a href="#s16-title">手元の問題を自動解答 →</a></p>
+    <VariantGame puzzles={SUDOKU16_PLAY} size={16} blockRows={4} blockCols={4} kind="16x16" />
+    <p>問題1〜4は印刷セットのlarge16-1〜4と同じです。<a href="/print/16x16/">紙に印刷して続ける</a>こともできます。途中で止まったら「次の一手」で候補を確認できます。</p>
     <Sudoku16Solver />
     <ShareBar url={url} title={v.title} cta="16×16ナンプレのソルバーをシェア" />
 

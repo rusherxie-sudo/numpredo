@@ -1,15 +1,16 @@
 ---
 import type { VariantPuzzle } from '../engine/variant-grid.ts';
-interface Props { puzzles: VariantPuzzle[]; size: number; blockRows: number; blockCols: number; kind: string; }
-const {puzzles,size,blockRows,blockCols,kind}=Astro.props;
+interface Props { puzzles: VariantPuzzle[]; size: number; blockRows: number; blockCols: number; kind: string; tracking?: boolean; }
+const {puzzles,size,blockRows,blockCols,kind,tracking=true}=Astro.props;
 ---
-<section class="vg" id="variant-game" data-variant-game data-puzzles={JSON.stringify(puzzles)} data-size={size} data-br={blockRows} data-bc={blockCols} data-kind={kind}>
-  <h2>{size===6?'6×6をオンラインで解く':'不等号ナンプレをオンラインで解く'}</h2>
+<section class="vg" id="variant-game" data-variant-game data-puzzles={JSON.stringify(puzzles)} data-size={size} data-br={blockRows} data-bc={blockCols} data-kind={kind} data-track={tracking}>
+  <h2>{size===9?'不等号ナンプレをオンラインで解く':`${size}×${size}をオンラインで解く`}</h2>
   <p>{puzzles.length}問・登録不要。途中経過はこのブラウザに保存します。空きマスを選んで数字を入力してください。</p>
   {size===9&&<p>各行・列・3×3に1〜9。横の「＜」は左が小さく、縦の「∧」は上が小さい意味です。「∨」は上が大きい意味です。</p>}
+  {size===16&&<p>1〜9・A〜Gを行・列・4×4の枠に一つずつ。キーボードでも入力できます。スマホは盤面を横にスクロールしてください。</p>}
   <div class="vg-toolbar"><button type="button" data-prev>前の問題</button><strong data-label></strong><button type="button" data-next>次の問題</button></div>
-  <div class="vg-layout"><div data-board class="vg-board" role="grid" aria-label={`${size}×${size}の盤面`}></div><div>
-    <div class="vg-pad">{Array.from({length:size},(_,i)=><button type="button" data-digit={i+1}>{i+1}</button>)}<button type="button" data-digit="0">消す</button></div>
+  <div class="vg-layout"><div class="vg-board-wrap"><div data-board class="vg-board" role="grid" aria-label={`${size}×${size}の盤面`}></div></div><div class="vg-controls">
+    <div class="vg-pad">{Array.from({length:size},(_,i)=><button type="button" data-digit={i+1}>{i<9?i+1:String.fromCharCode(65+i-9)}</button>)}<button type="button" data-digit="0">消す</button></div>
     <div class="vg-actions"><button type="button" data-memo aria-pressed="false">メモ</button><button type="button" data-undo>元に戻す</button><button type="button" data-check>答え合わせ</button><button type="button" data-hint>次の一手</button><button type="button" data-reset>最初から</button></div>
     <p data-status role="status">盤面を準備しています…</p>
   </div></div>
@@ -31,5 +32,17 @@ const {puzzles,size,blockRows,blockCols,kind}=Astro.props;
   .vg-pad { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; } .vg-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
   .vg [aria-pressed="true"] { background:var(--accent); color:var(--accent-on); }
   @media(max-width:760px) { .vg-layout { grid-template-columns:1fr; } .vg-board { width:100%; max-width:440px; margin:auto; } }
+  .vg-board-wrap { min-width:0; overflow-x:auto; }
+  .vg[data-size="16"] .vg-board { width:704px; max-width:none; }
+  .vg[data-size="16"] .vg-layout { grid-template-columns:minmax(0,704px) minmax(190px,1fr); }
+  .vg[data-size="16"] .vg-cell { font-size:20px; }
+  .vg[data-size="16"] .vg-pad { grid-template-columns:repeat(6,1fr); }
+  .vg[data-size="16"] .vg-pad button[data-digit="0"] { font-size:13px; padding:3px; white-space:nowrap; }
+  @media(max-width:1000px) {
+    .vg[data-size="16"] .vg-layout { grid-template-columns:1fr; }
+    .vg[data-size="16"] .vg-controls { position:sticky; bottom:8px; z-index:4; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px; }
+    .vg[data-size="16"] .vg-actions button { font-size:12px; padding:4px; }
+    .vg[data-size="16"] .vg-controls p { font-size:13px; margin:8px 0 0; }
+  }
   @media print { .vg { display:none; } }
 </style>

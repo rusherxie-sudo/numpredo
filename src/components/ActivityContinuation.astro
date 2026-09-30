@@ -1,0 +1,21 @@
+---
+import pack from '../../public/downloads/activity/manifest-02.json';
+import previews from '../../public/images/print/manifest.json';
+import PrintResourceShare from './PrintResourceShare.astro';
+const image=previews.find(p=>p.slug==='activity02')!;
+---
+<section id="activity-pack-02" class="continuation" aria-labelledby="continuation-title">
+  <h2 id="continuation-title">続きの4回分・配布セット02（8問）</h2>
+  <p>セット01のA〜Dを使った後に、E〜Hへ進めます。初級No.67〜72の6問と、任意の中級No.63・64です。<strong>セット01および初級12問・60問PDFとは重複しません。</strong>同じセット番号をもう一度ダウンロードした場合は同じ問題です。</p>
+  <figure><a href="/downloads/activity/numpredo-activity-02-questions.pdf"><img src="/images/print/activity02-preview.png" width={image.previewWidth} height={image.previewHeight} loading="lazy" decoding="async" alt="配布セット02の実際の第一ページ。初級No.67と68。" /></a><figcaption>EからHまで、毎回2問ずつ。A4に大きく印刷できます。</figcaption></figure>
+  <p><a href="/downloads/activity/numpredo-activity-02-questions.pdf" download data-pdf-download="activity02" data-pdf-count="8" data-pdf-format="questions_only">参加者用：セット02問題PDF（4ページ）↓</a></p>
+  <p><a href="/downloads/activity/numpredo-activity-02-answers.pdf" download data-pdf-download="activity02" data-pdf-count="8" data-pdf-format="answers_only">職員・家族用：セット02解答PDF（4ページ）↓</a></p>
+  <h3>配布記録：印刷して書き込む</h3>
+  <p>参加者に合わせてE〜Gだけを使っても構いません。Hは慣れた方だけの中級です。休憩や途中で終了した記録も残せます。</p>
+  <div class="record"><table><thead><tr><th>回・問題</th><th>配布日</th><th>できたこと・次回のメモ</th></tr></thead><tbody>{pack.sessions.map(session=><tr><td>{session[0]}：{pack.puzzles.filter(p=>p.session===session[0]).map(p=>p.id).join(' / ')}</td><td>____________</td><td>______________________</td></tr>)}</tbody></table></div>
+  <p><a href="/downloads/activity/numpredo-activity-02-guide.pdf" download data-pdf-download="activity02" data-pdf-count="8" data-pdf-format="organizer_guide">配布者用：使い方・記録PDF（1ページ）↓</a></p>
+  <p>答えは同じE-67等の題番号で照合してください。無料配布の範囲は<a href="/terms/#print-license">利用条件</a>をご確認ください。数字の少ない盤面から始めたい場合は<a href="/print/progression/">4×4→6×6の入門資料</a>を使えます。</p>
+  <PrintResourceShare slug="activity02" />
+</section>
+
+<style>.continuation{scroll-margin-top:88px;border-top:1px solid var(--line);margin-top:28px;padding-top:20px}figure{max-width:300px;margin:16px auto}img{width:100%;height:auto}.record{overflow-x:auto}table{width:100%;border-collapse:collapse}td,th{border:1px solid var(--line);padding:12px;text-align:left}a{color:var(--accent)}button{font:inherit;min-height:44px;padding:10px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;cursor:pointer}</style>

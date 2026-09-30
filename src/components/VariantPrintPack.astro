@@ -19,6 +19,7 @@ const pages=Math.ceil(pack.puzzles.length/pack.perPage);
 <h1>{info.title}</h1><p class="lead">{info.lead}</p>
 <section class="downloads" aria-label="PDFダウンロード" data-variant-pack={slug} data-count={pack.puzzles.length}>
 <h2>セット01をダウンロード</h2>
+{slug==='16x16'&&<p>同じ題番号を<a href="/variants/16x16/#variant-game">オンラインゲーム</a>で続けられます。</p>}
 <p><a href={path('questions')} download data-pack-format="questions_only">問題PDF（{pack.puzzles.length}問・{pages}ページ）</a>　<a href={path('answers')} download data-pack-format="answers_only">解答PDF（{pages}ページ）</a></p>
 <p>A4・縦／登録不要・無料。解答を配りたくない場合は「問題PDF」だけを印刷してください。</p>
 </section>

@@ -190,7 +190,10 @@ const footerCols = [
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
       gtag('js', new Date());
-      gtag('config', 'G-CM79TWN2J0');
+      const analyticsURL = new URL(location.href);
+      analyticsURL.hash = '';
+      ['grid','return'].forEach(key => analyticsURL.searchParams.delete(key));
+      gtag('config', 'G-CM79TWN2J0', { page_location: analyticsURL.href });
       (function() {
         var loaded = false;
         var events = ['pointerdown', 'keydown', 'touchstart', 'scroll'];

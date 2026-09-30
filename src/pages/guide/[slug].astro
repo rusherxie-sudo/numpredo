@@ -4,6 +4,7 @@ import ShareBar from '../../components/ShareBar.astro';
 import EditorialNote from '../../components/EditorialNote.astro';
 import TeachingCase from '../../components/TeachingCase.astro';
 import ParentLesson from '../../components/ParentLesson.astro';
+import NewspaperInput from '../../components/NewspaperInput.astro';
 import SolverInputExample from '../../components/SolverInputExample.astro';
 import { guideCases } from '../../data/teaching-cases.ts';
 import { GUIDES, type GuideArticle } from '../../data/guides.ts';
@@ -90,6 +91,7 @@ const techniqueListSchema = g.slug === 'tips' ? {
 
   {guideCases[g.slug] && <TeachingCase spec={guideCases[g.slug]} />}
   {g.slug === 'for-kids' && <ParentLesson />}
+  {g.slug === 'newspaper' && <NewspaperInput />}
   {g.slug === 'newspaper' && <SolverInputExample mode="newspaper" />}
   {g.slug === 'sudoku-algorithm' && <SolverInputExample mode="algorithm" />}
 

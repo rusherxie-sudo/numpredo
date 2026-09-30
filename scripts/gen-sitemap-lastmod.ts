@@ -35,7 +35,7 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
   'guide/[slug].astro': {
     ...Object.fromEntries(['rules','beginner','intermediate','advanced','hard-sudoku-solving','tips','when-stuck','glossary'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts']])),
     'for-kids': ['src/components/ParentLesson.astro','src/components/SmallNumberBoard.astro'],
-    newspaper: ['src/components/SolverInputExample.astro','src/data/solver-sample.ts'],
+    newspaper: ['src/components/SolverInputExample.astro','src/data/solver-sample.ts','src/components/NewspaperInput.astro','src/engine/newspaper-input.ts','src/client/learning-transfer.ts'],
     'sudoku-algorithm': ['src/components/SolverInputExample.astro','src/data/solver-sample.ts'],
   },
   'guide/techniques/[slug].astro': Object.fromEntries(['naked-single','hidden-single','pointing','naked-pair','hidden-pair','naked-triple','x-wing','swordfish','skyscraper'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts', ...(['hidden-single','pointing','naked-pair'].includes(slug) ? ['src/components/TechniqueDrill.astro','src/data/technique-drills.ts'] : [])]])),
@@ -50,6 +50,8 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
+  'print/progression.astro':['src/data/progression-pack.ts','scripts/gen-progression-pdfs.py','public/downloads/progression/manifest.json','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json'],
+  'widgets.astro':['src/pages/embed/mini4.astro','src/data/mini4.ts','src/components/VariantGame.astro','src/client/variant-game.ts'],
   'index.astro': ['src/components/SudokuGame.astro','src/client/sudoku-game.ts','src/client/learning-transfer.ts'],
   'print.astro': ['src/components/PrintResourceCards.astro','src/data/print-resources.json','public/images/print/manifest.json'],
   'variants/6x6.astro': ['src/components/VariantPlayPage.astro','src/components/VariantGame.astro','src/client/variant-game.ts','src/engine/variant-grid.ts','src/data/mini6.ts','src/components/Mini6Lesson.astro'],
@@ -57,11 +59,11 @@ const STATIC_EXTRA_DATA: Record<string, string[]> = {
   'tools/killer-combinations.astro': ['src/engine/variant-grid.ts'],
   ...Object.fromEntries(['6x6','16x16','inequality'].map(slug=>[`print/${slug}.astro`,['src/components/VariantPrintPack.astro','src/components/PrintResourceCards.astro','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json','src/data/variant-print.ts','public/downloads/variants/manifest.json','scripts/gen-variant-pdfs.py']])),
   'tools/solver.astro': ['src/client/ocr-solve.ts','src/data/solver-sample.ts','src/client/learning-transfer.ts'],
-  'print/senior.astro': ['src/components/PrintResourceCards.astro','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json','src/components/ActivityPack.astro','scripts/gen-activity-pack.py','public/downloads/activity/manifest.json'],
+  'print/senior.astro': ['src/components/PrintResourceCards.astro','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json','src/components/ActivityPack.astro','src/components/ActivityContinuation.astro','public/downloads/activity/manifest-02.json','scripts/gen-activity-pack.py','public/downloads/activity/manifest.json'],
   'guide/solving-examples.astro': ['src/data/teaching-cases.ts'],
   'tools/candidate-checker.astro': ['src/client/candidate-checker.ts','src/client/learning-transfer.ts'],
   'variants/4x4.astro': ['src/data/mini4.ts', 'src/components/MiniSudoku4.astro', 'src/client/mini-sudoku4.ts'],
-  'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts','src/data/sudoku16-samples.ts'],
+  'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts','src/data/sudoku16-samples.ts','src/components/VariantGame.astro','src/client/variant-game.ts','src/data/sudoku16-play.ts','src/engine/variant-symbols.ts','public/downloads/variants/manifest.json'],
   'variants/diagonal.astro': ['src/data/puzzles/diagonal.json'],
   'variants/killer.astro': ['src/data/puzzles/killer.json','src/components/KillerExpert.astro','src/data/killer-expert.ts'],
 };

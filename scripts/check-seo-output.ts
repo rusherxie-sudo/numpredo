@@ -11,7 +11,7 @@ const siteOrigin = 'https://numpredo.com';
 const adsensePublisherId = 'ca-pub-1382715204285550';
 const adsenseRecord = 'google.com, pub-1382715204285550, DIRECT, f08c47fec0942fa0';
 const numberedPuzzlePattern = /^\/play\/(?:beginner|intermediate|advanced|hard|extreme)\/\d+\/$/;
-const allowedNoindexPaths = new Set(['/stats/']);
+const allowedNoindexPaths = new Set(['/stats/', '/embed/mini4/']);
 const thinContentExemptPaths = new Set(['/about/', '/contact/', '/privacy/', '/terms/']);
 const minimumMainTextLength = 700;
 const minimumContextualIncomingLinks = 2;
@@ -109,6 +109,7 @@ function contentShingles(text: string, size = 5): Set<string> {
 }
 
 function isContentOnlyPath(pathname: string): boolean {
+  if(pathname==='/guide/newspaper/')return false; // The guide now has a real input tool.
   return pathname.startsWith('/guide/')
     || pathname.startsWith('/research/')
     || ['/about/', '/contact/', '/privacy/', '/terms/', '/variants/'].includes(pathname);
@@ -179,7 +180,7 @@ for (const [pathname, { html }] of pages) {
     owners.push(pathname);
     descriptionOwners.set(descriptions[0], owners);
   }
-  if (adsenseAccounts.length !== 1 || adsenseAccounts[0] !== adsensePublisherId) {
+  if (pathname!=='/embed/mini4/' && (adsenseAccounts.length !== 1 || adsenseAccounts[0] !== adsensePublisherId)) {
     errors.push(`${pathname} 的 AdSense 所有权标记缺失或错误`);
   }
   const h1Count = (mainHtml.match(/<h1\b/gi) ?? []).length;

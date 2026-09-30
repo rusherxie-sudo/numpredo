@@ -20,7 +20,7 @@ function setup(app: HTMLElement): void {
   let givenMask: boolean[] = []; // 解答時に「どのマスが元の入力か」を記録
   // OCR が低確信だったマス。答えを推測せず、利用者に確認箇所だけを示す。
   let ocrUncertain = new Set<number>();
-  let inputSource: 'manual' | 'paste' | 'photo' | 'game' | 'sample' = 'manual';
+  let inputSource: 'manual' | 'paste' | 'photo' | 'game' | 'sample' | 'newspaper' = 'manual';
   let started = false;
   const markStarted = (source = inputSource): void => {
     if (started) return;
@@ -323,9 +323,9 @@ function setup(app: HTMLElement): void {
   const urlGrid = (carriedParam('grid') ?? '').replace(/[^0-9.]/g, '');
   if (urlGrid.length === 81 && /[1-9]/.test(urlGrid)) {
     grid = strToGrid(urlGrid);
-    inputSource = 'game';
+    inputSource = carriedParam('source')==='newspaper'?'newspaper':'game';
     render();
-    setMsg('プレイ中の盤面を読み込みました。「解く」を押すと、答えとここからの解き方手順を表示します。', 'ok');
+    setMsg(inputSource==='newspaper'?'新聞から転記した盤面を読み込みました。数字を紙面と照合してから「解く」を押してください。':'プレイ中の盤面を読み込みました。「解く」を押すと、答えとここからの解き方手順を表示します。', 'ok');
   } else {
     render();
     setMsg('写真を読み込むか、盤面に直接入力して「解く」を押してください。', '');

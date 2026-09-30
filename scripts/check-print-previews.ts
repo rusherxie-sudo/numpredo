@@ -10,7 +10,7 @@ for(const r of resources){
  const image=await sharp(`public/images/print/${r.slug}-preview.png`).metadata();assert.equal(image.width,m.previewWidth);assert.equal(image.height,m.previewHeight);
  const card=await sharp(`public/images/print/${r.slug}-share.png`).metadata();assert.equal(card.width,1200);assert.equal(card.height,630);
  const html=readFileSync(`dist${r.href.split('#')[0]}index.html`,'utf8');
- assert.ok(html.includes(`https://numpredo.com/images/print/${r.slug}-share.png`));
+ if(!r.href.includes('#'))assert.ok(html.includes(`https://numpredo.com/images/print/${r.slug}-share.png`));
  assert.ok(html.includes(`/images/print/${r.slug}-preview.png`));
  assert.ok(html.includes(r.pdf));
 }

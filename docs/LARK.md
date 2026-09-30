@@ -1,3 +1,7 @@
+# 历史规则已停止执行（2026-09-30）
+
+用户明确要求以后不用更新飞书。本文件以下内容只保留历史文档映射，不再要求同步、创建或回读飞书文档。当前交付约定见 AGENTS.md。
+
 # numpredo：Lark 知识库与文档发布规范
 
 知识库导航：https://zjphma1p1w2t.jp.larksuite.com/wiki/APgSwF0nVi7UVMklD93j4IwHpzh

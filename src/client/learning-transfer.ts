@@ -1,4 +1,5 @@
 export function returnPath(value: string | null): string | null {
+  if(value==='/guide/newspaper/'||value==='/guide/newspaper/#newspaper-input')return value;
   if (value && /^\/(?:[?#]|$)/.test(value) && !value.includes('\\')) {
     try { const u=new URL(value,'https://numpredo.com'); if(u.origin==='https://numpredo.com' && u.pathname==='/')return u.pathname+u.search+u.hash; } catch {}
   }
@@ -18,6 +19,6 @@ export function addReturnLink(parent: HTMLElement): void {
   const back = carriedReturn();
   if (!back) return;
   const p = document.createElement('p'), a = document.createElement('a');
-  a.href = back; a.textContent = '元のゲームに戻って続きを解く →'; a.dataset.learningReturn = '';
+  a.href = back; a.textContent = back.startsWith('/guide/newspaper/')?'新聞の入力ページに戻る →':'元のゲームに戻って続きを解く →'; a.dataset.learningReturn = '';
   p.append(a); parent.append(p);
 }

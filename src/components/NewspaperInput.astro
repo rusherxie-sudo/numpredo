@@ -1,0 +1,42 @@
+---
+import {SOLVER_SAMPLE} from '../data/solver-sample.ts';
+---
+<section id="newspaper-input" class="newspaper-input" data-newspaper-input data-example={SOLVER_SAMPLE}>
+  <h2>手元の新聞の盤面をここから入力</h2>
+  <p>最初から印刷された数字だけを、上から9行で写します。空きマスは「.」または0。自分で書いた答えや候補は混ぜず、転記した数字を紙面と照合してください。</p>
+  <form>
+    <label for="newspaper-grid">9文字ずつ・全9行（改行と空白は使えます）</label>
+    <textarea id="newspaper-grid" rows="9" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="例：2...7.8..（このように9行）"></textarea>
+    <p class="actions"><button type="submit" value="hint">答えを見ず、次の一手を調べる</button><button type="submit" value="answer">入力を引き継いで答え合わせへ</button></p>
+    <p data-input-status role="status"></p>
+  </form>
+  <p><button type="button" data-input-example>numpredoの自作例題で入力を試す</button></p>
+  <p><a href="/tools/solver/#source=newspaper&amp;return=%2Fguide%2Fnewspaper%2F%23newspaper-input">手入力をせず、写真・カメラから読み取る →</a></p>
+  <p>盤面はこの端末で扱い、ツールへの移動にはURLの#以降を使います。新聞各号の公式解答一覧ではありません。</p>
+  <noscript>入力の引き継ぎにはJavaScriptが必要です。<a href="/tools/solver/">答え合わせツール</a>を開いて入力できます。</noscript>
+</section>
+<script>
+import {newspaperInput} from '../engine/newspaper-input.ts';
+import {toolLink} from '../client/learning-transfer.ts';
+import {track} from '../client/track.ts';
+const root=document.querySelector<HTMLElement>('[data-newspaper-input]');
+if(root){
+ const area=root.querySelector<HTMLTextAreaElement>('textarea')!,form=root.querySelector('form')!;
+ const key='numpredo.newspaper.input.v1';
+ try{area.value=sessionStorage.getItem(key)||'';}catch{}
+ const save=()=>{try{sessionStorage.setItem(key,area.value);}catch{}};
+ area.addEventListener('input',save);
+ root.querySelector('[data-input-example]')!.addEventListener('click',()=>{area.value=root.dataset.example!.match(/.{9}/g)!.join('\n');save();area.focus();});
+ form.addEventListener('submit',e=>{
+  e.preventDefault();const input=newspaperInput(area.value);
+  if(input.error){root.querySelector('[data-input-status]')!.textContent=input.error;return;}
+  const mode=(e as SubmitEvent).submitter?.getAttribute('value')||'hint';save();
+  const path=mode==='answer'?'/tools/solver/':'/tools/candidate-checker/';
+  track('newspaper_to_tool',{mode});
+  location.assign(toolLink(path,input.grid!,'/guide/newspaper/#newspaper-input')+'&source=newspaper');
+ });
+}
+</script>
+<style>
+.newspaper-input{scroll-margin-top:88px;border:1px solid var(--line);border-radius:12px;padding:18px;margin:24px 0}label{display:block;margin-bottom:8px}textarea{box-sizing:border-box;width:100%;max-width:400px;font:18px/1.5 var(--font-mono);letter-spacing:.1em;background:var(--surface);color:var(--ink);border:1px solid var(--line);padding:10px;border-radius:6px}.actions{display:flex;flex-wrap:wrap;gap:8px}button{font:inherit;min-height:44px;cursor:pointer;padding:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px}a{color:var(--accent)}
+</style>

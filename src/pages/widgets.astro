@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+const code='<iframe src="https://numpredo.com/embed/mini4/" title="今日の4×4ミニナンプレ" width="100%" height="1100" style="max-width:460px;border:1px solid #dce3df;border-radius:12px" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>';
+---
+<Base title="ブログにナンプレを設置｜無料4×4埋め込みウィジェット - numpredo" description="ブログ・教室・活動サイトの中で遊べる無料4×4ナンプレ。コピーして設置できる小窓、日替わりの一問、スマホ対応。実演と設置・利用条件を確認できます。">
+<nav><a href="/variants/4x4/">4×4ナンプレ</a> › サイトへの設置</nav>
+<h1>ブログや活動サイトに、遊べる4×4ナンプレを設置</h1>
+<p>読者がページを離れずに、一問だけ気軽に楽しめる小さなナンプレです。個人ブログ、教室や施設の活動紹介ページに、下のコードを貼って設置できます。利用料・登録は不要。数字は1〜4、行・列・2×2の太枠に一つずつ入れます。</p>
+<h2>まず、このページの中で試す</h2>
+<p>日付は日本時間です。検証済みの12問から一問を日替わりで選びます。12日ごとに同じ題が再登場するため、毎日新作が追加されるサービスではありません。空きマスを選び、数字のボタンで答えを入れてください。</p>
+<div class="widget-demo"><iframe src="/embed/mini4/" title="今日の4×4ミニナンプレの実演" width="100%" height="1100" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe></div>
+<h2>コードをコピーして設置</h2>
+<label for="widget-code">HTMLを貼り付けられる欄に、全体をそのまま入れます。</label>
+<textarea id="widget-code" rows="7" readonly>{code}</textarea><button type="button" data-widget-copy>設置コードをコピー</button><p data-widget-status role="status"></p>
+<p>ブログの編集画面で「カスタムHTML」などの欄を選び、コードを貼り付け、プレビューで盤面と数字ボタンを確認します。サイトによってはiframeが許可されないことがあります。その場合は管理者の設定を確認するか、<a href="/variants/4x4/">4×4のゲームページ</a>へのリンクをご利用ください。通常の文章欄に貼ると、コードが文字として表示されることがあります。</p>
+<h2>幅と高さ・スマホでの確認</h2>
+<p>幅は親の欄に合わせ、最大460ピクセルです。最低280ピクセル程度の幅を確保してください。高さは1100ピクセルの例で、サイトの文字サイズや余白によっては調整できます。公開前にスマホで下まで表示されること、数字ボタンを押せること、続きのゲームとプリントのリンクが開くことを確認してください。</p>
+<p>小窓の中に広告とアクセス解析スクリプトは読み込みません。入力は端末内で処理します。ブラウザが別サイト内の保存を制限している場合、途中経過を保存できないことがあります。その場合もその場で作答できます。「numpredoで続ける」を開くと、通常のゲームページで遊べます。</p>
+<h2>利用条件と更新について</h2>
+<p>この小窓は、個人ブログ、学校・教室、地域活動、介護・福祉施設などの紹介や活動ページへ無料で設置できます。numpredoの出典とリンクは表示したままにしてください。設置コード内のURLは変更せず利用し、当サイトになりすました表示や、題目・解答を抜き出して販売する利用はできません。</p>
+<p>埋め込みはnumpredoから読み込むため、機能の修正は設置先にも反映されます。更新を確認したい場合はページを再読み込みしてください。サービス停止やネットワーク障害時に読めない可能性があります。配布の予定が決まっている授業・活動では、事前に<a href="/print/progression/">入門資料のPDF</a>も保存すると便利です。</p>
+<p>読者が小窓からnumpredoへ移動した場合、リンクの紹介元パラメータで利用を集計します。設置しただけで、採用サイトの閲覧数を取得する仕組みはありません。協力サイトの数や流量増加は、実際の採用・訪問が確認されてから判断します。利用の詳細は<a href="/terms/">利用規約</a>、データの扱いは<a href="/privacy/">プライバシーポリシー</a>をご覧ください。</p>
+</Base>
+<script>
+import {track} from '../client/track.ts';
+document.querySelector('[data-widget-copy]')?.addEventListener('click',async()=>{const code=document.querySelector<HTMLTextAreaElement>('#widget-code')!,status=document.querySelector('[data-widget-status]')!;try{await navigator.clipboard.writeText(code.value);status.textContent='設置コードをコピーしました。';track('widget_code_copy',{widget:'mini4'});}catch{code.focus();code.select();status.textContent='コードを選択しました。端末のコピー操作で保存してください。';}});
+</script>
+<style>.widget-demo{max-width:460px;margin:20px auto}iframe{border:1px solid var(--line);border-radius:12px;display:block}textarea{box-sizing:border-box;width:100%;font:14px/1.5 var(--font-mono);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:12px}button{font:inherit;min-height:44px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);cursor:pointer}a{color:var(--accent)}</style>

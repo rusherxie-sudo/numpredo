@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import PrintResourceShare from '../../components/PrintResourceShare.astro';
+import PrintResourceCards from '../../components/PrintResourceCards.astro';
+import previews from '../../../public/images/print/manifest.json';
+import {PROGRESSION_PACK} from '../../data/progression-pack.ts';
+const preview=previews.find(p=>p.slug==='progression')!;
+const title='4×4から6×6へ・ナンプレ入門プリント8問｜答え別PDF - numpredo';
+const description='4×4を4問、6×6を4問。太枠を段階的に覚えるナンプレ入門資料。問題・解答は各4ページの別PDF、親子・教室で使える進度記録は1ページ。無料・登録不要。';
+---
+<Base title={title} description={description} ogImage="/images/print/progression-share.png" ogImageAlt="4×4から6×6へ進む入門8問。問題と解答は別PDF、使い方と記録付き。">
+<nav><a href="/print/">無料プリント</a> › 入門資料</nav>
+<h1>4×4から6×6へ・ナンプレ入門プリント8問</h1>
+<p>数字の少ない4×4で横・縦・太枠のルールを覚え、6×6の長方形の枠へ進む固定セットです。四角の大きさが変わる前に、一問ずつ数字の理由を確認します。親子や教室で、自分のペースで使えます。</p>
+<section class="downloads" data-variant-pack="progression" data-count="8">
+<h2>セット01：問題・答え・使い方を別々に保存</h2>
+<p><a href="/downloads/progression/numpredo-progression-01-questions.pdf" download data-pack-format="questions_only">問題PDF（8問・A4 4ページ）↓</a></p>
+<p><a href="/downloads/progression/numpredo-progression-01-answers.pdf" download data-pack-format="answers_only">解答PDF（4ページ）↓</a></p>
+<p><a href="/downloads/progression/numpredo-progression-01-guide.pdf" download data-pack-format="organizer_guide">使い方・進度記録（1ページ）↓</a></p>
+</section>
+<figure><a href="/downloads/progression/numpredo-progression-01-questions.pdf"><img src="/images/print/progression-preview.png" width={preview.previewWidth} height={preview.previewHeight} alt="問題PDFの実際の第一ページ。4×4のmini4-1とmini4-2を大きく配置。" loading="lazy" decoding="async"/></a><figcaption>答えを含まない最初の問題用紙。A4に2問ずつです。</figcaption></figure>
+<h2>最初の2回は4×4、次の2回は6×6</h2>
+<p>問題PDFの1〜2ページは4×4、3〜4ページは6×6です。4×4の太枠は2行×2列、6×6は2行×3列です。数字の範囲は1〜4から1〜6へ増えます。初めての方には一度に全部を渡さず、最初の一問で三つの条件を一緒に確認してください。</p>
+<ul>{PROGRESSION_PACK.map((p,i)=><li>{i===0?'前半':'後半'}：{p.size}×{p.size}、{p.puzzles.map(p=>p.id).join('・')}。<a href={`/variants/${p.size}x${p.size}/`}>同じ題番号をオンラインで解く →</a></li>)}</ul>
+<h2>答えを伝える前に尋ねること</h2>
+<p>「この横の行には、まだどの数字がないかな」「同じ縦の列にはもう使われていないかな」「太い枠にも同じ数字が入っていないかな」と順番に尋ねます。候補を二つに絞れたら、まだ一つに決まらなくても構いません。別の行へ進み、数字が増えてから戻ると、当てずっぽうを避けられます。</p>
+<p>4×4が解けたからといって、その日に6×6へ進む必要はありません。答えだけを覚えているときは、どう考えたかを説明してもらいます。太枠を指でたどり、長方形の六マスを一組として見られたら、次の大きさに挑戦できます。</p>
+<h2>大きなマスで印刷し、記録を残す</h2>
+<p>A4・縦・実際のサイズで印刷すると盤面は約94ミリ四方です。4×4の一マスは約23.5ミリ、6×6は約15.7ミリ。プリンターで「複数ページを一枚にまとめる」を選ぶと小さくなるため、まず一ページを試し刷りしてください。問題用紙と解答用紙は別ファイルで、参加者に答えを渡さず使えます。</p>
+<p>使い方PDFには、八つの問題IDごとの配布日とメモ欄があります。正解の数だけでなく、「行と列を順に確認できた」「太枠を見つけられた」などを残せます。疲れた日は途中で終え、次回も同じ題番号で続きを確認してください。</p>
+<h2>題番号・重複・利用条件</h2>
+<p>収録題はすべて唯一解で、候補を絞る論理手順で最後まで解けることを確認しています。4×4・6×6のオンライン版と共通の題です。6×6の四問は既存の6×6セット01にも含まれるため、両方を使う場合はmini6-1〜4の配布履歴を照合してください。この資料は新しい八問を増やしたものではなく、二つの大きさを段階的に学ぶためにまとめたものです。</p>
+<p>家庭や学校等の非営利・無料配布に使えます。販売、PDFのウェブ再掲載、商用利用はできません。<a href="/terms/#print-license">利用条件</a>をご確認ください。紹介する場合は、このページのリンクをご利用ください。</p>
+<p>もっと6×6を練習するなら<a href="/print/6x6/">6×6の六問PDF</a>へ。9×9を大きく配りたい場合は<a href="/print/senior/#activity-pack">四回分の活動資料</a>が使えます。</p>
+<PrintResourceShare slug="progression" />
+<PrintResourceCards exclude="progression" slugs={["6x6","activity02"]} />
+</Base>
+<script>
+import {track} from '../../client/track.ts';
+document.querySelectorAll<HTMLAnchorElement>('[data-pack-format]').forEach(a=>a.addEventListener('click',()=>track('print_pdf_download',{level:'progression',count:8,format:a.dataset.packFormat})));
+</script>
+<style>figure{max-width:300px;margin:20px auto}img{width:100%;height:auto}a{color:var(--accent)}.downloads a{display:inline-block;padding:12px;border:1px solid var(--line);border-radius:6px}section{margin:20px 0}</style>
