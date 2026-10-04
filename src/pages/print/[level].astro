@@ -54,6 +54,7 @@ const breadcrumbSchema = {
   <nav class="crumb"><a href="/">ホーム</a> › <a href="/print/">問題集・印刷</a> › {doc.ja}</nav>
   <h1>{doc.h1}</h1>
   <p class="lead">{doc.lead}</p>
+  {doc.slug === 'beginner' && <p class="screen-only">大きなマスで紙に書きたい方は<a href="/print/senior/">高齢者向け・大きく見やすい初級ナンプレの無料プリント</a>へ。印刷せず画面で解くなら<a href="/play/beginner/">初級ナンプレの無料オンラインゲーム</a>を選べます。</p>}
 
   <PrintTool defaultLevel={doc.slug} />
 

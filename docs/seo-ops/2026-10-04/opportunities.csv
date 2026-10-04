@@ -1,0 +1,91 @@
+cluster,query,clicks,impressions,ctr_percent,position,previous_clicks,suggested_owner,observed_pages,multi_page_review,decision
+行き詰まり,数独 行き詰まったら,78,3253,2.4,7.45,9,/guide/when-stuck/,/guide/when-stuck/ | /guide/tips/ | /print/intermediate/,False,grow
+初級ゲーム,数独 初級,30,3007,1.0,8.57,5,/play/beginner/,/print/beginner/ | /play/beginner/ | /guide/rules/,True,grow
+大字・高齢者プリント,ナンプレ初級 無料 高齢者,75,2669,2.81,7.52,2,/print/senior/,/print/senior/ | /play/beginner/ | /print/beginner/,False,intent_review
+中級ゲーム,ナンプレ 中級,43,2062,2.09,8.4,4,/play/intermediate/,/play/intermediate/ | /guide/intermediate/ | /print/intermediate/,True,grow
+一般ゲーム・要確認,ナンプレ,1,2036,0.05,8.95,0,/,/ | /guide/brain-training/ | /guide/rules/,False,intent_review
+日替わり,日替わり ナンプレ 上級者 問題,15,1983,0.76,7.91,7,/daily/,/daily/ | / | /print/,False,grow
+初級ゲーム,ナンプレ 初級,23,1880,1.22,6.96,4,/play/beginner/,/play/beginner/ | /print/beginner/ | /guide/intermediate/,False,grow
+一般ゲーム・要確認,数独無料,3,1552,0.19,9.3,2,/,/ | /play/ | /print/intermediate/,False,intent_review
+解法・手筋,数独 テクニック一覧,57,1548,3.68,6.17,42,/guide/tips/,/guide/tips/ | /guide/ | /guide/glossary/,False,grow
+超難問ゲーム,超難問 数独 最 高級,77,1539,5.0,5.44,33,/play/extreme/,/play/extreme/ | /print/extreme/ | /play/,False,grow
+日替わり,日替わり ナンプレ 初級 無料,59,1458,4.05,8.33,1,/daily/,/daily/ | /play/beginner/ | /,False,grow
+行き詰まり,数独 行き詰まったら 解き方,65,1416,4.59,6.91,1,/guide/when-stuck/,/guide/when-stuck/ | /guide/tips/ | /print/hard/,False,grow
+超難問ゲーム,数独 難問 最高級,25,1341,1.86,7.0,8,/play/extreme/,/play/extreme/ | /print/extreme/,False,grow
+大字・高齢者プリント,ナンプレ 初級 無料 高齢者,21,1231,1.71,7.39,0,/print/senior/,/print/senior/ | /play/beginner/ | /guide/brain-training/,False,intent_review
+変体,キラーナンプレ エキスパート,1,1206,0.08,8.98,0,/variants/,/variants/killer/,False,specialist
+初級ゲーム,数独 初級 無料,3,1074,0.28,7.91,0,/play/beginner/,/play/beginner/ | /print/beginner/ | /print/,True,grow
+問題集を選ぶ,数独無料問題集,25,939,2.66,7.54,0,/play/,/play/ | / | /print/,True,grow
+超難問ゲーム,数独 超難問 無料,15,845,1.78,7.19,3,/play/extreme/,/play/extreme/ | / | /play/,True,grow
+解法・手筋,数独テクニック一覧,35,794,4.41,4.94,1,/guide/tips/,/guide/tips/ | /guide/ | /guide/rules/,False,grow
+中級ゲーム,ナンプレ中級,5,783,0.64,8.94,5,/play/intermediate/,/play/intermediate/ | /print/intermediate/ | /guide/intermediate/,False,grow
+初級ゲーム,数独 無料 初級,11,706,1.56,8.64,0,/play/beginner/,/play/beginner/ | /play/ | /,False,grow
+日替わり,日替わり ナンプレ(初級) 無料,3,691,0.43,8.24,0,/daily/,/daily/ | /play/beginner/ | /daily/archive/,False,grow
+問題集を選ぶ,数独 無料 ゲーム 数独問題集,13,662,1.96,7.92,6,/play/,/play/ | /,True,grow
+初級ゲーム,数独初級,1,641,0.16,8.9,1,/play/beginner/,/print/beginner/ | /play/beginner/,True,grow
+大字・高齢者プリント,大きくて見やすい数独 初級編 無料,0,619,0,5.72,0,/print/senior/,/print/beginner/ | /play/beginner/ | /,True,intent_review
+求解ツール,ナンプレ解答,5,603,0.83,4.26,2,/tools/solver/,/tools/solver/,False,grow
+日替わり,日替わり ナンプレ 初級,8,601,1.33,7.93,2,/daily/,/daily/ | /play/beginner/ | /daily/archive/,False,grow
+問題集を選ぶ,ナンプレ問題集,6,582,1.03,6.54,0,/play/,/play/ | / | /print/hard/,True,grow
+解法・手筋,数独 テクニック,31,568,5.46,7.99,7,/guide/tips/,/guide/tips/,False,grow
+初級ゲーム,数独初級無料,2,567,0.35,8.15,0,/play/beginner/,/print/beginner/ | /play/beginner/ | /print/,True,grow
+解法・手筋,ナンプレ 解き方 順番,42,554,7.58,4.7,8,/guide/tips/,/guide/tips/ | /guide/when-stuck/ | /tools/solver/,False,grow
+超難問ゲーム,ナンプレ 超上級 無料,1,502,0.2,7.65,1,/play/extreme/,/play/extreme/ | /play/ | /,False,grow
+問題集を選ぶ,数独無料ゲーム 数独問題集,1,483,0.21,7.38,1,/play/,/play/ | /,True,grow
+超難問ゲーム,数独最高級,0,475,0,6.48,0,/play/extreme/,/play/extreme/,False,grow
+中級ゲーム,数独 中級,11,468,2.35,8.66,0,/play/intermediate/,/guide/intermediate/ | /play/intermediate/ | /print/intermediate/,True,grow
+超難問ゲーム,ナンプレ 超難問 無料,9,458,1.97,8.59,4,/play/extreme/,/play/extreme/ | /play/ | /print/extreme/,True,grow
+初級ゲーム,ナンプレ 初級 無料,1,424,0.24,8.27,1,/play/beginner/,/play/beginner/ | /print/beginner/ | /,False,grow
+初級ゲーム,ナンプレ初級,4,390,1.03,6.48,0,/play/beginner/,/play/beginner/ | /print/beginner/ | /guide/brain-training/,False,grow
+求解ツール,ナンプレ解答プログラム,5,383,1.31,5.55,3,/tools/solver/,/tools/solver/,False,grow
+変体,ナンプレ16x16,4,371,1.08,7.26,1,/variants/,/variants/16x16/ | /variants/4x4/,False,specialist
+大字・高齢者プリント,大きくて 見やすい 数独 初級編 無料,0,369,0,5.78,0,/print/senior/,/play/beginner/ | /print/beginner/ | /print/,True,intent_review
+超難問ゲーム,数独難問最高級,1,362,0.28,5.98,2,/play/extreme/,/play/extreme/,False,grow
+解法・手筋,ナンプレ 解き方 中級,8,352,2.27,7.39,1,/guide/tips/,/guide/intermediate/,False,grow
+求解ツール,ナンプレ 解答,13,331,3.93,4.21,2,/tools/solver/,/tools/solver/,False,grow
+超難問ゲーム,数独問題集 最高級,1,327,0.31,7.97,0,/play/extreme/,/print/extreme/ | /play/extreme/,True,grow
+変体,数独 キラー エキスパート,0,324,0,9.37,0,/variants/,/variants/killer/,False,specialist
+日替わり,日替わりナンプレ,5,312,1.6,5.51,1,/daily/,/daily/,False,grow
+初級ゲーム,ナンプレ 無料 初級,9,308,2.92,9.32,1,/play/beginner/,/play/beginner/ | /print/beginner/ | /,False,grow
+初級ゲーム,ナンプレ(初級),0,297,0,7.68,0,/play/beginner/,/play/beginner/ | /print/beginner/,False,grow
+変体,キラー数独 エキスパート,0,287,0,8.95,0,/variants/,/variants/killer/,False,specialist
+変体,不等号ナンプレ,9,286,3.15,6.55,4,/variants/,/variants/inequality/,False,specialist
+解法・手筋,ナンプレ 解き方 中級 わかりやすく,4,274,1.46,7.27,0,/guide/tips/,/guide/intermediate/ | /tools/solver/,False,grow
+変体,16*16,2,269,0.74,5.54,0,/variants/,/variants/16x16/,False,specialist
+解法・手筋,数独 コツ,1,269,0.37,9.71,0,/guide/tips/,/guide/tips/ | /guide/rules/ | /guide/when-stuck/,False,grow
+問題集を選ぶ,数独 無料ゲーム 数独問題集,10,266,3.76,6.79,0,/play/,/play/ | /,True,grow
+初級ゲーム,数独問題 初級 無料,3,257,1.17,7.81,0,/play/beginner/,/play/beginner/ | /print/ | /play/,True,grow
+求解ツール,ナンプレ 答え,10,237,4.22,4.41,3,/tools/solver/,/tools/solver/ | /guide/intermediate/,False,grow
+解法・手筋,ナンプレ 解き方 コツ,7,236,2.97,8.2,0,/guide/tips/,/guide/tips/ | /guide/,False,grow
+問題集を選ぶ,数独問題,4,234,1.71,8.57,0,/play/,/play/ | / | /play/beginner/,True,grow
+中級ゲーム,数独 中級 無料ゲーム,1,231,0.43,7.39,2,/play/intermediate/,/play/intermediate/ | /play/,False,grow
+行き詰まり,数独 行き詰まったら エキスパート,20,229,8.73,7.86,0,/guide/when-stuck/,/guide/when-stuck/,False,grow
+日替わり,日替わり ナンプレ,1,229,0.44,4.07,0,/daily/,/daily/,False,grow
+求解ツール,数独 解答,3,224,1.34,5.58,0,/tools/solver/,/tools/solver/,False,grow
+問題集を選ぶ,数独問題集,2,220,0.91,8.5,0,/play/,/play/ | / | /guide/brain-training/,False,grow
+解法・手筋,数独 解き方 初級,5,208,2.4,9.76,0,/guide/tips/,/guide/tips/ | /play/beginner/ | /guide/beginner/,False,grow
+超難問ゲーム,数独 最上級,0,207,0,8.25,0,/play/extreme/,/play/extreme/ | /,False,grow
+超難問ゲーム,数独 最高級,0,207,0,6.36,0,/play/extreme/,/play/extreme/,False,grow
+一般ゲーム・要確認,ナンプレ 16,0,202,0,8.44,0,/,/variants/16x16/,False,intent_review
+一般ゲーム・要確認,ナンプレ16,0,199,0,8.57,0,/,/variants/16x16/,False,intent_review
+解法・手筋,ナンプレ テクニック,10,184,5.43,6.85,0,/guide/tips/,/guide/tips/ | /guide/glossary/ | /guide/,False,grow
+解法・手筋,ナンプレ 中級 解き方,5,181,2.76,8.38,0,/guide/tips/,/guide/intermediate/ | /play/intermediate/,False,grow
+解法・手筋,数独 解き方 コツ,9,175,5.14,5.14,1,/guide/tips/,/guide/tips/ | /guide/beginner/,False,grow
+中級ゲーム,ナンプレ無料 中級,0,173,0,10.42,0,/play/intermediate/,/play/intermediate/ | /print/intermediate/ | /guide/intermediate/,False,grow
+変体,不等号 ナンプレ 問題,2,162,1.23,7.65,0,/variants/,/variants/inequality/ | /play/,False,specialist
+印刷・PDF,数独 印刷 無料 6枚,16,160,10.0,5.32,5,/print/,/print/ | /print/beginner/ | /print/hard/,False,grow
+印刷・PDF,数独プリントシェア,0,159,0,5.33,0,/print/,/print/ | / | /variants/4x4/,False,grow
+求解ツール,数独 答え,2,156,1.28,4.9,0,/tools/solver/,/tools/solver/ | /,False,grow
+解法・手筋,ナンプレ xy-wing 見つけ方,8,154,5.19,5.99,0,/guide/tips/,/guide/techniques/xy-wing/,False,grow
+求解ツール,ナンプレ答え,5,151,3.31,4.26,1,/tools/solver/,/tools/solver/,False,grow
+解法・手筋,ナンプレ 中級 解き方 わかりやすい,5,149,3.36,7.34,1,/guide/tips/,/guide/intermediate/,False,grow
+印刷・PDF,数独 無料 印刷,7,148,4.73,8.47,1,/print/,/print/ | /print/hard/ | /print/extreme/,False,grow
+行き詰まり,数独 行き詰まっ たら 中級 解き方,1,148,0.68,7.61,2,/guide/when-stuck/,/guide/intermediate/ | /guide/brain-training/ | /guide/tips/,False,grow
+解法・手筋,数独 解き方 中級,2,144,1.39,8,0,/guide/tips/,/guide/intermediate/ | /guide/brain-training/ | /guide/rules/,False,grow
+解法・手筋,数独の解き方のコツ,6,142,4.23,5.06,0,/guide/tips/,/guide/tips/ | /guide/rules/ | /tools/solver/,False,grow
+変体,16×16 ナンプレ,1,141,0.71,6.09,0,/variants/,/variants/16x16/,False,specialist
+行き詰まり,ナンプレ 行き詰まったら,8,138,5.8,7.42,0,/guide/when-stuck/,/guide/when-stuck/,False,grow
+超難問ゲーム,数独問題集 最 高級,5,138,3.62,8.84,0,/play/extreme/,/play/extreme/ | /print/extreme/,True,grow
+印刷・PDF,ナンプレ 印刷,8,137,5.84,8.15,0,/print/,/print/beginner/ | /print/ | /print/hard/,True,grow
+問題集を選ぶ,無料数独問題集,1,134,0.75,8.31,0,/play/,/play/ | /,True,grow
+求解ツール,数独答え,1,132,0.76,6.45,1,/tools/solver/,/tools/solver/,False,grow
