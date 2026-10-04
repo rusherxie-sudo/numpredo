@@ -42,27 +42,35 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 
   <nav class="crumb"><a href="/">ホーム</a> › <a href="/print/">問題集・印刷</a> › 高齢者向け</nav>
   <h1>高齢者向けナンプレ無料プリント｜大きなマス・解答付き</h1>
-  <p class="lead">A4に初級2問をゆったり配置した、高齢者・シニア向けの無料ナンプレです。最初から「大きく2問」が選ばれているので、設定に迷わず印刷できます。家庭での脳トレや、デイサービス・介護施設内のレクリエーションにどうぞ。</p>
-
-  <PrintTool defaultLevel="beginner" defaultCount={2} defaultPreset="senior" />
+  <p class="lead">高齢者・シニア向けの初級ナンプレを、A4に大きく2問ずつ。下のPDFを開くだけで印刷できます。登録不要・無料、すべて答え付きです。</p>
 
   <section class="screen-only pdf-download" aria-labelledby="senior-pdf-title">
     <div>
-      <h2 id="senior-pdf-title">高齢者向けの12問・60問PDFをまとめてダウンロード</h2>
-      <p>大きなマスの2問版に加えて、検証済みの初級問題を使った12問・60問のPDFも選べます。保存して、必要なときに何度でも印刷してください。</p>
+      <h2 id="senior-pdf-title">設定なしですぐ印刷・PDF保存</h2>
+      <p>すべて初級です。12問版は問題6ページ＋答え2ページ、60問版は問題30ページ＋答え10ページ。A4・倍率100％で印刷してください。</p>
       <p class="pdf-license">学校・介護施設などでの非営利・無料配布は許可されています。<a href="/terms/#print-license">利用条件を見る</a></p>
     </div>
     <div class="pdf-download-actions">
       <a class="pdf-download-btn" href="/downloads/numpredo-senior-12.pdf" download data-pdf-download="senior" data-pdf-count="12">
         高齢者向け12問PDF
-        <small>答え付き・無料</small>
+        <small>大きく2問ずつ・答え付き</small>
       </a>
       <a class="pdf-download-btn" href="/downloads/numpredo-senior-60.pdf" download data-pdf-download="senior" data-pdf-count="60">
         高齢者向け60問PDF
-        <small>答え付き・無料</small>
+        <small>大きく2問ずつ・答え付き</small>
       </a>
     </div>
   </section>
+
+  <nav class="screen-only senior-jump" aria-label="プリントの使い方を選ぶ">
+    <a href="#print-tool">問題や題数を変えて印刷</a>
+    <a href="#activity-pack">問題と答えが別の配布セット</a>
+    <a href="/variants/4x4/">まず4×4を画面で練習</a>
+  </nav>
+
+  <h2 class="screen-only" id="senior-custom-title">別の問題を作って印刷する</h2>
+  <p class="screen-only">毎回違う初級2問を作れます。下の設定で題数・見出しを選び、「問題集を作成して印刷・PDF保存」を押してください。</p>
+  <PrintTool defaultLevel="beginner" defaultCount={2} defaultPreset="senior" />
 
   <ActivityPack />
 
@@ -120,6 +128,9 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
   </div>
 
   <style>
+    .senior-jump { display:flex; flex-wrap:wrap; gap:8px 18px; margin:16px 0 28px; }
+    .senior-jump a { color:var(--accent); padding:8px 0; }
+    :global(#print-tool) { scroll-margin-top:88px; }
     .senior-content { max-width: 880px; margin: 32px auto 0; }
     .senior-content section { margin-top: 34px; }
     .senior-content h2 { margin-bottom: 12px; }

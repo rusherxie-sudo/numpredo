@@ -16,7 +16,7 @@ function setup(root: HTMLElement): void {
   const trackUse = (source: 'manual' | 'paste' | 'sample'): void => {
     if (useTracked) return;
     useTracked = true;
-    track('candidate_check', { source });
+    track('candidate_check', { input_method: source });
   };
 
   root.addEventListener('click', (event) => {

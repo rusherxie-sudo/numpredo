@@ -25,10 +25,8 @@ function setup(app: HTMLElement): void {
   const markStarted = (source = inputSource): void => {
     if (started) return;
     started = true;
-    track('solver_start', { source });
+    track('solver_start', { input_method: source });
   };
-  app.addEventListener('pointerdown', () => markStarted(), { once: true });
-  app.addEventListener('keydown', () => markStarted(), { once: true });
 
   // ---- DOM 構築：盤面 + キーボード（role=grid > row > gridcell 合规层级，行容器 display:contents）----
   app.innerHTML = '';
@@ -79,6 +77,7 @@ function setup(app: HTMLElement): void {
     grid = strToGrid(SOLVER_SAMPLE);
     ocrUncertain.clear();
     inputSource = 'sample';
+    markStarted();
     sel = -1;
     clearOut();
     setMsg('サンプルを入力しました。「解く」を押してください。', '');
@@ -145,6 +144,7 @@ function setup(app: HTMLElement): void {
     grid = strToGrid(cleaned);
     ocrUncertain.clear();
     inputSource = 'paste';
+    markStarted();
     sel = -1;
     clearOut();
     setMsg('貼り付けから盤面を読み込みました。「解く」を押してください。', 'ok');
@@ -165,6 +165,7 @@ function setup(app: HTMLElement): void {
 
   function input(n: number): void {
     if (sel < 0) return;
+    if (n !== 0) markStarted();
     solved = null; // 編集したら解答表示を解除
     clearSteps();
     grid[sel] = n;
@@ -215,6 +216,7 @@ function setup(app: HTMLElement): void {
       render();
       return;
     }
+    markStarted();
     if (conflicts(grid).size > 0) {
       setMsg('同じ行・列・3×3に数字の重複があります。赤いマスを直してください。', 'err');
       render();
@@ -238,7 +240,7 @@ function setup(app: HTMLElement): void {
     setMsg(n > 1 ? '※ 解が複数あります。一例を表示しています（緑が答え）。' : '解けました！緑の数字が答えです。盤面をタップすると再入力できます。', n > 1 ? 'warn' : 'ok');
     render();
     void renderSteps(grid.slice()); // 「解き方の手順」を図解表示（grid は元の問題＝題面）
-    track('solver_solve', { result: n > 1 ? 'multiple' : 'unique', source: inputSource, ocr_uncertain: ocrUncertain.size, filled: givenMask.filter(Boolean).length });
+    track('solver_solve', { result: n > 1 ? 'multiple' : 'unique', input_method: inputSource, ocr_uncertain: ocrUncertain.size, filled: givenMask.filter(Boolean).length });
   }
 
   async function onImage(file: File): Promise<void> {

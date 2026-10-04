@@ -6,7 +6,10 @@ declare global {
   }
 }
 
-export function track(name: string, params: Record<string, unknown> = {}): void {
+// Acquisition fields must not carry in-app actions (manual/game/photo).
+// Use input_method for puzzle input and keep traffic attribution to GA/UTM.
+type EventParams = Record<string, unknown> & { source?: never; medium?: never; campaign?: never };
+export function track(name: string, params: EventParams = {}): void {
   try {
     const dl = (window.dataLayer = window.dataLayer || []);
     // gtag.js 只处理 gtag() 推入的 Arguments 对象——普通数组 push 会被静默忽略

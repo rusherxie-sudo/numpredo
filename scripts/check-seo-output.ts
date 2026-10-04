@@ -201,6 +201,12 @@ for (const [pathname, { html }] of pages) {
       errors.push(`${pathname} 存在没有固定 width/height 的图片（会产生布局偏移）`);
     }
   }
+  // Editorial markup must render as links/emphasis, never as visible HTML source.
+  for (const lead of matches(html, /<p\b[^>]*class="lead"[^>]*>([\s\S]*?)<\/p>/g)) {
+    if (/&lt;\/?(?:a|strong|em)\b/i.test(lead)) {
+      errors.push(`${pathname} 导语把编辑标记显示成文本，链接不可用`);
+    }
+  }
   for (const jsonLd of matches(html, /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     try {
       JSON.parse(jsonLd);
