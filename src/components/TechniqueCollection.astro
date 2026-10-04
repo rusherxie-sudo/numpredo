@@ -1,0 +1,20 @@
+---
+import { PUZZLE_LIBRARY } from '../data/puzzle-library.ts';
+import { PUZZLE_TECHNIQUES } from '../data/puzzle-techniques.ts';
+import { LEVELS } from '../data/levels.ts';
+interface Props { slug: string }
+const { slug } = Astro.props;
+const technique = PUZZLE_TECHNIQUES.find(t => t.slug === slug);
+const groups = technique ? LEVELS.map(level => ({ level, rows: PUZZLE_LIBRARY[level.slug].filter(r => r.techniques.includes(technique.key)) })).filter(g => g.rows.length) : [];
+const total = groups.reduce((sum, g) => sum + g.rows.length, 0);
+// Prefer problems where this is the hardest technique; sort by actual path length.
+const examples = technique ? groups.flatMap(g => g.rows.filter(r => r.hardest === technique.key).map(row => ({ ...row, level: g.level }))).sort((a, b) => a.steps - b.steps || a.n - b.n).slice(0, 6) : [];
+---
+{technique && groups.length > 0 && <section class="tech-collection">
+  <h2>{technique.name}が現れる実戦問題集</h2>
+  <p>収録問題のうち、当サイトの解法でこの手筋を使う問題は<strong>{total.toLocaleString('ja-JP')}問</strong>あります。まずはこの手筋が最難となる短い解法の問題から、盤面全体を解いて練習できます。</p>
+  <ul>{examples.map(row => <li><a href={`/play/${row.level.slug}/?n=${row.n}#level-game`}>{row.level.ja} No.{row.n}を解く</a> — ヒント{row.clues}個、解説{row.steps}手</li>)}</ul>
+  <p>もっと練習する：{groups.map(({level, rows}, i) => <>{i > 0 && ' ／ '}<a href={`/play/${level.slug}/?tech=${technique.key}#puzzle-library`}>{level.ja}の{rows.length}問</a></>)}</p>
+  <p class="note">掲載数・手数は<a href="/research/puzzle-analysis/">全題庫の解法分析</a>に基づきます。手筋は解く途中に現れ、別の解き順では使わずに解ける場合もあります。ゲームの「ソルバーで解説」から続きの解法を確認できます。</p>
+</section>}
+<style>.tech-collection{padding:18px;border:1px solid var(--line);border-radius:8px;margin:24px 0;background:var(--surface-2)}h2{margin-top:0}a{color:var(--accent)}li{margin:8px 0}.note{font-size:13px;color:var(--ink-3)}</style>

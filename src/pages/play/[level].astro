@@ -1,4 +1,5 @@
 ---
+import PuzzleLibrary from '../../components/PuzzleLibrary.astro';
 import BeginnerStart from '../../components/BeginnerStart.astro';
 import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
@@ -24,30 +25,26 @@ const LEVEL_GUIDES: Record<string, { href: string; label: string }> = {
 };
 
 export function getStaticPaths() {
-  // 新規 URL を日付だけで増やすと、未クロールの問題群が残ったまま巡回優先度を薄める。
-  // 既存の 90 問を一つの編集済みコレクションとして固定し、追加は内容・内部リンクを整えた単位で行う。
-  const SETS_PER_LEVEL = 90;
-  return LEVELS.map((meta) => ({ params: { level: meta.slug }, props: { meta, SETS_PER_LEVEL } }));
+  return LEVELS.map((meta) => ({ params: { level: meta.slug }, props: { meta } }));
 }
 
 interface Props {
   meta: LevelMeta;
-  SETS_PER_LEVEL: number;
 }
-const { meta, SETS_PER_LEVEL } = Astro.props;
+const { meta } = Astro.props;
 const techLinks = (LEVEL_TECHS[meta.slug] ?? [])
   .map((s) => TECHNIQUES.find((t) => t.slug === s))
   .filter((t): t is (typeof TECHNIQUES)[number] => Boolean(t));
 
 const SEO_TITLES: Record<string, string> = {
-  beginner: '数独初級・ナンプレ無料ゲーム｜90問と最初の3手練習 - numpredo',
+  beginner: '数独初級・ナンプレ無料ゲーム｜1,000問と最初の3手練習 - numpredo',
   intermediate: 'ナンプレ中級 無料ゲーム｜数独中級問題 - numpredo',
   advanced: '数独無料ゲーム 上級｜ナンプレ上級問題 - numpredo',
   hard: '数独無料ゲーム 難問｜手強いナンプレ問題 - numpredo',
   extreme: '数独無料ゲーム 最上級・超難問｜最高難度ナンプレ - numpredo',
 };
 const SEO_H1: Record<string, string> = {
-  beginner: '数独初級・ナンプレ無料ゲーム｜90問と最初の3手練習',
+  beginner: '数独初級・ナンプレ無料ゲーム｜1,000問と最初の3手練習',
   intermediate: 'ナンプレ中級 無料ゲーム｜数独中級問題',
   advanced: '数独無料ゲーム 上級｜ナンプレ上級問題',
   hard: '数独無料ゲーム 難問｜手強いナンプレ問題',
@@ -123,12 +120,11 @@ const breadcrumbSchema = {
     </div>
   </div>
 
-  {/* 嵌入 SETS_PER_LEVEL 道 = 图解页 No.1〜N（随日期增长，昨日までの daily 題が昇格）。
-      解答はクライアントの既存 solveOne で復元できるため配信しない：題面ごとに81文字を削減し、
-      直達・別問題・ヒント・答え合わせの挙動は SudokuGame 側で維持する。 */}
-<div id="level-game"><SudokuGame level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.slice(0, SETS_PER_LEVEL).map((p) => ({ puzzle: p.puzzle }))} /></div>
+  <div class="px-text"><p><a href="#puzzle-library">全{meta.puzzles.length.toLocaleString('ja-JP')}問から番号・手筋で選ぶ</a> · 問題ごとの途中保存に対応</p></div>
+  <div id="level-game"><SudokuGame collection level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.map((p) => ({ puzzle: p.puzzle }))} /></div>
 
   <div class="px-text">
+    <PuzzleLibrary level={meta.slug} name={meta.ja} />
     {meta.slug==='beginner'&&<BeginnerStart />}
     <p class="lead">{meta.lead}</p>
     <div class="detail" set:html={meta.detail} />

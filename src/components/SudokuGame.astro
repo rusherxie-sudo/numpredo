@@ -1,6 +1,7 @@
 ---
 // 可玩数独岛（和モダン）。play/[level]・daily・変体页（variants/diagonal・variants/killer）共用，避免样式/脚本重复。
 interface Props {
+  collection?: boolean;
   level: string;
   levelJa: string;
   daily?: boolean;
@@ -16,12 +17,13 @@ interface Props {
   /** 毎日7問：set は「1日 = 7エントリ」の平坦配列（daily/archive 共通） */
   multi?: boolean;
 }
-const { level, levelJa, daily = false, url = 'https://numpredo.com/', set, daystart, variant, archive = false, multi = false } = Astro.props;
+const { level, levelJa, daily = false, url = 'https://numpredo.com/', set, daystart, variant, archive = false, multi = false, collection = false } = Astro.props;
 const setJson = JSON.stringify(set);
 ---
 
 <div
   data-sudoku
+  data-collection={collection ? '1' : '0'}
   data-level={level}
   data-levelja={levelJa}
   data-url={url}
@@ -101,6 +103,7 @@ const setJson = JSON.stringify(set);
   .sk-rem { font-size: 12px; color: var(--ink-3); margin: 0; }
   .sk-rem.sk-clear { color: var(--accent); font-family: var(--font-mincho); font-size: 15px; }
   .sk-badge { display: none; }
+  [data-collection="1"] .sk-badge { display: block; font-size: 13px; color: var(--ink-3); margin: 4px 0 10px; }
 
   /* 数字键盘（带剩余计数） */
   .sk-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 10px; }

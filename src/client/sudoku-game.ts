@@ -7,6 +7,7 @@ import {
   DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, buildKillerContext, makeCageComboTechnique, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf, boxOf,
   gridFromString, solveOne, traceFirstElimination, logicalSolve, computeCandidates, type Grid, type TechniqueFn,
 } from '../engine/index.ts';
+import { readLibraryProgress } from './puzzle-progress.ts';
 import { toolLink } from './learning-transfer.ts';
 import { track } from './track.ts';
 import { ACHIEVEMENTS, computeUnlocked, readStats, readDailyLog, readDailyLog5, readStreak } from './achievements.ts';
@@ -133,6 +134,7 @@ function setup(root: HTMLElement): void {
   const level = root.dataset.level ?? 'advanced';
   const levelJa = root.dataset.levelja ?? '数独';
   const daily = root.dataset.daily === '1';
+  const collection = root.dataset.collection === '1' && !daily;
   // archive：過去のデイリーを解くモード（/daily/archive/）。daily の派生だが
   // ①ストリークは伸びない ②進捗は専用スロット ③月历(daily.log)はその日付に遡及記入
   const archive = root.dataset.archive === '1';
@@ -260,7 +262,7 @@ function setup(root: HTMLElement): void {
   const ctrl3 = el('div', 'sk-ctrl2');
   const checkRow = el('label', 'sk-check');
   // 信任标语（②「無需猜測保証」卖点化）：常驻侧栏，声明本站题「論理だけで必ず解ける・唯一解」——
-  // 这是 sudoku.com 上级题(含推测局面)结构上给不了的品质承诺，兼一条到解き方ガイドの内链。
+  // この品質表示は自社題庫の検証に基づく。競合の解法品質については比較を断定しない。
   const guarantee = el('div', 'sk-guarantee');
   guarantee.innerHTML = '<b>◆ 当てずっぽう不要</b><span>論理だけで必ず解ける唯一解の問題です。<a href="/guide/how-to-solve/">解き方ガイド</a></span>';
   const result = el('div', 'sk-result');
@@ -324,6 +326,15 @@ function setup(root: HTMLElement): void {
   ctrl.append(eraseBtn, penBtn, undoBtn, redoBtn, hintBtn);
   ctrl2.append(cbtn('refresh', '最初から', () => restart()));
   if (!daily) ctrl2.append(cbtn('shuffle', '別の問題', () => newPuzzle()));
+  if (collection) {
+    const copy = cbtn('shuffle', 'この問題のリンク', async () => {
+      const url = new URL(shareUrl); url.searchParams.set('n', String(poolIdx + 1));
+      try { await navigator.clipboard.writeText(url.href); hintMsg.textContent = '同じ問題を開くリンクをコピーしました。'; }
+      catch { hintMsg.replaceChildren(); const a = document.createElement('a'); a.href = url.href; a.textContent = url.href; hintMsg.append(a); }
+      track('puzzle_link_copy', { level, puzzle_number: poolIdx + 1 });
+    });
+    ctrl2.append(copy);
+  }
   // 三级行：自動メモ（全空きマスに候補を一括メモ）+ ソルバー動線（この盤面の解き方手順へ）。
   // ソルバーは標準ルール専用——変体（対角線等）の盤面を持ち込むと「解が複数」と誤報して
   // 「唯一解」の信頼標語を裏切るため、変体ページではボタン自体を出さない。
@@ -366,7 +377,7 @@ function setup(root: HTMLElement): void {
   // —— 键盘操作 ——
   document.addEventListener('keydown', (e) => {
     const ae = document.activeElement;
-    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT' || (!root.contains(ae) && ae !== document.body))) return;
     if (paused) { if (e.key === 'Escape' || e.key === ' ') { resume(); e.preventDefault(); } return; }
     if (e.key.startsWith('Arrow')) {
       let r = selected < 0 ? 0 : rowOf(selected);
@@ -502,6 +513,7 @@ function setup(root: HTMLElement): void {
     if (daily && !archive) { bumpStreak(); dailyLog(); log5Write(jstDayStr()); fillDaily(); }
     if (archive) { dailyLog(archiveDay); log5Write(archiveDay); fillDaily(); } // 遡及記入のみ、ストリークは実時間限定
     logStat();
+    if (collection) save();
     track('game_complete', { level: levelJa, daily, record: isRecord, archive, ...(multi && dailyLevel ? { daily_level: dailyLevel } : {}) });
     renderResult(prev);
     showNewAchievements();
@@ -722,30 +734,48 @@ function setup(root: HTMLElement): void {
     if (timer) clearInterval(timer);
     if (!done) timer = setInterval(tick, 1000);
     result.classList.remove('on');
+    if (collection) {
+      const url = new URL(location.href); url.searchParams.set('n', String(poolIdx + 1));
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+      store.set(`numpredo.library.last.${level}`, String(poolIdx + 1));
+    }
     render();
+    if (collection) badge.textContent = `${levelJa} No.${poolIdx + 1} / ${set.length}問`;
   }
   function restart(): void {
     store.remove(progKey());
+    if (collection) store.remove(puzzleSaveKey());
     apply(puzzleGrid.slice(), solution.slice());
+    if (collection) save();
   }
-  // 「別の問題」：预生成池内循环（难度保真、零等待）。set 由 play/[level].astro 嵌入 30 道，
-  // 与图解页 No.1〜30 一一对应（?n= 直达同一下标）。
-  function newPuzzle(): void {
-    if (set.length < 2) return;
-    store.remove(progKey());
-    poolIdx = (poolIdx + 1) % set.length;
+  // Keep the source order stable: old puzzle numbers and daily references must not move.
+  function selectPuzzle(index: number): void {
+    if (!Number.isInteger(index) || index < 0 || index >= set.length) return;
+    if (collection) save(); else store.remove(progKey());
+    poolIdx = index;
     const nx = set[poolIdx];
-    applyCages(nx.cages); // killer：ctx/cage 描画を新しい題面に切替（他変体では no-op）
+    applyCages(nx.cages);
     const pz = gridFromString(nx.puzzle);
-    // killer は solution 必須：solveOne は cage の和を知らないため誤った解を返しうる（守卫）
     const sol = nx.solution ? gridFromString(nx.solution) : variant === 'killer' ? null : solveOne(pz, ctx);
-    if (sol) apply(pz, sol);
+    if (!sol) return;
+    const saved = collection ? load() : null;
+    const restore = saved && normP(saved.p) === normP(nx.puzzle) ? saved : undefined;
+    apply(pz, sol, restore);
+    if (done) renderResult(Number(store.get(bestKey()) || '0'));
+    if (collection) save();
   }
+  function newPuzzle(): void {
+    if (set.length > 1) selectPuzzle((poolIdx + 1) % set.length);
+  }
+  root.addEventListener('puzzle-select', event => {
+    if (collection) selectPuzzle(Number((event as CustomEvent).detail) - 1);
+  });
 
   // —— 进度持久化 ——
   function progKey(): string {
     return `numpredo.prog.${archive ? 'archive' : daily ? 'daily' : level}${multi && dailyLevel ? '.' + dailyLevel : ''}`;
   }
+  function puzzleSaveKey(): string { return `numpredo.puzzle.${level}.${poolIdx + 1}`; }
   function save(): void {
     const data: Saved = {
       p: gridToStr(puzzleGrid),
@@ -757,11 +787,21 @@ function setup(root: HTMLElement): void {
       h: hintUsed ? 1 : 0,
     };
     if (daily) data.day = archive ? archiveDay : jstDayStr();
-    store.set(progKey(), JSON.stringify(data)); // store 内部已兜异常（容量超限/不可用 → 静默不保存）
+    store.set(progKey(), JSON.stringify(data)); // Legacy slot remains compatible with home/play hub.
+    if (collection) {
+      store.set(puzzleSaveKey(), JSON.stringify(data));
+      const progress = readLibraryProgress(level);
+      const status = done ? 'done' : 'started';
+      if (progress[poolIdx + 1] !== status) {
+        progress[poolIdx + 1] = status;
+        store.set(`numpredo.library.${level}`, JSON.stringify(progress));
+        window.dispatchEvent(new Event('library-progress'));
+      }
+    }
   }
-  function load(): Saved | null {
+  function load(legacyOnly = false): Saved | null {
     try {
-      const raw = store.get(progKey());
+      const raw = (collection && !legacyOnly ? store.get(puzzleSaveKey()) : null) ?? store.get(progKey());
       if (!raw) return null;
       const o = JSON.parse(raw) as Saved;
       if (daily && o.day !== (archive ? archiveDay : jstDayStr())) return null; // 跨日/別日失效（JST 基準）
@@ -944,12 +984,14 @@ function setup(root: HTMLElement): void {
   function share(): void {
     track('share_click', { from: archive ? 'archive' : daily ? 'daily' : 'game', level: levelJa });
     const lvSuffix = multi && dailyLevel && LV_JA[dailyLevel] ? `・${LV_JA[dailyLevel]}` : '';
-    const text = `numpredoで【${levelJa}${lvSuffix}】を ${fmt(finalTime)} でクリア！`;
+    const text = `numpredoで【${levelJa}${lvSuffix}】${collection ? `No.${poolIdx + 1}を` : 'を'} ${fmt(finalTime)} でクリア！`;
+    const targetUrl = new URL(shareUrl);
+    if (collection) targetUrl.searchParams.set('n', String(poolIdx + 1));
     const nav = navigator as Navigator & { share?: (d: { title?: string; text?: string; url?: string }) => Promise<void> };
     if (nav.share) {
-      nav.share({ text, url: shareUrl }).catch(() => {});
+      nav.share({ text, url: targetUrl.href }).catch(() => {});
     } else {
-      const x = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text + ' #数独 #ナンプレ')}&url=${encodeURIComponent(shareUrl)}`;
+      const x = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text + ' #数独 #ナンプレ')}&url=${encodeURIComponent(targetUrl.href)}`;
       window.open(x, '_blank', 'noopener,width=600,height=480');
     }
   }
@@ -1076,11 +1118,11 @@ function setup(root: HTMLElement): void {
     if (done) {
       remEl.textContent = 'クリア！';
       remEl.classList.add('sk-clear');
-      badge.style.display = 'none';
+      badge.style.display = collection ? '' : 'none';
     } else {
       remEl.textContent = `残り ${rem} マス`;
       remEl.classList.remove('sk-clear');
-      badge.style.display = 'none';
+      badge.style.display = collection ? '' : 'none';
     }
   }
 
@@ -1089,6 +1131,20 @@ function setup(root: HTMLElement): void {
   window.addEventListener('pagehide', () => { if (!done && !paused) save(); });
 
   // —— 初始化：定位起始题 → 恢复存档（含完成局）或开新局 ——
+  if (collection) {
+    // Preserve the old single-slot game even when the first visit selects a different number.
+    const old = load(true);
+    const index = old ? set.findIndex(p => normP(p.puzzle) === normP(old.p)) : -1;
+    if (old && index >= 0) {
+      const key = `numpredo.puzzle.${level}.${index + 1}`;
+      if (!store.get(key)) {
+        store.set(key, JSON.stringify(old));
+        const progress = readLibraryProgress(level);
+        progress[index + 1] = old.d === 1 ? 'done' : 'started';
+        store.set(`numpredo.library.${level}`, JSON.stringify(progress));
+      }
+    }
+  }
   let initIdx = 0;
   if (archive) {
     // アーカイブ：?d=YYYY-MM-DD の過去日（EPOCH〜昨日）。set は EPOCH 起点で全過去日を埋め込み、
@@ -1145,7 +1201,11 @@ function setup(root: HTMLElement): void {
   } else {
     // ?n= 直达题库第 n 题（图解页 /play/{level}/{n}/ 的「この問題をプレイ」入口）
     const urlN = Number(new URLSearchParams(location.search).get('n') ?? '0');
-    if (urlN >= 1 && urlN <= set.length) initIdx = urlN - 1;
+    if (Number.isInteger(urlN) && urlN >= 1 && urlN <= set.length) initIdx = urlN - 1;
+    else if (collection && !new URLSearchParams(location.search).has('n')) {
+      const last = Number(store.get(`numpredo.library.last.${level}`));
+      if (Number.isInteger(last) && last >= 1 && last <= set.length) initIdx = last - 1;
+    }
   }
   poolIdx = initIdx;
   const target = set[initIdx];
@@ -1153,8 +1213,9 @@ function setup(root: HTMLElement): void {
   const savedIdx = saved ? set.findIndex((s) => normP(s.puzzle) === normP(saved.p)) : -1;
   // ?n= 明示指定且与存档不是同一题时，以指定题开新局（首次落子会覆盖旧存档——用户主动选择）。
   // killer は cage が題面データに紐づく → 存档题が池内で見つからないと cage 不明,その場合は開新局
-  const savedUsable = saved && (initIdx === 0 || daily || normP(saved.p) === normP(target.puzzle))
-    && (variant !== 'killer' || savedIdx >= 0);
+  const explicitNumber = new URLSearchParams(location.search).has('n');
+  const savedUsable = saved && ((!explicitNumber && initIdx === 0) || daily || normP(saved.p) === normP(target.puzzle))
+    && (!(variant === 'killer' || collection) || savedIdx >= 0);
   if (saved && savedUsable) {
     if (savedIdx >= 0) poolIdx = savedIdx; // 存档题在池内 → 「別の問題」从它继续往后循环
     applyCages(set[poolIdx]?.cages);

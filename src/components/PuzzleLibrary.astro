@@ -1,0 +1,46 @@
+---
+import { PUZZLE_LIBRARY } from '../data/puzzle-library.ts';
+import { PUZZLE_TECHNIQUES } from '../data/puzzle-techniques.ts';
+interface Props { level: string; name: string }
+const { level, name } = Astro.props;
+const rows = PUZZLE_LIBRARY[level];
+const techniques = PUZZLE_TECHNIQUES.filter(t => rows.some(r => r.techniques.includes(t.key)));
+const sample = rows.slice(0, 12);
+---
+<section id="puzzle-library" class="puzzle-library" data-library={level} data-rows={JSON.stringify(rows)}>
+  <h2>{name}の全{rows.length.toLocaleString('ja-JP')}問から選ぶ</h2>
+  <p>問題番号を指定するか、練習したい手筋で絞り込めます。途中の問題は別々に保存されるので、ほかの問題を試してから戻れます。</p>
+  <form data-library-jump class="library-controls">
+    <label>問題番号 <input name="n" type="number" min="1" max={rows.length} step="1" required inputmode="numeric" placeholder={`1〜${rows.length}`} /></label>
+    <button type="submit">この問題を開く</button>
+  </form>
+  <div class="library-controls">
+    <label>練習する手筋 <select data-library-tech><option value="">すべて</option>{techniques.map(t => <option value={t.key}>{t.name}</option>)}</select></label>
+    <label>進み具合 <select data-library-status><option value="">すべて</option><option value="new">まだ解いていない</option><option value="started">途中</option><option value="done">クリア済み</option></select></label>
+    <button type="button" data-library-next>未クリアの問題に挑戦</button>
+  </div>
+  <p data-library-summary role="status" aria-live="polite">全{rows.length}問。まずはNo.1〜12を表示しています。</p>
+  <ul data-library-list class="library-list">{sample.map(r => <li><a href={`?n=${r.n}#level-game`}>{name} No.{r.n}</a><span>ヒント{r.clues}個・解説{r.steps}手</span></li>)}</ul>
+  <div class="library-controls"><button type="button" data-library-prev disabled>前の12問</button><button type="button" data-library-more>次の12問</button></div>
+  <details><summary>手筋別の収録数と選び方</summary>
+    <p>「使う手筋」は当サイトの解法エンジンが、最初から最後まで解いた経路に現れる手筋です。別の解き順でも必ず必要という意味ではありません。「解説の手数」は数字の確定と候補の消去を合わせた回数で、所要時間ではありません。</p>
+    <ul>{techniques.map(t => <li><a href={`/guide/techniques/${t.slug}/`}>{t.name}の解き方</a>：{rows.filter(r => r.techniques.includes(t.key)).length}問で使用</li>)}</ul>
+    <p>記録はこのブラウザ内に保存します。保存を制限している環境では残りません。以前のゲームの途中記録は引き継ぎますが、過去のクリア数は問題番号別に記録されていなかったため、この一覧に遡って追加されません。</p>
+  </details>
+</section>
+<script>
+  const root = document.querySelector('[data-library]');
+  if (root) {
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        observer.disconnect();
+        void import('../client/puzzle-library.ts');
+      }
+    }, { rootMargin: '400px' });
+    observer.observe(root);
+  }
+</script>
+<style>
+.puzzle-library{margin:28px 0;padding:20px;border:1px solid var(--line);border-radius:8px;scroll-margin-top:85px;background:var(--surface)}
+.puzzle-library h2{margin-top:0}.library-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:12px 0}.library-controls label{display:flex;flex-direction:column;gap:5px;font-size:14px}.library-controls input,.library-controls select,.library-controls button{font:inherit;min-height:44px;max-width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink)}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}.library-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0;list-style:none}.library-list :global(li){padding:12px;border:1px solid var(--line);border-radius:6px}.library-list :global(a){display:block;min-height:30px;color:var(--accent);font-weight:600}.library-list :global(span){display:block;font-size:12px;color:var(--ink-3)}details{margin-top:18px;font-size:14px}summary{cursor:pointer;min-height:44px}a{color:var(--accent)}@media(max-width:650px){.puzzle-library{padding:14px}.library-list{grid-template-columns:repeat(2,minmax(0,1fr))}.library-controls label{max-width:100%}}
+</style>

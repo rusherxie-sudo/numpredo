@@ -1,0 +1,7 @@
+name,priority,evidence_url,contact_url,offer,landing_page,status,confirmed_adoption,verified_on,constraint
+フリーソフト100,P0,https://freesoft-100.com/about/contact.html,https://freesoft-100.com/about/form_software.html,無料Webアプリ掲載申請,https://numpredo.com/play/,prepared_not_sent,false,2026-10-04,掲載保証なし・1〜2か月程度と案内
+介護運営TALK ROOM,P1,https://kaigounei-talkroom.jp/tool/rec-noutore-neta,https://kaigounei-talkroom.jp/contact,登録不要の初級PDF・四回分活動資料,https://numpredo.com/print/senior/,prepared_not_sent,false,2026-10-04,氏名・メール必須・reCAPTCHA
+みんなのお助けNAVI,P1,https://help-nandemo.com/noutore-print-site/,https://help-nandemo.com/on-line-form/,大きなマスの数独PDF,https://numpredo.com/print/senior/,prepared_not_sent,false,2026-10-04,氏名・メール必須・掲載合意なし
+child-study,P1,https://child-study.com/mynavi.html,https://child-study.com/toiawase.html,4×4から6×6への家庭学習資料,https://numpredo.com/print/progression/,prepared_not_sent,false,2026-10-04,宛先は画像表示・送信前に再確認
+ワウゲーム,hold,https://www.wowgame.jp/NumberPlace,https://www.wowgame.jp/sub/contactus.asp,ゲーム事業提携の適合調査,https://numpredo.com/play/,research_only,false,2026-10-04,企業向け事業提携窓口・外部ゲーム採用条件未確認・商用転載権未決
+ふりーむ！,hold,https://www.freem.ne.jp/,,ブラウザゲーム紹介の適合調査,https://numpredo.com/play/,research_only,false,2026-10-04,トップページ到達のみ・外部URL型掲載可否未確認

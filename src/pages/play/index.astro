@@ -10,13 +10,6 @@ const url = 'https://numpredo.com/play/';
 const featuredLevel = LEVELS.find((l) => l.slug === 'intermediate') ?? LEVELS[0];
 const featuredSet = featuredLevel.puzzles.slice(0, 12).map((p) => ({ puzzle: p.puzzle }));
 // 難易度比較表：ヒント数は題庫全量から実測平均（構築期に計算、データと乖離しない）
-// SETS = play/[level]/[n].astro の SETS_PER_LEVEL と同値（日次で増加）
-const EPOCH_MS = Date.UTC(2026, 5, 14);
-const JST = 9 * 3600 * 1000;
-const todayIdx = Math.floor((Date.now() + JST) / 86400000);
-const epochIdx = Math.floor(EPOCH_MS / 86400000);
-const elapsedDays = Math.max(0, todayIdx - epochIdx - 1);
-const SETS = 55 + elapsedDays;
 const SHORT_TECH: Record<string, string> = {
   beginner: '裸の単数・隠れた単数',
   intermediate: '区画の絞り込み',
@@ -118,7 +111,7 @@ const faqSchema = {
       </tbody>
     </table>
   </div>
-  <p class="tnote">※ ブラウザでの出題は各難易度{SETS}問を順繰りに、<a href="/print/">印刷ページ</a>では収録全問からランダムに出題します。</p>
+  <p class="tnote">各難易度のページで収録全問を選べます。番号・使う手筋・進み具合で選び、問題ごとに続きを保存できます。<a href="/print/">印刷ページ</a>でも収録全問から出題します。</p>
 
   <h2>中級・上級・難問・超難問は何が違う？</h2>
   <p><a href="/play/intermediate/"><strong>数独無料ゲームの中級</strong></a>は、区画の絞り込みを覚える段階です。中級がすらすら解けるようになったら、ペア（二国同盟）を使う<a href="/play/advanced/"><strong>上級の数独無料ゲーム</strong></a>へ。さらに三国同盟などを組み合わせる<a href="/play/hard/"><strong>難問ナンプレ</strong></a>、X-Wing・スカイスクレイパー級の<a href="/play/extreme/"><strong>最上級・超難問の数独</strong></a>と進みます。</p>

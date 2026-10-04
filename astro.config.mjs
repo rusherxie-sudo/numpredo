@@ -21,7 +21,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       // 個人データページと、検索需要を確認できていない量産型の問題詳細は sitemap から除外する。
-      // 問題自体は各難易度ページで引き続き全90問を遊べる。
+      // 問題自体は各難易度ページで引き続き収録全問を遊べる。
       filter: (page) => {
         const pathname = new URL(page).pathname;
         if (pathname === '/stats/' || pathname.startsWith('/embed/')) return false;

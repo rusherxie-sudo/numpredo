@@ -31,14 +31,14 @@ const DYNAMIC_DATA: Record<string, string> = {
 };
 // 动态页中仅某个 slug 消费的独立组件/数据。模板改动仍影响同组，专属例题只更新自身 URL。
 const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
-  'play/[level].astro': {beginner:['src/components/BeginnerStart.astro','src/data/beginner-start.ts']},
+  'play/[level].astro': Object.fromEntries(['beginner','intermediate','advanced','hard','extreme'].map(slug=>[slug,['src/components/PuzzleLibrary.astro','src/client/puzzle-library.ts','src/client/puzzle-progress.ts','src/data/puzzle-library.ts','src/data/puzzle-techniques.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts', ...(slug==='beginner'?['src/components/BeginnerStart.astro','src/data/beginner-start.ts']:[])]])),
   'guide/[slug].astro': {
     ...Object.fromEntries(['rules','beginner','intermediate','advanced','hard-sudoku-solving','tips','when-stuck','glossary'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts']])),
     'for-kids': ['src/components/ParentLesson.astro','src/components/SmallNumberBoard.astro'],
     newspaper: ['src/components/SolverInputExample.astro','src/data/solver-sample.ts','src/components/NewspaperInput.astro','src/engine/newspaper-input.ts','src/client/learning-transfer.ts'],
     'sudoku-algorithm': ['src/components/SolverInputExample.astro','src/data/solver-sample.ts'],
   },
-  'guide/techniques/[slug].astro': Object.fromEntries(['naked-single','hidden-single','pointing','naked-pair','hidden-pair','naked-triple','x-wing','swordfish','skyscraper'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts', ...(['hidden-single','pointing','naked-pair'].includes(slug) ? ['src/components/TechniqueDrill.astro','src/data/technique-drills.ts'] : [])]])),
+  'guide/techniques/[slug].astro': Object.fromEntries(['naked-single','hidden-single','pointing','naked-pair','hidden-pair','naked-triple','x-wing','swordfish','skyscraper'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts','src/components/TechniqueCollection.astro','src/data/puzzle-library.ts','src/data/puzzle-techniques.ts', ...(['hidden-single','pointing','naked-pair'].includes(slug) ? ['src/components/TechniqueDrill.astro','src/data/technique-drills.ts'] : [])]])),
   'variants/[slug].astro': {
     '6x6': ['src/components/Mini6Lesson.astro','src/components/SmallNumberBoard.astro','src/data/mini6.ts'],
     inequality: ['src/components/InequalityFullExample.astro', 'src/data/inequality-example.ts'],
