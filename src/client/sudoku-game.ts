@@ -515,6 +515,7 @@ function setup(root: HTMLElement): void {
     logStat();
     if (collection) save();
     track('game_complete', { level: levelJa, daily, record: isRecord, archive, ...(multi && dailyLevel ? { daily_level: dailyLevel } : {}) });
+    window.dispatchEvent(new Event('numpredo:game-complete'));
     renderResult(prev);
     showNewAchievements();
     burst();

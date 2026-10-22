@@ -158,8 +158,13 @@ for (const [pathname, { html }] of pages) {
   const mainHtml = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? '';
   const externalScripts = matches(html, /<script\b[^>]*\bsrc="([^"]+)"/g);
 
-  if (isContentOnlyPath(pathname) && externalScripts.length > 0) {
-    errors.push(`${pathname} 是纯内容页，却加载了外部脚本：${externalScripts.join('、')}`);
+  // Global install-event capture is a tiny loader; the PWA UI is dynamically
+  // loaded after first render. Keep the content-page exception narrowly bounded.
+  const contentScripts = externalScripts.filter(src =>
+    !/^\/_astro\/PwaInstall\.astro_astro_type_script_index_0_lang\.[\w-]+\.js$/.test(src) ||
+    initialScriptGraphBytes([src]) > 2048);
+  if (isContentOnlyPath(pathname) && contentScripts.length > 0) {
+    errors.push(`${pathname} 是纯内容页，却加载了外部脚本：${contentScripts.join('、')}`);
   }
   const initialJsBytes = initialScriptGraphBytes(externalScripts);
   if (initialJsBytes > maximumInitialJsBytes) {

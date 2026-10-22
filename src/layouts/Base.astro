@@ -1,6 +1,7 @@
 ---
 import '../styles/tokens.css';
 import FloatingShare from '../components/FloatingShare.astro';
+import PwaInstall from '../components/PwaInstall.astro';
 import { LEVELS } from '../data/levels.ts';
 
 interface Props {
@@ -164,6 +165,11 @@ const footerCols = [
     <meta name="google-adsense-account" content={adsensePublisherId} />
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="theme-color" content="#1f7a5c" />
+    <meta name="apple-mobile-web-app-title" content="numpredo" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content={ogType} />
@@ -258,7 +264,7 @@ const footerCols = [
       </nav>
     </header>
 
-    <main class={wide ? 'wide' : ''}><slot /></main>
+    <main class={wide ? 'wide' : ''}><slot /><PwaInstall /></main>
 
     <footer class="sfoot">
       <div class="sfoot-cols">
@@ -280,6 +286,7 @@ const footerCols = [
       <div class="sfoot-bottom">
         <span class="sfoot-logo">numpre<b>do</b><span class="sfoot-tag">無料・登録不要</span></span>
         <span class="sfoot-links">
+          <button type="button" data-pwa-manual hidden>ホーム画面に追加</button>
           <a href="/terms/">利用規約・免責</a>
           <a href="/privacy/">プライバシー</a>
           <a href="/contact/">お問い合わせ</a>

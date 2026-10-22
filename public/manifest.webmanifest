@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "numpredo — 無料の数独・ナンプレ",
+  "short_name": "numpredo",
+  "description": "登録不要の数独。難易度を選んで、毎日少しずつ楽しめます。",
+  "lang": "ja",
+  "start_url": "/play/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f6f5",
+  "theme_color": "#1f7a5c",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "初級のナンプレ", "url": "/play/beginner/" },
+    { "name": "今日のナンプレ（通信が必要）", "url": "/daily/" }
+  ]
+}

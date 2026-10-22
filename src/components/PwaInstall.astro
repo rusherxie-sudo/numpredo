@@ -1,0 +1,33 @@
+<section data-pwa-card class="pwa-card" aria-label="ホーム画面に追加" hidden>
+  <strong>いつものナンプレを、ホーム画面から。</strong>
+  <p>無料・登録不要。アイコンを追加すると、次からすぐに遊べます。</p>
+  <div class="pwa-actions">
+    <button type="button" data-pwa-install>ホーム画面に追加</button>
+    <button type="button" data-pwa-dismiss>今はしない</button>
+  </div>
+  <p data-pwa-help role="status" hidden>iPhone・iPadでは、Safariの共有メニュー（または「…」メニュー内の共有）から「ホーム画面に追加」を選び、「追加」を押してください。項目がない場合はSafariでこのページを開いてください。</p>
+  <small>ご利用にはインターネット接続が必要です。進行状況はお使いのブラウザ内に保存されます。別のブラウザや端末とは同期されません。</small>
+</section>
+<p data-pwa-resume class="pwa-status" hidden><a href="/play/">前回の難易度で続きを遊ぶ →</a></p>
+<script>
+  // Capture the browser event immediately; load the optional UI after the
+  // initial game render so it does not consume the game's first-load budget.
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    window.numpredoInstallPrompt = event;
+  });
+  setTimeout(() => void import('../client/pwa.ts'), 1500);
+</script>
+<style is:global>
+  .pwa-card { margin: 24px 0; padding: 18px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--surface); }
+  .pwa-card[hidden], .pwa-status[hidden], [data-pwa-manual][hidden] { display: none; }
+  .pwa-card strong { font-size: 17px; }
+  .pwa-card p { margin: 8px 0; font-size: 14px; }
+  .pwa-card small { display: block; margin-top: 10px; color: var(--ink-3); line-height: 1.7; }
+  .pwa-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pwa-actions button { min-height: 44px; padding: 8px 14px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); cursor: pointer; font: inherit; }
+  .pwa-actions [data-pwa-install] { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+  .pwa-status { font-size: 14px; color: var(--ink-2); }
+  [data-pwa-manual] { background: none; border: 0; color: var(--ink-3); text-decoration: underline; font: inherit; cursor: pointer; min-height: 44px; }
+  @media print { .pwa-card, .pwa-status, [data-pwa-manual] { display: none !important; } }
+</style>
