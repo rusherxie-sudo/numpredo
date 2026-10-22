@@ -1,0 +1,60 @@
+---
+import { LEVELS } from '../data/levels.ts';
+import { PUZZLE_LIBRARY } from '../data/puzzle-library.ts';
+import { renderBoardSvg, gridFromString, TOKEN_THEME } from '../engine/index.ts';
+
+interface Props { level: 'beginner' | 'intermediate' }
+const { level } = Astro.props;
+const meta = LEVELS.find(l => l.slug === level)!;
+const rows = PUZZLE_LIBRARY[level];
+const numbers = level === 'beginner' ? [14, 1, 150] : [116, 600, 99];
+const samples = numbers.map(n => {
+  const raw = meta.puzzles[n - 1], row = rows[n - 1];
+  const grid = gridFromString(raw.puzzle), given = grid.map(Boolean);
+  const options = { given, theme: TOKEN_THEME, cell: 32 };
+  return {
+    n, row,
+    puzzle: renderBoardSvg(grid, { ...options, title: `${meta.ja}ナンプレ No.${n}の問題`, desc: `最初の数字は${row.clues}個。空きマスに1〜9を入れます。` }),
+    solution: renderBoardSvg(gridFromString(raw.solution), { ...options, title: `${meta.ja}ナンプレ No.${n}の答え`, desc: '問題の数字を残した唯一の完成形です。' }),
+  };
+});
+const minClues = Math.min(...rows.map(r => r.clues));
+const maxClues = Math.max(...rows.map(r => r.clues));
+const hiddenCount = rows.filter(r => r.techniques.includes('hiddenSingle')).length;
+---
+<section id="problem-examples" class="level-examples" aria-labelledby="problem-examples-title">
+  <h2 id="problem-examples-title">{meta.ja}ナンプレの問題と答え：3問を見比べる</h2>
+  <p>全{rows.length.toLocaleString('ja-JP')}問から選んだ実際の問題です。盤面を見てから「この問題を解く」で始められます。答えは開くまで表示しません。</p>
+  <div class="level-example-grid">
+    {samples.map(s => <article data-level-example={s.n}>
+      <h3>{meta.ja} No.{s.n}</h3>
+      <p>最初の数字：{s.row.clues}個<br />解法の手数：{s.row.steps}手</p>
+      <figure><Fragment set:html={s.puzzle} /></figure>
+      <a class="example-play" href={`/play/${level}/?n=${s.n}#level-game`}>No.{s.n}を無料で解く</a>
+      <details><summary>No.{s.n}の答えを見る</summary><figure><Fragment set:html={s.solution} /></figure></details>
+    </article>)}
+  </div>
+  <h3>この問題集の{meta.ja}レベルについて</h3>
+  {level === 'beginner' ? <>
+    <p>最初に入っている数字は{minClues}〜{maxClues}個です。当サイトの解法では、全問が「裸の単数」と「隠れた単数」の範囲で解けます。隠れた単数を使う問題は{hiddenCount}問。No.14・No.1は裸の単数だけ、No.150は隠れた単数も使う解き方を確認できます。</p>
+    <p>最初の一手に迷ったら、このページの<a href="#beginner-start">最初の3手の練習</a>へ。1問を最後まで自分で解けるようになったら、<a href="/play/intermediate/">中級の無料ナンプレ</a>で候補を消す考え方に進めます。</p>
+  </> : <>
+    <p>最初に入っている数字は{minClues}〜{maxClues}個です。当サイトの解法では、全{rows.length.toLocaleString('ja-JP')}問で単数に加えて「区画の絞り込み」を使い、ペアやX-Wingを使わずに解けることを確認しています。No.116・No.600・No.99は、解法の手数が異なる3問です。</p>
+    <p>手数が多いほど必ず難しいとは限りません。候補メモを使いながら、数字を置けないときに候補を消す練習ができます。手順から知りたい方は<a href="/guide/intermediate/">ナンプレ中級の解き方</a>、紙で解きたい方は<a href="/print/intermediate/">中級の答え付きPDF問題集</a>へ。</p>
+  </>}
+  <p class="example-note">難易度の呼び方はサイトごとに異なります。手数・使用手筋は<a href="/research/puzzle-analysis/">公開している題庫の解法分析</a>に基づくもので、別の解き順では変わります。手数は所要時間ではなく、平均クリア時間も示していません。</p>
+</section>
+<style>
+  .level-examples { margin: 28px 0; scroll-margin-top: 88px; }
+  .level-example-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  article { padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+  h3 { margin-top: 0; }
+  article p, .example-note { font-size: 13px; color: var(--ink-3); }
+  figure { margin: 12px 0; }
+  figure :global(svg) { display: block; width: 100%; height: auto; }
+  .example-play, summary { display: block; padding: 10px 0; min-height: 44px; }
+  summary { display: list-item; cursor: pointer; color: var(--accent); }
+  details { margin-top: 8px; border-top: 1px solid var(--line); }
+  .level-examples > h3 { margin-top: 24px; }
+  @media (max-width: 700px) { .level-example-grid { grid-template-columns: 1fr; } article { max-width: 400px; width: 100%; margin: auto; } }
+</style>

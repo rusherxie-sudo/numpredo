@@ -1,6 +1,7 @@
 ---
 import PuzzleLibrary from '../../components/PuzzleLibrary.astro';
 import BeginnerStart from '../../components/BeginnerStart.astro';
+import LevelProblemExamples from '../../components/LevelProblemExamples.astro';
 import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import SudokuGame from '../../components/SudokuGame.astro';
@@ -113,7 +114,8 @@ const breadcrumbSchema = {
 
     <h1>{SEO_H1[meta.slug] ?? `数独無料ゲーム ${meta.ja}｜ナンプレ${meta.ja}の問題`}</h1>
     <p class="lv-intro">{meta.intro}</p>
-    {meta.slug==='beginner'&&<p><a href="#beginner-start">初めての方：最初の3手を一緒に練習 →</a> ／ <a href="#level-game">すぐに初級ゲームで遊ぶ →</a></p>}
+    {meta.slug==='beginner'&&<p><a href="#level-game">初級をすぐに遊ぶ</a> ／ <a href="#problem-examples">問題と答えの例を見る</a> ／ <a href="#beginner-start">最初の3手を練習</a></p>}
+    {meta.slug==='intermediate'&&<p><a href="#level-game">中級をすぐに遊ぶ</a> ／ <a href="#problem-examples">問題と答えの例を見る</a> ／ <a href="/print/intermediate/">紙で解く・PDF</a></p>}
 
     <div class="diff-badges">
       {LEVELS.map((l) => <a href={`/play/${l.slug}/`} class={l.slug === meta.slug ? 'diff-bdg on' : 'diff-bdg'}>{l.ja}</a>)}
@@ -125,6 +127,7 @@ const breadcrumbSchema = {
 
   <div class="px-text">
     <PuzzleLibrary level={meta.slug} name={meta.ja} />
+    {(meta.slug === 'beginner' || meta.slug === 'intermediate') && <LevelProblemExamples level={meta.slug} />}
     {meta.slug==='beginner'&&<BeginnerStart />}
     <p class="lead">{meta.lead}</p>
     <div class="detail" set:html={meta.detail} />
@@ -138,10 +141,10 @@ const breadcrumbSchema = {
       {techLinks.map((t) => (<li><a href={`/guide/techniques/${t.slug}/`}>{t.name}の解き方（図解）</a></li>))}
     </ul>
   )}
-  <div class="fig-row">
+  {meta.slug !== 'beginner' && meta.slug !== 'intermediate' && <div class="fig-row">
     <figure class="guide-fig"><Fragment set:html={svgPuzzle} /><figcaption>{meta.ja}の問題例（太字がヒント）</figcaption></figure>
     {svgTech && <figure class="guide-fig"><Fragment set:html={svgTech} /><figcaption>候補消去の例（赤い候補が消える）</figcaption></figure>}
-  </div>
+  </div>}
 
   <h2>{meta.ja}攻略のコツ</h2>
   <ul>{meta.tips.map((t) => <li>{t}</li>)}</ul>

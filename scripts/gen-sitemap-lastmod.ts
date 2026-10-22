@@ -31,7 +31,7 @@ const DYNAMIC_DATA: Record<string, string> = {
 };
 // 动态页中仅某个 slug 消费的独立组件/数据。模板改动仍影响同组，专属例题只更新自身 URL。
 const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
-  'play/[level].astro': Object.fromEntries(['beginner','intermediate','advanced','hard','extreme'].map(slug=>[slug,['src/components/PuzzleLibrary.astro','src/client/puzzle-library.ts','src/client/puzzle-progress.ts','src/data/puzzle-library.ts','src/data/puzzle-techniques.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts', ...(slug==='beginner'?['src/components/BeginnerStart.astro','src/data/beginner-start.ts']:[])]])),
+  'play/[level].astro': Object.fromEntries(['beginner','intermediate','advanced','hard','extreme'].map(slug=>[slug,['src/components/PuzzleLibrary.astro','src/client/puzzle-library.ts','src/client/puzzle-progress.ts','src/data/puzzle-library.ts','src/data/puzzle-techniques.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts', ...(['beginner','intermediate'].includes(slug)?['src/components/LevelProblemExamples.astro']:[]), ...(slug==='beginner'?['src/components/BeginnerStart.astro','src/data/beginner-start.ts']:[])]])),
   'guide/[slug].astro': {
     ...Object.fromEntries(['rules','beginner','intermediate','advanced','hard-sudoku-solving','tips','when-stuck','glossary'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts']])),
     'for-kids': ['src/components/ParentLesson.astro','src/components/SmallNumberBoard.astro'],

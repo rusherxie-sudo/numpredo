@@ -1,0 +1,112 @@
+{
+  "search_type": "web",
+  "country": "jpn",
+  "data_state": "final",
+  "windows": {
+    "previous": {
+      "start": "2026-09-20",
+      "end": "2026-10-03"
+    },
+    "current": {
+      "start": "2026-10-07",
+      "end": "2026-10-20"
+    }
+  },
+  "keywords": [
+    {
+      "query": "ナンプレ 中級",
+      "owner": "/play/intermediate/",
+      "action": "strengthen"
+    },
+    {
+      "query": "ナンプレ中級",
+      "owner": "/play/intermediate/",
+      "action": "strengthen"
+    },
+    {
+      "query": "数独 中級 無料",
+      "owner": "/play/intermediate/",
+      "action": "strengthen"
+    },
+    {
+      "query": "数独 中級",
+      "owner": "/play/intermediate/",
+      "action": "strengthen"
+    },
+    {
+      "query": "数独 中級 無料ゲーム",
+      "owner": "/play/intermediate/",
+      "action": "strengthen"
+    },
+    {
+      "query": "ナンプレ 中級問題 無料",
+      "owner": "/play/intermediate/",
+      "action": "strengthen"
+    },
+    {
+      "query": "数独 無料 初級",
+      "owner": "/play/beginner/",
+      "action": "strengthen"
+    },
+    {
+      "query": "ナンプレ 初級",
+      "owner": "/play/beginner/",
+      "action": "strengthen"
+    },
+    {
+      "query": "ナンプレ 無料 初級",
+      "owner": "/play/beginner/",
+      "action": "strengthen"
+    },
+    {
+      "query": "数独 初級",
+      "owner": "/play/beginner/",
+      "action": "strengthen"
+    },
+    {
+      "query": "数独 初級 無料",
+      "owner": "/play/beginner/",
+      "action": "strengthen"
+    },
+    {
+      "query": "超難問 数独 最 高級",
+      "owner": "/play/extreme/",
+      "action": "hold"
+    },
+    {
+      "query": "数独 難問 最高級",
+      "owner": "/play/extreme/",
+      "action": "hold"
+    },
+    {
+      "query": "数独 超難問 無料",
+      "owner": "/play/extreme/",
+      "action": "hold"
+    },
+    {
+      "query": "数独 無料",
+      "owner": "/",
+      "action": "monitor"
+    },
+    {
+      "query": "ナンプレ 無料",
+      "owner": "/",
+      "action": "monitor"
+    },
+    {
+      "query": "数独無料ゲーム",
+      "owner": "/",
+      "action": "monitor"
+    },
+    {
+      "query": "数独無料問題集",
+      "owner": "/play/",
+      "action": "intent_alignment"
+    },
+    {
+      "query": "ナンプレ 問題集",
+      "owner": "/play/",
+      "action": "intent_alignment"
+    }
+  ]
+}

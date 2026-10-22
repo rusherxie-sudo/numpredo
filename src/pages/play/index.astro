@@ -77,21 +77,23 @@ const faqSchema = {
   <h1>ナンプレ・数独の無料問題集｜全{totalPuzzles.toLocaleString('ja-JP')}問を難易度別に</h1>
   <p class="lead">初級から超難問まで、画面でそのまま解ける無料の数独・ナンプレ問題集です。登録・ダウンロード不要。全{totalPuzzles.toLocaleString('ja-JP')}問すべてが唯一解で、論理だけで解けることを検証しています。</p>
 
-  <div class="featured-game-head">
-    <p><strong>人気の中級問題</strong>を出題中。ヒント・候補メモ・途中保存に対応しています。</p>
-    <a href="/play/beginner/">初級に変える</a>
-  </div>
-  <SudokuGame level="intermediate" levelJa="中級" url={url} set={featuredSet} />
-
   <h2>難易度を選んでプレイ</h2>
   <div class="play-list">
     {LEVELS.map((l) => (
       <a href={`/play/${l.slug}/`} class="play-card">
-        <span class="pc-j">{l.ja}<span class="pc-e">（{l.en}）</span></span>
+        <span class="pc-j">{l.ja}の無料ナンプレ<span class="pc-e">（{l.en}）</span></span>
         <span class="pc-d">{l.lead}</span>
       </a>
     ))}
   </div>
+
+  <p class="lead">紙で解く問題をお探しなら、<a href="/print/">答え付きの無料ナンプレPDF問題集</a>へ。下では中級の一問をそのまま試せます。</p>
+
+  <div class="featured-game-head">
+    <p><strong>中級問題をこのページで試す</strong>を出題中。ヒント・候補メモ・途中保存に対応しています。</p>
+    <a href="/play/beginner/">初級に変える</a>
+  </div>
+  <SudokuGame level="intermediate" levelJa="中級" url={url} set={featuredSet} />
 
   <h2>難易度の比較（早見表）</h2>
   <p class="lead">どの難易度から始めるか迷ったら。必要なテクニックとヒント数のめやすで選べます。</p>

@@ -1,0 +1,58 @@
+query,owner,action,device,previous_window,previous_status,previous_clicks,previous_impressions,previous_position,previous_ctr,previous_site_query_clicks,current_window,current_status,current_clicks,current_impressions,current_position,current_ctr,current_site_query_clicks,position_improvement
+ナンプレ 中級,/play/intermediate/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,8,895,8.464804,0.008939,20,2026-10-07/2026-10-20,observed,17,5498,8.874136,0.003092,28,-0.409
+ナンプレ 中級,/play/intermediate/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,3,42,12.452381,0.071429,20,2026-10-07/2026-10-20,observed,5,226,8.676991,0.022124,28,3.775
+ナンプレ 中級,/play/intermediate/,strengthen,TABLET,2026-09-20/2026-10-03,observed,1,56,8.375,0.017857,20,2026-10-07/2026-10-20,observed,3,285,9.042105,0.010526,28,-0.667
+ナンプレ中級,/play/intermediate/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,1,340,8.952941,0.002941,2,2026-10-07/2026-10-20,observed,2,3505,8.793438,0.000571,3,0.16
+ナンプレ中級,/play/intermediate/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,0,10,8.5,0,2,2026-10-07/2026-10-20,observed,0,180,8.916667,0,3,-0.417
+ナンプレ中級,/play/intermediate/,strengthen,TABLET,2026-09-20/2026-10-03,observed,0,51,8.980392,0,2,2026-10-07/2026-10-20,observed,0,212,8.896226,0,3,0.084
+数独 中級 無料,/play/intermediate/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,1,19,9.368421,0.052632,2,2026-10-07/2026-10-20,observed,19,1293,6.109049,0.014695,19,3.259
+数独 中級 無料,/play/intermediate/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,0,16,8,0,2,2026-10-07/2026-10-20,observed,0,168,5.208333,0,19,2.792
+数独 中級 無料,/play/intermediate/,strengthen,TABLET,2026-09-20/2026-10-03,not_in_export,,,,,2,2026-10-07/2026-10-20,observed,0,172,6.453488,0,19,
+数独 中級,/play/intermediate/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,0,65,9.8,0,3,2026-10-07/2026-10-20,observed,2,370,9.654054,0.005405,10,0.146
+数独 中級,/play/intermediate/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,1,9,9.555556,0.111111,3,2026-10-07/2026-10-20,observed,1,77,9.922078,0.012987,10,-0.367
+数独 中級,/play/intermediate/,strengthen,TABLET,2026-09-20/2026-10-03,observed,0,4,8.5,0,3,2026-10-07/2026-10-20,observed,0,28,9.571429,0,10,-1.071
+数独 中級 無料ゲーム,/play/intermediate/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,0,256,7.367188,0,0,2026-10-07/2026-10-20,observed,22,359,6.398329,0.061281,25,0.969
+数独 中級 無料ゲーム,/play/intermediate/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,0,1,9,0,0,2026-10-07/2026-10-20,observed,0,32,4.03125,0,25,4.969
+数独 中級 無料ゲーム,/play/intermediate/,strengthen,TABLET,2026-09-20/2026-10-03,observed,0,5,7.8,0,0,2026-10-07/2026-10-20,observed,3,46,4.26087,0.065217,25,3.539
+ナンプレ 中級問題 無料,/play/intermediate/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,0,24,6.833333,0,0,2026-10-07/2026-10-20,observed,16,333,8.666667,0.048048,16,-1.833
+ナンプレ 中級問題 無料,/play/intermediate/,strengthen,DESKTOP,2026-09-20/2026-10-03,not_in_export,,,,,0,2026-10-07/2026-10-20,observed,0,1,10,0,16,
+ナンプレ 中級問題 無料,/play/intermediate/,strengthen,TABLET,2026-09-20/2026-10-03,observed,0,1,7,0,0,2026-10-07/2026-10-20,observed,0,16,7.5625,0,16,-0.562
+数独 無料 初級,/play/beginner/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,8,243,8.312757,0.032922,9,2026-10-07/2026-10-20,observed,19,1038,8.532755,0.018304,19,-0.22
+数独 無料 初級,/play/beginner/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,1,27,8.037037,0.037037,9,2026-10-07/2026-10-20,observed,0,63,7.095238,0,19,0.942
+数独 無料 初級,/play/beginner/,strengthen,TABLET,2026-09-20/2026-10-03,observed,0,8,8.125,0,9,2026-10-07/2026-10-20,observed,0,36,7.333333,0,19,0.792
+ナンプレ 初級,/play/beginner/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,2,695,7.05036,0.002878,6,2026-10-07/2026-10-20,observed,2,803,7.072229,0.002491,11,-0.022
+ナンプレ 初級,/play/beginner/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,1,55,10.054545,0.018182,6,2026-10-07/2026-10-20,observed,3,81,8.728395,0.037037,11,1.326
+ナンプレ 初級,/play/beginner/,strengthen,TABLET,2026-09-20/2026-10-03,observed,0,27,7.925926,0,6,2026-10-07/2026-10-20,observed,1,32,6.96875,0.03125,11,0.957
+ナンプレ 無料 初級,/play/beginner/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,1,115,9.182609,0.008696,4,2026-10-07/2026-10-20,observed,1,764,8.815445,0.001309,3,0.367
+ナンプレ 無料 初級,/play/beginner/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,1,2,8.5,0.5,4,2026-10-07/2026-10-20,observed,1,33,8.181818,0.030303,3,0.318
+ナンプレ 無料 初級,/play/beginner/,strengthen,TABLET,2026-09-20/2026-10-03,observed,0,6,9.833333,0,4,2026-10-07/2026-10-20,observed,1,62,8.241935,0.016129,3,1.591
+数独 初級,/play/beginner/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,5,512,7.544922,0.009766,11,2026-10-07/2026-10-20,observed,9,715,8.286713,0.012587,10,-0.742
+数独 初級,/play/beginner/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,1,25,8.2,0.04,11,2026-10-07/2026-10-20,observed,0,40,9.625,0,10,-1.425
+数独 初級,/play/beginner/,strengthen,TABLET,2026-09-20/2026-10-03,observed,0,28,8,0,11,2026-10-07/2026-10-20,observed,0,28,8.428571,0,10,-0.429
+数独 初級 無料,/play/beginner/,strengthen,MOBILE,2026-09-20/2026-10-03,observed,3,307,6.908795,0.009772,3,2026-10-07/2026-10-20,observed,1,714,8.212885,0.001401,2,-1.304
+数独 初級 無料,/play/beginner/,strengthen,DESKTOP,2026-09-20/2026-10-03,observed,0,12,6.416667,0,3,2026-10-07/2026-10-20,observed,0,28,3.964286,0,2,2.452
+数独 初級 無料,/play/beginner/,strengthen,TABLET,2026-09-20/2026-10-03,observed,0,32,7.8125,0,3,2026-10-07/2026-10-20,observed,0,51,6.235294,0,2,1.577
+超難問 数独 最 高級,/play/extreme/,hold,MOBILE,2026-09-20/2026-10-03,observed,43,541,4.848429,0.079482,45,2026-10-07/2026-10-20,observed,71,667,3.250375,0.106447,82,1.598
+超難問 数独 最 高級,/play/extreme/,hold,DESKTOP,2026-09-20/2026-10-03,observed,1,12,1.416667,0.083333,45,2026-10-07/2026-10-20,observed,2,4,2,0.5,82,-0.583
+超難問 数独 最 高級,/play/extreme/,hold,TABLET,2026-09-20/2026-10-03,observed,1,23,4.391304,0.043478,45,2026-10-07/2026-10-20,observed,9,32,2.40625,0.28125,82,1.985
+数独 難問 最高級,/play/extreme/,hold,MOBILE,2026-09-20/2026-10-03,observed,10,661,6.458396,0.015129,12,2026-10-07/2026-10-20,observed,11,475,4.351579,0.023158,19,2.107
+数独 難問 最高級,/play/extreme/,hold,DESKTOP,2026-09-20/2026-10-03,observed,0,18,2.166667,0,12,2026-10-07/2026-10-20,observed,8,32,1,0.25,19,1.167
+数独 難問 最高級,/play/extreme/,hold,TABLET,2026-09-20/2026-10-03,observed,2,12,5.25,0.166667,12,2026-10-07/2026-10-20,observed,0,7,3.857143,0,19,1.393
+数独 超難問 無料,/play/extreme/,hold,MOBILE,2026-09-20/2026-10-03,observed,3,253,6.786561,0.011858,5,2026-10-07/2026-10-20,observed,8,403,7.039702,0.019851,10,-0.253
+数独 超難問 無料,/play/extreme/,hold,DESKTOP,2026-09-20/2026-10-03,observed,1,6,6.5,0.166667,5,2026-10-07/2026-10-20,observed,0,13,5.230769,0,10,1.269
+数独 超難問 無料,/play/extreme/,hold,TABLET,2026-09-20/2026-10-03,observed,0,11,6.727273,0,5,2026-10-07/2026-10-20,observed,2,44,5.568182,0.045455,10,1.159
+数独 無料,/,monitor,MOBILE,2026-09-20/2026-10-03,observed,0,54,10.574074,0,1,2026-10-07/2026-10-20,observed,1,53,9.735849,0.018868,2,0.838
+数独 無料,/,monitor,DESKTOP,2026-09-20/2026-10-03,observed,1,28,14.928571,0.035714,1,2026-10-07/2026-10-20,observed,0,20,15.1,0,2,-0.171
+数独 無料,/,monitor,TABLET,2026-09-20/2026-10-03,observed,0,3,9,0,1,2026-10-07/2026-10-20,observed,0,3,9.333333,0,2,-0.333
+ナンプレ 無料,/,monitor,MOBILE,2026-09-20/2026-10-03,observed,0,3,23,0,0,2026-10-07/2026-10-20,observed,0,23,9.478261,0,2,13.522
+ナンプレ 無料,/,monitor,DESKTOP,2026-09-20/2026-10-03,observed,0,7,21.714286,0,0,2026-10-07/2026-10-20,observed,2,11,23.454545,0.181818,2,-1.74
+ナンプレ 無料,/,monitor,TABLET,2026-09-20/2026-10-03,observed,0,1,57,0,0,2026-10-07/2026-10-20,observed,0,5,8.2,0,2,48.8
+数独無料ゲーム,/,monitor,MOBILE,2026-09-20/2026-10-03,not_in_export,,,,,0,2026-10-07/2026-10-20,observed,0,9,12.111111,0,0,
+数独無料ゲーム,/,monitor,DESKTOP,2026-09-20/2026-10-03,observed,0,11,14.909091,0,0,2026-10-07/2026-10-20,observed,0,6,22.333333,0,0,-7.424
+数独無料ゲーム,/,monitor,TABLET,2026-09-20/2026-10-03,observed,0,1,15,0,0,2026-10-07/2026-10-20,observed,0,1,10,0,0,5
+数独無料問題集,/play/,intent_alignment,MOBILE,2026-09-20/2026-10-03,observed,0,86,6.22093,0,6,2026-10-07/2026-10-20,observed,0,55,8.072727,0,1,-1.852
+数独無料問題集,/play/,intent_alignment,DESKTOP,2026-09-20/2026-10-03,observed,1,14,5.642857,0.071429,6,2026-10-07/2026-10-20,observed,0,13,8.307692,0,1,-2.665
+数独無料問題集,/play/,intent_alignment,TABLET,2026-09-20/2026-10-03,observed,1,3,8.333333,0.333333,6,2026-10-07/2026-10-20,observed,0,3,5.333333,0,1,3.0
+ナンプレ 問題集,/play/,intent_alignment,MOBILE,2026-09-20/2026-10-03,observed,0,1,7,0,1,2026-10-07/2026-10-20,observed,1,2,5.5,0.5,3,1.5
+ナンプレ 問題集,/play/,intent_alignment,DESKTOP,2026-09-20/2026-10-03,observed,1,2,9.5,0.5,1,2026-10-07/2026-10-20,observed,1,3,9,0.333333,3,0.5
+ナンプレ 問題集,/play/,intent_alignment,TABLET,2026-09-20/2026-10-03,not_in_export,,,,,1,2026-10-07/2026-10-20,not_in_export,,,,,3,
