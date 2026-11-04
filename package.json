@@ -20,13 +20,15 @@
     "check:value": "node scripts/check-growth.ts && node scripts/check-content-value.ts && node scripts/check-inequality-example.ts && node scripts/check-teaching-cases.ts && node scripts/check-variant-packs.ts && node scripts/check-print-previews.ts && node scripts/check-next-growth.ts && node scripts/check-puzzle-library.ts",
     "dev": "astro dev",
     "build": "astro build",
-    "postbuild": "npm run check:seo && npm run check:value",
+    "postbuild": "npm run check:seo && npm run check:value && npm run check:one-move",
     "preview": "astro preview",
     "gen:llms": "node scripts/gen-llms-full.ts",
     "gen:analysis-data": "node scripts/gen-analysis-data.ts",
     "gen:variant-packs": "node scripts/gen-variant-packs.ts && python3 scripts/gen-variant-pdfs.py",
     "gen:print-previews": "python3 scripts/gen-print-previews.py",
-    "gen:progression-pack": "node scripts/gen-progression-pack.ts && python3 scripts/gen-progression-pdfs.py"
+    "gen:progression-pack": "node scripts/gen-progression-pack.ts && python3 scripts/gen-progression-pdfs.py",
+    "prebuild": "node scripts/gen-one-move.ts",
+    "check:one-move": "node scripts/check-one-move.ts"
   },
   "engines": {
     "node": ">=22.12"

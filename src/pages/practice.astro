@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import OneMovePractice from '../components/OneMovePractice.astro';
+import { PUZZLE_TECHNIQUES } from '../data/puzzle-techniques.ts';
 import beginner from '../data/puzzles/beginner.json';
 import intermediate from '../data/puzzles/intermediate.json';
 import advanced from '../data/puzzles/advanced.json';
@@ -7,8 +9,8 @@ import hard from '../data/puzzles/hard.json';
 import extreme from '../data/puzzles/extreme.json';
 import { gridFromString, renderBoardSvg, renderStepFigures, TECH_INFO, traceKeySteps } from '../engine/index.ts';
 
-const title = '数独テクニック練習｜次の一手で実力診断 - numpredo';
-const description = '実際の数独盤面を見て次に使うテクニックを選ぶ無料練習。隠れた単数、区画の絞り込み、二国同盟、三国同盟、X-Wingの5問で実力を診断し、答えを図解します。';
+const title = '数独テクニック練習｜9手筋の一手チャレンジ・実力診断 - numpredo';
+const description = '数独の9手筋を実際の途中盤面で練習。各5局面で入れる数字・消せる候補を選び、理由を確認できます。間違えた問題の復習・途中保存に対応。手筋名を選ぶ5問の実力診断も無料。';
 const url = 'https://numpredo.com/practice/';
 
 const definitions = [
@@ -68,13 +70,13 @@ const questions = definitions.map((definition, index) => {
 const learningSchema = {
   '@context': 'https://schema.org',
   '@type': 'LearningResource',
-  name: '数独テクニック練習・実力診断',
+  name: '数独テクニック練習・一手チャレンジ・実力診断',
   description,
   url,
   inLanguage: 'ja',
   learningResourceType: 'Practice problem',
   educationalLevel: ['初級', '中級', '上級', '難問', '超難問'],
-  teaches: questions.map((question) => question.answer),
+  teaches: PUZZLE_TECHNIQUES.map(t => t.name),
   isAccessibleForFree: true,
   provider: { '@id': 'https://numpredo.com/#organization' },
 };
@@ -97,9 +99,9 @@ const breadcrumbSchema = {
   <nav class="crumb"><a href="/">ホーム</a> › 数独テクニック練習</nav>
   <header class="practice-head">
     <div>
-      <span class="practice-tag">5問・登録不要・無料</span>
-      <h1>数独テクニック練習<br />次の一手で実力診断</h1>
-      <p class="lead">実際の問題を論理ソルバーが解いた途中局面を使います。候補の並びを見て、次に使える手筋を選んでください。答えは候補消去の位置まで図解します。</p>
+      <span class="practice-tag">一手チャレンジ・手筋診断・無料</span>
+      <h1>数独テクニック練習<br />次の一手チャレンジと実力診断</h1>
+      <p class="lead">実際の問題を論理ソルバーが解いた途中局面を使います。数字を選ぶ9手筋のチャレンジと、手筋名を選ぶ5問診断から選べます。どちらも一手の根拠を確認できます。</p>
     </div>
     <div class="practice-how">
       <strong>見方</strong>
@@ -109,7 +111,10 @@ const breadcrumbSchema = {
     </div>
   </header>
 
-  <section class="practice-app" data-practice>
+  <p><a href="#one-move">数字を選ぶ・9手筋の5問チャレンジ</a> ／ <a href="#technique-diagnosis">手筋の名前を選ぶ・5問診断</a></p>
+  <OneMovePractice />
+
+  <section id="technique-diagnosis" class="practice-app" data-practice>
     <div class="practice-progress"><span data-progress>1 / {questions.length}</span><i><b data-progress-bar></b></i><span data-score>正解 0</span></div>
     {questions.map((question, index) => (
       <article class="practice-card" data-question data-answer={question.answer} data-active={index === 0 ? 'true' : 'false'}>

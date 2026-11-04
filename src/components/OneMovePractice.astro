@@ -1,0 +1,64 @@
+---
+import { PUZZLE_TECHNIQUES } from '../data/puzzle-techniques.ts';
+---
+<section id="one-move" class="one-move" data-one-move aria-labelledby="one-move-title">
+  <span class="om-tag">9種類の手筋 · 各5局面 · 無料</span>
+  <h2 id="one-move-title">次の一手・5問チャレンジ</h2>
+  <p>手筋を選び、指定されたマスに入る数字・消せる候補を答えましょう。実際の数独問題の途中局面から、狙った手筋だけを練習できます。</p>
+  <div class="om-controls">
+    <label for="one-move-technique">練習する手筋</label>
+    <select id="one-move-technique" data-om-select>{PUZZLE_TECHNIQUES.map(t=><option value={t.slug}>{t.name}</option>)}</select>
+    <button type="button" data-om-start>始める・続きから</button>
+  </div>
+  <p data-om-status role="status"></p>
+  <p class="om-note" data-om-storage>進み具合はこのブラウザに保存します。手筋ごとに5局面、全45局面です。再挑戦では同じ問題の順番が変わります。</p>
+  <div data-om-game hidden>
+    <p class="om-progress" data-om-progress></p>
+    <h3 data-om-question tabindex="-1">この局面で選ぶ一手</h3>
+    <p class="om-note" data-om-origin></p>
+    <p>太枠のマスが回答する場所です。小さい数字は残っている候補です。</p>
+    <div class="om-board" data-om-board></div>
+    <button type="button" data-om-hint>根拠のマスを見る</button>
+    <div class="om-options" data-om-options role="group" aria-label="この手筋でできる一手を選ぶ"></div>
+    <p data-om-feedback role="status"></p>
+    <div class="om-explanation" data-om-explanation hidden>
+      <p data-om-premise></p><p><strong data-om-outcome></strong></p>
+      <p><a data-om-guide>この手筋の解説を読む</a> ／ <a data-om-play>元の数独を最初から解く</a></p>
+    </div>
+    <button type="button" data-om-next disabled>次の局面へ</button>
+  </div>
+  <div data-om-result hidden>
+    <h3 data-om-result-title tabindex="-1">チャレンジの結果</h3>
+    <p>正解数は最初の回答で数えます。根拠を見た問題も含む練習の記録で、能力や難易度の判定ではありません。</p>
+    <div data-om-summary></div>
+    <div class="om-controls">
+      <button type="button" data-om-review>間違えた局面だけ復習する</button>
+      <button type="button" data-om-again>5問をもう一度</button>
+    </div>
+  </div>
+  <noscript><p>このチャレンジにはJavaScriptが必要です。下の図解ガイドから手筋の成立条件を確認できます。</p></noscript>
+</section>
+<script>import '../client/one-move.ts';</script>
+<style>
+  .one-move { margin:28px 0; padding:clamp(14px,3vw,26px); border:1px solid var(--line); border-radius:12px; background:var(--surface); scroll-margin-top:88px; }
+  h2 { margin:8px 0 12px; } h3 { margin:14px 0; } .om-tag,.om-progress { color:var(--accent); font-weight:700; }
+  .om-controls,.om-options { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:16px 0; }
+  button,select { font:inherit; color:var(--ink); border:1px solid var(--line-2); border-radius:6px; background:var(--surface-2); padding:10px 12px; min-height:44px; max-width:100%; }
+  button { cursor:pointer; } button:disabled { cursor:default; opacity:.65; }
+  [data-om-start],[data-om-next] { background:var(--accent); color:var(--accent-on); }
+  .om-note { color:var(--ink-3); font-size:13px; } .om-explanation { padding:12px; background:var(--surface-2); border-radius:8px; margin:12px 0; }
+  a { color:var(--accent); } .om-board { max-width:440px; margin:18px auto; }
+  .om-board :global(table) { width:100%; border-collapse:collapse; table-layout:fixed; }
+  .om-board :global(th) { font-size:11px; color:var(--ink-3); font-weight:400; height:18px; }
+  .om-board :global(th:first-child) { width:18px; }
+  .om-board :global(td) { padding:0; border:1px solid var(--line-2); text-align:center; height:clamp(28px,8vw,44px); font-size:clamp(16px,5vw,24px); }
+  .om-board :global(td:nth-child(4)),.om-board :global(td:nth-child(7)) { border-right:2px solid var(--ink); }
+  .om-board :global(tr:nth-child(3) td),.om-board :global(tr:nth-child(6) td) { border-bottom:2px solid var(--ink); }
+  .om-board :global(.om-target) { outline:3px solid var(--accent); outline-offset:-3px; }
+  .om-board :global(.om-mark) { background:var(--surface-2); box-shadow:inset 0 0 0 2px var(--ink-3); }
+  .om-board :global(.om-notes) { display:grid; grid-template-columns:repeat(3,1fr); font-size:clamp(8px,2.4vw,12px); line-height:1.1; }
+  .om-board :global(.om-notes span) { min-height:9px; }
+  .om-options :global(button) { min-width:76px; min-height:44px; padding:10px 12px; font:inherit; color:var(--ink); background:var(--surface-2); border:1px solid var(--line-2); border-radius:6px; cursor:pointer; }
+  .om-options :global([data-correct]) { border:2px solid var(--accent); font-weight:700; }
+  [hidden] { display:none!important; }
+</style>

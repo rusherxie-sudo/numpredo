@@ -12,6 +12,7 @@ const examples = technique ? groups.flatMap(g => g.rows.filter(r => r.hardest ==
 ---
 {technique && groups.length > 0 && <section class="tech-collection">
   <h2>{technique.name}が現れる実戦問題集</h2>
+  <p>まず一手ずつ練習したい方は、<a href={`/practice/?tech=${technique.slug}#one-move`}>{technique.name}の5問チャレンジ</a>へ。指定されたマスの数字を選び、根拠の確認と間違えた局面の復習ができます。</p>
   <p>収録問題のうち、当サイトの解法でこの手筋を使う問題は<strong>{total.toLocaleString('ja-JP')}問</strong>あります。まずはこの手筋が最難となる短い解法の問題から、盤面全体を解いて練習できます。</p>
   <ul>{examples.map(row => <li><a href={`/play/${row.level.slug}/?n=${row.n}#level-game`}>{row.level.ja} No.{row.n}を解く</a> — ヒント{row.clues}個、解説{row.steps}手</li>)}</ul>
   <p>もっと練習する：{groups.map(({level, rows}, i) => <>{i > 0 && ' ／ '}<a href={`/play/${level.slug}/?tech=${technique.key}#puzzle-library`}>{level.ja}の{rows.length}問</a></>)}</p>
