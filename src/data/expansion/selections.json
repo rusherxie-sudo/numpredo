@@ -1,0 +1,298 @@
+{
+  "examples": {
+    "hidden-single-finish": {
+      "level": "beginner",
+      "number": 238,
+      "technique": "hiddenSingle"
+    },
+    "pointing-breakthrough": {
+      "level": "intermediate",
+      "number": 70,
+      "technique": "lockedCandidates"
+    },
+    "naked-pair-breakthrough": {
+      "level": "advanced",
+      "number": 417,
+      "technique": "nakedPair"
+    },
+    "hidden-pair-breakthrough": {
+      "level": "advanced",
+      "number": 35,
+      "technique": "hiddenPair"
+    },
+    "naked-triple-breakthrough": {
+      "level": "hard",
+      "number": 93,
+      "technique": "nakedTriple"
+    },
+    "x-wing-breakthrough": {
+      "level": "extreme",
+      "number": 966,
+      "technique": "xWing"
+    },
+    "skyscraper-breakthrough": {
+      "level": "extreme",
+      "number": 600,
+      "technique": "skyscraper"
+    },
+    "swordfish-breakthrough": {
+      "level": "extreme",
+      "number": 136,
+      "technique": "swordfish"
+    }
+  },
+  "print": {
+    "hidden-single": [
+      {
+        "level": "beginner",
+        "number": 175,
+        "technique": "hiddenSingle"
+      },
+      {
+        "level": "beginner",
+        "number": 194,
+        "technique": "hiddenSingle"
+      },
+      {
+        "level": "beginner",
+        "number": 207,
+        "technique": "hiddenSingle"
+      },
+      {
+        "level": "beginner",
+        "number": 226,
+        "technique": "hiddenSingle"
+      },
+      {
+        "level": "beginner",
+        "number": 232,
+        "technique": "hiddenSingle"
+      },
+      {
+        "level": "beginner",
+        "number": 238,
+        "technique": "hiddenSingle"
+      },
+      {
+        "level": "beginner",
+        "number": 247,
+        "technique": "hiddenSingle"
+      },
+      {
+        "level": "beginner",
+        "number": 248,
+        "technique": "hiddenSingle"
+      }
+    ],
+    "pointing": [
+      {
+        "level": "intermediate",
+        "number": 57,
+        "technique": "lockedCandidates"
+      },
+      {
+        "level": "intermediate",
+        "number": 60,
+        "technique": "lockedCandidates"
+      },
+      {
+        "level": "intermediate",
+        "number": 61,
+        "technique": "lockedCandidates"
+      },
+      {
+        "level": "intermediate",
+        "number": 64,
+        "technique": "lockedCandidates"
+      },
+      {
+        "level": "intermediate",
+        "number": 65,
+        "technique": "lockedCandidates"
+      },
+      {
+        "level": "intermediate",
+        "number": 70,
+        "technique": "lockedCandidates"
+      },
+      {
+        "level": "intermediate",
+        "number": 79,
+        "technique": "lockedCandidates"
+      },
+      {
+        "level": "intermediate",
+        "number": 84,
+        "technique": "lockedCandidates"
+      }
+    ],
+    "naked-pair": [
+      {
+        "level": "advanced",
+        "number": 263,
+        "technique": "nakedPair"
+      },
+      {
+        "level": "advanced",
+        "number": 301,
+        "technique": "nakedPair"
+      },
+      {
+        "level": "advanced",
+        "number": 361,
+        "technique": "nakedPair"
+      },
+      {
+        "level": "advanced",
+        "number": 379,
+        "technique": "nakedPair"
+      },
+      {
+        "level": "advanced",
+        "number": 408,
+        "technique": "nakedPair"
+      },
+      {
+        "level": "advanced",
+        "number": 417,
+        "technique": "nakedPair"
+      },
+      {
+        "level": "advanced",
+        "number": 436,
+        "technique": "nakedPair"
+      },
+      {
+        "level": "advanced",
+        "number": 470,
+        "technique": "nakedPair"
+      }
+    ],
+    "naked-triple": [
+      {
+        "level": "hard",
+        "number": 318,
+        "technique": "nakedTriple"
+      },
+      {
+        "level": "hard",
+        "number": 337,
+        "technique": "nakedTriple"
+      },
+      {
+        "level": "hard",
+        "number": 370,
+        "technique": "nakedTriple"
+      },
+      {
+        "level": "hard",
+        "number": 41,
+        "technique": "nakedTriple"
+      },
+      {
+        "level": "hard",
+        "number": 60,
+        "technique": "nakedTriple"
+      },
+      {
+        "level": "hard",
+        "number": 93,
+        "technique": "nakedTriple"
+      },
+      {
+        "level": "hard",
+        "number": 149,
+        "technique": "nakedTriple"
+      },
+      {
+        "level": "hard",
+        "number": 172,
+        "technique": "nakedTriple"
+      }
+    ],
+    "x-wing": [
+      {
+        "level": "extreme",
+        "number": 896,
+        "technique": "xWing"
+      },
+      {
+        "level": "extreme",
+        "number": 742,
+        "technique": "xWing"
+      },
+      {
+        "level": "extreme",
+        "number": 843,
+        "technique": "xWing"
+      },
+      {
+        "level": "extreme",
+        "number": 904,
+        "technique": "xWing"
+      },
+      {
+        "level": "extreme",
+        "number": 938,
+        "technique": "xWing"
+      },
+      {
+        "level": "extreme",
+        "number": 966,
+        "technique": "xWing"
+      },
+      {
+        "level": "extreme",
+        "number": 3,
+        "technique": "xWing"
+      },
+      {
+        "level": "extreme",
+        "number": 5,
+        "technique": "xWing"
+      }
+    ],
+    "skyscraper": [
+      {
+        "level": "extreme",
+        "number": 360,
+        "technique": "skyscraper"
+      },
+      {
+        "level": "extreme",
+        "number": 393,
+        "technique": "skyscraper"
+      },
+      {
+        "level": "extreme",
+        "number": 525,
+        "technique": "skyscraper"
+      },
+      {
+        "level": "extreme",
+        "number": 556,
+        "technique": "skyscraper"
+      },
+      {
+        "level": "extreme",
+        "number": 584,
+        "technique": "skyscraper"
+      },
+      {
+        "level": "extreme",
+        "number": 600,
+        "technique": "skyscraper"
+      },
+      {
+        "level": "extreme",
+        "number": 648,
+        "technique": "skyscraper"
+      },
+      {
+        "level": "extreme",
+        "number": 658,
+        "technique": "skyscraper"
+      }
+    ]
+  }
+}

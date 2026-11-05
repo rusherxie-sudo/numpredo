@@ -1,4 +1,5 @@
 ---
+import ExpansionLinks from '../../../components/ExpansionLinks.astro';
 import TechniqueCollection from '../../../components/TechniqueCollection.astro';
 import Base from '../../../layouts/Base.astro';
 import EditorialNote from '../../../components/EditorialNote.astro';
@@ -127,4 +128,7 @@ const breadcrumbSchema = {
     .guide-fig svg { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
     .guide-fig figcaption { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
   </style>
+<ExpansionLinks group="lessons" topic={t.slug} />
+<ExpansionLinks group="examples" topic={t.slug} />
+<ExpansionLinks group="print" topic={t.slug} />
 </Base>

@@ -1,0 +1,14 @@
+---
+import {MODELS} from '../data/expansion/models.ts';
+const {name}=Astro.props;const model=MODELS[name];
+---
+<figure class="logic-model">
+  <table aria-label="手筋の成立条件を示す局所的な候補図">
+    <thead><tr><th></th>{Array.from({length:9},(_,c)=><th scope="col">{c+1}</th>)}</tr></thead>
+    <tbody>{Array.from({length:9},(_,r)=><tr><th scope="row">{r+1}</th>{Array.from({length:9},(_,c)=>{const i=r*9+c,item=model.cells.find(v=>v.cell===i);return <td class:list={{target:i===model.target,marked:!!item}}>{item?item.values.filter(Boolean).join('・'):<span aria-label="省略">—</span>}</td>;})}</tr>)}</tbody>
+  </table>
+  <figcaption>{model.caption} 太枠が回答対象。これは手筋の条件を分離した説明図で、完成させる81マスの問題ではありません。</figcaption>
+</figure>
+<style>
+.logic-model {margin:20px auto;max-width:560px;}table{table-layout:fixed;width:100%;border-collapse:collapse;font-size:clamp(9px,2.7vw,14px);}td,th{text-align:center;padding:5px 0;border:1px solid var(--line);height:36px;overflow-wrap:anywhere;}th{color:var(--ink-3);width:20px;}td:nth-child(4),td:nth-child(7){border-right:2px solid var(--ink);}tr:nth-child(3) td,tr:nth-child(6) td{border-bottom:2px solid var(--ink);}td span{color:var(--ink-3);}td.marked{background:var(--surface-2);}td.target{outline:3px solid var(--accent);outline-offset:-3px;}figcaption{font-size:13px;line-height:1.8;margin-top:12px;}
+</style>

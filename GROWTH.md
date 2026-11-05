@@ -1,5 +1,10 @@
 # numpredo：自然搜索增长策略
 
+## 2026-11-06：增加有独立用途的搜索入口
+
+用户明确扩大首批内容规模，执行30个新URL（12专题、10题集、8实战）。不再以本站已有曝光作为扩页必要条件，结合竞品覆盖、可验证题目和独立任务；低证据页面明确作为需求探索。既有难度、高龄者、Killer专家等入口保留，避免同义词拆页。以新增30页的Google发现/索引、曝光、点击及PDF使用复核，不以Sitemap数量当作增长结果。清单与质量门槛见[执行记录](docs/growth/2026-11-06-search-expansion/README.md)。
+
+
 ## 2026-11-05：竞品借鉴落地
 
 已完成提示→专项练习→原题返回、首页续玩和180局面推荐练习。复用既有技巧教程入口，不新增薄内容页面。下一优先级是核验上线后 hint_practice_click → one_move_start/answer/complete → one_move_return，以及 home_continue_click 的实际使用；回访变化需要成熟观察窗口，不能把这些事件直接视为留存提升。发布与验证见[实施记录](docs/growth/2026-11-05-practice-loop/README.md)。

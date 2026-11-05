@@ -14,6 +14,9 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
+import {LESSONS} from '../src/data/expansion/lessons.ts';
+import {EXAMPLES} from '../src/data/expansion/examples.ts';
+import manifest from '../public/downloads/collections/manifest.json' with {type:'json'};
 
 const PAGES = 'src/pages';
 const OUT = 'src/data/sitemap-lastmod.json';
@@ -50,6 +53,9 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
+  ...Object.fromEntries(LESSONS.map(l=>[`${l.path.slice(1,-1)}.astro`,['src/data/expansion/lessons.ts','src/data/expansion/models.ts','src/components/ExpansionLesson.astro','src/components/LogicModel.astro']])),
+  ...Object.fromEntries(EXAMPLES.map(e=>[`${e.path.slice(1,-1)}.astro`,['src/data/expansion/examples.ts','src/data/expansion/selections.json','src/components/ExpansionExample.astro',`src/data/puzzles/${e.spec.level}.json`]])),
+  ...Object.fromEntries(manifest.packs.map(p=>[`${p.path.slice(1,-1)}.astro`,['src/data/expansion/print-sets.ts','src/data/expansion/selections.json','src/components/ExpansionPrint.astro','scripts/gen-expansion-pdfs.py',`public/downloads/collections/${p.slug}-questions.pdf`,`public/downloads/collections/${p.slug}-answers.pdf`]])),
   'practice.astro': ['src/components/OneMovePractice.astro','src/client/one-move.ts','src/client/one-move-state.ts','src/client/practice-history.ts','src/data/one-move.ts','src/data/technique-drills.ts','src/data/teaching-cases.ts','scripts/gen-one-move.ts'],
   'print/progression.astro':['src/data/progression-pack.ts','scripts/gen-progression-pdfs.py','public/downloads/progression/manifest.json','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json'],
   'widgets.astro':['src/pages/embed/mini4.astro','src/data/mini4.ts','src/components/VariantGame.astro','src/client/variant-game.ts'],
@@ -61,7 +67,7 @@ const STATIC_EXTRA_DATA: Record<string, string[]> = {
   ...Object.fromEntries(['6x6','16x16','inequality'].map(slug=>[`print/${slug}.astro`,['src/components/VariantPrintPack.astro','src/components/PrintResourceCards.astro','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json','src/data/variant-print.ts','public/downloads/variants/manifest.json','scripts/gen-variant-pdfs.py']])),
   'tools/solver.astro': ['src/client/ocr-solve.ts','src/data/solver-sample.ts','src/client/learning-transfer.ts'],
   'print/senior.astro': ['src/components/PrintResourceCards.astro','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json','src/components/ActivityPack.astro','src/components/ActivityContinuation.astro','public/downloads/activity/manifest-02.json','scripts/gen-activity-pack.py','public/downloads/activity/manifest.json'],
-  'guide/solving-examples.astro': ['src/data/teaching-cases.ts'],
+  'guide/solving-examples.astro': ['src/data/teaching-cases.ts','src/components/ExpansionLinks.astro','src/data/expansion/examples.ts'],
   'tools/candidate-checker.astro': ['src/client/candidate-checker.ts','src/client/learning-transfer.ts'],
   'variants/4x4.astro': ['src/data/mini4.ts', 'src/components/MiniSudoku4.astro', 'src/client/mini-sudoku4.ts'],
   'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts','src/data/sudoku16-samples.ts','src/components/VariantGame.astro','src/client/variant-game.ts','src/data/sudoku16-play.ts','src/engine/variant-symbols.ts','public/downloads/variants/manifest.json'],

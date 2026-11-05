@@ -5,7 +5,7 @@ const first = MINI4_PUZZLES[0];
 const cells = (value: string): Array<number | null> => [...value].map((digit) => digit === '.' ? null : Number(digit));
 ---
 
-<section class="mini4-tool screen-only" data-mini4 aria-label="4×4ナンプレ無料ゲーム">
+<section id="mini4-game" class="mini4-tool screen-only" data-mini4 aria-label="4×4ナンプレ無料ゲーム">
   <div class="mini4-toolbar">
     <button type="button" class="icon-button" data-mini4-prev aria-label="前の問題" title="前の問題">←</button>
     <strong data-mini4-label>{first.level} No.{first.id}（1 / {MINI4_PUZZLES.length}）</strong>

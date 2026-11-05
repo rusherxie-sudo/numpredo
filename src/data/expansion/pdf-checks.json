@@ -1,0 +1,122 @@
+[
+  {
+    "file": "4x4-questions.pdf",
+    "pages": 6,
+    "sha256": "f564e8d6abb7f4d70ee2df3950b9c6d8cf43cc5f7b7e2b95bb3cc4a35d99754e",
+    "previewSha256": "749923a68559ed2aa71f9e9113676cfbfb4c341932bf8a72baa8705c0125f479"
+  },
+  {
+    "file": "4x4-answers.pdf",
+    "pages": 6,
+    "sha256": "ec28da059cff1f78705a3bc380b1f85d8472826e72db852d2d20f431a4e80231",
+    "previewSha256": "2aff87eafd2e32cdb0aedc808b6b1113aee17c4b5fe5cd55da0f8b195f117711"
+  },
+  {
+    "file": "killer-questions.pdf",
+    "pages": 3,
+    "sha256": "8217d1771ffc2b92fd4fe63bb444bf1310630589d097af5f81a567e83bb6c6de",
+    "previewSha256": "47a58cdaeb805cc91b88613b859c989e3b5692087bd4c975d2f49c57328f8886"
+  },
+  {
+    "file": "killer-answers.pdf",
+    "pages": 3,
+    "sha256": "7ad8bbb4ccde911084a4c5467d778f89cefd8257c812769b3fb912db07ccd662",
+    "previewSha256": "88836ca9d0996fd163b947009c4b6cbdbbef1c83775929db469084f5702848cf"
+  },
+  {
+    "file": "diagonal-questions.pdf",
+    "pages": 3,
+    "sha256": "7370ff9d226625caf35fbd9d7575a066c3878620bc88ace5a7087464039f3eba",
+    "previewSha256": "06fb6f3ae170edee79762a7c7887130f7289e395d1308a980c1fd7ea8faec841"
+  },
+  {
+    "file": "diagonal-answers.pdf",
+    "pages": 3,
+    "sha256": "b6075ad8837c0add70b1a26b7b5aee8d69bea13b658c856dcdf47fe260d5c854",
+    "previewSha256": "72bc00bf6cf02a5975ba0d7aace2c1a79b5711618f882ad7dbc00b08d06931bb"
+  },
+  {
+    "file": "candidate-notes-questions.pdf",
+    "pages": 4,
+    "sha256": "8de511c8d91b712b99db8bd520d9839acbc3076ecf2c1745c1f0428f4a639880",
+    "previewSha256": "d44a21fb7b80e7b96b39faae5d022cb7e8cced7a143b72e3b843691213205e48"
+  },
+  {
+    "file": "candidate-notes-answers.pdf",
+    "pages": 4,
+    "sha256": "41049aadeb93d285856def3257cbffe063a9e885fa3dc92c43008eae0575ed88",
+    "previewSha256": "545b18d9ff3eeb4bb91108c896775f1bf2ba82cfecd864848552c5ce8ec44bab"
+  },
+  {
+    "file": "practice-hidden-single-questions.pdf",
+    "pages": 4,
+    "sha256": "cf8d155eb249c893f97892af63f3fe6c843a8c5d54629ba32a13e57929e824c7",
+    "previewSha256": "535aaffb0250223c50a86bab74006a7ea832b2b3f24d58eca0d1160e9433bb88"
+  },
+  {
+    "file": "practice-hidden-single-answers.pdf",
+    "pages": 4,
+    "sha256": "a4b9c32fddf7268725fee008d5ed369bdfca66208ed4ac6a4474835513ab6bb3",
+    "previewSha256": "fda2b75af19d226778e8c15954f29bc76756f338240a2772aea184c7cf840861"
+  },
+  {
+    "file": "practice-pointing-questions.pdf",
+    "pages": 4,
+    "sha256": "30218c9993e219fdce94e8fce672cc9d5b57fd14acbd76d14e5d2572bb8a6b2e",
+    "previewSha256": "d5d317bb4f00eeaf16e48891ca2f0935dade96cab88ff728cbd804a0ac44c79b"
+  },
+  {
+    "file": "practice-pointing-answers.pdf",
+    "pages": 4,
+    "sha256": "e2685018765671d8b959fb371b51f631b3e02d3fe0e68ffeaaee943ed5adbb37",
+    "previewSha256": "9bc37d79dbf97289ad3a07b7a9592c30268a4099669db2a2322337647aca2d0b"
+  },
+  {
+    "file": "practice-naked-pair-questions.pdf",
+    "pages": 4,
+    "sha256": "9f357d85be3db201efd89e262a2c9ad2a4a905fda57cb187250b5374a74544e6",
+    "previewSha256": "0b1b489a8bcdcec5dee7a774d615c99c9cdcec5bd974e1402b2f3405370e8e4f"
+  },
+  {
+    "file": "practice-naked-pair-answers.pdf",
+    "pages": 4,
+    "sha256": "d6a60385276f6df2a8df602a66ea9973eff3610801fde0c582d56272c8881cd5",
+    "previewSha256": "274717afab11cd5ba51308201264afdc8915afe5a36323500f2d63cd7fbffcd6"
+  },
+  {
+    "file": "practice-naked-triple-questions.pdf",
+    "pages": 4,
+    "sha256": "5b279229d7ffcc60222708002e10d495910ba1a7aa57bf74a00426c52880876f",
+    "previewSha256": "63855d505b68fcec6e7e4df7dc03573e0bd92f1d1b9a1f5b47d05eb98435afee"
+  },
+  {
+    "file": "practice-naked-triple-answers.pdf",
+    "pages": 4,
+    "sha256": "26e75b294a7b79f1e0e5efcf95ff724124816ff86ab63fc914e8c46c6320545c",
+    "previewSha256": "ec19adefa56aa7adce7b703d1dcd567fb5c67e1a1e66d9b2eabef0f515d2ef20"
+  },
+  {
+    "file": "practice-x-wing-questions.pdf",
+    "pages": 4,
+    "sha256": "c3be7da37f6c83d7c47d495669542b22271f9b94ea5c53a6f2909cd6ad0a3bc9",
+    "previewSha256": "84eadbbd7c5fa9c5d352ec21859498c6fb445084a2631b767d135f8144a1bd37"
+  },
+  {
+    "file": "practice-x-wing-answers.pdf",
+    "pages": 4,
+    "sha256": "b25b5b7a2843ff721de666b16b5cd42e0d94c511995092a96ed439df02763f1b",
+    "previewSha256": "02437c74f6d5f79340385babc2c7fe4c5efa64cb20188a43c5e8f55da62112ac"
+  },
+  {
+    "file": "practice-skyscraper-questions.pdf",
+    "pages": 4,
+    "sha256": "b6f2a8efe3bb861aaa10ae1f12118a4a66741ee399c2eb68a202b7a7b6c535d6",
+    "previewSha256": "8cb6b00c1c1be557d2494c0ef1886a4596d4d24d2974118eec5f9a18d52a3ee0"
+  },
+  {
+    "file": "practice-skyscraper-answers.pdf",
+    "pages": 4,
+    "sha256": "82dfa917aae8461d98e6456b64f492cf6c599ba495db0c3694f3306b0c4f399c",
+    "previewSha256": "74c2d3bae1812688ffafc40996ffce592d741877bb745a548aff275d81e96317"
+  }
+]

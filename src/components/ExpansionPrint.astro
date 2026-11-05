@@ -1,0 +1,36 @@
+---
+import {LESSONS} from '../data/expansion/lessons.ts';
+import {TECHNIQUES} from '../data/techniques.ts';
+import Base from '../layouts/Base.astro';
+import manifest from '../../public/downloads/collections/manifest.json';
+import type {PrintSet} from '../data/expansion/print-sets.ts';
+const {slug}=Astro.props;const pack=(manifest.packs as PrintSet[]).find(p=>p.slug===slug)!;
+const url=`https://numpredo.com${pack.path}`,pages=Math.ceil(pack.items.length/(pack.kind==='notes'?1:2));
+const labels:Record<string,string>={'/variants/4x4/':'4×4ナンプレをオンラインで解く','/guide/for-kids/':'親子で試す4×4の教え方','/print/progression/':'4×4から6×6へ進む練習セット','/variants/killer/':'キラー数独をオンラインで解く','/tools/killer-combinations/':'ケージ合計の組み合わせ表','/variants/diagonal/':'対角線数独をオンラインで解く','/guide/rules/':'数独の基本ルール','/print/':'無料プリント一覧','/tools/candidate-checker/':'候補数字・次の一手チェッカー','/print/techniques/':'手筋別の印刷練習一覧'};
+const linkLabel=(path:string)=>LESSONS.find(l=>l.path===path)?.title??TECHNIQUES.find(t=>path===`/guide/techniques/${t.slug}/`)?.h1??(path.startsWith('/practice/')?'同じ手筋の次の一手を5問練習する':labels[path]??'数独の関連教材');
+const schema={'@context':'https://schema.org','@type':'LearningResource',name:pack.name,description:pack.description,url,inLanguage:'ja',learningResourceType:'印刷問題集',isAccessibleForFree:true};
+---
+<Base title={`${pack.name}｜問題・解答PDF - numpredo`} description={pack.description} canonical={url}>
+ <Fragment slot="head"><script type="application/ld+json" set:html={JSON.stringify(schema)}/></Fragment>
+ <nav class="crumb"><a href="/">ホーム</a> › <a href="/print/">無料プリント</a> › {pack.name}</nav>
+ <article><h1>{pack.name}</h1><p class="lead">{pack.intro}</p>
+ <section class="downloads" data-print-collection={slug} data-count={pack.items.length} aria-label="PDFダウンロード"><p><a data-expansion-download="questions" href={`/downloads/collections/${slug}-questions.pdf`}>問題PDFをダウンロード（{pages}ページ）</a></p><p><a data-expansion-download="answers" href={`/downloads/collections/${slug}-answers.pdf`}>解答PDFをダウンロード（{pages}ページ）</a></p><p>A4・{pack.kind==='notes'?'1':'2'}問／ページ・登録不要。端末に保存して印刷できます。</p></section>
+ <h2>ルールと問題のプレビュー</h2><p>{pack.rule}</p>
+ <figure><img src={`/images/collections/${slug}-questions.png`} width="707" height="1000" alt={`${pack.name}の問題PDF・最初のページ`} loading="lazy"/><figcaption>ダウンロードするPDFの実際の1ページ目です。</figcaption></figure>
+ {pack.sections.map(s=><section><h2>{s.heading}</h2><p>{s.body}</p></section>)}
+ <h2>収録する{pack.items.length}問とオンライン版</h2><p>元の問題をオンラインでも確認できます。同じ問題を別のセットで使う場合も、IDで照合できます。</p>
+ <div class="table-wrap"><table><thead><tr><th>順番</th><th>問題ID</th><th>最初の数字</th><th>手筋・答えの確認</th></tr></thead><tbody>{pack.items.map((p,i)=><tr><td>{i+1}</td><td><a href={p.source}>{p.id}</a></td><td>{p.clues}個</td><td>{p.step?<details><summary>{p.step}手目の根拠を開く</summary><p>{p.note}</p></details>:p.note}</td></tr>)}</tbody></table></div>
+ <h2>答え合わせと配布について</h2><p>問題と答えは別ファイルです。解答の番号だけでなく、問題IDも一致するか確認してください。答えは完成盤面で、全解答手順が付くPDFではありません。手順が必要なときは、上のオンライン版のヒントを使えます。</p>
+ <details><summary>解答PDFの最初のページを見る</summary><figure><img src={`/images/collections/${slug}-answers.png`} width="707" height="1000" alt={`${pack.name}の解答PDF・最初のページ`} loading="lazy"/></figure></details>
+ <p>家庭や施設内などでの非営利利用・配布は、<a href="/terms/#print-license">印刷問題集の利用条件</a>をご確認ください。販売やウェブへの再掲載を許可するものではありません。</p>
+ <h2>関連する教材</h2><ul>{pack.related.map(path=><li><a href={path}>{linkLabel(path)}</a></li>)}</ul>
+ <h2>目的別の別のプリント</h2><ul>{manifest.packs.filter(p=>p.slug!==slug&&p.kind===pack.kind).slice(0,2).map(p=><li><a href={p.path}>{p.name}</a></li>)}</ul>
+ </article>
+</Base>
+<script>
+ import {track} from '../client/track.ts';
+ document.querySelectorAll<HTMLElement>('[data-print-collection]').forEach(root=>root.querySelectorAll<HTMLAnchorElement>('[data-expansion-download]').forEach(a=>a.addEventListener('click',()=>track('print_pdf_download',{collection:root.dataset.printCollection,count:Number(root.dataset.count),format:a.dataset.expansionDownload}))));
+</script>
+<style>
+article{max-width:800px;margin:auto;}h1{line-height:1.45;}p,li{line-height:1.95;}h2{margin-top:30px;}a{color:var(--accent);}figure{max-width:500px;margin:20px auto;}img{width:100%;height:auto;border:1px solid var(--line);}figcaption{font-size:13px;color:var(--ink-3);} .downloads{padding:14px 20px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;}.downloads a{display:inline-block;min-height:44px;line-height:1.7;padding:8px 0;font-weight:700;}.downloads p{margin:0;}table{border-collapse:collapse;width:100%;font-size:14px;}td,th{padding:10px;text-align:left;border:1px solid var(--line);overflow-wrap:anywhere;}.table-wrap{overflow-x:auto;}details{padding:12px;border:1px solid var(--line);}summary{cursor:pointer;}li{margin:8px 0;}
+</style>

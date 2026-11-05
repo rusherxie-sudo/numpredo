@@ -157,5 +157,7 @@ function setup(root: HTMLElement): void {
     if (['Backspace', 'Delete', '0'].includes(event.key)) input(0);
   });
 
-  load(0);
+  const requested=Number(new URLSearchParams(location.search).get('n'));
+  const requestedIndex=MINI4_PUZZLES.findIndex(p=>p.id===requested);
+  load(requestedIndex<0?0:requestedIndex);
 }

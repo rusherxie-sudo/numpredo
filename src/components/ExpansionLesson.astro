@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import TeachingCase from './TeachingCase.astro';
+import LogicModel from './LogicModel.astro';
+import {LESSONS} from '../data/expansion/lessons.ts';
+const {slug}=Astro.props;const lesson=LESSONS.find(l=>l.slug===slug)!;
+const linkLabels:Record<string,string>={'/guide/techniques/pointing/':'ポインティングの図解','/guide/techniques/naked-triple/':'三国同盟の図解','/guide/techniques/hidden-pair/':'隠れたペアの図解','/guide/techniques/xy-wing/':'XY-Wingの図解','/guide/techniques/skyscraper/':'スカイスクレイパーの図解','/guide/techniques/naked-single/':'裸の単数の図解','/guide/techniques/hidden-single/':'隠れた単数の図解','/guide/techniques/naked-pair/':'二国同盟の図解','/guide/when-stuck/':'行き詰まったときの確認順','/tools/candidate-checker/':'候補数字を盤面から調べる','/print/candidate-notes/':'候補メモ用の印刷シート','/variants/killer/':'キラー数独を実際に解く','/tools/killer-combinations/':'ケージ合計の組み合わせを調べる','/print/killer/':'キラー数独の問題・解答PDF'};
+const url=`https://numpredo.com${lesson.path}`;
+const schema={'@context':'https://schema.org','@type':'LearningResource',name:lesson.title,description:lesson.description,url,inLanguage:'ja',learningResourceType:'解説と確認問題',isAccessibleForFree:true};
+---
+<Base title={`${lesson.title} - numpredo`} description={lesson.description} canonical={url}>
+ <Fragment slot="head"><script type="application/ld+json" set:html={JSON.stringify(schema)}/></Fragment>
+ <nav class="crumb"><a href="/">ホーム</a> › <a href="/guide/">解き方</a> › {lesson.title.split('｜')[0]}</nav>
+ <article>
+ <h1>{lesson.title}</h1><p class="lead">{lesson.intro}</p>
+ <nav aria-label="このページの内容"><ul>{lesson.sections.map((s,i)=><li><a href={`#section-${i}`}>{s.heading}</a></li>)}<li><a href="#check">確認問題</a></li></ul></nav>
+ {lesson.model&&<><h2>候補の配置を確かめる</h2><LogicModel name={lesson.model}/></>}
+ {lesson.sections.map((s,i)=><section id={`section-${i}`}><h2>{s.heading}</h2>{s.body.map(p=><p>{p}</p>)}</section>)}
+ {lesson.source&&<TeachingCase spec={{...lesson.source,heading:'実際の問題で確認する',question:'確定できる数字、または消せる候補を考え、根拠を説明してから答えを開いてください。'}}/>}
+ <section id="check"><h2>確認問題</h2><p>{lesson.check.question}</p><details><summary>答えと根拠を確認する</summary><p><strong>{lesson.check.answer}</strong></p><p>{lesson.check.reason}</p></details></section>
+ {lesson.model&&<p class="note">ここでは局所的な成立条件を学びます。通常ゲームの自動ヒントが、このページのすべての手筋に対応しているわけではありません。</p>}
+ <h2>関連する解説・練習</h2><ul>{lesson.related.map(path=><li><a href={path}>{LESSONS.find(l=>l.path===path)?.title.split('｜')[0]??linkLabels[path]??'関連する練習'}</a></li>)}</ul>
+ <p><a href="/guide/">解き方一覧に戻る</a> ／ <a href="/practice/#one-move">9手筋の次の一手を練習する</a></p>
+ </article>
+</Base>
+<style>
+article{max-width:780px;margin:auto;}p{line-height:1.95;}section{margin:30px 0;}h1{line-height:1.45;}h2{margin-top:32px;}a{color:var(--accent);}li{line-height:1.8;margin:8px 0;}details{padding:16px;border:1px solid var(--line);border-radius:8px;background:var(--surface);}summary{cursor:pointer;font-weight:700;} .note{font-size:13px;color:var(--ink-3);}
+</style>
