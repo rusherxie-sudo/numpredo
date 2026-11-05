@@ -11,14 +11,15 @@ export interface OneMoveRun {
 export function newRun(set: OneMoveSet, ids = set.questions.map(q => q.id), mode: OneMoveRun['mode'] = 'challenge'): OneMoveRun {
   const shuffled = [...ids];
   for (let i=shuffled.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
-  return { version:1,slug:set.slug,mode,ids:shuffled,answers:shuffled.map(()=>null),hints:shuffled.map(()=>false),index:0,finished:false };
+  const selected=mode==='challenge'?shuffled.slice(0,5):shuffled;
+  return { version:1,slug:set.slug,mode,ids:selected,answers:selected.map(()=>null),hints:selected.map(()=>false),index:0,finished:false };
 }
 export function restoreRun(raw: string | null, set: OneMoveSet): OneMoveRun | null {
   try {
     const r=JSON.parse(raw ?? 'null') as OneMoveRun;
     if (!r || r.version!==1 || r.slug!==set.slug || !['challenge','review'].includes(r.mode) ||
       !Array.isArray(r.ids) || !r.ids.length || r.ids.length>set.questions.length || new Set(r.ids).size!==r.ids.length ||
-      (r.mode==='challenge' && r.ids.length!==set.questions.length) || !Array.isArray(r.answers) || r.answers.length!==r.ids.length ||
+      (r.mode==='challenge' && r.ids.length!==5) || !Array.isArray(r.answers) || r.answers.length!==r.ids.length ||
       !Array.isArray(r.hints) || r.hints.length!==r.ids.length || r.hints.some(h=>typeof h!=='boolean') ||
       !Number.isInteger(r.index) || r.index<0 || r.index>=r.ids.length || typeof r.finished!=='boolean') return null;
     for (let i=0;i<r.ids.length;i++) {

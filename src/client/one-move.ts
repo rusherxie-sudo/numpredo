@@ -1,11 +1,22 @@
 import { newRun,restoreRun,wrongIds,type OneMoveSet,type OneMoveRun } from './one-move-state.ts';
+import { readHistory,historyKey,needsReview,recommendIds,type PracticeHistory } from './practice-history.ts';
+import { addReturnLink } from './learning-transfer.ts';
 import { track } from './track.ts';
 const root=document.querySelector<HTMLElement>('[data-one-move]');
 if(root) {
   const get=<T extends HTMLElement>(name:string)=>root.querySelector<T>(`[data-om-${name}]`)!;
   const select=get<HTMLSelectElement>('select'),start=get<HTMLButtonElement>('start');
   const status=get('status'),game=get('game'),result=get('result'),next=get<HTMLButtonElement>('next');
-  let set:OneMoveSet,run:OneMoveRun,hint=false;
+  let set:OneMoveSet,run:OneMoveRun,hint=false,history:PracticeHistory={};
+  addReturnLink(get('return'));
+  get('return').addEventListener('click',()=>track('one_move_return'));
+  function recommendedRun():OneMoveRun {return newRun(set,recommendIds(set,history));}
+  function showHistory():void {
+    const ids=set.questions.map(q=>q.id),seen=ids.filter(id=>history[id]),review=ids.filter(id=>needsReview(history[id]));
+    get('history').textContent=`${set.name}：全${ids.length}局面中${seen.length}局面を回答済み・復習おすすめ${review.length}局面（直近で誤答、またはヒントを使用）。次の5問は復習・未回答を優先します。`;
+    get<HTMLButtonElement>('history-review').hidden=!review.length;
+  }
+  function saveHistory():void {try{localStorage.setItem(historyKey(set.slug),JSON.stringify(history));}catch{get('storage').textContent='このブラウザでは記録を保存できません。';}showHistory();}
   const allowed=Array.from(select.options).map(o=>o.value);
   const requested=new URLSearchParams(location.search).get('tech');
   if(requested && allowed.includes(requested)) select.value=requested;
@@ -13,7 +24,7 @@ if(root) {
   const key=(slug:string)=>`numpredo.one-move.v1.${slug}`;
   function saved(slug:string):string|null { try{return localStorage.getItem(key(slug));}catch{return null;} }
   function save():void {
-    try {localStorage.setItem(key(set.slug),JSON.stringify(run));localStorage.setItem('numpredo.one-move.last',set.slug);}
+    try {localStorage.setItem(key(set.slug),JSON.stringify(run));localStorage.setItem('numpredo.one-move.last',set.slug);localStorage.setItem(`numpredo.one-move.updated.${set.slug}`,String(Date.now()));}
     catch {get('storage').textContent='このブラウザでは保存できません。ページを閉じると進み具合は失われます。';}
   }
   const question=()=>set.questions.find(q=>q.id===run.ids[run.index])!;
@@ -57,7 +68,7 @@ if(root) {
     get<HTMLAnchorElement>('play').href=`/play/${q.level}/?n=${q.number}#level-game`;
     const options=q.options.map(d=>{const b=document.createElement('button');b.type='button';b.textContent=`${d}${q.placing?'を入れる':'を消す'}`;b.dataset.digit=String(d);b.disabled=answered;if(answered&&d===q.answer)b.dataset.correct='true';b.addEventListener('click',()=>{
       if(run.answers[run.index]!==null)return;
-      run.answers[run.index]=d;save();track('one_move_answer',{technique:set.slug,question_id:q.id,correct:d===q.answer,mode:run.mode,hint_used:hint});render();get('feedback').focus();
+      run.answers[run.index]=d;history[q.id]={correct:d===q.answer,hint,at:Date.now()};saveHistory();save();track('one_move_answer',{technique:set.slug,question_id:q.id,correct:d===q.answer,mode:run.mode,hint_used:hint});render();get('feedback').focus();
     });return b;});
     get('options').replaceChildren(...options);get('feedback').tabIndex=-1;
     next.disabled=!answered;next.textContent=run.index===run.ids.length-1?'結果を見る':'次の局面へ';
@@ -69,8 +80,10 @@ if(root) {
     try {
       const response=await fetch(`/data/one-move/${slug}.json`);if(!response.ok)throw new Error('load');
       const data=await response.json() as OneMoveSet;
-      if(data.version!==1||data.slug!==slug||data.questions.length!==5)throw new Error('format');
-      set=data;const restored=restoreRun(saved(slug),set);run=restored??newRun(set);hint=run.hints[run.index];
+      if(data.version!==1||data.slug!==slug||data.questions.length<5)throw new Error('format');
+      set=data;history=readHistory(slug);const restored=restoreRun(saved(slug),set);
+      if(restored)restored.ids.forEach((id,i)=>{if(restored.answers[i]!==null&&!history[id])history[id]={correct:restored.answers[i]===set.questions.find(q=>q.id===id)!.answer,hint:restored.hints[i],at:Date.now()};});
+      run=restored??recommendedRun();hint=run.hints[run.index];saveHistory();
       save();status.textContent=restored?'保存した練習を開きました。':'5問のチャレンジを始めます。';
       track(restored?'one_move_resume':'one_move_start',{technique:slug,mode:run.mode});render(true);
     } catch {status.textContent='問題を読み込めませんでした。通信を確認して、もう一度押してください。';}
@@ -83,5 +96,9 @@ if(root) {
     else{run.index++;hint=false;save();}render(true);
   });
   get('review').addEventListener('click',()=>{const ids=wrongIds(run,set);if(!ids.length)return;run=newRun(set,ids,'review');hint=false;save();track('one_move_start',{technique:set.slug,mode:run.mode});render(true);});
-  get('again').addEventListener('click',()=>{run=newRun(set);hint=false;save();track('one_move_start',{technique:set.slug,mode:run.mode});render(true);});
+  get('history-review').addEventListener('click',()=>{
+    if(!set)return;const ids=set.questions.filter(q=>needsReview(history[q.id])).map(q=>q.id);if(!ids.length)return;
+    run=newRun(set,ids,'review');hint=false;save();track('one_move_start',{technique:set.slug,mode:run.mode});render(true);
+  });
+  get('again').addEventListener('click',()=>{run=recommendedRun();hint=false;save();track('one_move_start',{technique:set.slug,mode:run.mode});render(true);});
 }

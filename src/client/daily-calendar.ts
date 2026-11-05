@@ -1,7 +1,7 @@
 // デイリーカレンダー（月历打卡）：daily.log（日付→クリアタイム）を月grid で可視化。
 // /daily/ と /daily/archive/ の両方に挂载——過去の未クリア日は ?d= 付きでアーカイブへ誘導。
 // 全て JST 基準（ゲーム側と同一の日界）。
-import { readDailyLog } from './achievements.ts';
+import { readDailyLog } from './daily-log.ts';
 
 const JST = 9 * 3600 * 1000;
 const pad2 = (n: number): string => (n < 10 ? '0' : '') + n;

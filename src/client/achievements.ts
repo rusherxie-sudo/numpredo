@@ -82,19 +82,8 @@ export function readStats(): StatEntry[] {
     return Array.isArray(p) ? (p as StatEntry[]) : [];
   } catch { return []; }
 }
-export function readDailyLog(): Record<string, number> {
-  try {
-    const p = JSON.parse(sGet('numpredo.daily.log') ?? '{}');
-    return p && typeof p === 'object' && !Array.isArray(p) ? (p as Record<string, number>) : {};
-  } catch { return {}; }
-}
 /** 毎日7問の出題スロット別クリア記録：日付 → クリア済みキー配列（保存キーは後方互換） */
-export function readDailyLog5(): Record<string, string[]> {
-  try {
-    const p = JSON.parse(sGet('numpredo.daily.log5') ?? '{}');
-    return p && typeof p === 'object' && !Array.isArray(p) ? (p as Record<string, string[]>) : {};
-  } catch { return {}; }
-}
+export { readDailyLog, readDailyLog5 } from './daily-log.ts';
 export function readStreak(): number {
   return Number(sGet('numpredo.daily.streak') ?? '0') || 0;
 }

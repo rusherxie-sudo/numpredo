@@ -6,7 +6,7 @@ import { countSolutions, gridFromString, solveOne } from '../src/engine/index.ts
 const sets=buildOneMoveSets();
 mkdirSync('public/data/one-move',{recursive:true});
 for(const set of sets) {
-  assert.equal(new Set(set.questions.map(q=>q.id)).size,5);
+  assert.equal(new Set(set.questions.map(q=>q.id)).size,20);
   for(const q of set.questions) {
     const puzzle=JSON.parse(readFileSync(`src/data/puzzles/${q.level}.json`,'utf8')).puzzles[q.number-1].puzzle;
     const initial=gridFromString(puzzle);assert.equal(countSolutions(initial.slice(),2),1);

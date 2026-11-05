@@ -2,7 +2,7 @@
 import { PUZZLE_TECHNIQUES } from '../data/puzzle-techniques.ts';
 ---
 <section id="one-move" class="one-move" data-one-move aria-labelledby="one-move-title">
-  <span class="om-tag">9種類の手筋 · 各5局面 · 無料</span>
+  <span class="om-tag">9種類の手筋 · 各20局面 · 無料</span>
   <h2 id="one-move-title">次の一手・5問チャレンジ</h2>
   <p>手筋を選び、指定されたマスに入る数字・消せる候補を答えましょう。実際の数独問題の途中局面から、狙った手筋だけを練習できます。</p>
   <div class="om-controls">
@@ -10,8 +10,11 @@ import { PUZZLE_TECHNIQUES } from '../data/puzzle-techniques.ts';
     <select id="one-move-technique" data-om-select>{PUZZLE_TECHNIQUES.map(t=><option value={t.slug}>{t.name}</option>)}</select>
     <button type="button" data-om-start>始める・続きから</button>
   </div>
+  <div data-om-return></div>
+  <p data-om-history aria-live="polite"></p>
+  <button type="button" data-om-history-review hidden>これまでの苦手な局面を復習する</button>
   <p data-om-status role="status"></p>
-  <p class="om-note" data-om-storage>進み具合はこのブラウザに保存します。手筋ごとに5局面、全45局面です。再挑戦では同じ問題の順番が変わります。</p>
+  <p class="om-note" data-om-storage>進み具合はこのブラウザに保存します。手筋ごとに20局面、全180局面から毎回5問。復習が必要な局面と未回答の局面を優先します。記録はこのブラウザだけに保存されます。</p>
   <div data-om-game hidden>
     <p class="om-progress" data-om-progress></p>
     <h3 data-om-question tabindex="-1">この局面で選ぶ一手</h3>
@@ -33,7 +36,7 @@ import { PUZZLE_TECHNIQUES } from '../data/puzzle-techniques.ts';
     <div data-om-summary></div>
     <div class="om-controls">
       <button type="button" data-om-review>間違えた局面だけ復習する</button>
-      <button type="button" data-om-again>5問をもう一度</button>
+      <button type="button" data-om-again>おすすめの次の5問</button>
     </div>
   </div>
   <noscript><p>このチャレンジにはJavaScriptが必要です。下の図解ガイドから手筋の成立条件を確認できます。</p></noscript>

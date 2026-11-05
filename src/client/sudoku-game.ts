@@ -10,7 +10,7 @@ import {
 import { readLibraryProgress } from './puzzle-progress.ts';
 import { toolLink } from './learning-transfer.ts';
 import { track } from './track.ts';
-import { ACHIEVEMENTS, computeUnlocked, readStats, readDailyLog, readDailyLog5, readStreak } from './achievements.ts';
+import { readDailyLog5 } from './daily-log.ts';
 
 interface PuzzlePair {
   puzzle: string;
@@ -35,6 +35,7 @@ interface Saved {
   n: string; // 笔记(逗号分隔的 bitmask)
   e: number; // 已用毫秒
   d: number; // 是否完成
+  recent?: {href:string;label:string;at:number};
   day?: string; // daily 模式的日期校验
   h?: number; // 本局是否用过提示（1=用过。刷新恢复后ノーヒント実績判定が失真しないように保存）
 }
@@ -100,8 +101,8 @@ function cbtn(icon: string, label: string, on: () => void): HTMLButtonElement {
 
 // 技巧名 → 日语 + 解法页链接（用于提示和成绩卡的教学引导）。键与引擎技巧链一致。
 const TECH_JA: Record<string, { ja: string; href: string }> = {
-  nakedSingle: { ja: '裸の単数', href: '/guide/beginner/' },
-  hiddenSingle: { ja: '隠れた単数', href: '/guide/beginner/' },
+  nakedSingle: { ja: '裸の単数', href: '/guide/techniques/naked-single/' },
+  hiddenSingle: { ja: '隠れた単数', href: '/guide/techniques/hidden-single/' },
   lockedCandidates: { ja: '区画の絞り込み（ポインティング）', href: '/guide/techniques/pointing/' },
   nakedPair: { ja: 'ネイキッドペア（二国同盟）', href: '/guide/techniques/naked-pair/' },
   hiddenPair: { ja: '隠れたペア（ヒドゥンペア）', href: '/guide/techniques/hidden-pair/' },
@@ -128,6 +129,7 @@ const TECH_ORDER = [
 ];
 
 function setup(root: HTMLElement): void {
+  root.id ||= 'sudoku-game';
   const set: PuzzlePair[] = JSON.parse(root.dataset.set ?? '[]');
   // level は保存キーの名前空間（numpredo.prog.* / numpredo.best.*）：五档 slug のほか
   // 変体キー（'diagonal' 等）も来る——DifficultyLevel ではなく素の string が正しい型
@@ -619,6 +621,24 @@ function setup(root: HTMLElement): void {
     hintMsg.innerHTML = html + (more ? '<span class="sk-hint-more">（もう一度ヒントで詳しく）</span>' : '');
     hintMsg.classList.add('on');
   }
+  function resumeHref():string {
+    const u=new URL(location.href);
+    if(collection || (!daily && !variant))u.searchParams.set('n',String(poolIdx+1));
+    if(daily){if(archive)u.searchParams.set('d',archiveDay);if(multi)u.searchParams.set('tab',String(tabIdx));}
+    u.hash=root.id;
+    return u.pathname+u.search+u.hash;
+  }
+  function practiceLink(tech:string):void {
+    // A variant-specific single need not be valid under standard Sudoku rules.
+    if(variant || hintLevel<2)return;
+    const slug=TECH_JA[tech]?.href.match(/^\/guide\/techniques\/([^/]+)\/$/)?.[1];if(!slug)return;
+    const a=document.createElement('a');
+    a.href=`/practice/?${new URLSearchParams({tech:slug,return:resumeHref()})}#one-move`;
+    a.textContent='この手筋を5問練習して、元の問題に戻る →';
+    a.dataset.hintPractice=slug;
+    a.addEventListener('click',()=>{save();track('hint_practice_click',{technique:slug});});
+    const p=document.createElement('p');p.append(a);hintMsg.append(p);
+  }
   // 宫内 9 格（ナッジ段階の範囲ハイライト用）
   function boxCells(cell: number): number[] {
     const b = boxOf(cell);
@@ -648,6 +668,7 @@ function setup(root: HTMLElement): void {
       hintFocus.add(s.cell);
       setHint(`このマスは<b>${t.ja}</b>で <b>${s.digit}</b> に決まります（<a href="${t.href}">解き方</a>）。`);
     }
+    practiceLink(s.tech);
     render();
   }
 
@@ -667,6 +688,7 @@ function setup(root: HTMLElement): void {
       for (const c of e.cells) { hintFocus.add(c); hintCand.set(c, e.cand[c]); hintX.set(c, e.remove.get(c) ?? 0); }
       setHint(`<b>${t.ja}</b>で、赤い候補（<b>${digitsOf(e.digits).join('・')}</b>）を消せます（<a href="${t.href}">解き方</a>）。`);
     }
+    practiceLink(e.tech);
     render();
   }
 
@@ -788,6 +810,9 @@ function setup(root: HTMLElement): void {
       h: hintUsed ? 1 : 0,
     };
     if (daily) data.day = archive ? archiveDay : jstDayStr();
+    if(!variant && (started || hintUsed || notes.some(n=>n!==0) || cur.some((n,i)=>n!==puzzleGrid[i]) || done))data.recent={
+      href:resumeHref(),label:daily?`${archive?archiveDay:'今日'}の数独・${set[poolIdx]?.dailyLabel??LV_JA[dailyLevel]??levelJa}`:`${levelJa} No.${poolIdx+1}`,at:Date.now()
+    };
     store.set(progKey(), JSON.stringify(data)); // Legacy slot remains compatible with home/play hub.
     if (collection) {
       store.set(puzzleSaveKey(), JSON.stringify(data));
@@ -799,6 +824,7 @@ function setup(root: HTMLElement): void {
         window.dispatchEvent(new Event('library-progress'));
       }
     }
+
   }
   function load(legacyOnly = false): Saved | null {
     try {
@@ -859,8 +885,10 @@ function setup(root: HTMLElement): void {
     } catch { /* 静默 */ }
   }
   // —— 実績：完成時に新規解放ぶんをトースト表示（判定は achievements.ts の純関数）——
-  function showNewAchievements(): void {
+  async function showNewAchievements(): Promise<void> {
     try {
+      const { ACHIEVEMENTS,computeUnlocked,readStats,readDailyLog,readStreak }=await import('./achievements.ts');
+      if(!done)return;
       const unlocked = computeUnlocked(readStats(), readDailyLog(), readStreak(), readDailyLog5());
       let seen: string[] = [];
       try {
@@ -1166,7 +1194,7 @@ function setup(root: HTMLElement): void {
     if (idx < epochIdx) { root.innerHTML = '<p class="sk-arch-empty">アーカイブはまだありません。<a href="/daily/">今日の問題へ</a></p>'; return; }
     if (multi) {
       dayBase = (idx - epochIdx) * DAILY_SIZE;
-      const prefTab = Math.trunc(Number(store.get('numpredo.pref.dailytab') ?? '1'));
+      const prefTab = Math.trunc(Number(new URLSearchParams(location.search).get('tab') ?? store.get('numpredo.pref.dailytab') ?? '1'));
       tabIdx = Number.isInteger(prefTab) ? Math.min(DAILY_SIZE - 1, Math.max(0, prefTab)) : 1;
       initIdx = dayBase + tabIdx;
     } else {
@@ -1188,7 +1216,7 @@ function setup(root: HTMLElement): void {
       }
       const dayOff = off;
       dayBase = dayOff * DAILY_SIZE;
-      const prefTab = Math.trunc(Number(store.get('numpredo.pref.dailytab') ?? '1'));
+      const prefTab = Math.trunc(Number(new URLSearchParams(location.search).get('tab') ?? store.get('numpredo.pref.dailytab') ?? '1'));
       tabIdx = Number.isInteger(prefTab) ? Math.min(DAILY_SIZE - 1, Math.max(0, prefTab)) : 1;
       initIdx = dayBase + tabIdx;
     } else {

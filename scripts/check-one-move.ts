@@ -1,9 +1,19 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { newRun,restoreRun,wrongIds,type OneMoveSet } from '../src/client/one-move-state.ts';
+import { recommendIds,parseHistory,needsReview } from '../src/client/practice-history.ts';
 import { PUZZLE_TECHNIQUES } from '../src/data/puzzle-techniques.ts';
 for(const t of PUZZLE_TECHNIQUES) {
   const set:OneMoveSet=JSON.parse(readFileSync(`public/data/one-move/${t.slug}.json`,'utf8'));
+  assert.equal(set.questions.length,20);
+  const history=Object.fromEntries(set.questions.slice(0,15).map(q=>[q.id,{correct:true,hint:false,at:1}]));
+  const fresh=recommendIds(set,history);assert.equal(fresh.length,5);assert.ok(fresh.every(id=>!history[id]));
+  history[set.questions[0].id]={correct:false,hint:false,at:2};
+  history[set.questions[1].id]={correct:true,hint:true,at:2};
+  const next=recommendIds(set,history);assert.ok(next.includes(set.questions[0].id));assert.ok(next.includes(set.questions[1].id));
+  assert.equal(next.filter(id=>!history[id]).length,3);assert.equal(needsReview(history[set.questions[1].id]),true);
+  assert.deepEqual(parseHistory(JSON.stringify(history)),history);assert.deepEqual(parseHistory('broken'),{});
+  const legacy=newRun({...set,questions:set.questions.slice(0,5)});assert.deepEqual(restoreRun(JSON.stringify(legacy),set),legacy);
   const r=newRun(set);assert.equal(r.ids.length,5);assert.equal(new Set(r.ids).size,5);
   assert.deepEqual(restoreRun(JSON.stringify(r),set),r);
   const q=set.questions.find(q=>q.id===r.ids[0])!;

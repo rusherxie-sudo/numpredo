@@ -50,10 +50,10 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
-  'practice.astro': ['src/components/OneMovePractice.astro','src/client/one-move.ts','src/client/one-move-state.ts','src/data/one-move.ts','src/data/technique-drills.ts','src/data/teaching-cases.ts','scripts/gen-one-move.ts'],
+  'practice.astro': ['src/components/OneMovePractice.astro','src/client/one-move.ts','src/client/one-move-state.ts','src/client/practice-history.ts','src/data/one-move.ts','src/data/technique-drills.ts','src/data/teaching-cases.ts','scripts/gen-one-move.ts'],
   'print/progression.astro':['src/data/progression-pack.ts','scripts/gen-progression-pdfs.py','public/downloads/progression/manifest.json','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json'],
   'widgets.astro':['src/pages/embed/mini4.astro','src/data/mini4.ts','src/components/VariantGame.astro','src/client/variant-game.ts'],
-  'index.astro': ['src/components/SudokuGame.astro','src/client/sudoku-game.ts','src/client/learning-transfer.ts'],
+  'index.astro': ['src/components/ContinuePlaying.astro','src/client/continue-playing.ts','src/client/recent-games.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts','src/client/learning-transfer.ts'],
   'print.astro': ['src/components/PrintResourceCards.astro','src/data/print-resources.json','public/images/print/manifest.json'],
   'variants/6x6.astro': ['src/components/VariantPlayPage.astro','src/components/VariantGame.astro','src/client/variant-game.ts','src/engine/variant-grid.ts','src/data/mini6.ts','src/components/Mini6Lesson.astro'],
   'variants/inequality.astro': ['src/components/VariantPlayPage.astro','src/components/VariantGame.astro','src/client/variant-game.ts','src/engine/variant-grid.ts','src/data/inequality-puzzles.ts','src/components/InequalityFullExample.astro','src/data/inequality-example.ts'],

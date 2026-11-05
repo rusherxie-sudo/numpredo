@@ -1,4 +1,5 @@
 ---
+import ContinuePlaying from '../components/ContinuePlaying.astro';
 import Base from '../layouts/Base.astro';
 import beginner from '../data/puzzles/beginner.json';
 import SudokuGame from '../components/SudokuGame.astro';
@@ -25,7 +26,7 @@ const diffs: [string, string, string, number, string][] = [
 const tools: [string, string, string, string][] = [
   ['例', '5段階の例題・解き方', '/guide/solving-examples/', '初級から超難問まで、実際の5問を独自エンジンで解き、一手ずつ盤面図で比較。'],
   ['候', '候補数字・次の一手', '/tools/candidate-checker/', '選んだマスに入る数字と、入らない理由を行・列・ブロック単位でその場で診断。'],
-  ['練', '次の一手・実力診断', '/practice/', '実際の候補配置から手筋を選ぶ5問。回答後に消せる候補と理由を図解。'],
+  ['練', '次の一手・実力診断', '/practice/', '全180局面から5問。入れる数字・消せる候補を選び、理由を図解で確認。苦手な局面と未回答を優先。'],
   ['解', '解き方ガイド', '/guide/', 'ルールから上級テクニックまで、盤面の図解つきで解説。'],
   ['刷', '数独無料問題集・プリント', '/print/', '答え付きの問題集を、難易度と問題数を選んで無料で印刷・PDF保存。'],
   ['答', '画像・カメラ自動解答', '/tools/solver/', '写真を撮るか81マスを入力すると答えを自動計算。新聞の答え合わせにも。'],
@@ -84,6 +85,7 @@ const homeFaqSchema = {
       <div class="hp-meta"><span>全{totalPuzzles.toLocaleString('ja-JP')}題を検証</span><span class="hp-dot">·</span><span>毎日更新</span><span class="hp-dot">·</span><span>登録不要</span></div>
     </div>
   </section>
+  <ContinuePlaying />
   <section id="home-game" aria-labelledby="home-game-title">
     <h2 id="home-game-title">このページで初級ナンプレを始める</h2>
     <p>空きマスを選んで数字を入力。候補メモ・元に戻す・ヒント付きで、途中経過はこのブラウザに保存します。「別の問題」で初級12問から切り替えられます。</p>

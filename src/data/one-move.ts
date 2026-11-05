@@ -14,8 +14,8 @@ export function buildOneMoveSets(): OneMoveSet[] {
   return PUZZLE_TECHNIQUES.map(t => {
     const rows = catalog.filter(r => r.hardest_technique === t.key)
       .map(r => ({ n:Number(r.puzzle_id), steps:Number(r.logical_steps), level:r.level as CaseSpec['level'] }))
-      .sort((a,b) => a.steps-b.steps || a.level.localeCompare(b.level) || a.n-b.n).slice(0, 5);
-    if (rows.length !== 5) throw new Error(`Need five real examples: ${t.slug}`);
+      .sort((a,b) => a.steps-b.steps || a.level.localeCompare(b.level) || a.n-b.n).slice(0, 20);
+    if (rows.length !== 20) throw new Error(`Need twenty real examples: ${t.slug}`);
     return { version: 1, slug: t.slug, name: t.name, questions: rows.map(row => {
       const c = buildDrill({level:row.level,number:row.n,technique:t.key,heading:t.name,question:'指定されたマスの一手を選ぶ'});
       return { id:`${row.level}-${row.n}-${c.stepNumber}`, grid:c.before.grid,

@@ -1,0 +1,19 @@
+<section class="continue-playing" data-continue aria-labelledby="continue-title">
+  <h2 id="continue-title">今日の数独・続きから</h2>
+  <p><a href="/daily/" data-continue-daily>今日の7問に挑戦する →</a></p>
+  <div data-continue-games hidden><h3>保存したゲーム</h3><ul></ul></div>
+  <div data-continue-practice hidden><h3>練習の続き</h3><ul></ul></div>
+  <p data-continue-recommend></p>
+  <p class="note" data-continue-note>ゲームと練習の記録は、このブラウザに保存されます。</p>
+</section>
+<script>
+  const section=document.querySelector('[data-continue]');
+  if(section){const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){observer.disconnect();void import('../client/continue-playing.ts');}},{rootMargin:'100px'});observer.observe(section);}
+</script>
+<style>
+  .continue-playing {margin:20px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface);}
+  h2 {margin:0 0 10px;font-size:22px;} h3 {font-size:16px;margin:14px 0 4px;}
+  p {margin:8px 0;} .note {font-size:12px;color:var(--ink-3);}
+  a,.continue-playing :global(a) {color:var(--accent);display:inline-block;padding:6px 0;}
+  [hidden] {display:none!important;}
+</style>
