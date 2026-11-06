@@ -1,0 +1,62 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  },
+  {
+    "path": "/guide/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  },
+  {
+    "path": "/guide/intermediate/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  },
+  {
+    "path": "/guide/techniques/naked-pair/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  },
+  {
+    "path": "/print/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  },
+  {
+    "path": "/print/advanced/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  },
+  {
+    "path": "/print/intermediate/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  },
+  {
+    "path": "/daily/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  },
+  {
+    "path": "/tools/solver/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  },
+  {
+    "path": "/guide/single-comparison/",
+    "status": 200,
+    "updatedCopy": true,
+    "canonical": true
+  }
+]
