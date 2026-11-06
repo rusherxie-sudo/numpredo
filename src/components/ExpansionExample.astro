@@ -1,30 +1,41 @@
 ---
 import Base from '../layouts/Base.astro';
+import EditorialNote from './EditorialNote.astro';
 import {EXAMPLES} from '../data/expansion/examples.ts';
-import {teachingCase,levelNames,rc} from '../data/teaching-cases.ts';
-import {gridFromString,logicalSolve,renderBoardSvg,TECH_INFO} from '../engine/index.ts';
+import {teachingCase,explainPremise,levelNames,rc} from '../data/teaching-cases.ts';
+import {bit,computeCandidates,PEERS,gridFromString,logicalSolve,renderBoardSvg,TECH_INFO} from '../engine/index.ts';
 const {slug}=Astro.props;const item=EXAMPLES.find(e=>e.slug===slug)!;const c=teachingCase(item.spec);const solve=logicalSolve(gridFromString(c.raw.puzzle));
 const url=`https://numpredo.com${item.path}`;const opts={given:c.initial.map(Boolean),cell:38};
 const puzzle=renderBoardSvg(c.initial,{...opts,title:'実戦例題の問題',desc:item.title});const solution=renderBoardSvg(solve.grid,{...opts,title:'実戦例題の完成盤面',desc:'太字は最初から与えられた数字です。'});
 const keySvg=renderBoardSvg(c.before.grid,{...opts,candidates:c.before.candidates,cellHighlights:c.premise.cells.map(cell=>({cell})),candidateMarks:(c.step.eliminations??[]).map(([cell,digit])=>({cell,digit,type:'eliminate' as const})),title:`${c.name}の根拠`,desc:c.premise.text});
-const schema={'@context':'https://schema.org','@type':'LearningResource',name:item.title,description:item.description,url,inLanguage:'ja',learningResourceType:'実戦解説',isAccessibleForFree:true};
+// Explain every move from its actual candidate state, preserving prior eliminations.
+const replayGrid=c.initial.slice(), replayCandidates=computeCandidates(replayGrid);
+const reasons=solve.steps.map(step=>{
+ const reason=explainPremise(replayCandidates,step).text;
+ if(step.cell!=null&&step.digit!=null){replayGrid[step.cell]=step.digit;replayCandidates[step.cell]=0;for(const peer of PEERS[step.cell])replayCandidates[peer]&=~bit(step.digit);}
+ for(const [cell,digit] of step.eliminations??[])replayCandidates[cell]&=~bit(digit);
+ return reason;
+});
+const schema={'@context':'https://schema.org','@type':'LearningResource',name:item.title,description:item.description,url,inLanguage:'ja',learningResourceType:'実戦解説',isAccessibleForFree:true,author:{'@id':'https://numpredo.com/#operator'},publisher:{'@id':'https://numpredo.com/#organization'}};
 ---
 <Base title={`${item.title} - numpredo`} description={item.description} canonical={url}>
  <Fragment slot="head"><script type="application/ld+json" set:html={JSON.stringify(schema)}/></Fragment>
  <nav class="crumb"><a href="/">ホーム</a> › <a href="/guide/solving-examples/">実戦例題</a> › {c.name}</nav>
  <article><h1>{item.title}</h1><p class="lead">{item.intro}</p>
+ <EditorialNote verification="題庫の実際の問題を独自ソルバーで再解析し、唯一解と保存された答えの一致を確認しています。各手の説明は、それまでの候補消去を反映した盤面から成立条件を照合しています。" />
+ <nav aria-label="この実戦解説の内容"><a href="#example-puzzle">問題</a> ／ <a href="#key-move">注目する一手</a> ／ <a href="#solution-steps">全手順と根拠</a> ／ <a href="#review">振り返り</a></nav>
  <p><a href={`/play/${item.spec.level}/?n=${item.spec.number}#level-game`}>この例題をオンラインで解く →</a> ／ <a href={`/guide/techniques/${item.techSlug}/`}>先に成立条件を確認する</a></p>
- <h2>問題と解き始めるときの方針</h2><p>{levelNames[item.spec.level]} No.{item.spec.number}。最初の数字は{c.initial.filter(Boolean).length}個、掲載する解答は全{solve.steps.length}手です。{c.name}が最初に登場するのは{c.stepNumber}手目です。</p>
+ <h2 id="example-puzzle">問題と解き始めるときの方針</h2><p>{levelNames[item.spec.level]} No.{item.spec.number}。最初の数字は{c.initial.filter(Boolean).length}個、掲載する解答は全{solve.steps.length}手です。{c.name}が最初に登場するのは{c.stepNumber}手目です。</p>
  <figure class="board"><Fragment set:html={puzzle}/><figcaption>この問題は唯一解で、掲載する手順では仮置きを使いません。</figcaption></figure>
  <p>{item.focus}</p>
- <h2>{c.stepNumber}手目：{c.name}を探す</h2><p>{c.premise.cells.map(rc).join('・')}に注目して、次に入る数字または消せる候補を考えてください。</p><details><summary>途中盤面と根拠を確認する</summary><figure class="board"><Fragment set:html={keySvg}/><figcaption>この手の直前までの候補消去を反映しています。</figcaption></figure><p>{c.premise.text}</p><p><strong>{c.outcome}</strong></p></details>
- <h2>この局面で間違えやすい判断</h2><p>{item.pitfall}</p><p>この問題で実際に使う根拠：{c.premise.text}</p><p><strong>{c.outcome}</strong></p>
- <h2>最初から最後までの解答手順</h2><p>以下はこの問題の一つの論理解答です。別の順序で進む解き方もあります。候補消去を省略せず、一手ずつ記録しています。</p>
- <details><summary>全{solve.steps.length}手と完成盤面を開く</summary><ol>{solve.steps.map((s,i)=><li id={`step-${i+1}`}><strong>{TECH_INFO[s.technique]?.ja}：</strong>{s.cell!=null?`${rc(s.cell)}＝${s.digit}`:`消す候補：${(s.eliminations??[]).map(([cell,digit])=>`${rc(cell)}の${digit}`).join('、')}`}</li>)}</ol><figure class="board"><Fragment set:html={solution}/></figure></details>
- <h2>解いた後の振り返り</h2><p>{item.review}</p><p><a href={`/practice/?tech=${item.techSlug}#one-move`}>同じ手筋の別の局面を5問練習する →</a></p>
+ <h2 id="key-move">{c.stepNumber}手目：{c.name}を探す</h2><p>{c.premise.cells.map(rc).join('・')}に注目して、次に入る数字または消せる候補を考えてください。</p><figure class="board"><Fragment set:html={keySvg}/><figcaption>この手の直前までの候補消去を反映しています。</figcaption></figure><p>{c.premise.text}</p><p><strong>{c.outcome}</strong></p>
+ <h2>この局面で間違えやすい判断</h2><p>{item.pitfall}</p>
+ <h2 id="solution-steps">最初から最後までの解答手順</h2><p>rは上から数えた行、cは左から数えた列です（r2c3は2行目・3列目）。以下はこの問題の一つの論理解答です。別の順序で進む解き方もあります。候補消去を省略せず、一手ごとに操作とその根拠を記録しています。</p>
+ <details><summary>全{solve.steps.length}手の根拠と完成盤面を開く</summary><ol>{solve.steps.map((s,i)=><li id={`step-${i+1}`}><strong>{TECH_INFO[s.technique]?.ja}：</strong>{s.cell!=null?`${rc(s.cell)}＝${s.digit}`:`消す候補：${(s.eliminations??[]).map(([cell,digit])=>`${rc(cell)}の${digit}`).join('、')}` }<p class="step-reason">{reasons[i]}</p></li>)}</ol><figure class="board"><Fragment set:html={solution}/></figure></details>
+ <h2 id="review">解いた後の振り返り</h2><p>{item.review}</p><p><a href={`/practice/?tech=${item.techSlug}#one-move`}>同じ手筋の別の局面を5問練習する →</a></p>
  <h2>別の手筋で解く実戦例</h2><ul>{EXAMPLES.filter(e=>e.slug!==slug).slice(Math.max(0,EXAMPLES.findIndex(e=>e.slug===slug)-1),Math.max(0,EXAMPLES.findIndex(e=>e.slug===slug)-1)+2).map(e=><li><a href={e.path}>{e.title}</a></li>)}</ul>
  </article>
 </Base>
 <style>
-article{max-width:780px;margin:auto;}p,li{line-height:1.95;}li{margin:8px 0;}h1{line-height:1.45;}h2{margin-top:32px;}a{color:var(--accent);}figure.board{max-width:460px;margin:20px auto;} .board :global(svg){width:100%;height:auto;}figcaption{font-size:13px;color:var(--ink-3);}details{padding:16px;border:1px solid var(--line);border-radius:8px;}summary{cursor:pointer;font-weight:700;}
+article{max-width:780px;margin:auto;}p,li{line-height:1.95;}li{margin:8px 0;}h1{line-height:1.45;}h2{margin-top:32px;}a{color:var(--accent);}figure.board{max-width:460px;margin:20px auto;} .board :global(svg){width:100%;height:auto;}figcaption{font-size:13px;color:var(--ink-3);}details{padding:16px;border:1px solid var(--line);border-radius:8px;}summary{cursor:pointer;font-weight:700;} .step-reason{margin:4px 0 16px;color:var(--ink-3);font-size:14px;} h2,li[id]{scroll-margin-top:88px;}
 </style>

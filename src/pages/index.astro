@@ -1,4 +1,5 @@
 ---
+import FeaturedExamples from '../components/FeaturedExamples.astro';
 import ContinuePlaying from '../components/ContinuePlaying.astro';
 import Base from '../layouts/Base.astro';
 import beginner from '../data/puzzles/beginner.json';
@@ -93,6 +94,8 @@ const homeFaqSchema = {
     <noscript><p>オンライン入力にはJavaScriptが必要です。<a href="/print/beginner/">初級の問題・答え付きPDF</a>はJavaScriptなしでもダウンロードできます。</p></noscript>
     <p><a href="/play/">五段階の難易度から選ぶ →</a>　<a href="/daily/">今日の日替わり7問へ →</a></p>
   </section>
+
+  <FeaturedExamples />
 
   <section class="hp-sec">
     <div class="hp-sec-head">

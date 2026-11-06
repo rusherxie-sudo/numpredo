@@ -5,7 +5,7 @@ import {LESSONS} from '../src/data/expansion/lessons.ts';
 import {MODELS,localAssignments} from '../src/data/expansion/models.ts';
 import {EXAMPLES} from '../src/data/expansion/examples.ts';
 import {buildPrintSets} from '../src/data/expansion/print-sets.ts';
-import {teachingCase} from '../src/data/teaching-cases.ts';
+import {teachingCase,explainPremise} from '../src/data/teaching-cases.ts';
 import {gridFromString,countSolutions,logicalSolve,DIAGONAL_UNITS,buildContext,buildKillerContext,countSolutionsKiller,logicalSolveKiller,computeCandidates,PEERS,bit} from '../src/engine/index.ts';
 import {peersFor} from '../src/engine/variant-grid.ts';
 const packs=buildPrintSets();
@@ -26,6 +26,7 @@ for(const e of EXAMPLES){
  const c=teachingCase(e.spec),sol=logicalSolve(c.initial.slice());assert.ok(sol.solved);assert.equal(sol.grid.join(''),c.raw.solution);
  const grid=c.initial.slice(),cand=computeCandidates(grid);
  for(const step of sol.steps){
+  assert.ok(explainPremise(cand,step).text.length>0,`${e.slug}: every step has a verified premise`);
   if(step.cell!=null){assert.equal(step.digit,Number(c.raw.solution[step.cell]));grid[step.cell]=step.digit!;cand[step.cell]=0;for(const p of PEERS[step.cell])cand[p]&=~bit(step.digit!);}
   for(const [cell,digit] of step.eliminations??[]){assert.notEqual(digit,Number(c.raw.solution[cell]));cand[cell]&=~bit(digit);}
   for(let i=0;i<81;i++)if(!grid[i])assert.ok(cand[i]&bit(Number(c.raw.solution[i])));

@@ -1,18 +1,20 @@
 ---
 import Base from '../layouts/Base.astro';
+import EditorialNote from './EditorialNote.astro';
 import TeachingCase from './TeachingCase.astro';
 import LogicModel from './LogicModel.astro';
 import {LESSONS} from '../data/expansion/lessons.ts';
 const {slug}=Astro.props;const lesson=LESSONS.find(l=>l.slug===slug)!;
 const linkLabels:Record<string,string>={'/guide/techniques/pointing/':'ポインティングの図解','/guide/techniques/naked-triple/':'三国同盟の図解','/guide/techniques/hidden-pair/':'隠れたペアの図解','/guide/techniques/xy-wing/':'XY-Wingの図解','/guide/techniques/skyscraper/':'スカイスクレイパーの図解','/guide/techniques/naked-single/':'裸の単数の図解','/guide/techniques/hidden-single/':'隠れた単数の図解','/guide/techniques/naked-pair/':'二国同盟の図解','/guide/when-stuck/':'行き詰まったときの確認順','/tools/candidate-checker/':'候補数字を盤面から調べる','/print/candidate-notes/':'候補メモ用の印刷シート','/variants/killer/':'キラー数独を実際に解く','/tools/killer-combinations/':'ケージ合計の組み合わせを調べる','/print/killer/':'キラー数独の問題・解答PDF'};
 const url=`https://numpredo.com${lesson.path}`;
-const schema={'@context':'https://schema.org','@type':'LearningResource',name:lesson.title,description:lesson.description,url,inLanguage:'ja',learningResourceType:'解説と確認問題',isAccessibleForFree:true};
+const schema={'@context':'https://schema.org','@type':'LearningResource',name:lesson.title,description:lesson.description,url,inLanguage:'ja',learningResourceType:'解説と確認問題',isAccessibleForFree:true,author:{'@id':'https://numpredo.com/#operator'},publisher:{'@id':'https://numpredo.com/#organization'}};
 ---
 <Base title={`${lesson.title} - numpredo`} description={lesson.description} canonical={url}>
  <Fragment slot="head"><script type="application/ld+json" set:html={JSON.stringify(schema)}/></Fragment>
  <nav class="crumb"><a href="/">ホーム</a> › <a href="/guide/">解き方</a> › {lesson.title.split('｜')[0]}</nav>
  <article>
  <h1>{lesson.title}</h1><p class="lead">{lesson.intro}</p>
+ <EditorialNote verification={lesson.model ? '図は成立条件を学ぶための局所的な候補配置です。示した条件で消去が成立することと、条件を崩すと同じ消去ができない反例を検査しています。完成した一問の盤面とは区別しています。' : lesson.source ? '掲載例は題庫の実際の問題を解いた途中盤面です。唯一解と論理手順を検査し、その時点の候補から説明の根拠が成立することを照合しています。' : '合計45となる行・列・ブロックを基準に、本文と確認問題の計算、対象マスの範囲、重複の有無を確認しています。'} />
  <nav aria-label="このページの内容"><ul>{lesson.sections.map((s,i)=><li><a href={`#section-${i}`}>{s.heading}</a></li>)}<li><a href="#check">確認問題</a></li></ul></nav>
  {lesson.model&&<><h2>候補の配置を確かめる</h2><LogicModel name={lesson.model}/></>}
  {lesson.sections.map((s,i)=><section id={`section-${i}`}><h2>{s.heading}</h2>{s.body.map(p=><p>{p}</p>)}</section>)}

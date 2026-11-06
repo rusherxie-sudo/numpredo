@@ -1,4 +1,5 @@
 ---
+import FeaturedExamples from '../../components/FeaturedExamples.astro';
 import PuzzleLibrary from '../../components/PuzzleLibrary.astro';
 import BeginnerStart from '../../components/BeginnerStart.astro';
 import LevelProblemExamples from '../../components/LevelProblemExamples.astro';
@@ -126,6 +127,7 @@ const breadcrumbSchema = {
   <div id="level-game"><SudokuGame collection level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.map((p) => ({ puzzle: p.puzzle }))} /></div>
 
   <div class="px-text">
+    <FeaturedExamples level={meta.slug} />
     <PuzzleLibrary level={meta.slug} name={meta.ja} />
     {(meta.slug === 'beginner' || meta.slug === 'intermediate') && <LevelProblemExamples level={meta.slug} />}
     {meta.slug==='beginner'&&<BeginnerStart />}

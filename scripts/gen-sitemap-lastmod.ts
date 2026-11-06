@@ -34,7 +34,7 @@ const DYNAMIC_DATA: Record<string, string> = {
 };
 // 动态页中仅某个 slug 消费的独立组件/数据。模板改动仍影响同组，专属例题只更新自身 URL。
 const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
-  'play/[level].astro': Object.fromEntries(['beginner','intermediate','advanced','hard','extreme'].map(slug=>[slug,['src/components/PuzzleLibrary.astro','src/client/puzzle-library.ts','src/client/puzzle-progress.ts','src/data/puzzle-library.ts','src/data/puzzle-techniques.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts', ...(['beginner','intermediate'].includes(slug)?['src/components/LevelProblemExamples.astro']:[]), ...(slug==='beginner'?['src/components/BeginnerStart.astro','src/data/beginner-start.ts']:[])]])),
+  'play/[level].astro': Object.fromEntries(['beginner','intermediate','advanced','hard','extreme'].map(slug=>[slug,['src/components/FeaturedExamples.astro','src/data/expansion/examples.ts','src/components/PuzzleLibrary.astro','src/client/puzzle-library.ts','src/client/puzzle-progress.ts','src/data/puzzle-library.ts','src/data/puzzle-techniques.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts', ...(['beginner','intermediate'].includes(slug)?['src/components/LevelProblemExamples.astro']:[]), ...(slug==='beginner'?['src/components/BeginnerStart.astro','src/data/beginner-start.ts']:[])]])),
   'guide/[slug].astro': {
     ...Object.fromEntries(['rules','beginner','intermediate','advanced','hard-sudoku-solving','tips','when-stuck','glossary'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts']])),
     'for-kids': ['src/components/ParentLesson.astro','src/components/SmallNumberBoard.astro'],
@@ -53,13 +53,14 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
-  ...Object.fromEntries(LESSONS.map(l=>[`${l.path.slice(1,-1)}.astro`,['src/data/expansion/lessons.ts','src/data/expansion/models.ts','src/components/ExpansionLesson.astro','src/components/LogicModel.astro']])),
-  ...Object.fromEntries(EXAMPLES.map(e=>[`${e.path.slice(1,-1)}.astro`,['src/data/expansion/examples.ts','src/data/expansion/selections.json','src/components/ExpansionExample.astro',`src/data/puzzles/${e.spec.level}.json`]])),
+  ...Object.fromEntries(LESSONS.map(l=>[`${l.path.slice(1,-1)}.astro`,['src/data/expansion/lessons.ts','src/data/expansion/models.ts','src/components/ExpansionLesson.astro','src/components/EditorialNote.astro','src/components/LogicModel.astro']])),
+  ...Object.fromEntries(EXAMPLES.map(e=>[`${e.path.slice(1,-1)}.astro`,['src/data/expansion/examples.ts','src/data/expansion/selections.json','src/components/ExpansionExample.astro','src/components/EditorialNote.astro','src/data/teaching-cases.ts',`src/data/puzzles/${e.spec.level}.json`]])),
   ...Object.fromEntries(manifest.packs.map(p=>[`${p.path.slice(1,-1)}.astro`,['src/data/expansion/print-sets.ts','src/data/expansion/selections.json','src/components/ExpansionPrint.astro','scripts/gen-expansion-pdfs.py',`public/downloads/collections/${p.slug}-questions.pdf`,`public/downloads/collections/${p.slug}-answers.pdf`]])),
   'practice.astro': ['src/components/OneMovePractice.astro','src/client/one-move.ts','src/client/one-move-state.ts','src/client/practice-history.ts','src/data/one-move.ts','src/data/technique-drills.ts','src/data/teaching-cases.ts','scripts/gen-one-move.ts'],
   'print/progression.astro':['src/data/progression-pack.ts','scripts/gen-progression-pdfs.py','public/downloads/progression/manifest.json','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json'],
   'widgets.astro':['src/pages/embed/mini4.astro','src/data/mini4.ts','src/components/VariantGame.astro','src/client/variant-game.ts'],
-  'index.astro': ['src/components/ContinuePlaying.astro','src/client/continue-playing.ts','src/client/recent-games.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts','src/client/learning-transfer.ts'],
+  'guide/index.astro': ['src/components/ExpansionLinks.astro','src/data/expansion/examples.ts','src/data/expansion/lessons.ts'],
+  'index.astro': ['src/components/FeaturedExamples.astro','src/data/expansion/examples.ts','src/components/ContinuePlaying.astro','src/client/continue-playing.ts','src/client/recent-games.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts','src/client/learning-transfer.ts'],
   'print.astro': ['src/components/PrintResourceCards.astro','src/data/print-resources.json','public/images/print/manifest.json'],
   'variants/6x6.astro': ['src/components/VariantPlayPage.astro','src/components/VariantGame.astro','src/client/variant-game.ts','src/engine/variant-grid.ts','src/data/mini6.ts','src/components/Mini6Lesson.astro'],
   'variants/inequality.astro': ['src/components/VariantPlayPage.astro','src/components/VariantGame.astro','src/client/variant-game.ts','src/engine/variant-grid.ts','src/data/inequality-puzzles.ts','src/components/InequalityFullExample.astro','src/data/inequality-example.ts'],
