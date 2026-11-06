@@ -1,6 +1,6 @@
 # 2026-11-07 日语文案推敲
 
-用户指定使用 yomiyasu 和 textlint-ai-writing，已在本地修改13个文案源文件，覆盖首页、游戏难度介绍、每日题、打印说明、解题指南、技巧教程、求解器和统计空状态。尚未提交或部署。
+用户指定使用 yomiyasu 和 textlint-ai-writing，已在本地修改13个文案源文件，覆盖首页、游戏难度介绍、每日题、打印说明、解题指南、技巧教程、求解器和统计空状态。已正式发布：文案代码`fe91f4f`，元数据及生产源`696dd11`，Cloudflare部署`32d11e9a-a169-4ef9-8eb2-00f3a4beda73`。
 
 ## 改动
 
@@ -44,6 +44,12 @@
 - yomiyasu-check: executed via=verify run=20261106T161428Z-e1c6f5e1 attempt=2 final=sha256:c6d7160e47c4 mode=rewrite checks=lint,diff meaning_risk=14 replay=skipped
 
 14件の意味の変化候補も確認しました。日替わりの更新、日ごとの連続記録、3ステップから3つへの表記変更、候補の書き出しの言い換え、最高級の整理、助言と前提条件の言い換えです。隠れたペアの説明に加えた候補消去の理由は、同じ記事内の成立条件に基づきます。医学的効果の断定や対応手筋の拡張は加えていません。検査はAIらしさの消失や意味の完全一致を保証するものではありません。
+
+## 发布验证
+
+用户于2026-11-07明确授权发布。先合入远端的日替题空提交`c2e6b46`，提交文案及由真实Git历史生成的lastmod后推送main。Cloudflare Git集成生产部署成功，[远端CI 42252219751](https://github.com/rusherxie-sudo/numpredo/actions/runs/42252219751)全部通过。
+
+正式域名10页均200、新文案匹配、自引用canonical正确；另以独立手机浏览器复核10页，无横向溢出或页面脚本错误。线上Sitemap有98个URL。[正式文案检查](production-copy-check.json)、[正式浏览器检查](production-browser-check.json)。本次未创建PR，发布记录单独以skip ci文档提交保存。
 
 ## 次の優先事項
 
