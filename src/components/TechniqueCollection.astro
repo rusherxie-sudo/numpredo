@@ -16,6 +16,6 @@ const examples = technique ? groups.flatMap(g => g.rows.filter(r => r.hardest ==
   <p>収録問題のうち、当サイトの解法でこの手筋を使う問題は<strong>{total.toLocaleString('ja-JP')}問</strong>あります。まずはこの手筋が最難となる短い解法の問題から、盤面全体を解いて練習できます。</p>
   <ul>{examples.map(row => <li><a href={`/play/${row.level.slug}/?n=${row.n}#level-game`}>{row.level.ja} No.{row.n}を解く</a> — ヒント{row.clues}個、解説{row.steps}手</li>)}</ul>
   <p>もっと練習する：{groups.map(({level, rows}, i) => <>{i > 0 && ' ／ '}<a href={`/play/${level.slug}/?tech=${technique.key}#puzzle-library`}>{level.ja}の{rows.length}問</a></>)}</p>
-  <p class="note">掲載数・手数は<a href="/research/puzzle-analysis/">全題庫の解法分析</a>に基づきます。手筋は解く途中に現れ、別の解き順では使わずに解ける場合もあります。ゲームの「ソルバーで解説」から続きの解法を確認できます。</p>
+  <p class="note">掲載数・手数は<a href="/research/puzzle-analysis/">全問題の解法分析</a>に基づきます。手筋は解く途中に現れ、別の解き順では使わずに解ける場合もあります。ゲームの「ソルバーで解説」から続きの解法を確認できます。</p>
 </section>}
 <style>.tech-collection{padding:18px;border:1px solid var(--line);border-radius:8px;margin:24px 0;background:var(--surface-2)}h2{margin-top:0}a{color:var(--accent)}li{margin:8px 0}.note{font-size:13px;color:var(--ink-3)}</style>

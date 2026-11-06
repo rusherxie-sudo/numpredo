@@ -65,7 +65,7 @@ function setup(root: HTMLElement): void {
     </table></div>
     <h2>実績（${unlocked.size} / ${ACHIEVEMENTS.length}）</h2>
     <div class="st-achv">${achv}</div>
-    ${total === 0 ? '<p class="st-empty">まだ記録がありません。<a href="/play/beginner/">初級から</a>遊んでみましょう——クリアするとここに記録と実績がたまります。</p>' : ''}
+    ${total === 0 ? '<p class="st-empty">まだ記録がありません。<a href="/play/beginner/">初級から</a>遊んでみましょう。クリアすると、ここに記録と実績が表示されます。</p>' : ''}
   `;
 }
 

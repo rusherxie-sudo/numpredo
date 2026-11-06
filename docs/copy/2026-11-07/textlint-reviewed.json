@@ -1,0 +1,80 @@
+[
+  {
+    "page": "404.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【テクニカルライティング品質分析】この文書で11件の改善提案が見つかりました [内訳: 具体性: 10件, 構造化: 1件]。効果的なテクニカルライティングの7つのC（Clear, Concise, Correct, Coherent, Concrete, Complete, Courteous）の原則に基づいて見直しを検討してください。詳細なガイドライン: https://github.com/textlint-ja/textlint-rule-preset-ai-writing/blob/main/docs/tech-writing-guidelines.md",
+    "text": "ページが見つかりません（404）- numpredo"
+  },
+  {
+    "page": "guide/sudoku-algorithm/index.html",
+    "rule": "@textlint-ja/ai-writing/no-ai-hype-expressions",
+    "message": "「完全に」という絶対的な表現は過度に断定的である可能性があります。「多くの場合」などの表現を検討してください。",
+    "text": "ポイントは canPlace（同じ行・列・3×3ブロックに n が既に無いか）と、失敗したときに grid[i] = 0 で戻すことの2つだけです。この例は探索部分の擬似コードです。呼び出す前に81マス・整数0〜9・初期数字の重複を検査してください。完全に埋まった不正な盤面を、そのまま正解として返してはいけません。"
+  },
+  {
+    "page": "guide/techniques/xy-wing/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【構造化】連続的な手順説明が検出されました。番号付きリストまたは見出し構造での整理を検討してください。",
+    "text": "まず下図を見ながら、ピボットを2と仮定した場合、次に7と仮定した場合を紙に書き、どちらでも片方のウイングが9になることを確認してください。最後に「両ウイングを見るマス」だけを指してから9を消すと、推論と消去範囲を分けて覚えられます。手元の問題の候補整理には数独ソルバーも利用できますが、現時点ではXY-Wingの自動検出機能はありません。"
+  },
+  {
+    "page": "print/16x16/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な条件表現が検出されました。どのような状況で必要なのか、具体的な判断基準の明示を検討してください。",
+    "text": "紹介用の文章（必要に応じて編集できます）"
+  },
+  {
+    "page": "print/6x6/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な条件表現が検出されました。どのような状況で必要なのか、具体的な判断基準の明示を検討してください。",
+    "text": "紹介用の文章（必要に応じて編集できます）"
+  },
+  {
+    "page": "print/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な条件表現が検出されました。どのような状況で必要なのか、具体的な判断基準の明示を検討してください。",
+    "text": "完全無料・登録不要です。何度でも問題集を作成して印刷でき、必要に応じて解答ページも付けられます。"
+  },
+  {
+    "page": "print/inequality/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な条件表現が検出されました。どのような状況で必要なのか、具体的な判断基準の明示を検討してください。",
+    "text": "紹介用の文章（必要に応じて編集できます）"
+  },
+  {
+    "page": "print/progression/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な条件表現が検出されました。どのような状況で必要なのか、具体的な判断基準の明示を検討してください。",
+    "text": "紹介用の文章（必要に応じて編集できます）"
+  },
+  {
+    "page": "print/senior/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な条件表現が検出されました。どのような状況で必要なのか、具体的な判断基準の明示を検討してください。",
+    "text": "紹介用の文章（必要に応じて編集できます）"
+  },
+  {
+    "page": "print/senior/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な条件表現が検出されました。どのような状況で必要なのか、具体的な判断基準の明示を検討してください。",
+    "text": "紹介用の文章（必要に応じて編集できます）"
+  },
+  {
+    "page": "privacy/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な判断表現が検出されました。何を基準として適切なのか、具体的な条件や基準の明示を検討してください。",
+    "text": "アクセス解析・広告サービスが取得する情報の保存期間は、各サービスの設定およびポリシーに従います。当サイトがメールで受け取ったお問い合わせは、対応と再発防止に必要な期間だけ保管し、不要になった情報は適切な方法で削除します。"
+  },
+  {
+    "page": "privacy/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な条件表現が検出されました。どのような状況で必要なのか、具体的な判断基準の明示を検討してください。",
+    "text": "本ポリシーは、必要に応じて予告なく変更されることがあります。変更後の内容は、当ページに掲載した時点で効力を生じます。"
+  },
+  {
+    "page": "terms/index.html",
+    "rule": "@textlint-ja/ai-writing/ai-tech-writing-guideline",
+    "message": "【具体性】曖昧な条件表現が検出されました。どのような状況で必要なのか、具体的な判断基準の明示を検討してください。",
+    "text": "本規約は、必要に応じて予告なく変更されることがあります。変更後の内容は、当ページに掲載した時点で効力を生じます。"
+  }
+]

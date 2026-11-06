@@ -8,7 +8,7 @@ import { LEVELS } from '../data/levels.ts';
 
 const title = '数独無料ゲーム・ナンプレ無料問題集｜登録不要 - numpredo';
 const description =
-  '数独無料ゲーム・ナンプレ無料問題を登録不要ですぐに楽しめます。初級から超難問まで、すべて唯一解・論理だけで解ける高品質問題。解き方、自動解答ソルバー、答え付きPDF印刷にも無料で対応。';
+  '登録不要で遊べる数独無料ゲーム・ナンプレ問題集。初級から超難問まで、すべて唯一解で、論理だけで解けることを確認しています。解き方ガイド、自動解答ソルバー、答え付きPDFも無料で使えます。';
 const totalPuzzles = LEVELS.reduce((sum, level) => sum + level.puzzles.length, 0);
 // 全題庫计数口径：只计标准9×9的5档（LEVELS）问题；キラー・対角線・ミニ4×4 属别规则问题集，不含在计数内。
 const standardLabel = totalPuzzles.toLocaleString('ja-JP');
@@ -34,9 +34,9 @@ const tools: [string, string, string, string][] = [
   ['研', `全${standardLabel}問の分析`, '/research/puzzle-analysis/', 'ヒント数、論理手数、手筋の使用頻度を標準9×9問題から実測して公開。'],
 ];
 const why: [string, string, string][] = [
-  [totalPuzzles.toLocaleString('ja-JP'), '標準9×9を三重に検証', '公開する標準9×9問題すべてを、唯一解・論理だけで完答・生成解との一致の3条件で公開前に全問チェック。キラー数独・対角線数独も、同じ検査を通した問題だけを公開しています。'],
+  [totalPuzzles.toLocaleString('ja-JP'), '標準9×9を三重に検証', '標準9×9問題は公開前に全問チェック。解が一つであること、論理だけで最後まで解けること、その解が生成時の答えと一致することを確認しています。キラー数独・対角線数独も、同じ検査を通した問題だけを公開しています。'],
   ['技', '解法で決める難易度', '空きマス数ではなく、実際に必要な最難テクニックと手数で5段階に分類。'],
-  ['図', '実際の解答手順を図解', '一般的な説明の使い回しではなく、その盤面を解いた手順から次の一手を表示します。'],
+  ['図', '実際の解答手順を図解', 'その盤面を実際に解いた手順に沿って、次の一手を図で表示します。'],
   ['独', '独自エンジンと無料ツール', '問題生成・自動解答・印刷まで同じ検証済みエンジンを使い、第三者問題を転載しません。'],
 ];
 
@@ -75,7 +75,7 @@ const homeFaqSchema = {
     <div class="hp-hero-l">
       <span class="hp-badge">登録不要・完全無料</span>
       <h1 class="hp-h1">数独無料ゲームを、<br />毎日。</h1>
-      <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで全{totalPuzzles.toLocaleString('ja-JP')}題を、唯一解・論理だけで解けることまで検証しています。毎日の問題、図解ガイド、自動で答え合わせできるソルバーも無料です。</p>
+      <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで全{totalPuzzles.toLocaleString('ja-JP')}題を用意しています。どの問題も解が一つで、論理だけで最後まで解けることを確認しています。毎日の問題、図解ガイド、自動で答え合わせできるソルバーも無料です。</p>
       <div class="hp-cta">
         <a href="#home-game" class="hp-btn hp-btn-p">初級をはじめる</a>
         <a href="/daily/" class="hp-btn hp-btn-s">日替わりナンプレ・今日の数独 →</a>
@@ -146,7 +146,7 @@ const homeFaqSchema = {
     </div>
   </section>
 
-  <p class="hp-method-link">問題の作り方、検証条件、記事の編集方針は<a href="/about/#editorial-policy">品質検証と編集方針</a>で公開しています。標準9×9の題庫全体の実測値は<a href="/research/puzzle-analysis/">全{standardLabel}問の分析データ</a>で確認できます。</p>
+  <p class="hp-method-link">問題の作り方、検証条件、記事の編集方針は<a href="/about/#editorial-policy">品質検証と編集方針</a>で公開しています。標準9×9の全問題の実測値は<a href="/research/puzzle-analysis/">全{standardLabel}問の分析データ</a>で確認できます。</p>
 
   <section class="hp-sec hp-var-sec">
     <div class="hp-var">
