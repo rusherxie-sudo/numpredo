@@ -1,5 +1,5 @@
-import { printIntent } from './np01-track.ts';
-import { initPdfMeasurement } from './pdf-measurement.ts';
+import { printIntent } from './optional-measurement.ts';
+import { initPdfMeasurement } from './optional-measurement.ts';
 initPdfMeasurement();
 // 打印客户端：选难度+题数 → 从预生成题库随机抽样（难度保真・零等待）→ 渲染题面+答案 → printIntent('generated')。
 // 不再客户端实时生成：generateByLevel 难度命中率低（hard 实测 0/5，会把中级题标成難問印在纸上）、

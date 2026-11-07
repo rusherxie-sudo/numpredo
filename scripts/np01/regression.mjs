@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
+import {readdirSync,readFileSync} from 'node:fs';
 import {solveOne,gridFromString,STANDARD_CONTEXT} from '../../src/engine/index.ts';
 const require=createRequire(process.env.NP01_RUNNER+'/package.json');
 const {chromium}=require('playwright');
@@ -93,7 +94,11 @@ await run('embed still no analytics',async({p,ev})=>{await p.goto(origin+'/embed
 for(const path of ['/','/play/','/play/advanced/','/play/hard/','/play/extreme/'])await run('standard route '+path,async({goto,move,ev,count})=>{await goto(path);await move();assert.equal(await count('puzzle_first_input'),1);assert((await ev()).find(e=>e.name==='puzzle_first_input').params.game_level);});
 await run('PDF loaded preview once and keyboard/middle activation legacy scope',async({p,count,ev})=>{
  await p.goto(origin+'/print/progression/');const img=p.locator('figure img').first();await img.scrollIntoViewIfNeeded();await p.waitForTimeout(500);assert.equal(await count('pdf_preview_view'),1);
- if(!process.env.NP01_BUILT)await p.evaluate(async()=>{const m=await import('/src/client/pdf-measurement.ts');m.initPdfMeasurement();m.initPdfMeasurement();});
+ if(process.env.NP01_BUILT){
+  const file=readdirSync('dist/_astro').find(n=>n.startsWith('pdf-measurement.')&&n.endsWith('.js'));
+  const alias=readFileSync('dist/_astro/'+file,'utf8').match(/export\{\w+ as (\w+)\}/)?.[1];assert(alias,'real built PDF module export');
+  await p.evaluate(async({file,alias})=>{for(const suffix of ['?double=1','?double=2']){const m=await import('/_astro/'+file+suffix);m[alias]();m[alias]();}},{file,alias});
+ }else await p.evaluate(async()=>{const m=await import('/src/client/pdf-measurement.ts');m.initPdfMeasurement();m.initPdfMeasurement();});
  await p.evaluate(()=>{document.addEventListener('click',e=>{if(e.target.closest('a[href$=".pdf"]'))e.preventDefault();});document.addEventListener('auxclick',e=>e.preventDefault());});
  const preview=p.locator('figure a').first();await preview.focus();await p.keyboard.press('Enter');assert.equal(await count('pdf_link_click'),1);assert.equal(await count('print_pdf_download'),0);
  await preview.click({button:'middle'});assert.equal(await count('pdf_link_click'),2);assert.equal(await count('print_pdf_download'),0);

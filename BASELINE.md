@@ -1,5 +1,7 @@
 # numpredo：SEO 与增长基线及 30 天执行优先级
 
+2026-11-07 独立审查补充：本地修复 S1/L1/L2/L3/D1 并补足 PDF 实执行测试；S2 真实 gtag probe 已证实自动字段边界失败，**发布阻断，NP01 未整体验收**。负责人处理平台修复后需对精确候选重新隔离复测，不能用队列测试替代。证据及待验收项见[NP01记录](docs/growth/2026-11-07-np01-measurement/README.md)。
+
 ## 2026-11-07：NP01 待发布与平台核验补充
 
 NP01候选仅本地实施，暂无发布后自然事件/增长数据。负责人转交的vps2只读核验：GA4 properties/539597439、Asia/Tokyo、defaultUri https://numpredo.com；host主域/www固定，已注册result/level，新参数未注册，本阶段未改平台。

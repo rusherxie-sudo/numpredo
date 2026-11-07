@@ -53,6 +53,6 @@ const box=first.before.filter((_,i)=>Math.floor(i/12)===Math.floor(first.cell/12
 </style>
 
 <script>
-import { printIntent } from '../client/np01-track.ts';
+import { printIntent } from '../client/optional-measurement.ts';
 document.querySelectorAll('[data-mini6-print]').forEach(b=>b.addEventListener('click',()=>printIntent('mini6')));
 </script>

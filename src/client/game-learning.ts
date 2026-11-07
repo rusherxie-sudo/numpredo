@@ -5,6 +5,7 @@ interface State {done:boolean;paused:boolean;generation:number;revision:number;p
 export interface Game {validDay?:()=>boolean;hintMsg:HTMLElement;back:()=>string;key:()=>string;save:()=>void;read:()=>string|null;state:()=>State;params:()=>Record<string,unknown>;pauseRestored:()=>void;}
 export function initGameLearning(g:Game):{input:()=>void;clear:()=>void;observe:()=>void} {
  let returned:LearningTrip|null=null;
+ const original=(t:LearningTrip,s:State):boolean=>{try{return JSON.parse(t.saved).p===s.p;}catch{return false;}};
  g.hintMsg.addEventListener('click',event=>{
   const a=(event.target as Element).closest<HTMLAnchorElement>('a'),s=g.state();if(!a||s.done||s.paused)return;
   if(g.validDay&&!g.validDay()){clearTrip();return;}
@@ -28,14 +29,16 @@ export function initGameLearning(g:Game):{input:()=>void;clear:()=>void;observe:
    if(sv.p!==s.p||sv.c!==s.c||sv.n!==s.n||sv.e!==s.e)return;
    t.state='returned';if(!writeTrip(t))return;returned=t;g.pauseRestored();
    track('game_learning_return',{...g.params(),learning_kind:t.kind,technique:t.technique});
-  }else {returned=t;if(t.revision===s.revision)g.pauseRestored();}
+  }else {if(!original(t,s))return;returned=t;if(t.revision===s.revision)g.pauseRestored();}
  };
  window.addEventListener('pageshow',observe);
- return {observe,clear:()=>{returned=null;clearTrip();},input:()=>{
+ return {observe,clear:()=>{const t=readTrip();if(t&&(t.key!==g.key()||t.back!==g.back()))return;returned=null;clearTrip();},input:()=>{
   if(!returned)return;
   if(g.validDay&&!g.validDay()){returned=null;clearTrip();return;}
   const t=readTrip(),s=g.state();
-  if(t?.state==='returned'&&t.back===g.back()&&t.key===g.key()&&t.generation===s.generation)track('game_learning_input',{...g.params(),learning_kind:t.kind,technique:t.technique});
+  if(!t){returned=null;return;}
+  if(t.state!=='returned'||t.back!==g.back()||t.key!==g.key())return;
+  if(t.generation===s.generation&&original(t,s))track('game_learning_input',{...g.params(),learning_kind:t.kind,technique:t.technique});
   returned=null;clearTrip();
  }};
 }

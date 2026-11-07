@@ -36,7 +36,7 @@ const description='4×4を4問、6×6を4問。太枠を段階的に覚えるナ
 <PrintResourceCards exclude="progression" slugs={["6x6","activity02"]} />
 </Base>
 <script>
-import { initPdfMeasurement } from '../../client/pdf-measurement.ts';
+import { initPdfMeasurement } from '../../client/optional-measurement.ts';
 initPdfMeasurement();
 
 import {track} from '../../client/track.ts';

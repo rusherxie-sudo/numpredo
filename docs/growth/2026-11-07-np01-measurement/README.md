@@ -49,9 +49,9 @@ PDF 共享观测只由已有打印工具/资源模板加载；普通内容页没
 
 GA config 的 page_location、page_referrer 显式只保留真实 http(s) origin/path，去掉所有 search/hash；空 referrer 保持空值。没有额外 config/page_view、伪造来源、UTM 重写或业务地址改写。白名单只控制本站新事件参数，不能声称约束官方 gtag 所有运行时自动字段。
 
-百度不接收 NP01 事件。首页、play/daily/tools/print/practice/variants 功能页有 query/hash 时不加载百度，延迟加载时再次检查 URL。普通干净内容页保持原行为。这是百度测量口径收缩，发布切点需单独记录，不能把数量变化当增长/流失。
+百度不接收 NP01 事件。首页、play/daily/tools/print/practice/variants 功能页及全部 guide 指南页有 query/hash 时不加载百度，延迟加载时再次检查 URL。普通干净内容页保持原行为。这是百度测量口径收缩，发布切点需单独记录，不能把数量变化当增长/流失。
 
-真实 gtag.js、后台 enhanced measurement、自动 file_download/link_url、history 自动浏览、真实 collect 序列化、自然 UTM 归因和服务端接收均未验证；本地外部脚本全部阻断，未下载真实统计脚本或发送合成统计流量。去掉 config page_location 的 UTM 与官方自动 campaign 读取的交互未知；不承诺原 UTM 归因完整，也不重新拼回自由 query 规避隐私边界。干净内容页上的百度及其 referrer 处理没有被此页级收缩全面验证。没有扩大同意/广告权限，也没有将延迟加载称为用户同意。
+首轮实现自身只做队列验证；独立真实 gtag 冻结 fixture probe 已发现 history page_view 和自动外链/PDF 事件的敏感合成 query 进入待发送字段（见下文 S2）。初始 config 清洗不足，当前隐私边界失败，发布阻断。自然 UTM 归因与服务端接收仍未验收；所有合成 collect 已截断，不能作为实际用户泄漏证据。去掉 config page_location 的 UTM 与官方自动 campaign 读取的交互未知；不承诺原 UTM 归因完整，也不重新拼回自由 query 规避隐私边界。干净内容页上的百度及其 referrer 处理没有被此页级收缩全面验证。没有扩大同意/广告权限，也没有将延迟加载称为用户同意。
 
 ## 验证证据与覆盖边界
 
@@ -100,12 +100,12 @@ git diff --check
 
 ## 发布与回滚（本轮未执行）
 
-1. 负责人先审精确 candidate SHA、diff、日志和未验收项；未获后续明确授权不 push/merge main/部署/改平台。
+1. **发布门禁：S2 当前未解决，禁止将此候选作为可上线或整体验收通过。负责人完成平台修复并对精确候选重新执行官方 gtag 隔离 probe，证明 history/page_referrer/link_url 边界符合要求后，才可讨论发布。** 负责人先审精确 candidate SHA、diff、日志和未验收项；未获后续明确授权不 push/merge main/部署/改平台。
 2. 真正发布前重核 main/生产部署、CI及现有未知修改。使用正常 PR/合并和既有部署流程，记录实际发布时点/前一部署；不 force push，不改业务 URL，不清用户存档。
 3. 合成验证继续本地外网阻断。上线仅用获准的自然流量只读观测核验版本、参数、自动字段及 UTM，不向生产制造行为。未验证真实字段前不承诺完整传输隐私或归因。
 4. 发生重复观测、交互错误或字段泄漏则停止发布；已发布后使用正常 revert/前一已核实部署。Saved 新字段可选，旧代码忽略；独立 pending 旧代码不读取。不要删除 GA 历史或清用户保存数据。若隐私修复必须保留，单独最小提交，不能为回滚测量恢复自由 query 传输。
 
-下一最高优先级：审候选与剩余传输/归因限制，再决定发布及新维度登记；不是继续扩页或用本地事件计数宣称增长。
+下一最高优先级：负责人修复 S2 平台增强测量配置、核验权限与精确候选真实 gtag 复测，再审传输/归因限制和新维度登记；不是继续扩页或用本地事件计数宣称增长。
 
 ### 候选验证补充
 
@@ -117,3 +117,52 @@ git diff --check
 - 未单独浏览器强制命中引擎兜底提示分支；未验真机/WebKit、真正由浏览器保留的BFCache（Back通过不等于证明BFCache）、实际打印完成、PDF服务端下载成功、真实gtag自动字段/增强测量/UTM和自然流量接收；不把本地消费者当Google接收。生成器资源加载失败分支未单独模拟。上述限制不能从全绿检查推断为已验收。
 
 最终静态浏览器 `browser-acceptance.log`：47项通过，390/1440宽；context内外部成功请求0、外部阻断94、本地测试替身collect8（逐个检查哨兵/禁止字段）。该8次不是Google请求/接收。四个slice的最终复核为 `input/return/pdf/privacy-green-final.log`，均退出0。没有把开发工具栏的storage异常当作产品通过，也没有为它放宽浏览器门禁。
+
+
+## 第一轮独立审查修复（2026-11-07，仍未发布）
+
+首轮实现进程退出后才开始本轮；起始 HEAD `ed3d5a72b143d452c27559245018dd3fe33cd97d`，base `2bc6f665d53be4df5effe1be528cdee8e8a0992a`，porcelain 为空，全 tracked 文件间隔3秒 SHA-256相同。本轮不 push/deploy、不写 GA 平台，不改 main/12篇深化/stash。精确最终 SHA、真实退出码和完整日志索引在 `/home/ubuntu/np01-audit-20261107/review-fix-result.md`；日志目录 `review-fix-logs/`。
+
+- S1：所有带 query/hash 的 guide 路由纳入百度页级拦截，首次判断和事件/8秒定时加载时都检查。不以 GA config 或事件白名单约束百度；干净指南保持原行为。
+- L1：有限允许既有难度路由的 `#level-game`；游戏到 candidate/solver 改用只包含 n/d/tab 与真实游戏锚点的规范返回地址。真实 TechniqueCollection 入口 → 游戏 → 两工具返回均验证；外链、穿越、自由 query 继续拒绝。
+- L2：首页和 /play/ 无显式 n 时先读取旧 current 槽确定当前题，而不是先读 A 逐题槽；明确 n 仍选对应逐题槽。A/B 输入→刷新恢复 B、再回 A 的 first_input 去重和旧 Saved 字段保留。没有保留任意 query。
+- L3：不匹配原局的输入或重开不消费 A 的 returned/pending；普通题及每日页切 B 后再回 A，原局首个有效输入才消费；returned 原题证明损坏时不报输入。过期/缺失/损坏/generation/原题恢复异常继续拒绝成功。可选加载改动曾触发旧迁移重建 missing 槽的回归，RED 后将真实槽验证放在迁移前，日志完整保留。
+- D1：游戏 setup 和原提示都不 await NP01/学习模块；chunk 未完成也可真实填数及显示提示。打印/PDF 入口通过轻量可选适配器加载辅助模块并捕获失败，原打印/旧事件保持；缺失测量不生成成功事件。辅助模块加载前发生的行为不补报；降级不保证跨刷新测量去重。首屏预算仍为65,536字节。
+- T1：新增审查浏览器用例和既有 regression 都真实执行 Enter、中键、对两个独立 compiled module 副本重复初始化，逐步断言新计数1/2/3及旧 download 0/0/1。该产品行为审查前已通过，无需为它改产品；首轮“built双初始化已覆盖”的说法不成立（原测试跳过），本轮补足执行证据。
+
+### S2：未解决，发布阻断
+
+独立 probe 证据：`/home/ubuntu/np01-audit-20261107/real-gtag-probe/report.md` 和 `report.json`。其冻结资源清单 hash 为 `5bbee7f4c52babf6dfb84d14cd2b0757bfe2d630fcd1033857cd32b06a58ad4c`；官方 gtag fixture SHA-256 为 `d826963fc9671be15d8da3acf387c73d41a186841b793bc10f374cfe5f5b6490`。这是首轮构建期间的冻结快照，不冒称本轮精确候选已复测。
+
+实测 history page_view 重读 query 到 page_location/page_referrer；外链 click 和 PDF file_download 带完整 link_url。总计40次 collect 尝试均被阻断，collect 外发成功0，**不是实际用户泄漏证据**。独立平台事实为 pageChangesEnabled/outboundClicksEnabled/fileDownloadsEnabled=true；本轮不写后台。
+
+2026-11-07 通过 Context7 查阅的官方依据：
+
+- [Measure pageviews](https://developers.google.com/analytics/devguides/collection/ga4/views)：`send_page_view:false` 只控制初始 config 默认 page_view；history 增强测量仍会独立触发，需在数据流 Enhanced measurement 关闭 “Page changes based on browser history events”。
+- [Enhanced measurement events](https://support.google.com/analytics/answer/9216061)：按事件类型开关通过数据流后台设置，要求 Editor 或以上权限。
+- [Configure Google tag settings](https://support.google.com/analytics/answer/12131703)：history、outbound clicks、file downloads 的 automatic event detection 通过 Google tag 平台开关管理。
+
+未找到可靠、官方支持的逐页 gtag 配置可同时关闭上述三类自动事件；不采用未公开参数、GA 私有协议拦截、替身消费者冒充官方测试、改写业务 URL 或整类功能页禁用 GA 规避。本轮不新增 page_view、不改同意/广告。S2 需负责人平台修复和明确授权后的独立复验；初始 config 清洗及队列白名单仅证明各自有限边界。
+
+待验收项：
+
+- [ ] 负责人完成平台权限核验与 S2 配置修复，保留前后只读证据。
+- [ ] 对最终候选重新冻结并用真实官方 gtag fixture 验证 history、page_referrer、outbound/PDF link_url；合成 context 继续先阻断全部外部收集；存在真实自动事件且字段安全才可通过，不能以零请求代替。
+- [ ] 自然 UTM、GA 服务端接收、常规报表字段与新参数注册按另行授权核验。
+- [ ] CI Node24、真机/WebKit、真实 BFCache、实际打印完成等原限制未被本地 Chrome 测试替代。
+- [ ] 负责人审查精确修复 SHA 后另行决定后续；当前代码修复不等于 NP01 整体验收或上线。
+
+
+本轮最终本地结果（日志前缀 `/home/ubuntu/np01-audit-20261107/review-fix-logs/`）：
+
+| 检查 | exit | 日志 |
+| --- | --- | --- |
+| check / demo | 0 / 0 | check-release-candidate.log / demo.log |
+| build（含 prebuild/postbuild） | 0 | build-release-candidate.log |
+| 合同/产物7项；PDF21页/62链接/26预览 | 0 | tests-release-candidate.log |
+| 21项独立审查浏览器用例，390/1440 | 0 | review-release-candidate.log |
+| 47项原回归，390/1440 | 0 | regression-release-candidate.log |
+
+最终首屏静态依赖最大65,470/65,536字节，预算未改。审查/原回归分别阻断外部请求60/93，外部成功均0；原回归8次本地 collect 是明示的测试替身，不能证明官方 GA 安全。新增 chunk404 注入均实际命中，悬挂 NP01/game-learning 加载时仍可填数/呈现提示；原7种 print 意向及旧 PDF 下载计数/范围通过。
+
+所有失败也保留：review-red/unresolved-red/unrelated-restart-red/hint-unresolved-red/daily-switch-red/returned-proof-red（行为RED）；pending-guard-red（移除 await 后 missing 槽迁移回归）；build-green-initial（预算超26字节）；check（Saved|null 类型错误）；review-green-initial（测试错误地强求保留旧锚点，修正为真实游戏锚点规范地址）；review-final（固定250ms等待不足，改为等待真实 return 队列事件，未弱化事件断言）。全部命令和真实退出码汇总在 commands.jsonl；最终 git 检查、commit 和清理记录见仓库外结果报告。**本地通过不解除 S2 发布门禁。**

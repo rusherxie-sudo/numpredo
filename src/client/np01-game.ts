@@ -5,7 +5,7 @@ import type {Game} from './game-learning.ts';
 export function params(archive:boolean,daily:boolean,level:string,slot?:number):Record<string,unknown>{
  return {measurement_version:'np01',game_mode:archive?'archive':daily?'daily':'library',game_level:level.replace(/^home-/,''),...(daily&&slot!==undefined?{daily_slot:slot}:{})};
 }
-export function restore(s?:Saved):Measurement {
+export function restore(s?:Saved|null):Measurement {
  const m=s?.measurement;
  return m?.v===1&&['yes','no','unknown'].includes(m.input)&&['yes','no','unknown'].includes(m.hint)&&Number.isSafeInteger(m.revision)&&m.revision>=0&&Number.isSafeInteger(m.generation)&&m.generation>=0
   ?{...m,hint:s?.h===1?'yes':s?.h===0?'no':m.hint}
@@ -15,7 +15,7 @@ export function learningLoader(game:()=>Game):{load:()=>Promise<void>;restore:()
  const jst=()=>new Date(Date.now()+32400000).toISOString().slice(0,10),day=jst();
  let learning:{input:()=>void;clear:()=>void;observe:()=>void}|undefined,loading:Promise<void>|undefined;
  const load=()=>loading??=(import('./game-learning.ts').then(({initGameLearning})=>{const g=game();learning=initGameLearning({...g,validDay:()=>g.params().game_mode!=='daily'||jst()===day});learning.observe();}).catch(()=>{loading=undefined;}));
- return {load,restore:()=>{try{if(sessionStorage.getItem('numpredo.learning.np01'))load();}catch{/* no cross-page proof */}},input:()=>learning?.input(),clear:()=>learning?.clear()};
+ return {load,restore:()=>{if(learning){learning.observe();return;}try{if(sessionStorage.getItem('numpredo.learning.np01'))load();}catch{/* no cross-page proof */}},input:()=>learning?.input(),clear:()=>learning?.clear()};
 }
 export function persist(data:Saved,m:Measurement,memory:Map<string,Saved>,key:string,hint:boolean):void {
  m.revision++;data.measurement={...m};

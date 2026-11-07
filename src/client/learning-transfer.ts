@@ -1,8 +1,8 @@
 export function returnPath(value:string|null):string|null {
  if(!value||/[\\\x00-\x20]/.test(value))return null;
  // Match the raw path before URL normalization: encoded/double-encoded traversal cannot enter.
- const m=value.match(/^(\/(?:play\/(?:beginner\/|intermediate\/|advanced\/|hard\/|extreme\/)?|daily\/(?:archive\/)?|guide\/newspaper\/)?)(?:\?([^#]*))?(#(?:sudoku-game|home-game|newspaper-input))?$/);
- if(!m)return null;
+ const m=value.match(/^(\/(?:play\/(?:beginner\/|intermediate\/|advanced\/|hard\/|extreme\/)?|daily\/(?:archive\/)?|guide\/newspaper\/)?)(?:\?([^#]*))?(#(?:sudoku-game|home-game|newspaper-input|level-game))?$/);
+ if(!m||m[3]==='#level-game'&&!/^\/play\/.+\/$/.test(m[1]))return null;
  const q=new URLSearchParams(m[2]);
  for(const [k,v]of q){
   if(q.getAll(k).length!==1)return null;

@@ -130,7 +130,7 @@ const TECH_ORDER = [
   'swordfish',
 ];
 
-async function setup(root: HTMLElement): Promise<void> {
+function setup(root: HTMLElement): void {
   root.id ||= 'sudoku-game';
   const set: PuzzlePair[] = JSON.parse(root.dataset.set ?? '[]');
   // level は保存キーの名前空間（numpredo.prog.* / numpredo.best.*）：五档 slug のほか
@@ -149,7 +149,7 @@ async function setup(root: HTMLElement): Promise<void> {
   // 衝突チェック・メモ自動消去・ヒント・エリア完成が全部対角線制約込みで動く。
   // killer は cage が**題面ごと**に違う → ctx は載題時に applyCages で都度再構築（let）。
   const variant = root.dataset.variant ?? '';
-  const np = !variant ? await import('./np01-game.ts').catch(()=>null) : null;
+  let np: typeof import('./np01-game.ts') | null = null;
   let started = false;
   const markStarted = (): void => {
     if (started) return;
@@ -223,9 +223,7 @@ async function setup(root: HTMLElement): Promise<void> {
   let measurement: Measurement = {v:1,input:'no',hint:'no',revision:0,generation:0};
   const measuredGames = new Map<string, Saved>();
   const measureParams = () => np!.params(archive,daily,daily ? set[poolIdx]?.level ?? level : level,multi?tabIdx:undefined);
-  const learning = np?.learningLoader(()=>({hintMsg,back:resumeHref,key:activeSaveKey,save:()=>pause(),read:()=>store.get(activeSaveKey()),
-    state:()=>({done,paused,...measurement,p:puzzleGrid.join(''),c:cur.join(''),n:notes.join(','),e:elapsedBase}),
-    params:measureParams,pauseRestored:()=>pause(false)}));
+  let learning: ReturnType<typeof import('./np01-game.ts')['learningLoader']> | undefined;
   let hintUsed = false; // 本局是否用过提示（ノーヒント実績の判定素材）
   let poolIdx = 0; // 当前题在嵌入题库 set 中的下标（「別の問題」循环消费用）
   // —— 提示（三级递进）状态：hintSig 记录上次提示时的盘面签名，变了就重置到第1级，连点同盘则升级 ——
@@ -369,9 +367,7 @@ async function setup(root: HTMLElement): Promise<void> {
   }
 
   function gameReturnPath(): string {
-    const params = new URLSearchParams(location.search);
-    if (!daily) params.set('n', String(poolIdx + 1));
-    return location.pathname + (params.size ? '?' + params : '') + (location.pathname === '/' ? '#home-game' : location.hash);
+    return resumeHref();
   }
 
   // —— 间違いチェック开关 ——
@@ -595,10 +591,9 @@ async function setup(root: HTMLElement): Promise<void> {
     hintUsed=true;
     if(!variant){measurement.hint='yes';save();np?.track('game_hint',measureParams());}
   }
-  async function hint(): Promise<void> {
+  function hint(): void {
     if (done || paused) return;
-    const before=measurement;await learning?.load();
-    if(done||paused||before!==measurement)return;
+    void learning?.load();
     // 盘面签名变了（落子/撤销/换题）→ 重置到第1级；连点同盘 → 逐级深入（封顶3）
     const sig = cur.join('');
     if (sig !== hintSig) { hintLevel = 1; hintSig = sig; } else hintLevel = Math.min(hintLevel + 1, 3);
@@ -798,7 +793,6 @@ async function setup(root: HTMLElement): Promise<void> {
   function selectPuzzle(index: number): void {
     if (!Number.isInteger(index) || index < 0 || index >= set.length) return;
     if (collection || !variant) save(); else store.remove(progKey());
-    learning?.clear();
     poolIdx = index;
     const nx = set[poolIdx];
     applyCages(nx.cages);
@@ -810,6 +804,7 @@ async function setup(root: HTMLElement): Promise<void> {
     apply(pz, sol, restore);
     if (done) renderResult(Number(store.get(bestKey()) || '0'));
     if (collection) save();
+    learning?.restore();
   }
   function newPuzzle(): void {
     if (set.length > 1) selectPuzzle((poolIdx + 1) % set.length);
@@ -966,7 +961,6 @@ async function setup(root: HTMLElement): Promise<void> {
   function switchTab(i: number): void {
     if (!multi || i === tabIdx || i < 0 || i >= DAILY_SIZE || !set[dayBase + i]) return;
     if (!done) save(); // 進行中タブの盤面・タイムを保存してから切替
-    learning?.clear();
     tabIdx = i;
     poolIdx = dayBase + i;
     store.set('numpredo.pref.dailytab', String(i));
@@ -982,6 +976,7 @@ async function setup(root: HTMLElement): Promise<void> {
       if (sol) apply(pz, sol);
     }
     fillDaily();
+    learning?.restore();
   }
   function fillDaily(): void {
     if (archive) {
@@ -1190,21 +1185,6 @@ async function setup(root: HTMLElement): Promise<void> {
   window.addEventListener('pagehide', () => { if (!done && !paused) save(); });
 
   // —— 初始化：定位起始题 → 恢复存档（含完成局）或开新局 ——
-  np?.validateStorage();
-  if (collection) {
-    // Preserve the old single-slot game even when the first visit selects a different number.
-    const old = load(true);
-    const index = old ? set.findIndex(p => normP(p.puzzle) === normP(old.p)) : -1;
-    if (old && index >= 0) {
-      const key = `numpredo.puzzle.${level}.${index + 1}`;
-      if (!store.get(key)) {
-        store.set(key, JSON.stringify(old));
-        const progress = readLibraryProgress(level);
-        progress[index + 1] = old.d === 1 ? 'done' : 'started';
-        store.set(`numpredo.library.${level}`, JSON.stringify(progress));
-      }
-    }
-  }
   let initIdx = 0;
   if (archive) {
     // アーカイブ：?d=YYYY-MM-DD の過去日（EPOCH〜昨日）。set は EPOCH 起点で全過去日を埋め込み、
@@ -1269,7 +1249,7 @@ async function setup(root: HTMLElement): Promise<void> {
   }
   poolIdx = initIdx;
   const target = set[initIdx];
-  const saved = load();
+  const saved = load(!variant && !daily && !collection && !new URLSearchParams(location.search).has('n'));
   const savedIdx = saved ? set.findIndex((s) => normP(s.puzzle) === normP(saved.p)) : -1;
   // ?n= 明示指定且与存档不是同一题时，以指定题开新局（首次落子会覆盖旧存档——用户主动选择）。
   // killer は cage が題面データに紐づく → 存档题が池内で見つからないと cage 不明,その場合は開新局
@@ -1291,7 +1271,30 @@ async function setup(root: HTMLElement): Promise<void> {
     if (fsol) apply(fpz, fsol);
   }
   if (daily) fillDaily();
-  learning?.restore();
+  // Optional measurement must never hold game setup or the original input handlers.
+  if (!variant) void import('./np01-game.ts').then(module=>{
+    np=module;
+    np.validateStorage();
+    if (collection) {
+      // Preserve the old single-slot game even when the first visit selects a different number.
+      const old = load(true);
+      const index = old ? set.findIndex(p => normP(p.puzzle) === normP(old.p)) : -1;
+      if (old && index >= 0) {
+        const key = `numpredo.puzzle.${level}.${index + 1}`;
+        if (!store.get(key)) {
+          store.set(key, JSON.stringify(old));
+          const progress = readLibraryProgress(level);
+          progress[index + 1] = old.d === 1 ? 'done' : 'started';
+          store.set(`numpredo.library.${level}`, JSON.stringify(progress));
+        }
+      }
+    }
+    measurement=np.restore(load());
+    learning = np.learningLoader(()=>({hintMsg,back:resumeHref,key:activeSaveKey,save:()=>pause(),read:()=>store.get(activeSaveKey()),
+    state:()=>({done,paused,...measurement,p:puzzleGrid.join(''),c:cur.join(''),n:notes.join(','),e:elapsedBase}),
+    params:measureParams,pauseRestored:()=>pause(false)}));
+    learning.restore();
+  }).catch(()=>{/* game remains usable without measurement */});
 }
 
 document.querySelectorAll<HTMLElement>('[data-sudoku]').forEach(setup);

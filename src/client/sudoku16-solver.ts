@@ -1,4 +1,4 @@
-import { printIntent } from './np01-track.ts';
+import { printIntent } from './optional-measurement.ts';
 const SIZE = 16;
 const CELL_COUNT = SIZE * SIZE;
 const FULL_MASK = (1 << SIZE) - 1;

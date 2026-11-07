@@ -225,7 +225,7 @@ const footerCols = [
       window._hmt = window._hmt || [];
       (function() {
         function sensitiveBaiduPage() {
-          return /^(?:\/(?:play|daily|tools|print|practice|variants)(?:\/|$)|\/$)/.test(location.pathname) && !!(location.search || location.hash);
+          return /^(?:\/(?:play|daily|tools|print|practice|variants|guide)(?:\/|$)|\/$)/.test(location.pathname) && !!(location.search || location.hash);
         }
         if (sensitiveBaiduPage()) return;
         var loaded = false;

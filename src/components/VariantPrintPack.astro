@@ -37,7 +37,7 @@ const pages=Math.ceil(pack.puzzles.length/pack.perPage);
 <PrintResourceCards exclude={slug} />
 </Base>
 <script>
-import { initPdfMeasurement } from '../client/pdf-measurement.ts';
+import { initPdfMeasurement } from '../client/optional-measurement.ts';
 initPdfMeasurement();
 
 import {track} from '../client/track.ts';

@@ -1,4 +1,4 @@
-import { printIntent } from './np01-track.ts';
+import { printIntent } from './optional-measurement.ts';
 type Level = 'beginner' | 'intermediate' | 'advanced' | 'hard' | 'extreme';
 type SeedPuzzle = { puzzle: string; solution: string; clues: number };
 type Pools = Record<Level, SeedPuzzle[]>;

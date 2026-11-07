@@ -8,8 +8,8 @@ import {readTrip,writeTrip,LEARNING_KEY} from '../../src/client/learning-state.t
 import {readdirSync} from 'node:fs';
 import {join} from 'node:path';
 test('return paths reject external, traversal, unsupported query/date/tab/number',()=>{
- for(const bad of ['https://example.com/','//example.com/','/play/\\evil','/play/%2e%2e/daily/','/play/%252e%252e/daily/','/play/?n=0','/play/?n=1&n=2','/play/?n=NaN','/play/?n=10001','/daily/?tab=7','/daily/?tab=-1','/daily/archive/?d=2026-02-30','/daily/?d=2026-01-01','/play/?title=synthetic','/play/?return=/','/play/foo/','/play/#arbitrary'])assert.equal(returnPath(bad),null,'reject invalid return');
- for(const good of ['/','/?n=2#sudoku-game','/play/?n=1#sudoku-game','/play/intermediate/?n=37#sudoku-game','/daily/?tab=5#sudoku-game','/daily/archive/?d=2026-11-01&tab=1#sudoku-game','/guide/newspaper/#newspaper-input'])assert.equal(returnPath(good),good);
+ for(const bad of ['https://example.com/','//example.com/','/play/\\evil','/play/%2e%2e/daily/','/play/%252e%252e/daily/','/play/?n=0','/play/?n=1&n=2','/play/?n=NaN','/play/?n=10001','/daily/?tab=7','/daily/?tab=-1','/daily/archive/?d=2026-02-30','/daily/?d=2026-01-01','/play/?title=synthetic','/play/?return=/','/play/foo/','/play/#arbitrary','/#level-game','/play/#level-game','/daily/#level-game'])assert.equal(returnPath(bad),null,'reject invalid return');
+ for(const good of ['/','/?n=2#sudoku-game','/play/?n=1#sudoku-game','/play/intermediate/?n=37#sudoku-game','/play/intermediate/?n=37#level-game','/daily/?tab=5#sudoku-game','/daily/archive/?d=2026-11-01&tab=1#sudoku-game','/guide/newspaper/#newspaper-input'])assert.equal(returnPath(good),good);
 });
 test('all existing public PDFs and real preview images have finite mapping',()=>{
  const walk=(d:string):string[]=>readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(join(d,e.name)):[join(d,e.name)]);

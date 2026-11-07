@@ -1,4 +1,4 @@
-import { printIntent } from './np01-track.ts';
+import { printIntent } from './optional-measurement.ts';
 import { MINI4_PUZZLES } from '../data/mini4.ts';
 import { track } from './track.ts';
 
