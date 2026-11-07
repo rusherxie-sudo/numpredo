@@ -1,4 +1,5 @@
 ---
+import {guideReturnScript} from '../../../client/guide-return-script.ts';
 import ExpansionLinks from '../../../components/ExpansionLinks.astro';
 import TechniqueCollection from '../../../components/TechniqueCollection.astro';
 import Base from '../../../layouts/Base.astro';
@@ -132,3 +133,5 @@ const breadcrumbSchema = {
 <ExpansionLinks group="examples" topic={t.slug} />
 <ExpansionLinks group="print" topic={t.slug} />
 </Base>
+
+<script is:inline set:html={guideReturnScript} />

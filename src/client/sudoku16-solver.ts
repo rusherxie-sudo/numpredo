@@ -1,3 +1,4 @@
+import { printIntent } from './np01-track.ts';
 const SIZE = 16;
 const CELL_COUNT = SIZE * SIZE;
 const FULL_MASK = (1 << SIZE) - 1;
@@ -163,7 +164,7 @@ if (typeof document !== 'undefined') document.querySelectorAll<HTMLElement>('[da
 
   const track = (name: string, params: Record<string, unknown> = {}) => {
     const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
-    gtag?.('event', name, params);
+    try { gtag?.('event', name, params); } catch { /* analytics is optional */ }
   };
   const setMessage = (text: string, state: '' | 'ok' | 'error' = '') => {
     if (!message) return;
@@ -278,7 +279,7 @@ if (typeof document !== 'undefined') document.querySelectorAll<HTMLElement>('[da
     currentSolution = new Uint8Array(result.solution);
     syncPrintSheet();
     track('solver16_print', { sample_id: SAMPLE_PUZZLES[activeSample]?.id ?? 'custom' });
-    window.print();
+    printIntent('solver16');
   });
 
   root.querySelector('[data-import]')?.addEventListener('click', () => {

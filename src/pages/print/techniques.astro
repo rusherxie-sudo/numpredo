@@ -155,6 +155,7 @@ const breadcrumbSchema = {
   </section>
 
   <script>
+import { printIntent } from '../../client/np01-track.ts';
     const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-drill]'));
     const cleanupPrintState = () => {
       delete document.documentElement.dataset.techniquePrint;
@@ -174,7 +175,7 @@ const breadcrumbSchema = {
           document.documentElement.dataset.techniqueAnswers = 'true';
           section.querySelector<HTMLDetailsElement>('.answer-block')?.setAttribute('open', '');
         }
-        window.print();
+        printIntent('technique');
       });
     });
     window.addEventListener('afterprint', cleanupPrintState);

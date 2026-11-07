@@ -158,6 +158,7 @@ const boards = Array.from({ length: 4 });
   </div>
 
   <script>
+import { printIntent } from '../../client/np01-track.ts';
     const sheet = document.querySelector<HTMLElement>('[data-blank-sheet]');
     const heading = document.querySelector<HTMLElement>('[data-blank-heading]');
     const titleInput = document.querySelector<HTMLInputElement>('#blank-title');
@@ -181,7 +182,7 @@ const boards = Array.from({ length: 4 });
       if (heading) heading.textContent = titleInput.value.trim();
     });
     numberedInput?.addEventListener('change', () => sheet?.classList.toggle('without-numbers', !numberedInput.checked));
-    document.querySelector('[data-blank-print]')?.addEventListener('click', () => window.print());
+    document.querySelector('[data-blank-print]')?.addEventListener('click', () => printIntent('blank'));
   </script>
 
   <style is:global>

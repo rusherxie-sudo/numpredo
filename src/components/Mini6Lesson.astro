@@ -11,7 +11,7 @@ const box=first.before.filter((_,i)=>Math.floor(i/12)===Math.floor(first.cell/12
 <section class="mini6-lesson" id="mini6-practice" data-mini6-lesson>
   <h2>6×6を1問解いてみる：問題・答え・最初の一手</h2>
   <p>1〜6を各行・列・太線の2行×3列ブロックに1回ずつ入れます。下の6問はそれぞれ答えが一つで、候補が一つのマスを順に埋めるだけで完成します。紙に写すか印刷して解き、答えは解いてから開いてください。</p>
-  <button class="mini6-print" type="button" onclick="window.print()">6問と答えを印刷・PDF保存</button>
+  <button class="mini6-print" type="button" data-mini6-print>6問と答えを印刷・PDF保存</button>
   <div class="mini6-grid">{examples.map((p,i)=><article data-mini6-puzzle={p.puzzle}>
     <h3>問題 {i+1}（ヒント{p.puzzle.replace(/\./g,'').length}個）</h3>
     <SmallNumberBoard size={6} grid={p.puzzle} label={`6×6の問題${i+1}`} highlight={i===0?first.cell:undefined}/>
@@ -51,3 +51,8 @@ const box=first.before.filter((_,i)=>Math.floor(i/12)===Math.floor(first.cell/12
     :global(.mini6-lesson .small-board td) { height:27px !important; font-size:18px !important; }
   }
 </style>
+
+<script>
+import { printIntent } from '../client/np01-track.ts';
+document.querySelectorAll('[data-mini6-print]').forEach(b=>b.addEventListener('click',()=>printIntent('mini6')));
+</script>

@@ -1,3 +1,4 @@
+import { printIntent } from './np01-track.ts';
 type Level = 'beginner' | 'intermediate' | 'advanced' | 'hard' | 'extreme';
 type SeedPuzzle = { puzzle: string; solution: string; clues: number };
 type Pools = Record<Level, SeedPuzzle[]>;
@@ -122,7 +123,7 @@ if (dataEl) {
     (event.currentTarget as HTMLButtonElement).textContent = answerVisible ? '解答を隠す' : '解答を表示';
     solutionWrap.hidden = !answerVisible;
   });
-  document.getElementById('pg-print')?.addEventListener('click', () => window.print());
+  document.getElementById('pg-print')?.addEventListener('click', () => printIntent('generator'));
   document.getElementById('pg-copy')?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(location.href);

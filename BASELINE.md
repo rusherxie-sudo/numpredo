@@ -1,5 +1,12 @@
 # numpredo：SEO 与增长基线及 30 天执行优先级
 
+## 2026-11-07：NP01 待发布与平台核验补充
+
+NP01候选仅本地实施，暂无发布后自然事件/增长数据。负责人转交的vps2只读核验：GA4 properties/539597439、Asia/Tokyo、defaultUri https://numpredo.com；host主域/www固定，已注册result/level，新参数未注册，本阶段未改平台。
+
+转交窗口标记current/previous（本轮未提供具体起止日期，不与既有日期窗混用）：current独立16683 sessions/12302 engaged/43237PV，日合计16783/12433/43237；previous独立13507/9887/27367，日合计13280/9615/27367。差异原因未查明，API200、元数据缺失阈值/采样字段不等于false，不能以HLL一般说明判定具体根因。自然流量接收、真实gtag自动字段/UTM归因及新参数报表仍待验。[完整合同与限制](docs/growth/2026-11-07-np01-measurement/README.md)。
+
+
 ## 2026-11-06：30个新URL的发布前基线
 
 新增页面发布前无自然曝光或点击基线；本轮已发布，正式站Sitemap 68→98；尚无发布后效果数据。此前只读查询窗口2026-10-06—11-02（日本Web/final），原68个Sitemap路径中61个有搜索曝光；有曝光不是当前准确收录数，7个无曝光也不代表未收录。新页面应单独按URL组衡量，不与旧页面已有流量混为新增效果。清单见[执行记录](docs/growth/2026-11-06-search-expansion/README.md)。

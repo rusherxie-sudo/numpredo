@@ -1,3 +1,4 @@
+import { printIntent } from './np01-track.ts';
 import { MINI4_PUZZLES } from '../data/mini4.ts';
 import { track } from './track.ts';
 
@@ -148,7 +149,7 @@ function setup(root: HTMLElement): void {
   });
   root.querySelector('[data-mini4-print]')?.addEventListener('click', () => {
     track('mini4_print');
-    window.print();
+    printIntent('mini4');
   });
   document.addEventListener('keydown', (event) => {
     const active = document.activeElement;

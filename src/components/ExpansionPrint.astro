@@ -28,6 +28,9 @@ const schema={'@context':'https://schema.org','@type':'LearningResource',name:pa
  </article>
 </Base>
 <script>
+import { initPdfMeasurement } from '../client/pdf-measurement.ts';
+initPdfMeasurement();
+
  import {track} from '../client/track.ts';
  document.querySelectorAll<HTMLElement>('[data-print-collection]').forEach(root=>root.querySelectorAll<HTMLAnchorElement>('[data-expansion-download]').forEach(a=>a.addEventListener('click',()=>track('print_pdf_download',{collection:root.dataset.printCollection,count:Number(root.dataset.count),format:a.dataset.expansionDownload}))));
 </script>

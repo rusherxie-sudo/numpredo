@@ -37,6 +37,9 @@ const pages=Math.ceil(pack.puzzles.length/pack.perPage);
 <PrintResourceCards exclude={slug} />
 </Base>
 <script>
+import { initPdfMeasurement } from '../client/pdf-measurement.ts';
+initPdfMeasurement();
+
 import {track} from '../client/track.ts';
 document.querySelectorAll<HTMLElement>('[data-variant-pack]').forEach(root=>{
   root.querySelectorAll<HTMLAnchorElement>('[data-pack-format]').forEach(link=>link.addEventListener('click',()=>track('print_pdf_download',{

@@ -28,7 +28,9 @@ const LV_JA: Record<string, string> = {
 // 毎日7問の既定順（先頭5問のキーは旧5問版と同じにして、既存の進捗を引き継ぐ）
 const LV_ORDER5 = ['beginner', 'intermediate', 'advanced', 'hard', 'extreme'];
 const DAILY_SIZE = 7;
-interface Saved {
+export interface Measurement { v: 1; input: 'yes'|'no'|'unknown'; hint: 'yes'|'no'|'unknown'; revision: number; generation: number; }
+export interface Saved {
+  measurement?: Measurement;
   p: string; // 题面
   s: string; // 解
   c: string; // 当前盘(81字符)
@@ -128,7 +130,7 @@ const TECH_ORDER = [
   'swordfish',
 ];
 
-function setup(root: HTMLElement): void {
+async function setup(root: HTMLElement): Promise<void> {
   root.id ||= 'sudoku-game';
   const set: PuzzlePair[] = JSON.parse(root.dataset.set ?? '[]');
   // level は保存キーの名前空間（numpredo.prog.* / numpredo.best.*）：五档 slug のほか
@@ -147,6 +149,7 @@ function setup(root: HTMLElement): void {
   // 衝突チェック・メモ自動消去・ヒント・エリア完成が全部対角線制約込みで動く。
   // killer は cage が**題面ごと**に違う → ctx は載題時に applyCages で都度再構築（let）。
   const variant = root.dataset.variant ?? '';
+  const np = !variant ? await import('./np01-game.ts').catch(()=>null) : null;
   let started = false;
   const markStarted = (): void => {
     if (started) return;
@@ -217,6 +220,12 @@ function setup(root: HTMLElement): void {
   let archiveDay = ''; // archive モードの対象日（YYYY-MM-DD）
   let dayBase = 0; // multi：対象日の先頭エントリ index（+tabIdx が実 index）
   let tabIdx = 1; // multi：難易度タブ（既定は中級。pref で復元）
+  let measurement: Measurement = {v:1,input:'no',hint:'no',revision:0,generation:0};
+  const measuredGames = new Map<string, Saved>();
+  const measureParams = () => np!.params(archive,daily,daily ? set[poolIdx]?.level ?? level : level,multi?tabIdx:undefined);
+  const learning = np?.learningLoader(()=>({hintMsg,back:resumeHref,key:activeSaveKey,save:()=>pause(),read:()=>store.get(activeSaveKey()),
+    state:()=>({done,paused,...measurement,p:puzzleGrid.join(''),c:cur.join(''),n:notes.join(','),e:elapsedBase}),
+    params:measureParams,pauseRestored:()=>pause(false)}));
   let hintUsed = false; // 本局是否用过提示（ノーヒント実績の判定素材）
   let poolIdx = 0; // 当前题在嵌入题库 set 中的下标（「別の問題」循环消费用）
   // —— 提示（三级递进）状态：hintSig 记录上次提示时的盘面签名，变了就重置到第1级，连点同盘则升级 ——
@@ -420,7 +429,7 @@ function setup(root: HTMLElement): void {
     redoStack = []; // 新規の操作が入ったら「やり直し」系譜は無効（標準的な undo/redo 意味論）
   }
   function input(d: number): void {
-    if (done || paused) return;
+    if (done || paused || !Number.isInteger(d) || d < 1 || d > 9) return;
     // 無選択 or 固定マス（given）を選択中 → 数字キーは「全盤ハイライト（数字スキャン）」として働く
     if (selected < 0 || given[selected]) {
       highlightDigit = highlightDigit === d ? 0 : d;
@@ -453,6 +462,7 @@ function setup(root: HTMLElement): void {
       }
       highlightDigit = wasToggleOff ? 0 : d; // 填入后顺带高亮该数字全盘，帮你看分布
     }
+    np?.input(measurement,!pencil && cur[selected]===d && !ctx.peers[selected].some(p=>cur[p]===d),save,measureParams,()=>learning?.input());
     checkDone();
     if (!done) checkAreaComplete(selected); // 填满一行/列/宫 → 即时反馈
     save();
@@ -505,7 +515,7 @@ function setup(root: HTMLElement): void {
   const bestKey = (): string =>
     `numpredo.best.${archive ? 'archive' : daily ? 'daily' : level}${multi && dailyLevel ? '.' + dailyLevel : ''}`;
   function checkDone(): void {
-    if (!cur.every((v, i) => v === solution[i])) return;
+    if (done || !cur.every((v, i) => v === solution[i])) return;
     done = true;
     finalTime = elapsedBase + (Date.now() - start);
     if (timer) clearInterval(timer);
@@ -516,7 +526,7 @@ function setup(root: HTMLElement): void {
     if (archive) { dailyLog(archiveDay); log5Write(archiveDay); fillDaily(); } // 遡及記入のみ、ストリークは実時間限定
     logStat();
     if (collection) save();
-    track('game_complete', { level: levelJa, daily, record: isRecord, archive, ...(multi && dailyLevel ? { daily_level: dailyLevel } : {}) });
+    track('game_complete', { level: levelJa, daily, record: isRecord, archive, ...(multi && dailyLevel ? { daily_level: dailyLevel } : {}), ...(np?.completion(measurement,measureParams()) ?? {}) });
     window.dispatchEvent(new Event('numpredo:game-complete'));
     renderResult(prev);
     showNewAchievements();
@@ -524,14 +534,14 @@ function setup(root: HTMLElement): void {
   }
 
   // —— 暂停（停表 + 遮盖盘面，防"停表盯盘"作弊）——
-  function pause(): void {
+  function pause(persist=true): void {
     if (done || paused) return;
     paused = true;
-    elapsedBase += Date.now() - start; // 当前段时长累积进 base → elapsed 即冻结
+    if(persist)elapsedBase += Date.now() - start; // 当前段时长累积进 base → elapsed 即冻结
     if (timer) { clearInterval(timer); timer = null; }
     left.classList.add('sk-paused');
     pauseBtn.setAttribute('aria-label', '再開');
-    save();
+    if(persist)save();
     render();
   }
   function resume(): void {
@@ -581,9 +591,14 @@ function setup(root: HTMLElement): void {
     }
     return { g, cand };
   }
-  function hint(): void {
+  function recordHint():void {
+    hintUsed=true;
+    if(!variant){measurement.hint='yes';save();np?.track('game_hint',measureParams());}
+  }
+  async function hint(): Promise<void> {
     if (done || paused) return;
-    hintUsed = true;
+    const before=measurement;await learning?.load();
+    if(done||paused||before!==measurement)return;
     // 盘面签名变了（落子/撤销/换题）→ 重置到第1级；连点同盘 → 逐级深入（封顶3）
     const sig = cur.join('');
     if (sig !== hintSig) { hintLevel = 1; hintSig = sig; } else hintLevel = Math.min(hintLevel + 1, 3);
@@ -596,15 +611,16 @@ function setup(root: HTMLElement): void {
       for (const i of wrong) hintWrong.add(i);
       hintMsg.innerHTML = `<b>${wrong.length}マス</b>が間違っています。まず直してみましょう。`;
       hintMsg.classList.add('on');
+      recordHint();
       render();
       return;
     }
 
     const { g, cand } = correctBoard();
     const single = findSingle(g, cand);
-    if (single) { showSingle(single); return; }
+    if (single) { showSingle(single); recordHint(); return; }
     const elim = findElimination(g);
-    if (elim) { showElimination(elim); return; }
+    if (elim) { showElimination(elim); recordHint(); return; }
 
     // ④ 兜底安全网：引擎意外找不到（本站题理论必可解）→ 揭示第一个空格
     let empty = -1;
@@ -613,6 +629,7 @@ function setup(root: HTMLElement): void {
     selected = empty;
     hintFocus.add(empty);
     setHint(`このマスは <b>${solution[empty]}</b> です（<a href="/guide/how-to-solve/">解き方ガイド</a>）。`);
+    recordHint();
     render();
   }
 
@@ -622,7 +639,7 @@ function setup(root: HTMLElement): void {
     hintMsg.classList.add('on');
   }
   function resumeHref():string {
-    const u=new URL(location.href);
+    const u=new URL(location.pathname,location.origin);
     if(collection || (!daily && !variant))u.searchParams.set('n',String(poolIdx+1));
     if(daily){if(archive)u.searchParams.set('d',archiveDay);if(multi)u.searchParams.set('tab',String(tabIdx));}
     u.hash=root.id;
@@ -639,6 +656,7 @@ function setup(root: HTMLElement): void {
     a.addEventListener('click',()=>{save();track('hint_practice_click',{technique:slug});});
     const p=document.createElement('p');p.append(a);hintMsg.append(p);
   }
+  function activeSaveKey():string { return daily ? progKey() : puzzleSaveKey(); }
   // 宫内 9 格（ナッジ段階の範囲ハイライト用）
   function boxCells(cell: number): number[] {
     const b = boxOf(cell);
@@ -732,6 +750,8 @@ function setup(root: HTMLElement): void {
     history = [];
     redoStack = [];
     hintUsed = false;
+    hintSig = ''; hintLevel = 0;
+    if(np)measurement=np.restore(restore);
     selected = -1;
     paused = false;
     highlightDigit = 0;
@@ -745,7 +765,7 @@ function setup(root: HTMLElement): void {
       elapsedBase = restore.e || 0;
       done = restore.d === 1;
       finalTime = done ? elapsedBase : 0;
-      hintUsed = restore.h === 1; // 提示使用状態も復元（ノーヒント実績の跨刷新一致性）
+      hintUsed = restore.h === 1 || measurement.hint === 'yes'; // 提示使用状態も復元（ノーヒント実績の跨刷新一致性）
     } else {
       cur = pz.slice();
       notes = new Array(81).fill(0);
@@ -766,22 +786,26 @@ function setup(root: HTMLElement): void {
     if (collection) badge.textContent = `${levelJa} No.${poolIdx + 1} / ${set.length}問`;
   }
   function restart(): void {
+    const generation = measurement.generation + 1;
     store.remove(progKey());
-    if (collection) store.remove(puzzleSaveKey());
+    if (!variant && !daily) store.remove(puzzleSaveKey());
     apply(puzzleGrid.slice(), solution.slice());
-    if (collection) save();
+    measurement.generation = generation;
+    learning?.clear();
+    if (!variant) save();
   }
   // Keep the source order stable: old puzzle numbers and daily references must not move.
   function selectPuzzle(index: number): void {
     if (!Number.isInteger(index) || index < 0 || index >= set.length) return;
-    if (collection) save(); else store.remove(progKey());
+    if (collection || !variant) save(); else store.remove(progKey());
+    learning?.clear();
     poolIdx = index;
     const nx = set[poolIdx];
     applyCages(nx.cages);
     const pz = gridFromString(nx.puzzle);
     const sol = nx.solution ? gridFromString(nx.solution) : variant === 'killer' ? null : solveOne(pz, ctx);
     if (!sol) return;
-    const saved = collection ? load() : null;
+    const saved = !variant ? load() : null;
     const restore = saved && normP(saved.p) === normP(nx.puzzle) ? saved : undefined;
     apply(pz, sol, restore);
     if (done) renderResult(Number(store.get(bestKey()) || '0'));
@@ -798,7 +822,8 @@ function setup(root: HTMLElement): void {
   function progKey(): string {
     return `numpredo.prog.${archive ? 'archive' : daily ? 'daily' : level}${multi && dailyLevel ? '.' + dailyLevel : ''}`;
   }
-  function puzzleSaveKey(): string { return `numpredo.puzzle.${level}.${poolIdx + 1}`; }
+  function puzzleSaveKey(): string { return collection ? `numpredo.puzzle.${level}.${poolIdx + 1}` : `numpredo.np01.${level}.${location.pathname}.${poolIdx + 1}`; }
+  function measureKey(): string { return daily ? `${archive ? archiveDay : jstDayStr()}:${tabIdx}` : String(poolIdx); }
   function save(): void {
     const data: Saved = {
       p: gridToStr(puzzleGrid),
@@ -809,13 +834,14 @@ function setup(root: HTMLElement): void {
       d: done ? 1 : 0,
       h: hintUsed ? 1 : 0,
     };
+    np?.persist(data,measurement,measuredGames,measureKey(),hintUsed);
     if (daily) data.day = archive ? archiveDay : jstDayStr();
     if(!variant && (started || hintUsed || notes.some(n=>n!==0) || cur.some((n,i)=>n!==puzzleGrid[i]) || done))data.recent={
       href:resumeHref(),label:daily?`${archive?archiveDay:'今日'}の数独・${set[poolIdx]?.dailyLabel??LV_JA[dailyLevel]??levelJa}`:`${levelJa} No.${poolIdx+1}`,at:Date.now()
     };
     store.set(progKey(), JSON.stringify(data)); // Legacy slot remains compatible with home/play hub.
+    if (!variant && !daily) store.set(puzzleSaveKey(), JSON.stringify(data));
     if (collection) {
-      store.set(puzzleSaveKey(), JSON.stringify(data));
       const progress = readLibraryProgress(level);
       const status = done ? 'done' : 'started';
       if (progress[poolIdx + 1] !== status) {
@@ -827,8 +853,10 @@ function setup(root: HTMLElement): void {
 
   }
   function load(legacyOnly = false): Saved | null {
+    const memory = !legacyOnly && measuredGames.get(measureKey());
+    if(memory)return memory;
     try {
-      const raw = (collection && !legacyOnly ? store.get(puzzleSaveKey()) : null) ?? store.get(progKey());
+      const raw = (!variant && !daily && !legacyOnly ? store.get(puzzleSaveKey()) : null) ?? store.get(progKey());
       if (!raw) return null;
       const o = JSON.parse(raw) as Saved;
       if (daily && o.day !== (archive ? archiveDay : jstDayStr())) return null; // 跨日/別日失效（JST 基準）
@@ -938,7 +966,9 @@ function setup(root: HTMLElement): void {
   function switchTab(i: number): void {
     if (!multi || i === tabIdx || i < 0 || i >= DAILY_SIZE || !set[dayBase + i]) return;
     if (!done) save(); // 進行中タブの盤面・タイムを保存してから切替
+    learning?.clear();
     tabIdx = i;
+    poolIdx = dayBase + i;
     store.set('numpredo.pref.dailytab', String(i));
     const t = set[dayBase + i];
     dailyLevel = t.dailyKey ?? t.level ?? LV_ORDER5[i];
@@ -1160,6 +1190,7 @@ function setup(root: HTMLElement): void {
   window.addEventListener('pagehide', () => { if (!done && !paused) save(); });
 
   // —— 初始化：定位起始题 → 恢复存档（含完成局）或开新局 ——
+  np?.validateStorage();
   if (collection) {
     // Preserve the old single-slot game even when the first visit selects a different number.
     const old = load(true);
@@ -1260,6 +1291,7 @@ function setup(root: HTMLElement): void {
     if (fsol) apply(fpz, fsol);
   }
   if (daily) fillDaily();
+  learning?.restore();
 }
 
 document.querySelectorAll<HTMLElement>('[data-sudoku]').forEach(setup);

@@ -9,6 +9,7 @@ if(root) {
   const status=get('status'),game=get('game'),result=get('result'),next=get<HTMLButtonElement>('next');
   let set:OneMoveSet,run:OneMoveRun,hint=false,history:PracticeHistory={};
   addReturnLink(get('return'));
+  void import('./learning-state.ts').then(({markLearningVisit})=>markLearningVisit()).catch(()=>{});
   get('return').addEventListener('click',()=>track('one_move_return'));
   function recommendedRun():OneMoveRun {return newRun(set,recommendIds(set,history));}
   function showHistory():void {

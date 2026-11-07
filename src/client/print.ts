@@ -1,4 +1,7 @@
-// 打印客户端：选难度+题数 → 从预生成题库随机抽样（难度保真・零等待）→ 渲染题面+答案 → window.print()。
+import { printIntent } from './np01-track.ts';
+import { initPdfMeasurement } from './pdf-measurement.ts';
+initPdfMeasurement();
+// 打印客户端：选难度+题数 → 从预生成题库随机抽样（难度保真・零等待）→ 渲染题面+答案 → printIntent('generated')。
 // 不再客户端实时生成：generateByLevel 难度命中率低（hard 实测 0/5，会把中级题标成難問印在纸上）、
 // 且 12 问要冻结主线程数秒。题库按档位动态 import（点击时才加载对应 JSON，不进首包）。
 import {
@@ -208,7 +211,7 @@ function setup(): void {
     status.textContent = '作成完了。印刷ダイアログを開きます…';
     track('print_pdf', { level, count, candidates: cand });
     track('print_generate', { level, count, candidates: cand, answers, custom_title: Boolean(customTitle) });
-    setTimeout(() => window.print(), 300);
+    setTimeout(() => printIntent('generated'), 300);
   }
 }
 
