@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync,existsSync} from 'node:fs';
 import {LESSONS} from '../src/data/expansion/lessons.ts';
-import {MODELS,localAssignments} from '../src/data/expansion/models.ts';
+import {MODELS,localAssignments,counterModel} from '../src/data/expansion/models.ts';
 import {EXAMPLES} from '../src/data/expansion/examples.ts';
 import {buildPrintSets} from '../src/data/expansion/print-sets.ts';
 import {teachingCase,explainPremise} from '../src/data/teaching-cases.ts';
@@ -13,12 +13,7 @@ assert.equal(LESSONS.length,12);assert.equal(EXAMPLES.length,8);assert.equal(pac
 const paths=[...LESSONS,...EXAMPLES,...packs].map(p=>p.path);assert.equal(new Set(paths).size,30);
 for(const [name,model] of Object.entries(MODELS)){
  assert.ok(localAssignments(model)>0,`${name}: satisfiable premises`);assert.equal(localAssignments(model,model.digit),0,`${name}: removal valid under every assignment`);
- const bad=structuredClone(model);
- if(bad.boolean)bad.exactlyOne=bad.exactlyOne?.slice(1);
- else if(name==='hidden-triple')bad.cells[3].values.push(1);
- else if(name==='hidden-quad')bad.cells[4].values.push(1);
- else if(name==='naked-quad')bad.cells[0].values.push(5);
- else if(name==='xyz-wing')bad.cells[0].values.push(4);
+ const bad=counterModel(name).model;
  assert.ok(localAssignments(bad,bad.digit)>0,`${name}: weakening a premise invalidates the claimed removal`);
 }
 for(const l of LESSONS)if(l.source)teachingCase({...l.source,heading:'',question:''});

@@ -27,3 +27,26 @@ export function localAssignments(model:LogicModel,forced?:number):number {
  }
  visit(0);return count;
 }
+
+// Counterexamples keep the rest of the stated premises and weaken one condition.
+// The target digit must become possible; check-expansion verifies this directly.
+export function counterModel(name:string):{model:LogicModel;note:string} {
+ const model=structuredClone(MODELS[name]);
+ let note='';
+ if(name==='claiming'){
+  model.cells.push({cell:7,values:[0,7]});model.exactlyOne![0].cells.push(7);
+  note='r1c8にも7があると、1行目の7は左上ブロックに限定されません。r2c3の7をこの根拠では消せません。';
+ }else if(name==='two-string-kite'){
+  model.cells.push({cell:4,values:[0,5]});model.exactlyOne![0].cells.push(4);
+  note='r1c5にも5があると、r1c2とr1c8の二択ではなくなります。r8c8の5をこの根拠では消せません。';
+ }else if(name==='hidden-triple'){
+  model.cells[3].values.push(1);note='r1c4に1を追加。1・2・3の置き場所が四マスに広がり、r1c1の4が可能になります。';
+ }else if(name==='hidden-quad'){
+  model.cells[4].values.push(1);note='r1c5に1を追加。1〜4の置き場所が五マスに広がり、r1c1の5が可能になります。';
+ }else if(name==='naked-quad'){
+  model.cells[0].values.push(5);note='r1c1に5を追加。四マスの候補が五種類になり、r1c5の1が可能になります。';
+ }else if(name==='xyz-wing'){
+  model.cells[0].values.push(4);note='軸r2c2に4を追加。軸4・翼1・翼2の場合が残り、r2c3の3が可能になります。';
+ }else throw new Error(`Unknown local model: ${name}`);
+ return {model,note};
+}

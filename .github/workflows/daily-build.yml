@@ -28,17 +28,6 @@ jobs:
         with:
           node-version: 24
 
-      - run: npm ci
-
-      - name: 日替わり題庫の余量検証
-        run: npm run check:daily
-
-      - name: 型・Astro コンポーネント検証
-        run: npm run check
-
-      - name: 引擎品质断言
-        run: npm run demo
-
       - name: 生成并安全推送日次数据（CF Pages 会自动 build + deploy）
         run: |
           git config user.name "github-actions[bot]"
@@ -48,6 +37,8 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
+            # 重取后的 main 可能已改变依赖和源码；验证即将推送的最终提交。
+            npm ci
             npm run gen:sitemap
             npm run gen:published
             git add src/data/sitemap-lastmod.json src/data/published.json
@@ -57,6 +48,8 @@ jobs:
             else
               git commit -m "chore: 每日更新日次数据（lastmod + published）"
             fi
+            candidate_sha=$(git rev-parse HEAD)
+            bash scripts/check-release-candidate.sh "$candidate_sha"
             if git push origin HEAD:main; then
               exit 0
             fi
@@ -64,3 +57,12 @@ jobs:
           done
           echo "三次安全重试后仍无法推送；保留失败以便排查，未覆盖远端提交。" >&2
           exit 1
+
+      - name: 失败诊断摘要（不是通知送达证明）
+        if: ${{ failure() }}
+        run: |
+          {
+            echo '日次更新失败；本次流程未确认供题已更新。'
+            echo "检查的本地 HEAD：$(git rev-parse HEAD)"
+            echo '请检查余量、精确 SHA 品质门和安全推送日志；外部通知未在此配置。'
+          } >> "$GITHUB_STEP_SUMMARY"

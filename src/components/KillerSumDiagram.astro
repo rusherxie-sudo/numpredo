@@ -1,0 +1,37 @@
+<section class="killer-sum" aria-labelledby="killer-sum-title">
+  <h2 id="killer-sum-title">図で確認：行の内側と外側の引き算</h2>
+  <figure>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 190" role="img" aria-label="一行の八マスを合計10・14・15の三ケージが覆い、残り一マスが6になる図">
+      <title>内側の一マス：45−（10＋14＋15）＝6</title>
+      <text x="12" y="22" fill="var(--ink)" font-size="17">一行の合計は45</text>
+      <rect x="12" y="48" width="112" height="54" rx="5" fill="var(--surface-2)" stroke="var(--ink-3)" stroke-dasharray="5 3"/>
+      <rect x="128" y="48" width="168" height="54" rx="5" fill="var(--accent-tint)" stroke="var(--ink-3)" stroke-dasharray="5 3"/>
+      <rect x="300" y="48" width="168" height="54" rx="5" fill="var(--surface-2)" stroke="var(--ink-3)" stroke-dasharray="5 3"/>
+      <rect x="472" y="48" width="56" height="54" rx="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="3"/>
+      {[68,184,240,356,412].map(x=><path d={`M${x},48v54`} stroke="var(--line-2)"/>)}
+      <text x="68" y="81" text-anchor="middle" fill="var(--ink)" font-size="20">合計10</text>
+      <text x="212" y="81" text-anchor="middle" fill="var(--ink)" font-size="20">合計14</text>
+      <text x="384" y="81" text-anchor="middle" fill="var(--ink)" font-size="20">合計15</text>
+      <text x="500" y="82" text-anchor="middle" fill="var(--accent)" font-size="26">6</text>
+      <text x="12" y="139" fill="var(--ink)" font-size="18">8マス：10＋14＋15＝39</text>
+      <text x="12" y="170" fill="var(--accent)" font-size="20">残る1マス：45−39＝6</text>
+    </svg>
+    <figcaption>点線がケージの境界です。三つのケージは重複せず、すべてこの行の中に収まります。一般のキラー数独の一問を切り取った盤面ではなく、範囲と計算を示す局所例です。</figcaption>
+  </figure>
+  <figure>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 170" role="img" aria-label="一行全体の合計45と外側一マスを合わせたケージ集合が52なら、外側は7になる図">
+      <title>外側の一マス：52−45＝7</title>
+      <rect x="12" y="16" width="516" height="93" rx="8" fill="none" stroke="var(--ink-3)" stroke-dasharray="6 4" stroke-width="2"/>
+      <rect x="24" y="40" width="420" height="54" fill="var(--surface-2)" stroke="var(--line-2)"/>
+      <rect x="460" y="40" width="54" height="54" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="3"/>
+      <text x="26" y="32" fill="var(--ink-3)" font-size="14">選んだケージ集合の合計52</text>
+      <text x="234" y="74" text-anchor="middle" fill="var(--ink)" font-size="20">一行の9マス全部＝45</text>
+      <text x="487" y="75" text-anchor="middle" fill="var(--accent)" font-size="26">7</text>
+      <text x="24" y="145" fill="var(--accent)" font-size="20">行の外側が1マスだけなら：52−45＝7</text>
+    </svg>
+    <figcaption>箱の幅や横並びは集合の関係を表す模式図で、実際のマスの隣接関係を示しません。外側が二マスなら、差の7は二マスの合計です。</figcaption>
+  </figure>
+</section>
+<style>
+.killer-sum{margin:32px 0;}h2{font-size:23px;line-height:1.6;}figure{margin:24px 0;padding:14px;border:1px solid var(--line);border-radius:8px;}svg{display:block;width:100%;height:auto;}figcaption{font-size:13px;line-height:1.85;color:var(--ink-3);margin-top:12px;}
+</style>

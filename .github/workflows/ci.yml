@@ -16,9 +16,5 @@ jobs:
         with:
           node-version: 24 # demo.ts 用 node 原生跑 .ts(type stripping),需 Node 23+
       - run: npm ci
-      - name: Astro 模板与 TypeScript 类型检查
-        run: npm run check
-      - name: 引擎品质断言（三断言 + 题库全量复核 + 技巧链键完备）
-        run: npm run demo
-      - name: 验证 SSG 构建（含构建期 SVG / 题库读取）
-        run: npm run build
+      - name: 验证精确候选 SHA（余量、类型、引擎、测量合同、完整构建）
+        run: bash scripts/check-release-candidate.sh "$GITHUB_SHA"

@@ -1,14 +1,21 @@
 ---
-import {MODELS} from '../data/expansion/models.ts';
-const {name}=Astro.props;const model=MODELS[name];
+import {MODELS,counterModel} from '../data/expansion/models.ts';
+import {modelDiagram} from '../data/expansion/model-diagrams.ts';
+interface Props {name:string;}
+const {name}=Astro.props,model=MODELS[name],counter=counterModel(name);
+const before=modelDiagram(model,'成立する候補配置');
+const after=modelDiagram(model,'条件から候補を消した結果',true);
+const invalid=modelDiagram(counter.model,'条件を一つ変えると同じ消去はできない');
 ---
-<figure class="logic-model">
-  <table aria-label="手筋の成立条件を示す局所的な候補図">
-    <thead><tr><th></th>{Array.from({length:9},(_,c)=><th scope="col">{c+1}</th>)}</tr></thead>
-    <tbody>{Array.from({length:9},(_,r)=><tr><th scope="row">{r+1}</th>{Array.from({length:9},(_,c)=>{const i=r*9+c,item=model.cells.find(v=>v.cell===i);return <td class:list={{target:i===model.target,marked:!!item}}>{item?item.values.filter(Boolean).join('・'):<span aria-label="省略">—</span>}</td>;})}</tr>)}</tbody>
-  </table>
-  <figcaption>{model.caption} 太枠が回答対象。これは手筋の条件を分離した説明図で、完成させる81マスの問題ではありません。</figcaption>
-</figure>
+<div class="logic-model" data-logic-model={name}>
+  <p class="legend">上の数字は列、左の数字は行です。緑の太枠は調べるマス。「—」は省略した部分で、空きマスではありません。{model.boolean&&<>「{model.digit}？」はその数字の候補位置だけを示し、ほかの候補は省略しています。</>}</p>
+  <div class="model-pair">
+    <figure><h3>① 成立条件を確認</h3><Fragment set:html={before}/><figcaption>{model.caption}</figcaption></figure>
+    <figure><h3>② この候補を消せる</h3><Fragment set:html={after}/><figcaption>太枠の{model.digit}を除外できます。{model.boolean?'ほかの数字は省略しているため、この図だけでは確定数字は決まりません。':'赤い斜線の候補だけを消し、ほかの候補は残します。'}</figcaption></figure>
+  </div>
+  <details class="model-counter"><summary>③ 条件を変えた反例も比べる</summary><figure><Fragment set:html={invalid}/><figcaption>{counter.note}</figcaption></figure><p>反例では太枠の数字を置ける局所的な割り当てが存在します。別の根拠による消去まで否定するものではありません。</p></details>
+  <p class="model-note">手筋の条件を分離した説明図です。完成させる81マスの問題ではありません。</p>
+</div>
 <style>
-.logic-model {margin:20px auto;max-width:560px;}table{table-layout:fixed;width:100%;border-collapse:collapse;font-size:clamp(9px,2.7vw,14px);}td,th{text-align:center;padding:5px 0;border:1px solid var(--line);height:36px;overflow-wrap:anywhere;}th{color:var(--ink-3);width:20px;}td:nth-child(4),td:nth-child(7){border-right:2px solid var(--ink);}tr:nth-child(3) td,tr:nth-child(6) td{border-bottom:2px solid var(--ink);}td span{color:var(--ink-3);}td.marked{background:var(--surface-2);}td.target{outline:3px solid var(--accent);outline-offset:-3px;}figcaption{font-size:13px;line-height:1.8;margin-top:12px;}
+.logic-model{margin:24px 0;} .model-pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;} figure{margin:0;min-width:0;}h3{font-size:17px;line-height:1.6;margin:0 0 10px;} .logic-model :global(svg){display:block;width:100%;height:auto;} figcaption,.legend,.model-note{font-size:13px;line-height:1.85;color:var(--ink-3);}figcaption{margin-top:10px;}.model-counter{margin:20px 0;padding:16px;border:1px solid var(--line);border-radius:8px;}.model-counter figure{max-width:480px;margin:18px auto;}summary{cursor:pointer;color:var(--accent);font-weight:600;}.model-note{border-left:3px solid var(--accent);padding-left:12px;}@media(max-width:700px){.model-pair{grid-template-columns:1fr;gap:24px;}}
 </style>

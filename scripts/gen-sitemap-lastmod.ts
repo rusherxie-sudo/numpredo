@@ -53,7 +53,7 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
-  ...Object.fromEntries(LESSONS.map(l=>[`${l.path.slice(1,-1)}.astro`,['src/data/expansion/lessons.ts','src/data/expansion/models.ts','src/components/ExpansionLesson.astro','src/components/EditorialNote.astro','src/components/LogicModel.astro']])),
+  ...Object.fromEntries(LESSONS.map(l=>[`${l.path.slice(1,-1)}.astro`,['src/data/expansion/lessons.ts','src/data/expansion/lesson-depth.ts','src/data/expansion/model-diagrams.ts','src/components/KillerSumDiagram.astro','src/data/expansion/models.ts','src/components/ExpansionLesson.astro','src/components/EditorialNote.astro','src/components/LogicModel.astro']])),
   ...Object.fromEntries(EXAMPLES.map(e=>[`${e.path.slice(1,-1)}.astro`,['src/data/expansion/examples.ts','src/data/expansion/selections.json','src/components/ExpansionExample.astro','src/components/EditorialNote.astro','src/data/teaching-cases.ts',`src/data/puzzles/${e.spec.level}.json`]])),
   ...Object.fromEntries(manifest.packs.map(p=>[`${p.path.slice(1,-1)}.astro`,['src/data/expansion/print-sets.ts','src/data/expansion/selections.json','src/components/ExpansionPrint.astro','scripts/gen-expansion-pdfs.py',`public/downloads/collections/${p.slug}-questions.pdf`,`public/downloads/collections/${p.slug}-answers.pdf`]])),
   'practice.astro': ['src/components/OneMovePractice.astro','src/client/one-move.ts','src/client/one-move-state.ts','src/client/practice-history.ts','src/data/one-move.ts','src/data/technique-drills.ts','src/data/teaching-cases.ts','scripts/gen-one-move.ts'],
