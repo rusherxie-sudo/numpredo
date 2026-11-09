@@ -201,8 +201,8 @@ const footerCols = [
       function cleanAnalyticsURL(value) { try { const u = new URL(value); return /^https?:$/.test(u.protocol) ? u.origin + u.pathname : ''; } catch { return ''; } }
       gtag('config', 'G-CM79TWN2J0', { page_location: cleanAnalyticsURL(analyticsURL.href), page_referrer: cleanAnalyticsURL(document.referrer) });
       (function() {
-        // URL query/hash may contain a pasted grid or a custom print title.
-        // Skip automatic measurement entirely on those pages, including enhanced events.
+        // URL 查询参数或片段可能包含粘贴的盘面或自定义打印标题。
+        // 此类页面不加载自动统计脚本，包括可能读取网址的增强事件。
         function sensitiveAnalyticsPage() { return !!(location.search || location.hash); }
         if (sensitiveAnalyticsPage()) return;
         var loaded = false;
@@ -231,7 +231,7 @@ const footerCols = [
       (function() {
         function sensitiveBaiduPage() {
           if (location.search || location.hash) return true;
-          // Baidu reads the native referrer; do not expose a previous input URL.
+          // 百度会读取原始来源网址；来源带输入参数时不加载，避免暴露上一页输入。
           try { var ref = new URL(document.referrer); return !!(ref.search || ref.hash); }
           catch { return false; }
         }
