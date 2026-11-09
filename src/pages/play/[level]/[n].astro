@@ -78,7 +78,7 @@ const h1 = `数独${meta.ja} No.${n}｜一手ずつ図解で解き方`;
 const faqStuck = [
   `まず全空きマスに候補をメモしましょう。それでも詰まったら、このページの「一手ずつ図解」で${hardestInfo.ja}の使いどころを確認してください。`,
   `候補のメモを最新の状態に整えるのが先決です。行き詰まったら、図解の該当手順まで進めて、${hardestInfo.ja}をどこで使うかを見比べてみてください。`,
-  `詰まったときは、消せる候補の見落としがないかを疑いましょう。このページの図解で、${hardestInfo.ja}が登場する場面を確認するのが近道です。`,
+  `詰まったときは、消せる候補の見落としがないかを疑いましょう。このページの図解で、${hardestInfo.ja}が登場する場面と、自分の候補メモを見比べてください。`,
 ];
 const faqStuckLink = hardestInfo.slug
   ? `くわしくは<a href="/guide/techniques/${hardestInfo.slug}/">${hardestInfo.ja}の解き方</a>へ。`
@@ -165,7 +165,7 @@ const breadcrumbSchema = {
 
   <h2>つまずいたら</h2>
   <p set:html={hardestInfo.slug
-    ? `この問題の山場は<a href="/guide/techniques/${hardestInfo.slug}/">${hardestInfo.ja}</a>です。使い方をくわしく確認してから戻ると、自力で解けるようになります。全体の手順は<a href="/guide/how-to-solve/">解き方完全ガイド</a>に。`
+    ? `この問題の山場は<a href="/guide/techniques/${hardestInfo.slug}/">${hardestInfo.ja}</a>です。使う条件と消去できる候補を確認し、自分の盤面でも探してみてください。全体の手順は<a href="/guide/how-to-solve/">解き方完全ガイド</a>に。`
     : `${meta.ja}は<a href="/guide/beginner/">単数の見つけ方</a>だけで解けます。手順全体は<a href="/guide/how-to-solve/">解き方完全ガイド</a>へ。`} />
 
   <ShareBar url={url} title={title} cta="この図解が役に立ったらシェア" />
