@@ -148,6 +148,7 @@ const footerCols = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="referrer" content="origin" />
     <!-- 防闪：本文渲染前に data-theme を確定（localStorage 優先、無ければ OS 設定） -->
     <script is:inline>
       (function () {
@@ -200,10 +201,14 @@ const footerCols = [
       function cleanAnalyticsURL(value) { try { const u = new URL(value); return /^https?:$/.test(u.protocol) ? u.origin + u.pathname : ''; } catch { return ''; } }
       gtag('config', 'G-CM79TWN2J0', { page_location: cleanAnalyticsURL(analyticsURL.href), page_referrer: cleanAnalyticsURL(document.referrer) });
       (function() {
+        // URL query/hash may contain a pasted grid or a custom print title.
+        // Skip automatic measurement entirely on those pages, including enhanced events.
+        function sensitiveAnalyticsPage() { return !!(location.search || location.hash); }
+        if (sensitiveAnalyticsPage()) return;
         var loaded = false;
         var events = ['pointerdown', 'keydown', 'touchstart', 'scroll'];
         function loadAnalytics() {
-          if (loaded) return;
+          if (loaded || sensitiveAnalyticsPage()) return;
           loaded = true;
           events.forEach(function (name) {
             window.removeEventListener(name, loadAnalytics);
@@ -225,7 +230,10 @@ const footerCols = [
       window._hmt = window._hmt || [];
       (function() {
         function sensitiveBaiduPage() {
-          return /^(?:\/(?:play|daily|tools|print|practice|variants|guide)(?:\/|$)|\/$)/.test(location.pathname) && !!(location.search || location.hash);
+          if (location.search || location.hash) return true;
+          // Baidu reads the native referrer; do not expose a previous input URL.
+          try { var ref = new URL(document.referrer); return !!(ref.search || ref.hash); }
+          catch { return false; }
         }
         if (sensitiveBaiduPage()) return;
         var loaded = false;
