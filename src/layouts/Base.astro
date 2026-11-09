@@ -199,7 +199,7 @@ const footerCols = [
       gtag('js', new Date());
       const analyticsURL = new URL(location.href);
       function cleanAnalyticsURL(value) { try { const u = new URL(value); return /^https?:$/.test(u.protocol) ? u.origin + u.pathname : ''; } catch { return ''; } }
-      gtag('config', 'G-CM79TWN2J0', { page_location: cleanAnalyticsURL(analyticsURL.href), page_referrer: cleanAnalyticsURL(document.referrer) });
+      gtag('config', 'G-CM79TWN2J0', { page_location: cleanAnalyticsURL(analyticsURL.href), page_referrer: cleanAnalyticsURL(document.referrer), allow_google_signals: false, allow_ad_personalization_signals: false });
       (function() {
         // URL 查询参数或片段可能包含粘贴的盘面或自定义打印标题。
         // 此类页面不加载自动统计脚本，包括可能读取网址的增强事件。
