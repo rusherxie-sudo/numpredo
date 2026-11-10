@@ -21,6 +21,15 @@ test('every PDF-bearing output has shared observation; all PDF and preview mappi
  }
  console.log(JSON.stringify({pdfPages:pages,pdfLinks:links,previewElements:images}));assert(pages>0&&links>0&&images>0);
 });
+// 源码、静态资源与最终产物都不能重新引入已移除的百度统计。
+test('production sources and shipped output contain no Baidu analytics',()=>{
+ const forbidden= /hm\.baidu\.com|_hmt\b|loadBaiduAnalytics|sensitiveBaiduPage|百度統計|百度统计/i;
+ let checked=0;
+ for(const root of ['src','public','dist'])for(const f of walk(root).filter(x=>/\.(?:astro|[cm]?js|ts|html|css|json|txt|xml|svg|webmanifest)$/.test(x))){
+  assert(!forbidden.test(readFileSync(f,'utf8')),f+' must not ship Baidu analytics');checked++;
+ }
+ assert(checked>0);console.log(JSON.stringify({baiduFreeFiles:checked}));
+});
 test('all initial script graphs remain within unchanged 64 KiB budget',()=>{
  let max=0;for(const f of walk('dist').filter(x=>x.endsWith('.html'))){const bytes=graph(readFileSync(f,'utf8')).reduce((n,x)=>n+statSync(x).size,0);max=Math.max(max,bytes);assert(bytes<=65536,'original initial script budget');}
  console.log(JSON.stringify({maximumInitialBytes:max,limit:65536}));
