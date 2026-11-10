@@ -211,6 +211,11 @@ const setJson = JSON.stringify(set);
     .sk-cbtn { flex: 1 1 0; min-width: 0; flex-direction: column; gap: 4px; padding: 9px 0; font-size: 10px; }
     .sk-ci { width: 21px; height: 21px; }
   }
+  /* 窄屏用两行数字键保留可按宽度，避免九列最小宽度撑开页面。 */
+  @media (max-width: 380px) {
+    .sk-layout { grid-template-columns: minmax(0, 1fr); }
+    .sk-pad { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  }
   /* プレイ中は浮动シェアを隠す（PC・モバイル両方）：盤面・キーボード操作を邪魔しない */
   .fsh { display: none; }
 </style>
