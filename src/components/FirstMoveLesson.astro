@@ -1,0 +1,43 @@
+---
+import {firstMove as lesson} from '../data/first-move.ts';
+const digits = Array.from({length:9},(_,i)=>i+1);
+---
+<section id="first-move-lesson" class="first-move" aria-labelledby="first-move-title" data-first-move data-answer={lesson.answer} data-rejections={JSON.stringify(lesson.rejection)}>
+  <h2 id="first-move-title">まずは1マス、理由を考えてみる</h2>
+  <p>初級No.{lesson.number}の最初の盤面です。<strong>上から{lesson.row+1}行目、左から{lesson.column+1}列目の「？」</strong>に入る数字を選んでください。同じ行・列・3×3ブロックにある数字は使えません。</p>
+  <div class="fm-layout">
+    <table class="fm-board" aria-label="初級の例題。行と列の番号は盤面の外側に表示しています">
+      <caption>色のついたマスを見比べて、「？」の候補をしぼります。</caption>
+      <thead><tr><th scope="col"><span class="fm-axis">行/列</span></th>{digits.map(d=><th scope="col">{d}</th>)}</tr></thead>
+      <tbody>{digits.map(r=><tr><th scope="row">{r}</th>{digits.map(c=>{const i=(r-1)*9+c-1;return <td class:list={{'fm-peer':lesson.peers.includes(i),'fm-target':i===lesson.target,'fm-right':c%3===0,'fm-bottom':r%3===0}} data-first-target={i===lesson.target || undefined}>{i===lesson.target?'？':lesson.grid[i]||''}</td>})}</tr>)}</tbody>
+    </table>
+    <div class="fm-work">
+      <div data-first-controls hidden>
+        <p id="first-choice-label">「？」に入る数字は？</p>
+        <div class="fm-choices" role="group" aria-labelledby="first-choice-label">{digits.map(d=><button type="button" data-first-digit={d} aria-pressed="false">{d}</button>)}</div>
+        <p class="fm-feedback" data-first-feedback role="status" aria-live="polite" aria-atomic="true"></p>
+        <button type="button" data-first-reset>もう一度考える</button>
+      </div>
+      <details data-first-reason>
+        <summary>答えと、数字をしぼる理由を見る</summary>
+        <ol>
+          <li>同じ行にある数字：{lesson.units.row.join('・')}。</li>
+          <li>同じ列にある数字：{lesson.units.column.join('・')}。</li>
+          <li>同じ3×3ブロックにある数字：{lesson.units.block.join('・')}。</li>
+        </ol>
+        <p>1〜9からこれらを除くと、残るのは<strong>{lesson.answer}だけ</strong>です。「？」に{lesson.answer}を入れられます。このように1マスの候補が一つになる形を「裸の単数」と呼びます。</p>
+        <p>数字の位置は、この例題の盤面から計算しています。空きマスの多さにかかわらず、まず候補を一つずつ確認してみましょう。</p>
+      </details>
+      <noscript><p>数字を選ぶ機能にはJavaScriptが必要です。上の「答えと、数字をしぼる理由を見る」はそのまま読めます。</p></noscript>
+      <p class="fm-next"><a href="/practice/?tech=naked-single">同じ手筋を5問練習する →</a><br/><a href={lesson.origin}>この例題の続きを最初から解く →</a></p>
+    </div>
+  </div>
+</section>
+<script>import '../client/first-move.ts';</script>
+<style>
+.first-move{scroll-margin-top:88px;margin:24px 0 40px;padding:24px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface)}
+.first-move h2{margin-top:0}.fm-layout{display:grid;grid-template-columns:minmax(240px,330px) minmax(0,1fr);gap:28px;align-items:start}
+.fm-board{border-collapse:collapse;width:100%;table-layout:fixed;font-variant-numeric:tabular-nums}.fm-board caption{font-size:var(--text-sm);text-align:left;margin-bottom:12px}.fm-board th{font-size:12px;font-weight:500;color:var(--ink-3);padding:3px 0;background:transparent;border:0}.fm-axis{font-size:9px}.fm-board td{height:31px;text-align:center;padding:0;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font-weight:600}.fm-board td.fm-peer{background:var(--accent-tint)}.fm-board td.fm-target{outline:3px solid var(--accent);outline-offset:-3px;font-weight:800;color:var(--accent-ink)}.fm-board td.fm-right{border-right:2px solid var(--ink-3)}.fm-board td.fm-bottom{border-bottom:2px solid var(--ink-3)}
+.fm-choices{display:grid;grid-template-columns:repeat(5,minmax(40px,1fr));gap:8px;max-width:350px}.fm-work button{min-height:44px;border:1px solid var(--line-2);border-radius:var(--radius);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit}.fm-work button:hover,.fm-work button[aria-pressed=true]{background:var(--accent-tint);border-color:var(--accent)}.fm-work button:focus-visible,.fm-work summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.fm-feedback{min-height:3em;font-size:var(--text-sm)}.fm-work details{margin:18px 0}.fm-work summary{cursor:pointer;font-weight:600}.fm-work details li{margin-bottom:8px}.fm-next{line-height:2}
+@media(max-width:650px){.first-move{padding:16px}.fm-layout{grid-template-columns:minmax(0,1fr);gap:14px}.fm-board{max-width:330px;margin:auto}.fm-board td{height:29px}}
+</style>

@@ -1,6 +1,7 @@
 ---
 import FeaturedExamples from '../components/FeaturedExamples.astro';
 import ContinuePlaying from '../components/ContinuePlaying.astro';
+import FirstMoveLesson from '../components/FirstMoveLesson.astro';
 import Base from '../layouts/Base.astro';
 import beginner from '../data/puzzles/beginner.json';
 import SudokuGame from '../components/SudokuGame.astro';
@@ -76,17 +77,29 @@ const homeFaqSchema = {
     <div class="hp-hero-l">
       <span class="hp-badge">登録不要・完全無料</span>
       <h1 class="hp-h1">数独無料ゲームを、<br />毎日。</h1>
-      <p class="hp-lead">ブラウザでそのまま遊べる数独。初級から超難問まで全{totalPuzzles.toLocaleString('ja-JP')}題を用意しています。どの問題も解が一つで、論理だけで最後まで解けることを確認しています。毎日の問題、図解ガイド、自動で答え合わせできるソルバーも無料です。</p>
-      <div class="hp-cta">
-        <a href="#home-game" class="hp-btn hp-btn-p">初級をはじめる</a>
-        <a href="/daily/" class="hp-btn hp-btn-s">日替わりナンプレ・今日の数独 →</a>
-        <a href="/print/" class="hp-btn hp-btn-s">無料問題集を印刷 →</a>
-      </div>
-      <div class="hp-difflinks">またはレベルを選ぶ：<a href="/play/beginner/">初級の無料ナンプレ</a><a href="/play/intermediate/">中級の無料ナンプレ</a><a href="/play/advanced/">上級</a><a href="/play/hard/">難問</a><a href="/play/extreme/">超難問</a></div>
-      <div class="hp-meta"><span>全{totalPuzzles.toLocaleString('ja-JP')}題を検証</span><span class="hp-dot">·</span><span>毎日更新</span><span class="hp-dot">·</span><span>登録不要</span></div>
+      <p class="hp-lead">ブラウザで遊べる数独・ナンプレです。初級から超難問まで、標準9×9を全{standardLabel}問。はじめてなら一手の見つけ方を確かめてから、このページの初級問題に挑戦できます。</p>
+      <nav class="hp-start" aria-label="はじめての方の入口">
+        <ul>
+          <li>
+            <a href="#home-game" class="hp-start-play">画面で解く →</a>
+            <p>初級を1問。候補メモとヒントを使いながら、途中で休んでも続きから。</p>
+          </li>
+          <li>
+            <a href="#first-move-lesson">最初の一手を学ぶ →</a>
+            <p>どこに数字を入れる？　実際の盤面で、入る理由を確かめます。</p>
+          </li>
+          <li>
+            <a href="/print/beginner/#pdf-download-title">紙で解く・初級12問PDF →</a>
+            <p>鉛筆で書き込みたい方へ。答え付きの問題集を保存して印刷できます。</p>
+          </li>
+        </ul>
+      </nav>
+      <p class="hp-return-links">毎日の一問には<a href="/daily/">今日の日替わり7問</a>。難しさを選ぶなら<a href="/play/">5段階の問題一覧</a>へ。</p>
+      <p class="hp-evidence">問題を選ぶ前に：<a href="/research/puzzle-analysis/">全{standardLabel}問の分析データ</a>・<a href="/about/#editorial-policy">品質検証と編集方針</a></p>
     </div>
   </section>
   <ContinuePlaying />
+  <FirstMoveLesson />
   <section id="home-game" aria-labelledby="home-game-title">
     <h2 id="home-game-title">このページで初級ナンプレを始める</h2>
     <p>空きマスを選んで数字を入力。候補メモ・元に戻す・ヒント付きで、途中経過はこのブラウザに保存します。「別の問題」で初級12問から切り替えられます。</p>
@@ -178,7 +191,22 @@ const homeFaqSchema = {
     .hp-hero { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: center; padding: 32px 0 44px; }
     .hp-badge { display: inline-flex; align-items: center; gap: 8px; font-size: var(--text-sm); font-weight: 700; color: var(--accent); background: var(--accent-tint); border-radius: 7px; padding: 6px 12px; margin-bottom: 22px; }
     .hp-h1 { font-weight: 700; font-size: clamp(34px, 4.6vw, 52px); line-height: 1.2; letter-spacing: -.02em; margin: 0 0 20px; word-break: keep-all; line-break: strict; }
-    .hp-lead { font-size: var(--text-md); line-height: 1.9; color: var(--ink-3); max-width: 470px; margin: 0 0 30px; }
+    .hp-lead { font-size: var(--text-md); line-height: 1.9; color: var(--ink-3); max-width: 680px; margin: 0 0 24px; }
+    .hp-start { max-width: 760px; }
+    .hp-start ul { list-style: none; padding: 0; margin: 0; }
+    .hp-start li { display: flex; align-items: baseline; gap: 20px; padding: 14px 0; border-top: 1px solid var(--line); }
+    .hp-start li:last-child { border-bottom: 1px solid var(--line); }
+    .hp-start a { flex: 0 0 230px; font-weight: 700; color: var(--accent); text-underline-offset: 4px; }
+    .hp-start .hp-start-play { color: var(--ink); }
+    .hp-start p { margin: 0; font-size: var(--text-sm); line-height: 1.8; color: var(--ink-3); }
+    .hp-return-links, .hp-evidence { font-size: var(--text-sm); line-height: 1.9; color: var(--ink-3); }
+    .hp-return-links { margin: 18px 0 8px; }
+    .hp-evidence { margin: 0; }
+    .hp-return-links a, .hp-evidence a { color: var(--accent); text-underline-offset: 3px; }
+    @media (max-width: 640px) {
+      .hp-start li { display: block; }
+      .hp-start p { margin-top: 5px; }
+    }
     .hp-cta { display: flex; align-items: center; gap: 13px; margin-bottom: 26px; flex-wrap: wrap; }
     .hp-btn { font-size: var(--text-md); font-weight: 700; padding: 14px 26px; border-radius: var(--radius); text-decoration: none; transition: all .15s; }
     .hp-btn-p { background: var(--accent); color: var(--accent-on); }
