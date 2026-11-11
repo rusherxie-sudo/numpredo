@@ -6,7 +6,7 @@ import TeachingCase from '../../components/TeachingCase.astro';
 import ParentLesson from '../../components/ParentLesson.astro';
 import NewspaperInput from '../../components/NewspaperInput.astro';
 import SolverInputExample from '../../components/SolverInputExample.astro';
-import { guideCases } from '../../data/teaching-cases.ts';
+import { guideCases, techniqueCases } from '../../data/teaching-cases.ts';
 import { GUIDES, type GuideArticle } from '../../data/guides.ts';
 import { TECHNIQUES } from '../../data/techniques.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
@@ -91,6 +91,20 @@ const techniqueListSchema = g.slug === 'tips' ? {
   <EditorialNote verification={g.verification ?? '本文のルール、候補消去、内部リンクを公開前に確認しています。掲載している問題は独自エンジンで唯一解と論理解法を検証しています。'} />
 
   {guideCases[g.slug] && g.slug !== 'tips' && <TeachingCase spec={guideCases[g.slug]} />}
+  {g.slug === 'advanced' && (
+    <>
+      <section class="worked-more">
+        <h2>実戦例：上級の一手を実際の盤面で確かめる</h2>
+        <p>手筋は名前を覚えるだけでは使えません。どのマスを見て、どの候補を消すのかを実際の途中盤面で確かめると、次の一手を自分で見つけやすくなります。以下は当サイトの上級問題と超難問から、解き進めた途中の盤面を切り出した例です。まずは自分で考え、答えを開いて根拠と消去先を確認してください。</p>
+        <ul>
+          <li><a href="/print/practice-naked-pair/">ペア（二国同盟）の一手練習</a>：同じ2候補だけを持つ2マスを探す練習</li>
+          <li><a href="/print/practice-x-wing/">X-Wingの一手練習</a>：2行2列の長方形に候補がそろう形を探す練習</li>
+        </ul>
+      </section>
+      <TeachingCase spec={techniqueCases['naked-pair']} />
+      <TeachingCase spec={techniqueCases['x-wing']} />
+    </>
+  )}
   {g.slug === 'for-kids' && <ParentLesson />}
   {g.slug === 'newspaper' && <NewspaperInput />}
   {g.slug === 'newspaper' && <SolverInputExample mode="newspaper" />}
