@@ -1,8 +1,8 @@
 ---
 import { teachingCase, levelNames, rc, type CaseSpec } from '../data/teaching-cases.ts';
 import { bit, renderBoardSvg } from '../engine/index.ts';
-interface Props { spec: CaseSpec; }
-const { spec } = Astro.props;
+interface Props { spec: CaseSpec; anchorId?: string; }
+const { spec, anchorId = 'worked-example' } = Astro.props;
 const c = teachingCase(spec);
 const given = c.initial.map(Boolean);
 const base = { given, cell: 42, cellHighlights: c.premise.cells.map(cell=>({cell})) };
@@ -11,7 +11,7 @@ const afterSvg = renderBoardSvg(c.after.grid, { ...base, candidates: c.after.can
 const marks = c.premise.cells.flatMap(cell=>c.premise.digits.filter(d=>c.before.candidates[cell]&bit(d)).map(digit=>({cell,digit,type:'highlight' as const})));
 const proofSvg = renderBoardSvg(c.before.grid, { ...base, candidates: c.before.candidates, candidateMarks:[...marks,...(c.step.eliminations??[]).map(([cell,digit])=>({cell,digit,type:'eliminate' as const}))],title:`${c.name}の根拠と消去先`,desc:c.premise.text });
 ---
-<section class="teaching-case" id="worked-example" data-teaching-case data-level={spec.level} data-number={spec.number} data-technique={spec.technique} data-step={c.stepNumber}>
+<section class="teaching-case" id={anchorId} data-teaching-case data-level={spec.level} data-number={spec.number} data-technique={spec.technique} data-step={c.stepNumber}>
   <h2>{spec.heading}</h2>
   <p>{spec.question}</p>
   <p class="case-source">{levelNames[spec.level]} No.{spec.number}の{c.stepNumber===1?'最初の一手':`${c.stepNumber}手目の直前`}です。{c.stepNumber>1&&<>それまでの確定・候補消去を反映した途中盤面です。</>} rは上から1〜9行、cは左から1〜9列。色の付いたマス：{c.premise.cells.map(rc).join('・')}。</p>

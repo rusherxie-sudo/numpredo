@@ -101,11 +101,10 @@ const techniqueListSchema = g.slug === 'tips' ? {
           <li><a href="/print/practice-x-wing/">X-Wingの一手練習</a>：2行2列の長方形に候補がそろう形を探す練習</li>
         </ul>
       </section>
-      <TeachingCase spec={techniqueCases['naked-pair']} />
-      <TeachingCase spec={techniqueCases['x-wing']} />
+      <TeachingCase spec={techniqueCases['naked-pair']} anchorId="worked-example-naked-pair" />
+      <TeachingCase spec={techniqueCases['x-wing']} anchorId="worked-example-x-wing" />
     </>
   )}
-  {g.slug === 'for-kids' && <ParentLesson />}
   {g.slug === 'newspaper' && <NewspaperInput />}
   {g.slug === 'newspaper' && <SolverInputExample mode="newspaper" />}
   {g.slug === 'sudoku-algorithm' && <SolverInputExample mode="algorithm" />}
