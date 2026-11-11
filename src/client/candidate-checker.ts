@@ -1,4 +1,5 @@
-import { PEERS, boxOf, colOf, computeCandidates, digitsOf, logicalSolve, popcount, rowOf, TECH_INFO } from '../engine/index.ts';
+import { PEERS, boxOf, colOf, digitsOf, popcount, rowOf, TECH_INFO } from '../engine/index.ts';
+import { createCandidateProgress, replayCandidateProgress, editCandidateProgress, candidateRemoval, describeCandidateStep } from './candidate-progress.ts';
 import { addReturnLink, carriedParam, toolLink } from './learning-transfer.ts';
 import { track } from './track.ts';
 
@@ -10,7 +11,8 @@ function setup(root: HTMLElement): void {
   const urlGrid = carriedParam('grid') ?? '';
   let grid = /^[0-9.]{81}$/.test(urlGrid) ? parse(urlGrid) : new Array<number>(81).fill(0);
   let selected = 0;
-  let candidates = computeCandidates(grid);
+  let progress = createCandidateProgress(grid);
+  let candidates = progress.candidates;
   let useTracked = false;
 
   const trackUse = (source: 'manual' | 'paste' | 'sample'): void => {
@@ -69,6 +71,16 @@ function setup(root: HTMLElement): void {
   controls.className = 'cc-controls';
   controls.append(action('サンプルを入力', () => { trackUse('sample'); grid = parse(SAMPLE); selected = grid.findIndex((v) => v === 0); analyze(); }), action('全部消す', () => { grid.fill(0); selected = 0; analyze(); }));
 
+  const stepsControls = document.createElement('div');
+  stepsControls.className = 'cc-controls cc-steps';
+  const apply = action('この一手を適用', () => navigate(progress.applied + 1));
+  const undo = action('一手戻る', () => navigate(progress.applied - 1));
+  const reset = action('手順リセット', () => navigate(0));
+  stepsControls.append(apply, undo, reset);
+  const progressText = document.createElement('p');
+  progressText.className = 'cc-progress';
+  progressText.setAttribute('aria-live', 'polite');
+
   const result = document.createElement('div');
   result.className = 'cc-result';
   result.setAttribute('aria-live', 'polite');
@@ -77,7 +89,7 @@ function setup(root: HTMLElement): void {
   const left = document.createElement('div');
   left.append(board);
   const right = document.createElement('div');
-  right.append(pad, controls, result);
+  right.append(pad, controls, progressText, stepsControls, result);
   addReturnLink(right);
   layout.append(left, right);
   root.replaceChildren(layout);
@@ -113,18 +125,33 @@ function setup(root: HTMLElement): void {
 
   function input(value: number): void {
     if (value) trackUse('manual');
-    grid[selected] = value;
+    progress = editCandidateProgress(progress, selected, value);
+    grid = progress.grid;
     if (value && selected < 80) selected++;
-    analyze();
+    candidates = progress.candidates;
+    render();
   }
 
   function analyze(): void {
-    candidates = computeCandidates(grid);
+    progress = createCandidateProgress(grid);
+    grid = progress.grid;
+    candidates = progress.candidates;
+    render();
+  }
+
+  function navigate(applied: number): void {
+    progress = replayCandidateProgress(progress, applied);
+    grid = progress.grid;
+    candidates = progress.candidates;
     render();
   }
 
   function render(): void {
     const conflicts = conflictCells(grid);
+    const noCandidates = grid.some((value, cell) => value === 0 && candidates[cell] === 0);
+    apply.disabled = !progress.next || conflicts.size > 0 || noCandidates;
+    undo.disabled = reset.disabled = progress.applied === 0;
+    progressText.textContent = `適用済み：${progress.applied}手。盤面を入力・変更すると手順を最初から調べ直します。`;
     const selectedPeers = new Set(PEERS[selected]);
     for (let i = 0; i < cells.length; i++) {
       const cell = cells[i];
@@ -147,27 +174,32 @@ function setup(root: HTMLElement): void {
   function resultHtml(conflicts: Set<number>): string {
     const pos = `${rowOf(selected) + 1}行${colOf(selected) + 1}列`;
     if (conflicts.size) return `<p class="cc-alert"><strong>重複があります。</strong>赤いマスの数字が、同じ行・列・3×3ブロックで重なっています。</p>`;
+    if (grid.some((value, cell) => value === 0 && candidates[cell] === 0)) return '<p class="cc-alert"><strong>候補がない空きマスがあります。</strong>入力を確認するか、一手戻る・手順リセットで戻してください。</p>';
     const empty = grid.filter((value) => value === 0).length;
     if (!empty) return '<p class="cc-ok"><strong>全マスが埋まりました。</strong>重複はありません。完全な正解かはソルバーで確認できます。</p>';
     const mask = candidates[selected];
     const allowed = grid[selected] ? [] : digitsOf(mask);
     const singles = candidates.filter((value) => popcount(value) === 1).length;
-    const logic = logicalSolve(grid);
-    const first = logic.steps[0];
+    const first = progress.next;
     const lessonSlug = first && TECH_INFO[first.technique]?.slug;
     const lesson = lessonSlug ? `<p><a href="/guide/techniques/${lessonSlug}/#${['hidden-single','pointing','naked-pair'].includes(lessonSlug) ? 'practice' : 'worked-example'}" target="_blank" rel="noopener">この手筋の理由と練習を別タブで見る</a>（この盤面はそのまま残ります）</p>` : '';
     const next = first
-      ? `${TECH_INFO[first.technique]?.ja ?? first.technique}：${TECH_INFO[first.technique]?.desc(first) ?? '論理手順が見つかりました。'}`
+      ? describeCandidateStep(first)
       : '現在の盤面から、対応している手筋による次の一手は見つかりませんでした。入力を確認するか、ソルバーで解の有無を確認してください。';
     const reasons = grid[selected]
       ? `<p>${pos}にはすでに<strong>${grid[selected]}</strong>が入っています。空きマスを選ぶと候補の理由を表示します。</p>`
       : `<p><strong>${pos}の候補：${allowed.length ? allowed.join('・') : 'なし'}</strong></p>${[1,2,3,4,5,6,7,8,9].map((digit) => `<span class="cc-reason ${allowed.includes(digit) ? 'ok' : 'ng'}">${digit}：${allowed.includes(digit) ? '行・列・ブロックに同じ数字なし' : blockedReason(selected, digit)}</span>`).join('')}`;
-    return `${reasons}<p class="cc-summary">空き${empty}マス ／ 候補が1つのマス${singles}個</p><p><strong>現在の次の一手</strong><br>${next}</p>${lesson}<p><a href="${toolLink('/tools/solver/', grid)}">この盤面の唯一解と全手順をソルバーで確認</a></p>`;
+    const last = progress.history.at(-1);
+    const applied = last ? `<p class="cc-summary"><strong>適用した第${progress.applied}手</strong><br>${describeCandidateStep(last)}</p>` : '';
+    return `${applied}${reasons}<p class="cc-summary">空き${empty}マス ／ 候補が1つのマス${singles}個</p><p><strong>現在の次の一手</strong><br>${next}</p>${lesson}<p><a href="${toolLink('/tools/solver/', grid)}">この盤面の唯一解と全手順をソルバーで確認</a></p>`;
   }
 
   function blockedReason(cell: number, digit: number): string {
     const blocker = PEERS[cell].find((peer) => grid[peer] === digit);
-    if (blocker === undefined) return '候補に残せます';
+    if (blocker === undefined) {
+      const removed = candidateRemoval(progress, cell, digit);
+      return removed ? `適用済みの第${removed.number}手「${TECH_INFO[removed.step.technique]?.ja ?? removed.step.technique}」で候補削除` : '現在の候補から除外されています';
+    }
     const places: string[] = [];
     if (rowOf(blocker) === rowOf(cell)) places.push('同じ行');
     if (colOf(blocker) === colOf(cell)) places.push('同じ列');

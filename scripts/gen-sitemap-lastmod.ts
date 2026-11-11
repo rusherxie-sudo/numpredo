@@ -69,7 +69,7 @@ const STATIC_EXTRA_DATA: Record<string, string[]> = {
   'tools/solver.astro': ['src/client/ocr-solve.ts','src/data/solver-sample.ts','src/client/learning-transfer.ts'],
   'print/senior.astro': ['src/components/PrintResourceCards.astro','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json','src/components/ActivityPack.astro','src/components/ActivityContinuation.astro','public/downloads/activity/manifest-02.json','scripts/gen-activity-pack.py','public/downloads/activity/manifest.json'],
   'guide/solving-examples.astro': ['src/data/teaching-cases.ts','src/components/ExpansionLinks.astro','src/data/expansion/examples.ts'],
-  'tools/candidate-checker.astro': ['src/client/candidate-checker.ts','src/client/learning-transfer.ts'],
+  'tools/candidate-checker.astro': ['src/client/candidate-checker.ts','src/client/candidate-progress.ts','src/client/learning-transfer.ts'],
   'variants/4x4.astro': ['src/data/mini4.ts', 'src/components/MiniSudoku4.astro', 'src/client/mini-sudoku4.ts'],
   'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts','src/data/sudoku16-samples.ts','src/components/VariantGame.astro','src/client/variant-game.ts','src/data/sudoku16-play.ts','src/engine/variant-symbols.ts','public/downloads/variants/manifest.json'],
   'variants/diagonal.astro': ['src/data/puzzles/diagonal.json'],
