@@ -44,12 +44,12 @@ const setJson = JSON.stringify(set);
   [data-sudoku] { margin: 6px 0 26px; min-height: 600px; }
   .sk-layout { display: grid; grid-template-columns: 1fr 220px; gap: 28px; align-items: start; max-width: 880px; margin: 0 auto; }
   .sk-left { min-width: 0; position: relative; }
-  .sk-board { position: relative; display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1; max-width: 600px; margin: 0 auto; border: 2px solid var(--box-line); background: var(--surface); }
+  .sk-board { position: relative; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); grid-template-rows: repeat(9, minmax(0, 1fr)); width: 100%; aspect-ratio: 1; max-width: 600px; margin: 0 auto; border: 2px solid var(--box-line); background: var(--surface); }
   /* aria 行容器（role=row）不参与布局：格子仍作为 grid item 排 9 列 */
   .sk-rowg { display: contents; }
   /* 游戏操作面高频点按：禁掉文字选中（iOS 长按/快速连点不再弹选字） */
   .sk-board, .sk-pad, .sk-ctrl, .sk-ctrl2, .sk-timerow { -webkit-user-select: none; user-select: none; }
-  .sk-cell { border: 0.5px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.4vw, 25px); cursor: pointer; padding: 0; position: relative; color: var(--accent); font-family: var(--font-sans); font-weight: 500; transition: background 0.12s; }
+  .sk-cell { min-width: 0; min-height: 0; border: 0.5px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 4.4vw, 25px); cursor: pointer; padding: 0; position: relative; color: var(--accent); font-family: var(--font-sans); font-weight: 500; transition: background 0.12s; }
   .sk-cell.sk-br { border-right: 1.5px solid var(--box-line); }
   .sk-cell.sk-bb { border-bottom: 1.5px solid var(--box-line); }
   .sk-given { color: var(--ink); font-family: var(--font-mincho); font-weight: 600; }
@@ -132,7 +132,7 @@ const setJson = JSON.stringify(set);
   /* 笔记 ON 角标（强反馈）*/
   .sk-cbtn.on::after { content: 'ON'; position: absolute; top: 3px; right: 5px; font-size: 8px; font-weight: 700; line-height: 1; letter-spacing: .04em; }
   /* 次级操作行（やり直す/別の問題）*/
-  .sk-ctrl2 { display: flex; gap: 8px; margin-top: 8px; }
+  .sk-ctrl2 { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .sk-ctrl2 .sk-cbtn { flex: 1; }
   /* 区域完成即时反馈：填满一行/列/宫且全部正确 → 该 9 格脉冲一下 */
   .sk-area-done::after { content: ''; position: absolute; inset: 0; background: var(--accent); opacity: 0; animation: sk-area 0.72s ease-out; pointer-events: none; }
@@ -192,11 +192,11 @@ const setJson = JSON.stringify(set);
 
   /* ===== モバイル（縦画面）専用レイアウト：盤面を主役に、片手で押せるキーボード ===== */
   @media (max-width: 760px) {
-    /* モバイル：盤面(min(100vw,52vh)) + タイマー/キーボード/ツールバー ≈ +200px を予約(CLS 対策) */
-    [data-sudoku] { margin: 2px 0 18px; min-height: calc(min(100vw, 52vh) + 200px); }
+    /* 手机棋盘按可用宽度展示，预留操作区高度，避免浏览器栏改变视口高度时盘面缩小。 */
+    [data-sudoku] { margin: 2px 0 18px; min-height: calc(min(100vw, 520px) + 200px); }
     .sk-layout { grid-template-columns: 1fr; gap: 12px; max-width: 520px; }
-    /* 盤面は満幅（指で押しやすい大きさ）。52vh 上限で下のキーボードも視野に */
-    .sk-board { max-width: min(100%, 52vh); }
+    /* 盘面使用容器全宽，不以屏幕高度限制点击区域。 */
+    .sk-board { max-width: 100%; }
     .sk-cell { font-size: clamp(20px, 6.4vw, 30px); }
     .sk-side { border: none; background: transparent; padding: 0; }
     .sk-daily { border-bottom: none; }
