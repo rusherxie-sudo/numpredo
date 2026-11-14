@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { teachingCase, techniqueCases, guideCases, explainPremise } from '../src/data/teaching-cases.ts';
-import { bit, countSolutions } from '../src/engine/index.ts';
+import { bit, countSolutions, UNITS } from '../src/engine/index.ts';
+import { lockedDirectionCases } from '../src/data/locked-direction-cases.ts';
 import { MINI6_PUZZLES, traceMini6, countMini6, mini6Peers } from '../src/data/mini6.ts';
 import { SAMPLE_PUZZLES } from '../src/data/sudoku16-samples.ts';
 import { solve16 } from '../src/client/sudoku16-solver.ts';
@@ -32,6 +33,34 @@ for (const [group,specs] of [['guide/techniques',techniqueCases],['guide',guideC
     assert.ok(html.includes(c.outcome));
     cases++;
   }
+}
+const intermediateHtml = readFileSync('dist/guide/intermediate/index.html','utf8');
+for (const [index, spec] of lockedDirectionCases.entries()) {
+  const c = teachingCase(spec), solution = [...c.raw.solution].map(Number);
+  const eliminations = c.step.eliminations ?? [];
+  assert.ok(eliminations.length > 0);
+  const digit = eliminations[0][1];
+  const sourceUnits = index === 0 ? UNITS.slice(0,18) : UNITS.slice(18);
+  const destUnits = index === 0 ? UNITS.slice(18) : UNITS.slice(0,18);
+  assert.ok(sourceUnits.some(source => {
+    const cells = source.filter(cell => c.before.candidates[cell] & bit(digit));
+    return cells.length >= 2 && destUnits.some(dest => cells.every(cell => dest.includes(cell)) && eliminations.every(([cell,d]) => d === digit && dest.includes(cell) && !source.includes(cell)));
+  }), 'locked candidates direction must match the lesson');
+  assert.equal(c.premise.text.startsWith('ブロック'), index === 1);
+  assert.equal(countSolutions(c.initial.slice(),2), 1);
+  for (let i=0;i<81;i++) for (const state of [c.before,c.after]) {
+    if (state.grid[i]) assert.equal(state.grid[i],solution[i]);
+    else assert.ok(state.candidates[i]&bit(solution[i]));
+  }
+  for (const [cell,d] of eliminations) {
+    assert.notEqual(solution[cell],d);
+    assert.ok(c.before.candidates[cell]&bit(d));
+    assert.equal(c.after.candidates[cell]&bit(d),0);
+  }
+  const id = index === 0 ? 'worked-example-line-to-block' : 'worked-example-block-to-line';
+  assert.equal(intermediateHtml.split(`id="${id}"`).length - 1,1);
+  assert.ok(intermediateHtml.includes(`/play/${spec.level}/?n=${spec.number}`));
+  assert.ok(intermediateHtml.includes(c.premise.text) && intermediateHtml.includes(c.outcome));
 }
 for(const p of MINI6_PUZZLES) {
   const grid=[...p.puzzle].map(c=>c==='.'?0:Number(c));

@@ -7,6 +7,7 @@ import ParentLesson from '../../components/ParentLesson.astro';
 import NewspaperInput from '../../components/NewspaperInput.astro';
 import SolverInputExample from '../../components/SolverInputExample.astro';
 import { guideCases, techniqueCases } from '../../data/teaching-cases.ts';
+import { lockedDirectionCases } from '../../data/locked-direction-cases.ts';
 import { GUIDES, type GuideArticle } from '../../data/guides.ts';
 import { TECHNIQUES } from '../../data/techniques.ts';
 import lastmodJson from '../../data/sitemap-lastmod.json';
@@ -91,6 +92,17 @@ const techniqueListSchema = g.slug === 'tips' ? {
   <EditorialNote verification={g.verification ?? '本文のルール、候補消去、内部リンクを公開前に確認しています。掲載している問題は独自エンジンで唯一解と論理解法を検証しています。'} />
 
   {guideCases[g.slug] && g.slug !== 'tips' && <TeachingCase spec={guideCases[g.slug]} />}
+  {g.slug === 'intermediate' && (
+    <>
+      <section class="worked-more">
+        <h2>区画の絞り込みを両方向から練習</h2>
+        <p>候補が同じブロックの中に限られる行・列を見る場合と、ブロックの候補が同じ行に限られる場合では、消せる場所が逆になります。次の2例では、色の付いた候補の範囲を先に確かめてから答えを開いてください。上級問題の例も、使う手筋は中級の区画の絞り込みです。</p>
+        <p><a href="/print/practice-pointing/">区画の絞り込みを一手ずつ練習する →</a></p>
+      </section>
+      <TeachingCase spec={lockedDirectionCases[0]} anchorId="worked-example-line-to-block" />
+      <TeachingCase spec={lockedDirectionCases[1]} anchorId="worked-example-block-to-line" />
+    </>
+  )}
   {g.slug === 'advanced' && (
     <>
       <section class="worked-more">
