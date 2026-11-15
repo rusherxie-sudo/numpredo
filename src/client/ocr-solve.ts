@@ -295,7 +295,7 @@ function setup(app: HTMLElement): void {
       if (!response.ok) throw new Error('submission failed');
       const result = await response.json();
       if (typeof result.puzzleId !== 'string' || !/^[a-f0-9]{64}$/.test(result.puzzleId) || typeof result.submissionId !== 'string' || typeof result.withdrawToken !== 'string') throw new Error('invalid response');
-      track('public_submission', { result: result.duplicate === true ? 'duplicate' : result.duplicate === false ? 'accepted' : 'unknown', source_filled: sourceFilled ? 'yes' : 'no' });
+      track('public_submission', { result: result.duplicate === true ? 'duplicate' : result.duplicate === false ? 'accepted' : 'unknown', source_filled: sourceFilled ? 'yes' : 'no', validation: result.status === 'candidate' ? 'candidate' : result.status === 'pending_validation' ? 'pending_validation' : 'unknown' });
       const persisted = receipts.add({ ...result, grid: body.grid });
       publicStatus.textContent = '公開候補として受け付けました。確認後に公開される場合があります。' + (persisted ? '' : ' このブラウザには保存できません。ページを閉じる前に下の「秘密の撤回控えを保存」で控えを保存してください。');
     }).catch(() => { track('public_submission', { result: 'failed', source_filled: sourceFilled ? 'yes' : 'no' }); publicStatus.textContent = '公開候補を送信できませんでした。解答はそのまま利用できます。'; }).finally(() => { submitting.delete(body.grid); });

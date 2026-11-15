@@ -1,5 +1,4 @@
 // 只读取已公开的原题；答案主动加载，撤回凭证不进入分享链接。
-import { track } from './track.ts';
 const app = document.getElementById('public-puzzles');
 if (app) void start(app);
 async function start(root: HTMLElement): Promise<void> {
@@ -33,7 +32,7 @@ async function start(root: HTMLElement): Promise<void> {
                 const { countSolutions, solveOne } = await import('../engine/countSolver.ts');
                 if (countSolutions(puzzle, 2) !== 1) throw new Error('not unique');
                 const answer = solveOne(puzzle); if (!answer) throw new Error('unsolved');
-                revealed = true; result.textContent = ' ' + answer[cells[0]] + ' + ' + answer[cells[1]] + ' = ' + (answer[cells[0]] + answer[cells[1]]) + '（座標は投稿者の申告、数値は当サイトの計算であり公式発表ではありません）';
+                result.textContent = ' ' + answer[cells[0]] + ' + ' + answer[cells[1]] + ' = ' + (answer[cells[0]] + answer[cells[1]]) + '（座標は投稿者の申告、数値は当サイトの計算であり公式発表ではありません）';
               } catch { result.textContent = ' 二重枠の数字を計算できませんでした。'; }
               finally { show.disabled = false; }
             }); line.append(' ', show, result);
@@ -42,12 +41,11 @@ async function start(root: HTMLElement): Promise<void> {
         } root.append(sources);
       }
       const board = document.createElement('div'); board.className = 'public-board'; board.setAttribute('aria-label', '数独の問題');
-      let started = false, completed = false, revealed = false;
       const inputs = puzzle.map((value, i) => {
         const input = document.createElement('input'); input.type = 'text'; input.inputMode = 'numeric'; input.maxLength = 1;
         input.setAttribute('aria-label', String(Math.floor(i / 9) + 1) + '行' + String(i % 9 + 1) + '列');
         input.value = value ? String(value) : ''; input.disabled = !!value;
-        input.addEventListener('input', () => { input.value = input.value.replace(/[^1-9]/g, ''); if (input.value && !started) { started = true; track('public_challenge_start'); } }); board.append(input); return input;
+        input.addEventListener('input', () => { input.value = input.value.replace(/[^1-9]/g, ''); }); board.append(input); return input;
       }); root.append(board);
       const controls = document.createElement('div'); controls.className = 'public-controls';
       const check = document.createElement('button'); check.textContent = '答えを確認';
@@ -57,21 +55,18 @@ async function start(root: HTMLElement): Promise<void> {
         const values = inputs.map(input => Number(input.value));
         const valid = (indexes: number[]) => new Set(indexes.map(i => values[i])).size === 9 && indexes.every(i => values[i] >= 1 && values[i] <= 9);
         const groups = Array.from({ length: 9 }, (_, n) => [Array.from({ length: 9 }, (_, i) => n * 9 + i), Array.from({ length: 9 }, (_, i) => i * 9 + n), Array.from({ length: 9 }, (_, i) => (Math.floor(n / 3) * 3 + Math.floor(i / 3)) * 9 + n % 3 * 3 + i % 3)]).flat();
-        const correct = groups.every(valid);
-        status.textContent = correct ? '正解です！' : 'まだ完成していないか、異なる数字があります。';
-        if (correct && started && !revealed && !completed) { completed = true; track('public_challenge_complete'); }
+        status.textContent = groups.every(valid) ? '正解です！' : 'まだ完成していないか、異なる数字があります。';
       });
-      share.addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.origin + location.pathname + '?id=' + encodeURIComponent(id)); track('public_share'); status.textContent = 'リンクをコピーしました。'; } catch { status.textContent = 'コピーできませんでした。アドレス欄のURLを共有してください。'; } });
+      share.addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.origin + location.pathname + '?id=' + encodeURIComponent(id)); status.textContent = 'リンクをコピーしました。'; } catch { status.textContent = 'コピーできませんでした。アドレス欄のURLを共有してください。'; } });
       const reveal = document.createElement('button'); reveal.textContent = '答えを表示する';
       const solution = document.createElement('p'); solution.hidden = true; solution.setAttribute('aria-label', '解答');
       reveal.addEventListener('click', async () => {
         reveal.disabled = true;
-        try { const { solveOne } = await import('../engine/countSolver.ts'); const answer = solveOne(puzzle); if (!answer) throw new Error('invalid puzzle'); solution.textContent = Array.from({ length: 9 }, (_, r) => answer.slice(r * 9, r * 9 + 9).join(' ')).join(' / '); solution.hidden = !solution.hidden; if (!solution.hidden) revealed = true; reveal.textContent = solution.hidden ? '答えを表示する' : '答えを隠す'; }
+        try { const { solveOne } = await import('../engine/countSolver.ts'); const answer = solveOne(puzzle); if (!answer) throw new Error('invalid puzzle'); solution.textContent = Array.from({ length: 9 }, (_, r) => answer.slice(r * 9, r * 9 + 9).join(' ')).join(' / '); solution.hidden = !solution.hidden; reveal.textContent = solution.hidden ? '答えを表示する' : '答えを隠す'; }
         catch { status.textContent = '解答を読み込めませんでした。'; } finally { reveal.disabled = false; }
       }); controls.append(check, reveal, share); root.append(controls, status, solution);
       const steps = document.createElement('p');
       const solveLink = document.createElement('a'); solveLink.href = '/tools/solver/#' + new URLSearchParams({ grid: item.grid }).toString(); solveLink.textContent = 'この問題をソルバーで解き、手順を見る →';
-      solveLink.addEventListener('click', () => { revealed = true; });
       const guide = document.createElement('a'); guide.href = '/guide/how-to-solve/'; guide.textContent = '数独の解き方・テクニック一覧 →';
       steps.append(solveLink, ' ／ ', guide); root.append(steps);
       const back = document.createElement('a'); back.href = '/public-puzzles/'; back.textContent = '投稿問題一覧へ'; root.append(back);
