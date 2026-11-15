@@ -15,6 +15,7 @@ import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import {LESSONS} from '../src/data/expansion/lessons.ts';
+import {templateLastmod, CANDIDATE_ONLY_LINES} from './template-lastmod.ts';
 import {EXAMPLES} from '../src/data/expansion/examples.ts';
 import manifest from '../public/downloads/collections/manifest.json' with {type:'json'};
 
@@ -53,7 +54,7 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
-  ...Object.fromEntries(LESSONS.map(l=>[`${l.path.slice(1,-1)}.astro`,['src/data/expansion/lessons.ts','src/data/expansion/lesson-depth.ts','src/data/expansion/model-diagrams.ts','src/components/KillerSumDiagram.astro','src/data/expansion/models.ts','src/components/ExpansionLesson.astro','src/components/EditorialNote.astro','src/components/LogicModel.astro',...(l.slug==='candidate-update'?['src/components/CandidateCorrection.astro','src/data/puzzles/intermediate.json']:[])]])),
+  ...Object.fromEntries(LESSONS.map(l=>[`${l.path.slice(1,-1)}.astro`,['src/data/expansion/lessons.ts','src/data/expansion/lesson-depth.ts','src/data/expansion/model-diagrams.ts','src/components/KillerSumDiagram.astro','src/data/expansion/models.ts','src/components/EditorialNote.astro','src/components/LogicModel.astro',...(l.slug==='candidate-update'?['src/components/CandidateCorrection.astro','src/data/puzzles/intermediate.json']:[])]])),
   ...Object.fromEntries(EXAMPLES.map(e=>[`${e.path.slice(1,-1)}.astro`,['src/data/expansion/examples.ts','src/data/expansion/selections.json','src/components/ExpansionExample.astro','src/components/EditorialNote.astro','src/data/teaching-cases.ts',`src/data/puzzles/${e.spec.level}.json`]])),
   ...Object.fromEntries(manifest.packs.map(p=>[`${p.path.slice(1,-1)}.astro`,['src/data/expansion/print-sets.ts','src/data/expansion/selections.json','src/components/ExpansionPrint.astro','scripts/gen-expansion-pdfs.py',`public/downloads/collections/${p.slug}-questions.pdf`,`public/downloads/collections/${p.slug}-answers.pdf`]])),
   'practice.astro': ['src/components/OneMovePractice.astro','src/client/one-move.ts','src/client/one-move-state.ts','src/client/practice-history.ts','src/data/one-move.ts','src/data/technique-drills.ts','src/data/teaching-cases.ts','scripts/gen-one-move.ts'],
@@ -172,6 +173,14 @@ function latestIso(...values: string[]): string {
   return values.filter(Boolean).sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? '';
 }
 
+// 模板专属分支归因到消费页面，其余页面按排除该分支后的真实历史取日期。
+const lessonTemplate = 'src/components/ExpansionLesson.astro';
+const commonLessonDate = templateLastmod(lessonTemplate, CANDIDATE_ONLY_LINES);
+const candidateLessonDate = templateLastmod(lessonTemplate);
+const lessonTemplateDates = Object.fromEntries(LESSONS.map(l=>[
+  `${l.path.slice(1,-1)}.astro`, l.slug==='candidate-update'?candidateLessonDate:commonLessonDate,
+]));
+
 const map: Record<string, string> = {};
 
 // 先动态路由、后静态页：同 URL 时静态页的归因优先
@@ -230,6 +239,7 @@ for (const rel of [...allPages.filter((p) => p.includes('[')), ...allPages.filte
     const date = latestIso(
       gitLastmod([`${PAGES}/${rel}`, ...(STATIC_EXTRA_DATA[rel] ?? [])]),
       slugData ? gitSlugLastmod(slugData.file, slugData.slug) : '',
+      lessonTemplateDates[rel] ?? '',
     );
     if (date) map[fileToUrl(rel)] = date;
   }
