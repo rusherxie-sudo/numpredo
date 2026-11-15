@@ -1,0 +1,26 @@
+---
+import pack from '../data/puzzles/intermediate.json' with {type:'json'};
+import {gridFromString, computeCandidates, digitsOf, renderBoardSvg, countSolutions} from '../engine/index.ts';
+const original=pack.puzzles[6];
+const grid=gridFromString(original.puzzle);
+const cell=16;
+const candidates=computeCandidates(grid);
+const actual=digitsOf(candidates[cell]);
+const wrong=grid.slice();wrong[cell]=1;
+if (grid[cell] || actual.join(',')!=='1,8' || original.solution[cell]!=='8' || countSolutions(grid.slice(),2)!==1 || countSolutions(wrong,2)!==0) throw new Error('候補修正の実例が一致しません');
+const svg=renderBoardSvg(grid,{candidates,cell:42,cellHighlights:[{cell}],title:'中級No.7の最初の盤面：2行8列の候補を確認',desc:'行・列・ブロックの確定数字から作った基本候補を表示。強調マスの候補は1と8です。'});
+---
+<section id="candidate-missing-example" class="correction">
+<h2>実例：8を書き忘れると「1だけ」に見える</h2>
+<p>中級No.7の最初の盤面です。2行8列のメモに1だけを書いてしまったとします。まだこのマスから候補を消す手筋は使っていません。1を確定してよいでしょうか。</p>
+<figure><Fragment set:html={svg}/><figcaption>小さな数字は確定数字だけから計算した基本候補です。強調した2行8列を確認してください。</figcaption></figure>
+<details><summary>答えと、メモを直す手順</summary>
+<p>この段階で1に確定してはいけません。2行8列の基本候補は<strong>1・8</strong>です。8は同じ行・列・ブロックの確定数字と衝突せず、書き忘れた候補として戻す必要があります。「メモに一つしかない」ことと「全候補が一つしかない」ことは違います。</p>
+<p>この問題の唯一解では、2行8列は8です。実際にここへ1を入れると、元の問題を最後まで完成する解がなくなります。ただし、正しい8を戻しただけでは1を消す根拠まで得られません。1・8を残した状態で別の確定や手筋を探してください。</p>
+<ol><li>元からある数字は変えず、2行8列のメモだけを調べます。</li><li>行・列・3×3ブロックを一つずつ確認し、1〜9のうち入れない数字を除きます。</li><li>根拠なしに消していた8を戻します。1もこの確認だけでは消しません。</li></ol>
+</details>
+<p><a href="/play/intermediate/?n=7">中級No.7を最初から解く</a> ／ <a href="/tools/candidate-checker/">自分の盤面の候補を調べる</a></p>
+</section>
+<style>
+.correction{margin:28px 0;padding:clamp(12px,3vw,22px);border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);scroll-margin-top:88px;}figure{max-width:460px;margin:20px auto;}.correction :global(svg){width:100%;height:auto;display:block;}figcaption{font-size:13px;color:var(--ink-3);line-height:1.7;}p,li{line-height:1.9;}details{padding:14px 0;border-block:1px solid var(--line);}summary{cursor:pointer;color:var(--accent);font-weight:700;}a{color:var(--accent);}
+</style>

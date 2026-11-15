@@ -3,6 +3,10 @@ import SmallNumberBoard from './SmallNumberBoard.astro';
 import { MINI6_PUZZLES, traceMini6 } from '../data/mini6.ts';
 const examples=MINI6_PUZZLES.map(p=>{const trace=traceMini6(p.puzzle);if(trace.solution!==p.solution)throw new Error('6×6 answer mismatch');return {...p,...trace};});
 const first=examples[0].steps[0];
+const secondPuzzle=examples[1];
+const secondCell=6;
+const secondStep=secondPuzzle.steps.find(s=>s.cell===secondCell && s.before.join('')===secondPuzzle.puzzle.replaceAll('.', '0'));
+if (!secondStep || secondStep.digit !== 5 || secondPuzzle.solution[secondCell] !== '5') throw new Error('6×6練習問題の前提が一致しません');
 const r=Math.floor(first.cell/6), c=first.cell%6;
 const row=first.before.slice(r*6,r*6+6).filter(Boolean);
 const col=first.before.filter((_,i)=>i%6===c).filter(Boolean);
@@ -23,6 +27,12 @@ const box=first.before.filter((_,i)=>Math.floor(i/12)===Math.floor(first.cell/12
   </section>
   <h3>問題1の最初の一手：{r+1}行{c+1}列に注目</h3>
   <p>色の付いたマスと同じ行には{row.join('・')}、同じ列には{col.join('・')}、同じ2×3ブロックには{box.join('・')}があります。1〜6からこれらを除くと、残るのは<strong>{first.digit}</strong>だけです。</p>
+  <section class="mini6-question" aria-labelledby="mini6-question-title">
+    <h3 id="mini6-question-title">問題2で自分で探す：2行1列</h3>
+    <p>問題2の最初の盤面で、2行1列に入る数字を考えてください。横の行だけで決めず、縦の列と2行×3列の太枠も見ます。</p>
+    <SmallNumberBoard size={6} grid={secondPuzzle.puzzle} label="問題2の最初の盤面。2行1列を強調" highlight={secondCell} />
+    <details><summary>答えと調べ方を見る</summary><p>答えは5です。2行目には2・4があり、1列目には3・2・4・6・1があります。左上の2行×3列には3・6・2があるので、1〜6のうち三つの範囲のどれにもない数字は5だけです。6は行だけを見ると空いていますが、同じ列と太枠にあるため入れられません。</p><p><a href="/variants/6x6/?n=2#variant-game">問題2を画面で続ける</a> ／ <a href="/print/6x6/">同じ問題の印刷版へ</a></p></details>
+  </section>
   <details class="mini6-trace"><summary>問題1の最後までの手順を確認する</summary>
     <p>以下は上の問題1から順番に進める手順です。一つ埋めるたび、同じ行・列・ブロックの候補を更新します。</p>
     <ol>{examples[0].steps.map(s=><li>{Math.floor(s.cell/6)+1}行{s.cell%6+1}列：候補は{s.digit}だけなので、{s.digit}を入れる。</li>)}</ol>
@@ -40,6 +50,7 @@ const box=first.before.filter((_,i)=>Math.floor(i/12)===Math.floor(first.cell/12
   @media(max-width:600px) { .mini6-grid { grid-template-columns:1fr; } }
   @media print {
     .mini6-lesson { margin:0; }
+    .mini6-question { display:none; }
     .mini6-print, details, .mini6-lesson > p, .mini6-lesson > h3 { display:none; }
     .mini6-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
     article { break-inside:avoid; padding:5px; }
