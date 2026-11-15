@@ -25,7 +25,7 @@ echo "${cmd} $*" >> "$GATE_LOG"
   return {status:result.status,output:result.stdout+result.stderr,commands};
  }finally{rmSync(dir,{recursive:true,force:true});}
 }
-test('exact clean SHA executes daily/type/engine/contracts/full build',()=>{const r=run('clean');assert.equal(r.status,0,r.output);assert(r.commands.startsWith('npm run check:daily\nnpm run check\nnpm run demo\nnode --test scripts/np01/contracts.test.ts '));assert(r.commands.includes('scripts/pwa/cohort.test.mjs\npython3 scripts/pwa/report.test.py\n'));assert(r.commands.endsWith('npm run build\nnode --test scripts/np01/output.test.ts\n'));});
+test('exact clean SHA executes daily/type/engine/contracts/full build',()=>{const r=run('clean');assert.equal(r.status,0,r.output);assert(r.commands.startsWith('npm run check:daily\nnpm run check:public-puzzles\nnpm run check\nnpm run demo\nnode --test scripts/np01/contracts.test.ts '));assert(r.commands.includes('scripts/pwa/cohort.test.mjs\npython3 scripts/pwa/report.test.py\n'));assert(r.commands.endsWith('npm run build\nnode --test scripts/np01/output.test.ts\n'));});
 for(const mode of ['wrong','dirty'])test(`reject ${mode} before checks`,()=>{const r=run(mode);assert.notEqual(r.status,0);assert.equal(r.commands,'');});
 test('reject abbreviated SHA',()=>{const r=run('clean','abc');assert.notEqual(r.status,0);assert.equal(r.commands,'');});
 test('failed engine blocks build and success',()=>{const r=run('failure');assert.notEqual(r.status,0);assert(!r.commands.includes('npm run build'));assert(!r.output.includes('Quality gate passed'));});
@@ -41,10 +41,10 @@ test('status read error rejects entry before any checks',()=>{
 test('status read error rejects final success after all checks',()=>{
  const r=run('final-status-error');
  const commands=r.commands.trimEnd().split('\n');
- assert.equal(commands.length,7,r.commands);
- assert.deepEqual(commands.slice(0,3),['npm run check:daily','npm run check','npm run demo']);
- assert(commands[3].startsWith('node --test scripts/np01/contracts.test.ts '));assert(r.commands.includes('scripts/pwa/cohort.test.mjs\npython3 scripts/pwa/report.test.py\n'));
- assert.deepEqual(commands.slice(4),['python3 scripts/pwa/report.test.py','npm run build','node --test scripts/np01/output.test.ts']);
+ assert.equal(commands.length,8,r.commands);
+ assert.deepEqual(commands.slice(0,4),['npm run check:daily','npm run check:public-puzzles','npm run check','npm run demo']);
+ assert(commands[4].startsWith('node --test scripts/np01/contracts.test.ts '));assert(r.commands.includes('scripts/pwa/cohort.test.mjs\npython3 scripts/pwa/report.test.py\n'));
+ assert.deepEqual(commands.slice(5),['python3 scripts/pwa/report.test.py','npm run build','node --test scripts/np01/output.test.ts']);
  assert.notEqual(r.status,0,r.output);
  assert(!r.output.includes('Quality gate passed'));
  assert.match(r.output,/simulated git status failure/);
