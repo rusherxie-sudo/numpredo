@@ -287,16 +287,18 @@ function setup(app: HTMLElement): void {
       ...(doubleCells ? { doubleCells } : {}),
     } : undefined;
     const body = { grid: grid.join(''), inputMethod: inputSource === 'photo' ? 'ocr' : inputSource === 'paste' ? 'paste' : 'manual', confirmed: true, noticeVersion: '2026-11-15', ...(sourceData ? { source: sourceData } : {}) };
-    if (submitting.has(body.grid) || receipts.has(body.grid)) { publicStatus.textContent = 'この問題は送信中、またはこの端末から投稿済みです。控えから取り下げできます。'; return; }
+    if (submitting.has(body.grid) || receipts.has(body.grid)) { track('public_submission', { result: 'local_duplicate' }); publicStatus.textContent = 'この問題は送信中、またはこの端末から投稿済みです。控えから取り下げできます。'; return; }
+    const sourceFilled = !!sourceData;
     submitting.add(body.grid);
     publicStatus.textContent = '公開候補を送信しています…';
     void fetch('/api/public-puzzles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(async response => {
       if (!response.ok) throw new Error('submission failed');
       const result = await response.json();
       if (typeof result.puzzleId !== 'string' || !/^[a-f0-9]{64}$/.test(result.puzzleId) || typeof result.submissionId !== 'string' || typeof result.withdrawToken !== 'string') throw new Error('invalid response');
+      track('public_submission', { result: result.duplicate === true ? 'duplicate' : result.duplicate === false ? 'accepted' : 'unknown', source_filled: sourceFilled ? 'yes' : 'no' });
       const persisted = receipts.add({ ...result, grid: body.grid });
       publicStatus.textContent = '公開候補として受け付けました。確認後に公開される場合があります。' + (persisted ? '' : ' このブラウザには保存できません。ページを閉じる前に下の「秘密の撤回控えを保存」で控えを保存してください。');
-    }).catch(() => { publicStatus.textContent = '公開候補を送信できませんでした。解答はそのまま利用できます。'; }).finally(() => { submitting.delete(body.grid); });
+    }).catch(() => { track('public_submission', { result: 'failed', source_filled: sourceFilled ? 'yes' : 'no' }); publicStatus.textContent = '公開候補を送信できませんでした。解答はそのまま利用できます。'; }).finally(() => { submitting.delete(body.grid); });
   }
 
   async function onImage(file: File): Promise<void> {
