@@ -12,6 +12,7 @@ verify_candidate() {
 verify_candidate
 printf 'Quality gate SHA: %s\n' "$expected"
 npm run check:daily
+npm run check:public-puzzles
 npm run check
 npm run demo
 node --test scripts/np01/contracts.test.ts scripts/overnight/*.test.* scripts/pwa/cohort.test.mjs
