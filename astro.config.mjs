@@ -24,7 +24,7 @@ export default defineConfig({
       // 問題自体は各難易度ページで引き続き収録全問を遊べる。
       filter: (page) => {
         const pathname = new URL(page).pathname;
-        if (pathname === '/stats/' || pathname.startsWith('/embed/')) return false;
+        if (pathname === '/stats/' || pathname === '/public-puzzles/' || pathname.startsWith('/embed/')) return false;
         if (numberedPuzzlePattern.test(pathname)) return indexablePuzzles.has(pathname);
         return true;
       },

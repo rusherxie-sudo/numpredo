@@ -5,6 +5,8 @@ import { solveOne, countSolutions } from '../engine/countSolver.ts';
 import { SOLVER_SAMPLE } from '../data/solver-sample.ts';
 import { addReturnLink, carriedParam, toolLink } from './learning-transfer.ts';
 import { track } from './track.ts';
+import { eligibleForPublic } from './public-submission.ts';
+import { setupReceipts } from './public-receipts.ts';
 
 const app = document.getElementById('sv-app');
 if (app) setup(app);
@@ -13,6 +15,17 @@ function setup(app: HTMLElement): void {
   const msgEl = document.getElementById('sv-msg') as HTMLElement | null;
   const stepsEl = document.getElementById('sv-steps') as HTMLElement | null;
   const photoInputs = Array.from(document.querySelectorAll<HTMLInputElement>('[data-photo]'));
+  const publicChoice = document.getElementById('sv-public') as HTMLInputElement;
+  const confirmed = document.getElementById('sv-confirm') as HTMLInputElement;
+  const publicStatus = document.getElementById('sv-public-status') as HTMLElement;
+  const receiptPanel = document.createElement('section'); publicStatus.after(receiptPanel);
+  const receipts = setupReceipts(receiptPanel);
+  const submitting = new Set<string>();
+  const source = document.getElementById('sv-source') as HTMLSelectElement;
+  const paper = document.getElementById('sv-paper') as HTMLSelectElement;
+  const date = document.getElementById('sv-date') as HTMLInputElement;
+  const edition = document.getElementById('sv-edition') as HTMLInputElement;
+  const issue = document.getElementById('sv-issue') as HTMLInputElement;
 
   let grid: number[] = new Array(81).fill(0); // ユーザー入力（0=空）
   let sel = -1;
@@ -75,6 +88,7 @@ function setup(app: HTMLElement): void {
   btnSample.textContent = 'サンプル';
   btnSample.addEventListener('click', () => {
     grid = strToGrid(SOLVER_SAMPLE);
+    confirmed.checked = false;
     ocrUncertain.clear();
     inputSource = 'sample';
     markStarted();
@@ -87,6 +101,7 @@ function setup(app: HTMLElement): void {
   btnClear.textContent = '全部消す';
   btnClear.addEventListener('click', () => {
     grid = new Array(81).fill(0);
+    confirmed.checked = false;
     ocrUncertain.clear();
     inputSource = 'manual';
     sel = -1;
@@ -94,7 +109,15 @@ function setup(app: HTMLElement): void {
     setMsg('', '');
     render();
   });
-  ctrl.append(btnSolve, btnSample, btnClear);
+  const share = el('button', 'sv-sub');
+  share.textContent = '問題リンクをコピー';
+  share.addEventListener('click', async () => {
+    const url = new URL('/tools/solver/', location.origin);
+    url.hash = new URLSearchParams({ grid: grid.join('') }).toString();
+    try { await navigator.clipboard.writeText(url.href); setMsg('入力した問題のリンクをコピーしました。', 'ok'); }
+    catch { setMsg('コピーできませんでした。ブラウザのコピー権限をご確認ください。', 'warn'); }
+  });
+  ctrl.append(btnSolve, btnSample, btnClear, share);
 
   const layout = el('div', 'sv-layout');
   const left = el('div', 'sv-left');
@@ -142,6 +165,7 @@ function setup(app: HTMLElement): void {
     if (cleaned.length < 81) return;
     e.preventDefault();
     grid = strToGrid(cleaned);
+    confirmed.checked = false;
     ocrUncertain.clear();
     inputSource = 'paste';
     markStarted();
@@ -168,6 +192,7 @@ function setup(app: HTMLElement): void {
     if (n !== 0) markStarted();
     solved = null; // 編集したら解答表示を解除
     clearSteps();
+    confirmed.checked = false;
     grid[sel] = n;
     ocrUncertain.delete(sel); // 利用者が直した格は OCR の要確認から外す
     if (n !== 0 && sel < 80) sel++; // 数字入力で次のマスへ自動前進（25個前後の手入力が半分の操作で済む）
@@ -241,6 +266,31 @@ function setup(app: HTMLElement): void {
     render();
     void renderSteps(grid.slice()); // 「解き方の手順」を図解表示（grid は元の問題＝題面）
     track('solver_solve', { result: n > 1 ? 'multiple' : 'unique', input_method: inputSource, ocr_uncertain: ocrUncertain.size, filled: givenMask.filter(Boolean).length });
+    if (!publicChoice.checked) { publicStatus.textContent = '公開候補には送信していません。'; return; }
+    if (!eligibleForPublic(grid, n, ocrUncertain.size, confirmed.checked, SOLVER_SAMPLE) || inputSource === 'sample') {
+      publicStatus.textContent = '確認済みの唯一解の問題のみ公開候補に送信します。'; return;
+    }
+    const todayJst = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
+    if (date.value && (date.value > todayJst || !date.validity.valid)) { publicStatus.textContent = '掲載日を確認してください。問題は送信されていません。'; return; }
+    const sourceKind = source.value || (paper.value ? 'newspaper' : date.value || edition.value.trim() || issue.value.trim() ? 'other' : '');
+    const sourceData = sourceKind ? {
+      kind: sourceKind,
+      ...(sourceKind === 'newspaper' && paper.value ? { newspaper: paper.value } : {}),
+      ...(date.value ? { publicationDate: date.value } : {}),
+      ...(edition.value.trim() ? { edition: edition.value.trim() } : {}),
+      ...(issue.value.trim() ? { issue: issue.value.trim() } : {}),
+    } : undefined;
+    const body = { grid: grid.join(''), inputMethod: inputSource === 'photo' ? 'ocr' : inputSource === 'paste' ? 'paste' : 'manual', confirmed: true, noticeVersion: '2026-11-15', ...(sourceData ? { source: sourceData } : {}) };
+    if (submitting.has(body.grid) || receipts.has(body.grid)) { publicStatus.textContent = 'この問題は送信中、またはこの端末から投稿済みです。控えから取り下げできます。'; return; }
+    submitting.add(body.grid);
+    publicStatus.textContent = '公開候補を送信しています…';
+    void fetch('/api/public-puzzles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(async response => {
+      if (!response.ok) throw new Error('submission failed');
+      const result = await response.json();
+      if (typeof result.puzzleId !== 'string' || !/^[a-f0-9]{64}$/.test(result.puzzleId) || typeof result.submissionId !== 'string' || typeof result.withdrawToken !== 'string') throw new Error('invalid response');
+      const persisted = receipts.add({ ...result, grid: body.grid });
+      publicStatus.textContent = '公開候補として受け付けました。確認後に公開される場合があります。' + (persisted ? '' : ' このブラウザには保存できません。ページを閉じる前に下の「秘密の撤回控えを保存」で控えを保存してください。');
+    }).catch(() => { publicStatus.textContent = '公開候補を送信できませんでした。解答はそのまま利用できます。'; }).finally(() => { submitting.delete(body.grid); });
   }
 
   async function onImage(file: File): Promise<void> {
@@ -249,6 +299,7 @@ function setup(app: HTMLElement): void {
     setMsg('写真を読み取っています…（初回はエンジンの読み込みに時間がかかります）', 'warn');
     try {
       const result = await recognizeImage(file, (n) => setMsg(`写真を読み取り中… ${Math.round((n / 81) * 100)}%`, 'warn'));
+      confirmed.checked = false;
       grid = strToGrid(result.grid);
       ocrUncertain = new Set(result.uncertain);
       inputSource = 'photo';

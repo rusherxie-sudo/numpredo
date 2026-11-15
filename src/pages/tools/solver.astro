@@ -90,13 +90,27 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
   <p class="lead">新聞・雑誌の数独（ナンプレ）を、<strong>カメラで撮るか、画像を選んで</strong>読み取り、答えを計算できます。手入力もでき、無料・登録不要です。<strong>9×9 の標準ルール専用</strong>です。今日の練習問題は<a href="/daily/">日替わりナンプレ</a>、自力で解く手順は<a href="/guide/how-to-solve/">解き方ガイド</a>へどうぞ。</p>
   {dateModifiedLabel && <p class="sv-updated"><time datetime={dateModified}>最終更新日：{dateModifiedLabel}</time></p>}
 
+  <p>写真は端末内で処理され、送信されません。解く際、条件を満たした入力盤面は公開候補として送信され、確認後に公開される場合があります。公開を希望しない場合は下のチェックを外せます。<a href="/contact/">公開・撤回のお問い合わせ</a> ／ <a href="/public-puzzles/">みんなの投稿問題</a></p>
   <div class="sv-photo">
     <label class="sv-photo-btn sv-photo-cam"><input type="file" accept="image/*" capture="environment" data-photo hidden />カメラで撮影</label>
     <label class="sv-photo-btn"><input type="file" accept="image/*" data-photo hidden />画像・スクショを選ぶ</label>
     <span class="sv-photo-or">または下の盤面に直接入力</span>
   </div>
 
-  <p id="sv-msg" class="sv-msg"></p>
+  <fieldset class="sv-public">
+    <legend>問題の公開について</legend>
+    <label><input type="checkbox" id="sv-public" checked /> 条件を満たす問題を公開候補として送信する</label>
+    <p>写真・解答は送信しません。入力した81マスと、任意の出典情報を送信します。公開前に確認されます。掲載の取り下げは<a href="/contact/">お問い合わせ</a>ください。</p>
+    <label>出典（任意） <select id="sv-source"><option value="">未入力</option><option value="newspaper">新聞</option><option value="other">その他</option></select></label>
+    <label>新聞名（任意） <select id="sv-paper"><option value="">不明</option><option value="yomiuri">読売新聞</option><option value="asahi">朝日新聞</option><option value="mainichi">毎日新聞</option><option value="nikkei">日本経済新聞</option><option value="chunichi">中日新聞</option><option value="other">その他</option></select></label>
+    <label>掲載日（任意） <input type="date" id="sv-date" /></label>
+    <label>版（任意） <input type="text" id="sv-edition" maxlength="80" /></label>
+    <label>問題番号（任意） <input type="text" id="sv-issue" maxlength="80" /></label>
+    <p>出典は投稿者の申告であり、確認済みではありません。画像から読み取った場合は全マスを元の問題と照合してください。</p>
+    <label><input type="checkbox" id="sv-confirm" /> 入力盤面が元の問題と一致することを確認しました</label>
+    <p id="sv-public-status" role="status"></p>
+  </fieldset>
+  <p id="sv-msg" class="sv-msg" role="status"></p>
   <div id="sv-app">
     {/* 静态骨架盘面：JS 加载前防白屏；ocr-solve.ts 会用 innerHTML='' 替换，勿改结构 */}
     <div class="sv-layout" aria-hidden="true">
@@ -236,6 +250,9 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     .sv-skeleton-go { height: 46px; margin-top: 12px; }
     .sv-skeleton-subs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
     .sv-skeleton-subs span { height: 39px; }
+    .sv-public { margin: 18px 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
+    .sv-public label { display: block; margin: 8px 0; }
+    .sv-public p { font-size: 13px; }
     .sv-msg { font-size: 13px; color: var(--ink-3); margin: 0 0 10px; min-height: 1.2em; }
     .sv-msg.ok { color: var(--accent); }
     .sv-msg.warn { color: var(--ink-2); }

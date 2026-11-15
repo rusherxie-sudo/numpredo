@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="みんなの投稿ナンプレ" description="みんなが投稿し、公開された数独に挑戦できます。" noindex>
+  <nav class="crumb"><a href="/">ホーム</a> › 投稿問題</nav>
+  <h1>みんなの投稿ナンプレ</h1>
+  <p>利用者から投稿され、確認後に公開された問題です。あなた自身の履歴ではありません。新聞などの出典は投稿者の申告で、確認済みとは限りません。</p>
+  <p><a href="/tools/solver/">写真や手入力で問題を解く</a></p>
+  <div id="public-puzzles" aria-live="polite">読み込み中…</div>
+  <script>import '../client/public-puzzles.ts';</script>
+  <style>
+    :global(.public-board) { display:grid; grid-template-columns:repeat(9,minmax(0,1fr)); max-width:540px; border:2px solid var(--box-line); }
+    :global(.public-board input) { width:100%; aspect-ratio:1; min-width:0; padding:0; text-align:center; font-size:clamp(16px,4vw,25px); background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+    :global(.public-board input:disabled) { font-weight:bold; opacity:1; background:var(--surface-2); }
+    :global(.public-board input:nth-child(9n+3)), :global(.public-board input:nth-child(9n+6)) { border-right:2px solid var(--box-line); }
+    :global(.public-board input:nth-child(n+19):nth-child(-n+27)), :global(.public-board input:nth-child(n+46):nth-child(-n+54)) { border-bottom:2px solid var(--box-line); }
+    :global(.public-controls) { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0; }
+  </style>
+</Base>
