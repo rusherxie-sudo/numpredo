@@ -14,9 +14,10 @@ class Query implements Statement {
  bind(...values: unknown[]) { const q = new Query(this.sql); q.values = values; return q; }
  async first<T>() { return (sqlite.prepare(this.sql).get(...this.values as never[]) ?? null) as T | null; }
  async all<T>() { return {results:sqlite.prepare(this.sql).all(...this.values as never[]) as T[]}; }
- async run() { return {meta:sqlite.prepare(this.sql).run(...this.values as never[])}; }
+ execute() { return {meta:sqlite.prepare(this.sql).run(...this.values as never[])}; }
+ async run() { return this.execute(); }
 }
-const env: Env = {PUBLIC_PUZZLES_ENABLED:'true',PUBLIC_PUZZLES_ADMIN_TOKEN:'test-only',PUBLIC_PUZZLES_RATE_LIMITER:{async limit(){return {success:true};}},PUBLIC_PUZZLES_DB:{prepare(sql){return new Query(sql);},async batch(queries){ sqlite.exec('BEGIN'); try { const results=[]; for(const q of queries) results.push(await q.run()); sqlite.exec('COMMIT'); return results; } catch(e) {sqlite.exec('ROLLBACK');throw e;} }}};
+const env: Env = {PUBLIC_PUZZLES_ENABLED:'true',PUBLIC_PUZZLES_ADMIN_TOKEN:'test-only',PUBLIC_PUZZLES_RATE_LIMITER:{async limit(){return {success:true};}},PUBLIC_PUZZLES_DB:{prepare(sql){return new Query(sql);},async batch(queries){ sqlite.exec('BEGIN'); try { const results=[]; for(const q of queries) results.push((q as Query).execute()); sqlite.exec('COMMIT'); return results; } catch(e) {sqlite.exec('ROLLBACK');throw e;} }}};
 const puzzle='530070000600195000098000060800060003400803001700020006060000280000419005000080079';
 const solved='534678912672195348198342567859761423426853791713924856961537284287419635345286179';
 assert.equal(validateGrid(puzzle).status,'unique');
@@ -66,19 +67,75 @@ assert.equal((await req('/'+first.data.puzzleId+'/moderate',{status:'public',rea
 assert.equal((await req('/'+first.data.puzzleId+'/moderate',{status:'public',reason:'test rights review',rightsReviewed:true},true)).status,200);
 assert.equal((await req()).data.items.length,1);
 const detail=(await req('/'+first.data.puzzleId)).data;
-assert.equal(detail.grid,puzzle); assert.equal(detail.sources.length,2); assert.equal(detail.sources[0].verification,'unverified');
+assert.equal(detail.grid,puzzle); assert.deepEqual(detail.sources,[]); // 题面发布不自动发布来源。
 assert.equal(detail.withdrawToken,undefined);
 assert.equal((await req('/'+first.data.puzzleId+'/review-source',{submissionId:first.data.submissionId,verification:'verified',reason:'checked'},true)).status,200);
 assert.equal((await req('/'+first.data.puzzleId)).data.sources.find((s: any)=>s.newspaper==='yomiuri').verification,'verified');
+assert.equal((await req('/'+first.data.puzzleId+'/review-source',{submissionId:first.data.submissionId,verification:'disputed',reason:'challenge'},true)).status,200);
+assert.deepEqual((await req('/'+first.data.puzzleId)).data.sources,[]); // 争议来源也不公开。
+assert.equal((await req('/'+first.data.puzzleId+'/review-source',{submissionId:first.data.submissionId,verification:'unverified',reason:'recheck'},true)).status,200);
+assert.deepEqual((await req('/'+first.data.puzzleId)).data.sources,[]);
+assert.equal((await req('/'+first.data.puzzleId+'/review-source',{submissionId:first.data.submissionId,verification:'verified',reason:'checked again'},true)).status,200);
+// 已公开题的后续投稿不继承其他投稿的 verified 状态，也不立即公开新文本。
+const late=await req('',{...submission,source:{kind:'other',edition:'UNREVIEWED-LATE-SOURCE'}});
+assert.equal(late.status,201); assert.equal(late.data.duplicate,true);
+assert.equal(late.data.status,'candidate');
+assert.equal((await req('/'+first.data.puzzleId)).data.sources.length,1);
+assert.ok(!JSON.stringify((await req('/'+first.data.puzzleId)).data).includes('UNREVIEWED-LATE-SOURCE'));
+assert.equal((await req('/'+first.data.puzzleId+'/review-source',{submissionId:late.data.submissionId,verification:'verified',reason:'checked late source'},true)).status,200);
+assert.equal((await req('/'+first.data.puzzleId)).data.sources.length,2);
+await req('/'+first.data.puzzleId+'/withdraw',late.data);
+assert.equal((await req('/'+first.data.puzzleId+'/moderate',{status:'public',reason:'remaining claims reviewed',rightsReviewed:true},true)).status,200);
+assert.equal((await req('/'+first.data.puzzleId)).data.sources.length,1); // 已核实但撤回也不显示。
 assert.equal((await req('/'+first.data.puzzleId+'/withdraw',{submissionId:first.data.submissionId,withdrawToken:'wrong'})).status,404);
 assert.equal((await req('/'+first.data.puzzleId+'/withdraw',first.data)).status,200);
 assert.equal((await req('/'+first.data.puzzleId)).status,404);
 assert.equal((await req()).data.items.length,0);
+// 重放旧令牌仍返回成功，但不覆盖剩余投稿合法重审后的状态、时间和审计。
+assert.equal((await req('/'+first.data.puzzleId+'/moderate',{status:'public',reason:'remaining active claim reviewed',rightsReviewed:true},true)).status,200);
+const reviewedState=sqlite.prepare('SELECT status,updated_at FROM public_puzzles WHERE id=?').get(first.data.puzzleId);
+const withdrawalState=sqlite.prepare('SELECT status,updated_at FROM public_puzzle_submissions WHERE id=?').get(first.data.submissionId);
+const countWithdrawals=(submissionId:string)=>sqlite.prepare("SELECT count(*) AS n FROM public_puzzle_audit WHERE submission_id=? AND action='withdraw'").get(submissionId)?.n;
+assert.equal((await req('/'+first.data.puzzleId+'/withdraw',first.data)).status,200);
+assert.deepEqual(sqlite.prepare('SELECT status,updated_at FROM public_puzzles WHERE id=?').get(first.data.puzzleId),reviewedState);
+assert.deepEqual(sqlite.prepare('SELECT status,updated_at FROM public_puzzle_submissions WHERE id=?').get(first.data.submissionId),withdrawalState);
+assert.equal(countWithdrawals(first.data.submissionId),1);
+// 两次请求都完成事务外鉴权后：首次撤回 -> 合法重审 -> 延迟的重复撤回事务。
+// 批次以真实SQLite事务串行执行，不能把单库事务内部的await交错误当D1并发。
+const db=env.PUBLIC_PUZZLES_DB!;
+const arrivals: {queries:Statement[];resolve:(value:unknown[])=>void;reject:(error:unknown)=>void}[]=[];
+const racingEnv:Env={...env,PUBLIC_PUZZLES_DB:{prepare:sql=>db.prepare(sql),batch:queries=>new Promise((resolve,reject)=>{
+ arrivals.push({queries,resolve,reject});
+ if(arrivals.length===2) void (async()=>{
+  try {
+   const firstResult=await db.batch(arrivals[0].queries);
+   assert.equal((await req('/'+first.data.puzzleId)).status,404);
+   // 第一笔已撤回，尚有新有效投稿时允许重审；后到的旧事务不得再次隐藏。
+   const replacement=await req('',submission);
+   assert.equal(replacement.status,201);
+   assert.equal((await req('/'+first.data.puzzleId+'/moderate',{status:'public',reason:'concurrent re-review',rightsReviewed:true},true)).status,200);
+   const secondResult=await db.batch(arrivals[1].queries);
+   assert.equal((await req('/'+first.data.puzzleId)).status,200);
+   await req('/'+first.data.puzzleId+'/withdraw',replacement.data);
+   arrivals[0].resolve(firstResult); arrivals[1].resolve(secondResult);
+  } catch(error) { for(const arrival of arrivals) arrival.reject(error); }
+ })();
+})}};
+const racing=await Promise.all([req('/'+first.data.puzzleId+'/withdraw',again.data,false,racingEnv),req('/'+first.data.puzzleId+'/withdraw',again.data,false,racingEnv)]);
+assert.deepEqual(racing.map(r=>r.status),[200,200]); assert.equal(arrivals.length,2);
+assert.equal(countWithdrawals(again.data.submissionId),1);
 const third=await req('',submission); assert.equal(third.data.duplicate,true); assert.equal((await req('/'+first.data.puzzleId)).status,404);
 assert.equal(sqlite.prepare('SELECT count(*) AS n FROM public_puzzles').get()?.n,1);
-assert.equal(sqlite.prepare('SELECT count(*) AS n FROM public_puzzle_submissions').get()?.n,3);
+assert.equal(sqlite.prepare('SELECT count(*) AS n FROM public_puzzle_submissions').get()?.n,5);
 await req('/'+first.data.puzzleId+'/withdraw',again.data);
-await req('/'+first.data.puzzleId+'/withdraw',third.data);
+// 任一撤回副作用失败则审计、投稿状态和题面状态整体回滚。
+sqlite.exec("CREATE TRIGGER reject_test_withdraw BEFORE UPDATE ON public_puzzles BEGIN SELECT RAISE(ABORT,'test withdrawal rollback'); END");
+assert.equal((await req('/'+first.data.puzzleId+'/withdraw',third.data)).status,503);
+assert.equal(sqlite.prepare('SELECT status FROM public_puzzle_submissions WHERE id=?').get(third.data.submissionId)?.status,'active');
+assert.equal(countWithdrawals(third.data.submissionId),0);
+sqlite.exec('DROP TRIGGER reject_test_withdraw');
+assert.equal((await req('/'+first.data.puzzleId+'/withdraw',third.data)).status,200);
+assert.equal(countWithdrawals(third.data.submissionId),1);
 assert.equal((await req('/'+first.data.puzzleId+'/moderate',{status:'public',reason:'no active submissions',rightsReviewed:true},true)).status,409);
 assert.equal((await req('/'+first.data.puzzleId)).status,404);
 // 整批投稿在第二条SQL失败时回滚题面，不能留下孤立候选。

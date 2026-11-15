@@ -57,7 +57,7 @@ async function handle(request: Request, env: Env): Promise<Response> {
     }
     const row = await db.prepare("SELECT * FROM public_puzzles WHERE id=? AND status='public'").bind(id).first<Row>();
     if (!row) return error('not_found',404);
-    const sources = await db.prepare("SELECT source_json,source_status FROM public_puzzle_submissions WHERE puzzle_id=? AND status='active' AND source_json IS NOT NULL ORDER BY created_at,id LIMIT 100").bind(id).all<{source_json:string;source_status:string}>();
+    const sources = await db.prepare("SELECT source_json,source_status FROM public_puzzle_submissions WHERE puzzle_id=? AND status='active' AND source_status='verified' AND source_json IS NOT NULL ORDER BY created_at,id LIMIT 100").bind(id).all<{source_json:string;source_status:string}>();
     return response({id:row.id,grid:row.grid,createdAt:row.created_at,status:row.status,sources:sources.results.map(s => ({...JSON.parse(s.source_json),verification:s.source_status}))});
   }
   if (request.method !== 'POST') return error('method_not_allowed',405);
@@ -96,11 +96,14 @@ async function handle(request: Request, env: Env): Promise<Response> {
     if (typeof data.submissionId !== 'string' || typeof data.withdrawToken !== 'string' || data.withdrawToken.length > 200) throw new Error('invalid_withdrawal');
     const row = await db.prepare('SELECT id FROM public_puzzle_submissions WHERE id=? AND puzzle_id=? AND withdraw_hash=?').bind(data.submissionId,id,await sha256(data.withdrawToken)).first();
     if (!row) return error('not_found',404);
+    // 本次唯一操作标记只在 active -> withdrawn 时生成；所有副作用共用同一事务。
+    // 并发请求即使都通过上面的鉴权，后执行的事务也不会重放隐藏或审计。
+    const operationId = crypto.randomUUID();
     await db.batch([
-      db.prepare("UPDATE public_puzzle_submissions SET status='withdrawn',updated_at=? WHERE id=?").bind(now,data.submissionId),
-      // 保守隐藏整题，重复投稿不能绕过撤回；恢复需重新审核。
-      db.prepare("UPDATE public_puzzles SET status='hidden',updated_at=? WHERE id=?").bind(now,id),
-      db.prepare("INSERT INTO public_puzzle_audit(id,puzzle_id,submission_id,action,reason,created_at) VALUES(?,?,?,'withdraw','user_withdrawal',?)").bind(crypto.randomUUID(),id,data.submissionId,now),
+      db.prepare("INSERT INTO public_puzzle_audit(id,puzzle_id,submission_id,action,reason,created_at) SELECT ?,puzzle_id,id,'withdraw','user_withdrawal',? FROM public_puzzle_submissions WHERE id=? AND puzzle_id=? AND status='active' AND withdraw_hash=?").bind(operationId,now,data.submissionId,id,await sha256(data.withdrawToken)),
+      db.prepare("UPDATE public_puzzle_submissions SET status='withdrawn',updated_at=? WHERE id=? AND EXISTS(SELECT 1 FROM public_puzzle_audit WHERE id=?)").bind(now,data.submissionId,operationId),
+      // 首次撤回保守隐藏整题；旧令牌重试不会覆盖后续合法重审状态。
+      db.prepare("UPDATE public_puzzles SET status='hidden',updated_at=? WHERE id=? AND EXISTS(SELECT 1 FROM public_puzzle_audit WHERE id=?)").bind(now,id,operationId),
     ]);
     return response({status:'withdrawn'});
   }
