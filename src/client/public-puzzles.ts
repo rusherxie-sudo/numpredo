@@ -21,7 +21,23 @@ async function start(root: HTMLElement): Promise<void> {
           const line = document.createElement('li');
           const text = [names[source.newspaper] ?? '出典未記入', source.publicationDate, source.edition, source.issue].filter(value => typeof value === 'string' && value).join(' / ');
           const doubles = Array.isArray(source.doubleCells) ? source.doubleCells.filter((n: number) => Number.isInteger(n) && n >= 0 && n < 81).map((n: number) => String(Math.floor(n / 9) + 1) + '行' + String(n % 9 + 1) + '列').join('・') : '';
-          line.textContent = text + (doubles ? ' / 二重枠: ' + doubles : '') + '（投稿者申告・' + (source.verification === 'verified' ? '確認済み' : source.verification === 'disputed' ? '要確認' : '未確認') + '）'; sources.append(line);
+          line.textContent = text + (doubles ? ' / 二重枠: ' + doubles : '') + '（投稿者申告・' + (source.verification === 'verified' ? '確認済み' : source.verification === 'disputed' ? '要確認' : '未確認') + '）';
+          const cells = source.doubleCells;
+          if (Array.isArray(cells) && cells.length === 2 && cells.every((n: number) => Number.isInteger(n) && n >= 0 && n < 81) && cells[0] !== cells[1]) {
+            const show = document.createElement('button'); show.type = 'button'; show.textContent = '二重枠の数字と合計を見る';
+            const result = document.createElement('span'); result.setAttribute('role', 'status');
+            show.addEventListener('click', async () => {
+              show.disabled = true;
+              try {
+                const { countSolutions, solveOne } = await import('../engine/countSolver.ts');
+                if (countSolutions(puzzle, 2) !== 1) throw new Error('not unique');
+                const answer = solveOne(puzzle); if (!answer) throw new Error('unsolved');
+                result.textContent = ' ' + answer[cells[0]] + ' + ' + answer[cells[1]] + ' = ' + (answer[cells[0]] + answer[cells[1]]) + '（座標は投稿者の申告、数値は当サイトの計算であり公式発表ではありません）';
+              } catch { result.textContent = ' 二重枠の数字を計算できませんでした。'; }
+              finally { show.disabled = false; }
+            }); line.append(' ', show, result);
+          }
+          sources.append(line);
         } root.append(sources);
       }
       const board = document.createElement('div'); board.className = 'public-board'; board.setAttribute('aria-label', '数独の問題');
@@ -49,6 +65,10 @@ async function start(root: HTMLElement): Promise<void> {
         try { const { solveOne } = await import('../engine/countSolver.ts'); const answer = solveOne(puzzle); if (!answer) throw new Error('invalid puzzle'); solution.textContent = Array.from({ length: 9 }, (_, r) => answer.slice(r * 9, r * 9 + 9).join(' ')).join(' / '); solution.hidden = !solution.hidden; reveal.textContent = solution.hidden ? '答えを表示する' : '答えを隠す'; }
         catch { status.textContent = '解答を読み込めませんでした。'; } finally { reveal.disabled = false; }
       }); controls.append(check, reveal, share); root.append(controls, status, solution);
+      const steps = document.createElement('p');
+      const solveLink = document.createElement('a'); solveLink.href = '/tools/solver/#' + new URLSearchParams({ grid: item.grid }).toString(); solveLink.textContent = 'この問題をソルバーで解き、手順を見る →';
+      const guide = document.createElement('a'); guide.href = '/guide/how-to-solve/'; guide.textContent = '数独の解き方・テクニック一覧 →';
+      steps.append(solveLink, ' ／ ', guide); root.append(steps);
       const back = document.createElement('a'); back.href = '/public-puzzles/'; back.textContent = '投稿問題一覧へ'; root.append(back);
     } else {
       root.replaceChildren(); const list = document.createElement('ul'); root.append(list);

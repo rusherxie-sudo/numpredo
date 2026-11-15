@@ -5,7 +5,7 @@ import { solveOne, countSolutions } from '../engine/countSolver.ts';
 import { SOLVER_SAMPLE } from '../data/solver-sample.ts';
 import { addReturnLink, carriedParam, toolLink } from './learning-transfer.ts';
 import { track } from './track.ts';
-import { eligibleForPublic } from './public-submission.ts';
+import { eligibleForPublic, parseDoubleCells, resetPublicSource } from './public-submission.ts';
 import { setupReceipts } from './public-receipts.ts';
 
 const app = document.getElementById('sv-app');
@@ -26,6 +26,9 @@ function setup(app: HTMLElement): void {
   const date = document.getElementById('sv-date') as HTMLInputElement;
   const edition = document.getElementById('sv-edition') as HTMLInputElement;
   const issue = document.getElementById('sv-issue') as HTMLInputElement;
+  const doubleInputs = ['r1', 'c1', 'r2', 'c2'].map(id => document.getElementById('sv-double-' + id) as HTMLInputElement);
+
+  const resetSource = (): void => resetPublicSource([source, paper, date, edition, issue, ...doubleInputs], confirmed);
 
   let grid: number[] = new Array(81).fill(0); // ユーザー入力（0=空）
   let sel = -1;
@@ -88,7 +91,7 @@ function setup(app: HTMLElement): void {
   btnSample.textContent = 'サンプル';
   btnSample.addEventListener('click', () => {
     grid = strToGrid(SOLVER_SAMPLE);
-    confirmed.checked = false;
+    resetSource();
     ocrUncertain.clear();
     inputSource = 'sample';
     markStarted();
@@ -101,7 +104,7 @@ function setup(app: HTMLElement): void {
   btnClear.textContent = '全部消す';
   btnClear.addEventListener('click', () => {
     grid = new Array(81).fill(0);
-    confirmed.checked = false;
+    resetSource();
     ocrUncertain.clear();
     inputSource = 'manual';
     sel = -1;
@@ -165,7 +168,7 @@ function setup(app: HTMLElement): void {
     if (cleaned.length < 81) return;
     e.preventDefault();
     grid = strToGrid(cleaned);
-    confirmed.checked = false;
+    resetSource();
     ocrUncertain.clear();
     inputSource = 'paste';
     markStarted();
@@ -272,13 +275,16 @@ function setup(app: HTMLElement): void {
     }
     const todayJst = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
     if (date.value && (date.value > todayJst || !date.validity.valid)) { publicStatus.textContent = '掲載日を確認してください。問題は送信されていません。'; return; }
-    const sourceKind = source.value || (paper.value ? 'newspaper' : date.value || edition.value.trim() || issue.value.trim() ? 'other' : '');
+    const doubleCells = parseDoubleCells(doubleInputs.map(input => input.value));
+    if (doubleCells === undefined || doubleInputs.some(input => !input.validity.valid)) { publicStatus.textContent = '二重枠は異なる2マスの行・列を1〜9で入力するか、すべて空欄にしてください。'; return; }
+    const sourceKind = source.value || (paper.value ? 'newspaper' : date.value || edition.value.trim() || issue.value.trim() || doubleCells ? 'other' : '');
     const sourceData = sourceKind ? {
       kind: sourceKind,
       ...(sourceKind === 'newspaper' && paper.value ? { newspaper: paper.value } : {}),
       ...(date.value ? { publicationDate: date.value } : {}),
       ...(edition.value.trim() ? { edition: edition.value.trim() } : {}),
       ...(issue.value.trim() ? { issue: issue.value.trim() } : {}),
+      ...(doubleCells ? { doubleCells } : {}),
     } : undefined;
     const body = { grid: grid.join(''), inputMethod: inputSource === 'photo' ? 'ocr' : inputSource === 'paste' ? 'paste' : 'manual', confirmed: true, noticeVersion: '2026-11-15', ...(sourceData ? { source: sourceData } : {}) };
     if (submitting.has(body.grid) || receipts.has(body.grid)) { publicStatus.textContent = 'この問題は送信中、またはこの端末から投稿済みです。控えから取り下げできます。'; return; }
@@ -294,12 +300,12 @@ function setup(app: HTMLElement): void {
   }
 
   async function onImage(file: File): Promise<void> {
+    resetSource();
     clearOut();
     photoInputs.forEach((i) => (i.disabled = true));
     setMsg('写真を読み取っています…（初回はエンジンの読み込みに時間がかかります）', 'warn');
     try {
       const result = await recognizeImage(file, (n) => setMsg(`写真を読み取り中… ${Math.round((n / 81) * 100)}%`, 'warn'));
-      confirmed.checked = false;
       grid = strToGrid(result.grid);
       ocrUncertain = new Set(result.uncertain);
       inputSource = 'photo';
@@ -375,6 +381,7 @@ function setup(app: HTMLElement): void {
   // 例外：?grid=（ゲーム側「ソルバーで解説」動線の持ち込み盤面、81桁の 1-9/./0）は預填する。
   const urlGrid = (carriedParam('grid') ?? '').replace(/[^0-9.]/g, '');
   if (urlGrid.length === 81 && /[1-9]/.test(urlGrid)) {
+    resetSource();
     grid = strToGrid(urlGrid);
     inputSource = carriedParam('source')==='newspaper'?'newspaper':'game';
     render();

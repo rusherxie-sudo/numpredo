@@ -106,6 +106,11 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     <label>掲載日（任意） <input type="date" id="sv-date" /></label>
     <label>版（任意） <input type="text" id="sv-edition" maxlength="80" /></label>
     <label>問題番号（任意） <input type="text" id="sv-issue" maxlength="80" /></label>
+    <p>二重枠（任意）：2か所とも、上からの行・左からの列を1〜9で入力してください。</p>
+    <label>1か所目の行 <input type="number" id="sv-double-r1" min="1" max="9" step="1" inputmode="numeric" /></label>
+    <label>1か所目の列 <input type="number" id="sv-double-c1" min="1" max="9" step="1" inputmode="numeric" /></label>
+    <label>2か所目の行 <input type="number" id="sv-double-r2" min="1" max="9" step="1" inputmode="numeric" /></label>
+    <label>2か所目の列 <input type="number" id="sv-double-c2" min="1" max="9" step="1" inputmode="numeric" /></label>
     <p>出典は投稿者の申告であり、確認済みではありません。画像から読み取った場合は全マスを元の問題と照合してください。</p>
     <label><input type="checkbox" id="sv-confirm" /> 入力盤面が元の問題と一致することを確認しました</label>
     <p id="sv-public-status" role="status"></p>
@@ -132,6 +137,13 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
   </div>
 
   <div id="sv-steps" class="sv-steps" hidden></div>
+  <section>
+    <h2>みんなの問題</h2>
+    <p>確認後に公開された最近の投稿問題です。</p>
+    <div id="sv-recent-public" aria-live="polite">読み込み中…</div>
+    <p><a href="/public-puzzles/">投稿問題の一覧を見る →</a></p>
+  </section>
+  <script>import "../../client/recent-public.ts";</script>
 
   {/* 静态示例：JS 不执行也能读到；与“サンプル”按钮同一盘面；用 <details> 收折放于 app 下方 */}
   <section class="sv-example" data-solver-example data-puzzle={SOLVER_SAMPLE} data-clues={exampleClues} data-steps={exampleSteps} data-level={exampleLevelJa} data-hardest={exampleHardestJa}>
@@ -250,6 +262,9 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     .sv-skeleton-go { height: 46px; margin-top: 12px; }
     .sv-skeleton-subs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
     .sv-skeleton-subs span { height: 39px; }
+    .recent-public-list { display:flex; flex-wrap:wrap; gap:12px; }
+    .recent-public-item { display:block; padding:10px; border:1px solid var(--line); border-radius:8px; color:var(--ink); }
+    .recent-public-item pre { margin:8px 0 0; font-size:12px; line-height:1.35; }
     .sv-public { margin: 18px 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
     .sv-public label { display: block; margin: 8px 0; }
     .sv-public p { font-size: 13px; }
