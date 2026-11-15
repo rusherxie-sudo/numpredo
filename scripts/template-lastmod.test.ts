@@ -27,4 +27,3 @@ try{
  assert.equal(templateLastmod(file,CANDIDATE_ONLY_LINES,dir),dates[4]);
  console.log('PASS: exclusive insertion/removal, repeated generation, shared deletion and mixed changes');
 }finally{rmSync(dir,{recursive:true,force:true});}
-
