@@ -58,7 +58,7 @@ const breadcrumbSchema = {
 
   {doc.slug === 'intermediate' && <p class="screen-only" data-intermediate-online>画面で解きたい方は<a href="/play/intermediate/">中級ナンプレの無料オンラインゲーム（1,000問・途中保存）</a>へ。紙で解く方は、下の答え付きPDFをダウンロードするか、問題数を選んで印刷できます。</p>}
 
-  {doc.slug !== 'intermediate' && <PrintTool defaultLevel={doc.slug} />}
+  {doc.slug !== 'beginner' && doc.slug !== 'intermediate' && <PrintTool defaultLevel={doc.slug} />}
 
   <div class="screen-only">
     <section class="pdf-download" aria-labelledby="pdf-download-title">
@@ -82,7 +82,7 @@ const breadcrumbSchema = {
     </section>
   </div>
 
-  {doc.slug === 'intermediate' && <PrintTool defaultLevel={doc.slug} />}
+  {(doc.slug === 'beginner' || doc.slug === 'intermediate') && <PrintTool defaultLevel={doc.slug} />}
 
   <div class="screen-only">
     {doc.sections.map((s) => (

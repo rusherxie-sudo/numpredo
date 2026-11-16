@@ -202,8 +202,14 @@ const footerCols = [
       gtag('config', 'G-CM79TWN2J0', { page_location: cleanAnalyticsURL(analyticsURL.href), page_referrer: cleanAnalyticsURL(document.referrer), allow_google_signals: false, allow_ad_personalization_signals: false });
       (function() {
         // URL 查询参数或片段可能包含粘贴的盘面或自定义打印标题。
-        // 此类页面不加载自动统计脚本，包括可能读取网址的增强事件。
-        function sensitiveAnalyticsPage() { return !!(location.search || location.hash); }
+        // 仅放行五档游戏的单个正整数题号及固定盘面锚点；其他参数和片段继续禁用统计。
+        function sensitiveAnalyticsPage() {
+          const gamePage = /^\/play\/(beginner|intermediate|advanced|hard|extreme)\/$/.test(location.pathname);
+          if (location.hash && !(gamePage && location.hash === '#level-game')) return true;
+          if (!location.search) return false;
+          const params = [...new URLSearchParams(location.search)];
+          return !(gamePage && params.length === 1 && params[0][0] === 'n' && /^[1-9]\d*$/.test(params[0][1]));
+        }
         if (sensitiveAnalyticsPage()) return;
         var loaded = false;
         var events = ['pointerdown', 'keydown', 'touchstart', 'scroll'];
