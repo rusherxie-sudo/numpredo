@@ -115,6 +115,7 @@ const breadcrumbSchema = {
 
     <h1>{SEO_H1[meta.slug] ?? `数独無料ゲーム ${meta.ja}｜ナンプレ${meta.ja}の問題`}</h1>
     <p class="lv-intro">{meta.intro}</p>
+    {(meta.slug === 'beginner' || meta.slug === 'intermediate') && <p><a href="/guide/how-to-solve/#beginner-walkthrough">初級1問を最初から完成まで、全43手の図解で学ぶ</a> — 同じ問題の練習・解説PDF付き。</p>}
     {meta.slug==='beginner'&&<p><a href="#level-game">初級をすぐに遊ぶ</a> ／ <a href="#problem-examples">問題と答えの例を見る</a> ／ <a href="#beginner-start">最初の3手を練習</a></p>}
     {meta.slug==='intermediate'&&<p><a href="#level-game">中級をすぐに遊ぶ</a> ／ <a href="#problem-examples">問題と答えの例を見る</a> ／ <a href="/print/intermediate/">紙で解く・PDF</a></p>}
 

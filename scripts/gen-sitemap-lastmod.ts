@@ -70,6 +70,7 @@ const STATIC_EXTRA_DATA: Record<string, string[]> = {
   'tools/solver.astro': ['src/client/ocr-solve.ts','src/data/solver-sample.ts','src/client/learning-transfer.ts'],
   'print/senior.astro': ['src/components/PrintResourceCards.astro','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json','src/components/ActivityPack.astro','src/components/ActivityContinuation.astro','public/downloads/activity/manifest-02.json','scripts/gen-activity-pack.py','public/downloads/activity/manifest.json'],
   'guide/solving-examples.astro': ['src/data/teaching-cases.ts','src/components/ExpansionLinks.astro','src/data/expansion/examples.ts'],
+  'guide/how-to-solve.astro': ['src/components/BeginnerWalkthrough.astro','src/data/beginner-walkthrough.ts','src/data/teaching-cases.ts','src/data/puzzles/beginner.json','scripts/gen-beginner-tutorial.py','public/downloads/beginner-tutorial/manifest.json'],
   'tools/candidate-checker.astro': ['src/client/candidate-checker.ts','src/client/candidate-progress.ts','src/client/learning-transfer.ts'],
   'variants/4x4.astro': ['src/data/mini4.ts', 'src/components/MiniSudoku4.astro', 'src/client/mini-sudoku4.ts'],
   'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts','src/data/sudoku16-samples.ts','src/components/VariantGame.astro','src/client/variant-game.ts','src/data/sudoku16-play.ts','src/engine/variant-symbols.ts','public/downloads/variants/manifest.json'],
@@ -181,6 +182,10 @@ const lessonTemplateDates = Object.fromEntries(LESSONS.map(l=>[
   `${l.path.slice(1,-1)}.astro`, l.slug==='candidate-update'?candidateLessonDate:commonLessonDate,
 ]));
 
+// 完整教程入口只供初级、中级使用；其余难度排除这一条件行后的历史才是真实更新日。
+const commonPlayDate = templateLastmod('src/pages/play/[level].astro', [
+  /^\s*\{\(meta\.slug === 'beginner' \|\| meta\.slug === 'intermediate'\) && <p><a href="\/guide\/how-to-solve\/#beginner-walkthrough">.*<\/p>\}$/,
+]);
 const map: Record<string, string> = {};
 
 // 先动态路由、后静态页：同 URL 时静态页的归因优先
@@ -228,7 +233,7 @@ for (const rel of [...allPages.filter((p) => p.includes('[')), ...allPages.filte
     const templateDate = gitLastmod([`${PAGES}/${rel}`]);
     for (const slug of slugsFromData(dataFile)) {
       const date = latestIso(
-        templateDate,
+        rel === 'play/[level].astro' && !['beginner','intermediate'].includes(slug) ? commonPlayDate : templateDate,
         gitSlugLastmod(dataFile, slug),
         gitLastmod(DYNAMIC_SLUG_EXTRA[rel]?.[slug] ?? []),
       );

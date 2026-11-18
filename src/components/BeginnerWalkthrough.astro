@@ -1,0 +1,81 @@
+---
+import { beginnerWalkthrough, TUTORIAL_GAME, TUTORIAL_DOWNLOAD_DIR } from '../data/beginner-walkthrough.ts';
+import { renderBoardSvg, computeCandidates } from '../engine/index.ts';
+const lesson = beginnerWalkthrough();
+const given = lesson.initial.map(v => v !== 0);
+const board = (values: number[], title: string, cell?: number) => renderBoardSvg(values, { given, cell: 36, title, desc: title + '。太字は問題の数字、細字はここまでに確定した数字です。', cellHighlights: cell == null ? [] : [{ cell }] });
+const hiddenCandidates = computeCandidates(lesson.initial).map((mask, cell) => cell < 9 ? mask : 0);
+---
+<section id="beginner-walkthrough" class="walkthrough" aria-labelledby="walkthrough-title">
+  <h2 id="walkthrough-title">初級No.1を、最初の一手から完成まで解く</h2>
+  <p>ここからは同じ1問を最後まで解きます。空きマスは{lesson.steps.length}個。各手で「なぜその数字だけに決まるか」を確かめ、1マスずつ埋めていきましょう。推測や仮置きは使いません。</p>
+  <p class="lesson-actions"><a href={TUTORIAL_GAME}>同じ初級No.1で練習する</a><a href="#tutorial-step-1">1手目から読む ↓</a><a href="#advanced-techniques">上級テクニックへ ↓</a></p>
+  <p>ゲームに保存済みの途中経過があれば、続きから開きます。最初から解き直す場合は、ゲームの「最初から」を選んでください。</p>
+  <aside class="downloads" aria-label="この例題のPDF">
+    <strong>紙で同じ問題を解く</strong>
+    <p><a href={TUTORIAL_DOWNLOAD_DIR + 'questions.pdf'} download>問題PDFをダウンロード（A4・{lesson.questionPages}ページ）</a><br />
+    <a href={TUTORIAL_DOWNLOAD_DIR + 'answers.pdf'} download>全{lesson.steps.length}手の解説・答えPDFをダウンロード（A4・{lesson.answerPages}ページ）</a></p>
+    <p>問題PDFは未記入の初級No.1、解説PDFはこのページと同じ順番・根拠と完成盤面です。</p>
+  </aside>
+  <figure class="opening-board" id="tutorial-start"><Fragment set:html={board(lesson.initial, '初級No.1の問題：38個の数字から始めます')} /><figcaption>最初の盤面。行は上から、列は左から数えます。ブロックは左上から横に1〜9です。</figcaption></figure>
+  <h3>「唯一候補」と「唯一位置」を区別する</h3>
+  <ul>
+    <li><strong>唯一候補（裸の単数）</strong>：一つのマスを見て、同じ行・列・ブロックで使われている数字を除くと、候補が一つだけ残ります。下の43手はこの方法で進めます。</li>
+    <li><strong>唯一位置（隠れた単数）</strong>：一つの数字を見て、行・列・ブロックのどこに置けるかを調べます。その数字の置き場所が一つだけなら確定できます。</li>
+  </ul>
+  <div class="hidden-example" id="tutorial-hidden-single">
+    <h3>同じ原題で比べる：1行目の「5」はどこに入る？</h3>
+    <div class="lesson-grid">
+      <figure><Fragment set:html={renderBoardSvg(lesson.initial, { given, cell: 36, candidates: hiddenCandidates, cellHighlights: [{ cell: lesson.hidden.cell }], title: '原題の1行目の候補：5を置けるのは1行9列だけ', desc: '小さい数字はまだ入れられる候補です。1行9列には1・5・6が残りますが、1行目の他の空きマスには5がありません。' })} /><figcaption>この図はまだ数字を入れる前の原題です。</figcaption></figure>
+      <div><p>{lesson.hidden.reasoning}</p>
+        <ul class="candidate-list">{lesson.hidden.cells.map(item => <li>{item.location}：｛{item.candidates.join('・')}｝</li>)}</ul>
+        <p>1行目には5が必要です。他の空きマスには5を置けないので、{lesson.hidden.location}に5が入ります。マスの候補が複数あっても確定できる例です。</p>
+        <p>これは別の見つけ方の説明です。下の手順ではまだ書き込まず、<a href={'#tutorial-step-' + lesson.hidden.stepNumber}>{lesson.hidden.stepNumber}手目</a>で同じ5を確定します。</p>
+      </div>
+    </div>
+  </div>
+  <h3 id="tutorial-index">全{lesson.steps.length}手の目次</h3>
+  <p>「上の手順へ」「次の手順へ」で前後に移動できます。すべての手順はこのページに続けて載っています。</p>
+  <nav class="step-index" aria-label="手順を選ぶ">{lesson.steps.map(step => <a href={'#tutorial-step-' + step.number}>{step.number}手目</a>)}<a href="#tutorial-complete">完成</a></nav>
+  {lesson.steps.map(step => <article class="tutorial-step" id={'tutorial-step-' + step.number} data-tutorial-step={step.number} aria-labelledby={'tutorial-heading-' + step.number}>
+    <h3 id={'tutorial-heading-' + step.number}>{step.number}手目：{step.location}に{step.digit}を入れる</h3>
+    <div class="lesson-grid">
+      <figure><Fragment set:html={board(step.after, step.number + '手目を入れた後：' + step.location + '＝' + step.digit, step.cell)} /><figcaption>{step.number}手目を入れたあとの盤面。背景の付いたマスが今回の{step.digit}です。残り{step.remaining}マス。</figcaption></figure>
+      <div><p class="step-type">唯一候補（裸の単数）</p><p><strong>入れる前の盤面で確かめる</strong></p>
+        <ul class="proof">{step.reasoning.slice(0, 3).map(text => <li>{text}</li>)}</ul>
+        <p>{step.reasoning[3]}</p><p><strong>{step.reasoning[4]}</strong></p>
+        <p>ここに{step.digit}を入れ、同じ行・列・ブロックの空きマスから{step.digit}を候補として消します。{step.remaining ? '候補を更新して、次の一手を探しましょう。' : 'すべての空きマスが埋まりました。'}</p>
+      </div>
+    </div>
+    <nav class="step-nav" aria-label={step.number + '手目の前後へ'}><a href={step.number === 1 ? '#tutorial-start' : '#tutorial-step-' + (step.number - 1)}>← {step.number === 1 ? '最初の盤面へ' : '上の手順へ（' + (step.number - 1) + '手目）'}</a><a href="#tutorial-index">目次</a><a href={step.remaining ? '#tutorial-step-' + (step.number + 1) : '#tutorial-complete'}>{step.remaining ? '次の手順へ（' + (step.number + 1) + '手目）' : '完成を確認'} →</a></nav>
+  </article>)}
+  <section id="tutorial-complete" class="completion" aria-labelledby="tutorial-complete-title">
+    <h3 id="tutorial-complete-title">完成：行・列・ブロックを確認する</h3>
+    <figure class="opening-board"><Fragment set:html={board(lesson.steps[lesson.steps.length - 1].after, '初級No.1の完成盤面：81マスの答え')} /><figcaption>初級No.1の答え。問題にあった38個の数字はそのままです。</figcaption></figure>
+    <p>各行・各列・各3×3ブロックに、1〜9が一度ずつ入りました。「候補を調べる → 一つに決まった数字を入れる → 周囲の候補を更新する」を{lesson.steps.length}回続ければ完成します。</p>
+    <p class="lesson-actions"><a href={TUTORIAL_GAME}>同じ初級No.1を自分で解く →</a><a href={TUTORIAL_DOWNLOAD_DIR + 'answers.pdf'} download>分からない手をPDFで復習する</a></p>
+    <p><a href="#tutorial-step-43">← 43手目に戻る</a> ／ <a href="/play/beginner/">別の初級問題を選ぶ</a> ／ <a href="/play/intermediate/">中級に進む</a></p>
+  </section>
+</section>
+<style>
+  .walkthrough { margin: 28px 0; }
+  .walkthrough :is(h3, article, figure, section, div[id]) { scroll-margin-top: 90px; }
+  .walkthrough a { color: var(--accent); }
+  .lesson-actions, .step-nav, .step-index { display: flex; gap: 10px 16px; flex-wrap: wrap; align-items: center; }
+  .lesson-actions a, .step-nav a, .step-index a { padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px; min-height: 44px; display: inline-flex; align-items: center; }
+  .downloads, .hidden-example, .completion { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+  .downloads p:last-child { font-size: 13px; color: var(--ink-3); }
+  .opening-board { max-width: 370px; margin: 20px auto; }
+  .lesson-grid { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 20px; align-items: start; }
+  figure { margin: 0; }
+  figure :global(svg) { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; }
+  figcaption { font-size: 12px; color: var(--ink-3); margin-top: 7px; }
+  .candidate-list, .proof { padding-left: 1.3em; font-size: 14px; }
+  .step-index { margin: 16px 0 24px; }
+  .tutorial-step { border-top: 1px solid var(--line); padding: 20px 0; }
+  .tutorial-step:target { outline: 2px solid var(--accent); outline-offset: 8px; border-radius: 4px; }
+  .step-type { color: var(--accent); font-size: 13px; margin-top: 0; }
+  .step-nav { justify-content: space-between; margin-top: 14px; font-size: 13px; }
+  @media(max-width: 640px) { .lesson-grid { grid-template-columns: 1fr; } .lesson-grid figure { width: 100%; max-width: 360px; margin: auto; } .downloads, .hidden-example, .completion { padding: 12px; } }
+  @media print { .step-nav, .step-index, .lesson-actions { display: none; } .tutorial-step, .hidden-example { break-inside: avoid; } }
+</style>

@@ -3,6 +3,7 @@ import {guideReturnScript} from '../../client/guide-return-script.ts';
 import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
 import EditorialNote from '../../components/EditorialNote.astro';
+import BeginnerWalkthrough from '../../components/BeginnerWalkthrough.astro';
 import advanced from '../../data/puzzles/advanced.json';
 import { renderBoardSvg, gridFromString, traceFirstElimination, TECH_INFO, TOKEN_THEME, type CandidateMark } from '../../engine/index.ts';
 import { TECHNIQUES } from '../../data/techniques.ts';
@@ -11,8 +12,8 @@ import publishedJson from '../../data/published.json';
 const lastmod: Record<string, string> = lastmodJson;
 const published: Record<string, string> = publishedJson;
 
-const title = 'ナンプレの解き方｜数独を図解で徹底解説 - numpredo';
-const description = 'ナンプレの解き方を図解でやさしく解説。裸の単数・隠れた単数から、区画の絞り込み・ペア（二国同盟）・X-Wingまで、初心者から難問まで使える数独の解法を順番に紹介。例題で候補を消す根拠と手順を確認できます。';
+const title = 'ナンプレの解き方｜初級1問を全43手で図解 - numpredo';
+const description = 'ナンプレの解き方を初級の実例1問で解説。最初の一手から完成まで全43手の盤面と理由を掲載。唯一候補・唯一位置の違い、同じ問題の練習と問題・解説PDF、上級テクニックも確認できます。';
 const url = 'https://numpredo.com/guide/how-to-solve/';
 
 // 构建期用引擎生成「題面」与「テクニック消去」の和風図解
@@ -55,7 +56,7 @@ const abs = (h: string): string => h.replace(/href="\//g, 'href="https://numpred
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'Article',
-  headline: 'ナンプレの解き方完全ガイド',
+  headline: 'ナンプレの解き方｜初級の1問を最初から最後まで図解',
   description,
   inLanguage: 'ja',
   mainEntityOfPage: url,
@@ -89,14 +90,14 @@ const breadcrumbSchema = {
   </Fragment>
 
   <nav class="crumb"><a href="/">ホーム</a> › 解き方</nav>
-  <h1>ナンプレの解き方完全ガイド｜数独を図解で解く</h1>
+  <h1>ナンプレの解き方｜初級の1問を最初から最後まで図解</h1>
   {dateModified && <p class="upd"><time datetime={dateModified}>最終更新日：{dateModified.slice(0, 10).replace(/-/g, '/')}</time></p>}
-  <p class="lead">ナンプレの解き方を、単数の発見から上級テクニックまで図解でわかりやすく。初心者の一手から難問まで、すべて論理だけで解ける考え方です。</p>
-  <EditorialNote verification="掲載する問題例と候補消去は、実際の上級問題を独自ソルバーで解析した推論履歴から生成しています。手筋名・消去対象・完成可否を盤面データと照合しています。" />
+  <p class="lead">ナンプレの解き方を、初級の実例1問で最初の一手から完成まで解説します。全43手の盤面と根拠を順番に読み、同じ問題をゲームやPDFで練習できます。後半には、候補を消す上級テクニックもまとめています。</p>
+  <EditorialNote verification="初級No.1の全43手と上級の候補消去を、実際の問題を独自ソルバーで解析した推論履歴から生成しています。唯一解・各手の候補・完成盤面と、PDFの問題番号を照合しています。" />
 
   <h2>数独・ナンプレとは</h2>
   <p>9×9のマスに1〜9を入れ、各行・各列・各3×3ブロックに同じ数字が重複しないようにするパズルです。ルールの詳細は<a href="/guide/rules/">ルール・遊び方</a>へ。「ナンプレ」は「ナンバープレース」の略称で、呼び方の由来は<a href="/guide/number-place/">ナンバープレイスとは</a>で解説しています。</p>
-  <figure class="guide-fig"><Fragment set:html={svgPuzzle} /><figcaption>問題例（上級）。太字が最初から入っている数字です。</figcaption></figure>
+  <BeginnerWalkthrough />
 
   <h2>基本の手順</h2>
   <ol>
@@ -106,7 +107,8 @@ const breadcrumbSchema = {
     <li>詰まったら、次の「テクニック」で候補を絞り込む。</li>
   </ol>
 
-  <h2>テクニックで候補を消去する</h2>
+  <h2 id="advanced-techniques">上級：テクニックで候補を消去する</h2>
+  <figure class="guide-fig"><Fragment set:html={svgPuzzle} /><figcaption>ここからは別の問題例（上級）です。太字が最初から入っている数字です。</figcaption></figure>
   <p>単数だけで止まったら、候補同士の関係を使って消去します。下図は「{techName || 'テクニック'}」の例。黄色のマスに注目すると、同じ行・列・ブロック内の他マスから候補（赤い数字）を消去できます。</p>
   {svgTech && <figure class="guide-fig"><Fragment set:html={svgTech} /><figcaption>テクニックによる消去の実例（エンジンが実際に推論した一手）。</figcaption></figure>}
 
