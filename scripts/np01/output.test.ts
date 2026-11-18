@@ -15,6 +15,12 @@ function assertTutorialObservation(html:string,pdfs:string[]):void {
  const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(code=>code.includes('pdf_link_click'));
  assert.equal(scripts.length,1,'tutorial has one inline observer');
  assert.equal(pdfs.length,3,'three real tutorial download anchors');
+ const section=html.match(/<section\b(?=[^>]*\bid="beginner-walkthrough")([^>]*)>([\s\S]*?)<\/section>/);
+ assert(section,'actual tutorial section exists');
+ assert(section[1].match(/\bclass="([^"]*)"/)?.[1].split(/\s+/).includes('walkthrough'),'actual observer scope exists');
+ const anchors=[...section[2].matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*>/g)].filter(m=>pdfs.includes(m[1])).map(m=>({path:m[1],download:/\sdownload(?=[\s=>])/.test(m[0])}));
+ assert.deepEqual(anchors.map(a=>a.path),pdfs,'PDF links are inside the actual tutorial');
+ assert(anchors.every(a=>a.download),'actual tutorial anchors retain download attributes');
  const origin='https://test.invalid',events:unknown[][]=[],handlers=new Map<string,(event:unknown)=>void>();
  class Link {
   href:string;download:boolean;inside:boolean;
@@ -24,10 +30,10 @@ function assertTutorialObservation(html:string,pdfs:string[]):void {
  const root={addEventListener:(name:string,fn:(event:unknown)=>void)=>{assert(!handlers.has(name),'one listener per event');handlers.set(name,fn);}};
  runInNewContext(scripts[0],{document:{getElementById:(id:string)=>{assert.equal(id,'beginner-walkthrough');return root;}},window:{gtag:(...args:unknown[])=>events.push(args)},Element:Link,URL,location:{origin,href:origin+'/guide/how-to-solve/'}},{timeout:1000});
  const expected:unknown[][]=[];
- for(const path of pdfs)for(const [type,button] of [['click',0],['auxclick',1]] as const){
+ for(const {path,download} of anchors)for(const [type,button] of [['click',0],['auxclick',1]] as const){
   assert.equal(pdfMeta(path)?.pdf_kind,'tutorial');
   let prevented=false;
-  handlers.get(type)!({type,button,target:new Link(origin+path),preventDefault:()=>{prevented=true;}});
+  handlers.get(type)!({type,button,target:new Link(origin+path,download),preventDefault:()=>{prevented=true;}});
   assert.equal(prevented,false,'download navigation remains native');
   expected.push(['event','pdf_link_click',{measurement_version:'np01',...pdfMeta(path),pdf_entry:'download'}]);
  }
@@ -41,7 +47,11 @@ test('every PDF-bearing output observes actual links; all PDF and preview mappin
  for(const f of walk('dist').filter(x=>x.endsWith('.html'))){const html=readFileSync(f,'utf8');
   const pdfs=[...html.matchAll(/href="(\/downloads\/[^"?#]+\.pdf)(?:[?#][^"]*)?"/g)];
   if(!pdfs.length)continue;pages++;
-  if(f===join('dist','guide','how-to-solve','index.html'))assertTutorialObservation(html,pdfs.map(m=>m[1]));
+  if(f===join('dist','guide','how-to-solve','index.html')){
+   assertTutorialObservation(html,pdfs.map(m=>m[1]));
+   const missingAttributes=html.replace(/(<a\b[^>]*?)\sdownload(?=[\s=>])/g,'$1');
+   assert.throws(()=>assertTutorialObservation(missingAttributes,pdfs.map(m=>m[1])),/retain download attributes/,'removing real download attributes must fail');
+  }
   else assert(graph(html,true).some(x=>readFileSync(x,'utf8').includes('pdf_link_click')),f+' observes actual PDF links');
   for(const m of pdfs){assert(pdfMeta(m[1]),'finite mapping');links++;}
   for(const m of html.matchAll(/src="(\/images\/(?:print\/[^"/]+-preview|collections\/[^"/]+-(?:questions|answers))\.png)"/g)){assert(previewMeta(m[1]));images++;}
