@@ -1,6 +1,8 @@
 import { npTrack as track } from './np01-track.ts';
 const collections = ['4x4','diagonal','killer','candidate-notes','practice-hidden-single','practice-pointing','practice-naked-pair','practice-naked-triple','practice-x-wing','practice-skyscraper'];
 export function pdfMeta(path:string):{pdf_kind:string;pdf_role:string}|null {
+ const tutorial=path.match(/^\/downloads\/beginner-tutorial\/(questions|answers)\.pdf$/);
+ if(tutorial)return {pdf_kind:'tutorial',pdf_role:tutorial[1]};
  if(/^\/downloads\/numpredo-(beginner|intermediate|advanced|hard|extreme|senior)-(12|60)\.pdf$/.test(path))return {pdf_kind:'standard',pdf_role:'combined'};
  let m=path.match(/^\/downloads\/(variants|activity|progression)\/numpredo-([^/]+)-(questions|answers|guide)\.pdf$/);
  if(m){const valid=m[1]==='variants'?['6x6-01','inequality-01','16x16-01'].includes(m[2])&&m[3]!=='guide':m[1]==='activity'?['activity-01','activity-02'].includes(m[2])&&(m[2]!=='activity-01'||m[3]!=='guide'):m[2]==='progression-01';return valid?{pdf_kind:m[1]==='variants'?'variant':m[1],pdf_role:m[3]}:null;}

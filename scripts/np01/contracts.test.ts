@@ -18,6 +18,16 @@ test('all existing public PDFs and real preview images have finite mapping',()=>
  for(const f of walk('public/images').filter(x=>/\/(print\/[^/]+-preview|collections\/[^/]+-(questions|answers))\.png$/.test(x)))assert(previewMeta('/'+f.slice(7)),'known preview mapped');
  assert.equal(pdfMeta('/downloads/arbitrary.pdf'),null);assert.equal(pdfMeta('/downloads/collections/unknown-questions.pdf'),null);
 });
+test('tutorial PDF clicks preserve finite kind and role without raw paths',()=>{
+ const w={dataLayer:[] as unknown[]};Object.assign(globalThis,{window:w});
+ for(const role of ['questions','answers']) {
+  const meta=pdfMeta(`/downloads/beginner-tutorial/${role}.pdf`);
+  assert.deepEqual(meta,{pdf_kind:'tutorial',pdf_role:role});
+  npTrack('pdf_link_click',{...meta,pdf_entry:'download',href:'synthetic'});
+  assert.deepEqual((w.dataLayer.at(-1) as IArguments)[2],{measurement_version:'np01',pdf_kind:'tutorial',pdf_role:role,pdf_entry:'download'});
+ }
+ assert.equal(pdfMeta('/downloads/beginner-tutorial/arbitrary.pdf'),null);
+});
 test('new-event whitelist strips arbitrary parameters and queues real Arguments; historical params retained',()=>{
  const w={dataLayer:[] as unknown[]};Object.assign(globalThis,{window:w});
  npTrack('puzzle_first_input',{game_mode:'library',game_level:'beginner',daily_slot:999,title:'synthetic',grid:'synthetic',href:'synthetic',user_id:'synthetic',technique:'free'});

@@ -57,6 +57,10 @@ const hiddenCandidates = computeCandidates(lesson.initial).map((mask, cell) => c
     <p><a href="#tutorial-step-43">← 43手目に戻る</a> ／ <a href="/play/beginner/">別の初級問題を選ぶ</a> ／ <a href="/play/intermediate/">中級に進む</a></p>
   </section>
 </section>
+<script>
+  import { initPdfMeasurement } from '../client/optional-measurement.ts';
+  initPdfMeasurement();
+</script>
 <style>
   .walkthrough { margin: 28px 0; }
   .walkthrough :is(h3, article, figure, section, div[id]) { scroll-margin-top: 90px; }
