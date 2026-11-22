@@ -160,6 +160,7 @@ const breadcrumbSchema = {
     行き詰まって答えだけ確認したいときは<a href="/tools/solver/">自動解答ソルバー</a>へ。
     ちなみに<a href="/guide/sudoku-vs-numpre/">「数独」と「ナンプレ」の違い</a>は呼び方だけ——どちらの呼び方でも同じ問題で遊べます。
   </p>
+  {meta.slug === 'extreme' && <p>新聞の日曜版に載るような超難問の答え合わせについては<a href="/guide/newspaper/">新聞の数独の答え合わせ方法</a>もご覧ください。</p>}
 
   <h2>{meta.ja}の解き方を実際の盤面で確認</h2>
   <p>5段階の代表問題を一つのページで比較し、独自ソルバーが実際に使った手筋と候補消去を図解しています。<a href={`/guide/solving-examples/#${meta.slug}`}>{meta.ja}の例題と一手ずつの根拠を見る</a>か、<a href="/practice/">次の一手練習</a>で自分の判断を試してください。</p>
