@@ -47,6 +47,10 @@ const requiredContentMarkers: Record<string, string[]> = {
 const expectedPuzzlePaths = new Set<string>(
   JSON.parse(readFileSync(join(projectRoot, 'src/data/indexable-puzzles.json'), 'utf8')),
 );
+const sitemapDownloads: { path: string; lastmod: string }[] = JSON.parse(
+  readFileSync(join(projectRoot, 'src/data/sitemap-downloads.json'), 'utf8'),
+);
+const expectedDownloadPaths = new Set(sitemapDownloads.map((item) => item.path));
 const analysisCsvPath = join(projectRoot, 'public/data/numpredo-puzzle-analysis.csv');
 const analysisImagePath = join(projectRoot, 'public/data/numpredo-puzzle-analysis.png');
 
@@ -454,8 +458,26 @@ for (const pathname of indexablePaths) {
   if (!sitemapPaths.has(pathname)) errors.push(`${pathname} 允许索引但未进入 sitemap`);
 }
 for (const pathname of sitemapPaths) {
+  if (expectedDownloadPaths.has(pathname)) continue;
   if (!pages.has(pathname)) errors.push(`${pathname} 在 sitemap 中但构建页面不存在`);
   if (!indexablePaths.has(pathname)) errors.push(`${pathname} 在 sitemap 中但页面不是 index`);
+}
+// 仅允许清单中的真实 PDF；同时防止遗漏、路径越界和错误修改日期。
+if (expectedDownloadPaths.size !== sitemapDownloads.length) errors.push('Sitemap PDF 清单有重复路径');
+for (const { path: pathname, lastmod } of sitemapDownloads) {
+  if (!/^\/downloads\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.pdf$/.test(pathname)) {
+    errors.push(`${pathname} 不是允许的 PDF 路径`);
+    continue;
+  }
+  const file = join(distDir, pathname.slice(1));
+  if (!existsSync(file) || readFileSync(file).subarray(0, 5).toString() !== '%PDF-') {
+    errors.push(`${pathname} 在 Sitemap PDF 清单中但构建文件不是有效 PDF`);
+  }
+  if (!sitemapPaths.has(pathname)) errors.push(`${pathname} 在 PDF 清单中但未进入 sitemap`);
+  const sitemapDate = sitemapModifiedAt.get(pathname);
+  if (!Number.isFinite(Date.parse(lastmod)) || !sitemapDate || Date.parse(sitemapDate) !== Date.parse(lastmod)) {
+    errors.push(`${pathname} 的 sitemap lastmod 与 PDF 清单不一致`);
+  }
 }
 
 // 量産型の番号ページは noindex の 200 ページとして残さない。

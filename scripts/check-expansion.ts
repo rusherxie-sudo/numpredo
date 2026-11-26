@@ -52,5 +52,6 @@ assert.equal(verifiedPdfs.length,20);
 for(const record of verifiedPdfs){assert.equal(createHash('sha256').update(readFileSync(`public/downloads/collections/${record.file}`)).digest('hex'),record.sha256);assert.equal(createHash('sha256').update(readFileSync(`public/images/collections/${record.file.replace('.pdf','.png')}`)).digest('hex'),record.previewSha256);}
 const sitemap=readFileSync('dist/sitemap-0.xml','utf8');
 for(const path of paths){const html=readFileSync(`dist${path}index.html`,'utf8');assert.ok(html.includes(`rel="canonical" href="https://numpredo.com${path}"`),path);assert.ok(sitemap.includes(`https://numpredo.com${path}`),path);}
-assert.equal((sitemap.match(/<loc>/g)??[]).length,98);
+const sitemapDownloads=JSON.parse(readFileSync('src/data/sitemap-downloads.json','utf8')) as {path:string;lastmod:string}[];
+assert.equal((sitemap.match(/<loc>/g)??[]).length,98+sitemapDownloads.length);
 console.log('✓ 30 new indexable pages; six local techniques + counterexamples; eight complete solution replays; 76 selected puzzles + 20 PDF assets verified');

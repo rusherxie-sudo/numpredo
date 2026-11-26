@@ -12,14 +12,21 @@ const indexablePuzzles = new Set(
   JSON.parse(readFileSync(new URL('./src/data/indexable-puzzles.json', import.meta.url), 'utf-8')),
 );
 const numberedPuzzlePattern = /^\/play\/(?:beginner|intermediate|advanced|hard|extreme)\/\d+\/$/;
+const siteOrigin = 'https://numpredo.com';
+// 既存の題集 PDF を検索入口に追加。日付は各ファイルの実際の変更コミットに基づく。
+const sitemapDownloads = JSON.parse(
+  readFileSync(new URL('./src/data/sitemap-downloads.json', import.meta.url), 'utf-8'),
+);
+const downloadLastmod = new Map(sitemapDownloads.map(({ path, lastmod }) => [path, lastmod]));
 
 export default defineConfig({
-  site: 'https://numpredo.com',
+  site: siteOrigin,
   // CSS 内联进 HTML:消除 render-blocking 的 <link> 请求 + 断开关键请求链(网络依赖树)。
   // 内容站每页 CSS 仅 ~13KB(gzip 后更小)、零 JS,内联换来的首屏提速远超失去的跨页缓存。
   build: { format: 'directory', inlineStylesheets: 'always' },
   integrations: [
     sitemap({
+      customPages: sitemapDownloads.map(({ path }) => new URL(path, siteOrigin).href),
       // 個人データページと、検索需要を確認できていない量産型の問題詳細は sitemap から除外する。
       // 問題自体は各難易度ページで引き続き収録全問を遊べる。
       filter: (page) => {
@@ -30,7 +37,8 @@ export default defineConfig({
       },
       // 给每个 URL 注入真实 <lastmod>；映射表里没有的页（理论上不会有）则不写，绝不用构建日兜底。
       serialize(item) {
-        const date = lastmod[new URL(item.url).pathname];
+        const pathname = new URL(item.url).pathname;
+        const date = downloadLastmod.get(pathname) ?? lastmod[pathname];
         if (date) item.lastmod = date;
         return item;
       },
