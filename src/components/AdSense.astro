@@ -1,0 +1,22 @@
+---
+interface Props { publisherId: string; }
+const { publisherId } = Astro.props;
+---
+
+<!-- Auto ads の形式・配置・広告量は AdSense 側で管理する。 -->
+<script is:inline define:vars={{ publisherId }} data-adsense-loader>
+  (function () {
+    // 入力盤面・印刷見出し・取り下げ情報を含む URL では第三者広告を読み込まない。
+    var gamePage = /^\/play\/(beginner|intermediate|advanced|hard|extreme)\/$/.test(location.pathname);
+    if (location.hash && !(gamePage && location.hash === '#level-game')) return;
+    if (location.search) {
+      var params = Array.from(new URLSearchParams(location.search));
+      if (!(gamePage && params.length === 1 && params[0][0] === 'n' && /^[1-9]\d*$/.test(params[0][1]))) return;
+    }
+    var script = document.createElement('script');
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + publisherId;
+    document.head.appendChild(script);
+  })();
+</script>
