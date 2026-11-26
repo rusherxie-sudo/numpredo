@@ -56,5 +56,5 @@ const hiddenCount = rows.filter(r => r.techniques.includes('hiddenSingle')).leng
   summary { display: list-item; cursor: pointer; color: var(--accent); }
   details { margin-top: 8px; border-top: 1px solid var(--line); }
   .level-examples > h3 { margin-top: 24px; }
-  @media (max-width: 700px) { .level-example-grid { grid-template-columns: 1fr; } article { max-width: 400px; width: 100%; margin: auto; } }
+  @media (max-width: 700px) { .level-example-grid { grid-template-columns: minmax(0, 1fr); } article { max-width: 400px; width: 100%; margin: auto; } }
 </style>
