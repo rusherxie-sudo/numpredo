@@ -114,8 +114,8 @@ const breadcrumbSchema = {
     <nav class="crumb"><a href="/">ホーム</a> › <a href="/play/">プレイ</a> › {meta.ja}</nav>
 
     <h1>{SEO_H1[meta.slug] ?? `数独無料ゲーム ${meta.ja}｜ナンプレ${meta.ja}の問題`}</h1>
-    <p class="lv-intro">{meta.intro}</p>
-    {(meta.slug === 'beginner' || meta.slug === 'intermediate') && <p><a href="/guide/how-to-solve/#beginner-walkthrough">初級1問を最初から完成まで、全43手の図解で学ぶ</a> — 同じ問題の練習・解説PDF付き。</p>}
+    <p class="lv-intro">{meta.slug === 'intermediate' ? '無料・登録不要の中級1,000問。候補メモ・ヒント・途中保存に対応。' : meta.intro}</p>
+    {meta.slug === 'beginner' && <p><a href="/guide/how-to-solve/#beginner-walkthrough">初級1問を最初から完成まで、全43手の図解で学ぶ</a> — 同じ問題の練習・解説PDF付き。</p>}
     {meta.slug==='beginner'&&<p><a href="#level-game">初級をすぐに遊ぶ</a> ／ <a href="#problem-examples">問題と答えの例を見る</a> ／ <a href="#beginner-start">最初の3手を練習</a></p>}
     {meta.slug==='intermediate'&&<p><a href="#level-game">中級をすぐに遊ぶ</a> ／ <a href="#problem-examples">問題と答えの例を見る</a> ／ <a href="/print/intermediate/">紙で解く・PDF</a></p>}
 
@@ -124,10 +124,15 @@ const breadcrumbSchema = {
     </div>
   </div>
 
-  <div class="px-text"><p><a href="#puzzle-library">全{meta.puzzles.length.toLocaleString('ja-JP')}問から番号・手筋で選ぶ</a> · 問題ごとの途中保存に対応</p></div>
+  {meta.slug !== 'intermediate' && <div class="px-text"><p><a href="#puzzle-library">全{meta.puzzles.length.toLocaleString('ja-JP')}問から番号・手筋で選ぶ</a> · 問題ごとの途中保存に対応</p></div>}
   <div id="level-game"><SudokuGame collection level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.map((p) => ({ puzzle: p.puzzle }))} /></div>
 
   <div class="px-text">
+    {meta.slug === 'intermediate' && <div>
+      <p>{meta.intro}</p>
+      <p><a href="#puzzle-library">全{meta.puzzles.length.toLocaleString('ja-JP')}問から番号・手筋で選ぶ</a> · 問題ごとの途中保存に対応</p>
+      <p><a href="/guide/how-to-solve/#beginner-walkthrough">初級1問を最初から完成まで、全43手の図解で学ぶ</a> — 同じ問題の練習・解説PDF付き。</p>
+    </div>}
     <FeaturedExamples level={meta.slug} />
     <PuzzleLibrary level={meta.slug} name={meta.ja} />
     {(meta.slug === 'beginner' || meta.slug === 'intermediate') && <LevelProblemExamples level={meta.slug} />}
