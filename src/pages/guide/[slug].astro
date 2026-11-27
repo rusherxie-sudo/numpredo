@@ -91,7 +91,7 @@ const techniqueListSchema = g.slug === 'tips' ? {
   <p class="lead" set:html={g.lead} />
   <EditorialNote verification={g.verification ?? '本文のルール、候補消去、内部リンクを公開前に確認しています。掲載している問題は独自エンジンで唯一解と論理解法を検証しています。'} />
 
-  {guideCases[g.slug] && g.slug !== 'tips' && <TeachingCase spec={guideCases[g.slug]} />}
+  {guideCases[g.slug] && g.slug !== 'tips' && g.slug !== 'rules' && <TeachingCase spec={guideCases[g.slug]} />}
   {g.slug === 'intermediate' && (
     <>
       <section class="worked-more">
@@ -124,6 +124,7 @@ const techniqueListSchema = g.slug === 'tips' ? {
   {g.sections.map((s, i) => (<>
     <h2>{s.h}</h2>
     {s.body.map((p) => (/^\s*<(table|div|ul|ol|figure)/.test(p) ? <Fragment set:html={p} /> : <p set:html={p} />))}
+    {g.slug === 'rules' && i === 2 && <TeachingCase spec={guideCases.rules} />}
     {g.slug === 'tips' && i === 0 && <TeachingCase spec={guideCases.tips} showPairCounterexample />}
   </>))}
 

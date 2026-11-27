@@ -2,11 +2,20 @@
 import Base from '../../layouts/Base.astro';
 import PrintResourceShare from '../../components/PrintResourceShare.astro';
 import PrintResourceCards from '../../components/PrintResourceCards.astro';
+import SmallNumberBoard from '../../components/SmallNumberBoard.astro';
 import previews from '../../../public/images/print/manifest.json';
 import {PROGRESSION_PACK} from '../../data/progression-pack.ts';
+import {explainOpening} from '../../data/variant-opening.ts';
 const preview=previews.find(p=>p.slug==='progression')!;
 const title='4×4から6×6へ・ナンプレ入門プリント8問｜答え別PDF - numpredo';
-const description='4×4を4問、6×6を4問。太枠を段階的に覚えるナンプレ入門資料。問題・解答は各4ページの別PDF、親子・教室で使える進度記録は1ページ。無料・登録不要。';
+const description='4×4と6×6を4問ずつ、無料・登録不要のナンプレ入門プリント。2×2と2×3の太枠を実際の問題で比べ、同じ8問をオンラインでも練習。問題・解答は別々のA4 PDFで、親子・教室用の進度記録付き。';
+const openingExamples = ([4, 6] as const).map((size, index) => {
+  const pack = PROGRESSION_PACK[index];
+  const puzzle = pack.puzzles[0];
+  const opening = explainOpening(puzzle, size, pack.blockRows, pack.blockCols, size === 4 ? 4 : 1, size === 4 ? 1 : 6);
+  return { size, blockRows: pack.blockRows, blockCols: pack.blockCols, puzzle, opening };
+});
+const onlinePuzzle = (size: number, id: string) => `/variants/${size}x${size}/?n=${id.split('-').at(-1)}#${size === 4 ? 'mini4-game' : 'variant-game'}`;
 ---
 <Base title={title} description={description} ogImage="/images/print/progression-share.png" ogImageAlt="4×4から6×6へ進む入門8問。問題と解答は別PDF、使い方と記録付き。">
 <nav><a href="/print/">無料プリント</a> › 入門資料</nav>
@@ -21,7 +30,37 @@ const description='4×4を4問、6×6を4問。太枠を段階的に覚えるナ
 <figure><a href="/downloads/progression/numpredo-progression-01-questions.pdf"><img src="/images/print/progression-preview.png" width={preview.previewWidth} height={preview.previewHeight} alt="問題PDFの実際の第一ページ。4×4のmini4-1とmini4-2を大きく配置。" loading="lazy" decoding="async"/></a><figcaption>答えを含まない最初の問題用紙。A4に2問ずつです。</figcaption></figure>
 <h2>最初の2回は4×4、次の2回は6×6</h2>
 <p>問題PDFの1〜2ページは4×4、3〜4ページは6×6です。4×4の太枠は2行×2列、6×6は2行×3列です。数字の範囲は1〜4から1〜6へ増えます。初めての方には一度に全部を渡さず、最初の一問で三つの条件を一緒に確認してください。</p>
-<ul>{PROGRESSION_PACK.map((p,i)=><li>{i===0?'前半':'後半'}：{p.size}×{p.size}、{p.puzzles.map(p=>p.id).join('・')}。<a href={`/variants/${p.size}x${p.size}/`}>同じ題番号をオンラインで解く →</a></li>)}</ul>
+<section aria-labelledby="opening-comparison">
+<h2 id="opening-comparison">図で比較：2×2と2×3の太枠で最初の一手を探す</h2>
+<p>問題PDFの1ページ目と3ページ目から一問ずつ取り出しました。色の付いたマスを見て、まず横、次に縦、最後に太枠を指でたどってみましょう。</p>
+<div class="openings">
+  {openingExamples.map(({ size, blockRows, blockCols, puzzle, opening }) => (
+    <figure>
+      <figcaption><strong>{size}×{size}の問題1</strong>（太枠は縦{blockRows}×横{blockCols}マス）</figcaption>
+      <SmallNumberBoard size={size} grid={puzzle.puzzle} label={`${size}×${size}の問題1。見るマスは${opening.row}行${opening.column}列`} highlight={opening.cell} />
+      <details>
+        <summary>{opening.row}行{opening.column}列に入る数字と理由</summary>
+        <ol>
+          <li>横の行にない数字は {opening.rowMissing}。</li>
+          <li>同じ縦の列に {opening.columnBlocked} があるので除きます。</li>
+          <li>同じ太枠に {opening.blockBlocked} があるので、残るのは <strong>{opening.answer}</strong> です。</li>
+        </ol>
+      </details>
+      <p><a href={onlinePuzzle(size, puzzle.id)}>{size}×{size}の問題1をオンラインで解く →</a></p>
+    </figure>
+  ))}
+</div>
+</section>
+<section aria-labelledby="online-puzzles">
+<h2 id="online-puzzles">PDFと同じ8問を題番号から開く</h2>
+<p>紙の題番号を選ぶと、同じ初期配置をオンラインで開けます。</p>
+{PROGRESSION_PACK.map(({ size, puzzles }) => (
+  <div class="online-group">
+    <h3>{size}×{size}（問題PDF {size === 4 ? '1〜2' : '3〜4'}ページ）</h3>
+    <ul>{puzzles.map(puzzle => <li><a href={onlinePuzzle(size, puzzle.id)}>{puzzle.id}を解く</a></li>)}</ul>
+  </div>
+))}
+</section>
 <h2>答えを伝える前に尋ねること</h2>
 <p>「この横の行には、まだどの数字がないかな」「同じ縦の列にはもう使われていないかな」「太い枠にも同じ数字が入っていないかな」と順番に尋ねます。候補を二つに絞れたら、まだ一つに決まらなくても構いません。別の行へ進み、数字が増えてから戻ると、当てずっぽうを避けられます。</p>
 <p>4×4が解けたからといって、その日に6×6へ進む必要はありません。答えだけを覚えているときは、どう考えたかを説明してもらいます。太枠を指でたどり、長方形の六マスを一組として見られたら、次の大きさに挑戦できます。</p>
@@ -42,4 +81,16 @@ initPdfMeasurement();
 import {track} from '../../client/track.ts';
 document.querySelectorAll<HTMLAnchorElement>('[data-pack-format]').forEach(a=>a.addEventListener('click',()=>track('print_pdf_download',{level:'progression',count:8,format:a.dataset.packFormat})));
 </script>
-<style>figure{max-width:300px;margin:20px auto}img{width:100%;height:auto}a{color:var(--accent)}.downloads a{display:inline-block;padding:12px;border:1px solid var(--line);border-radius:6px}section{margin:20px 0}</style>
+<style>
+  figure { max-width:300px; margin:20px auto; }
+  img { width:100%; height:auto; }
+  a { color:var(--accent); }
+  .downloads a { display:inline-block; padding:12px; border:1px solid var(--line); border-radius:6px; }
+  section { margin:20px 0; }
+  .openings { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:16px; }
+  .openings figure { min-width:0; max-width:none; margin:0; padding:14px; border:1px solid var(--line); border-radius:8px; }
+  .openings summary { cursor:pointer; padding:10px 0; }
+  .openings ol { padding-left:22px; }
+  .online-group ul { display:flex; flex-wrap:wrap; gap:3px 16px; padding:0; list-style:none; }
+  .online-group a { display:inline-block; padding:8px 0; }
+</style>

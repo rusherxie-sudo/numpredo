@@ -4,6 +4,7 @@ import {newspaperInput} from '../src/engine/newspaper-input.ts';
 import {decodeVariant,variantSymbol} from '../src/engine/variant-symbols.ts';
 import {PROGRESSION_PACK} from '../src/data/progression-pack.ts';
 import {SUDOKU16_PLAY} from '../src/data/sudoku16-play.ts';
+import {explainOpening} from '../src/data/variant-opening.ts';
 import {peersFor,variantCandidates} from '../src/engine/variant-grid.ts';
 import {countMini6} from '../src/data/mini6.ts';
 import {countSolutions,gridFromString,logicalSolve} from '../src/engine/index.ts';
@@ -53,7 +54,33 @@ for(const invalid of ['/guide/newspaper/../evil','//evil.example/guide/newspaper
 const carried=new URL(toolLink('/tools/solver/',gridFromString(SOLVER_SAMPLE),back),'https://numpredo.com');assert.equal(carried.search,'');assert.equal(new URLSearchParams(carried.hash.slice(1)).get('grid'),SOLVER_SAMPLE);
 for(const f of ['questions','answers','guide'])assert.ok(existsSync(`public/downloads/activity/numpredo-activity-02-${f}.pdf`));
 for(const f of ['questions','answers','guide'])assert.ok(existsSync(`public/downloads/progression/numpredo-progression-01-${f}.pdf`));
+const progressionManifest = JSON.parse(readFileSync('public/downloads/progression/manifest.json', 'utf8'));
+assert.deepEqual(PROGRESSION_PACK, progressionManifest.packs);
+const progressionHtml = readFileSync('dist/print/progression/index.html', 'utf8');
+for (const { size, puzzles } of PROGRESSION_PACK) {
+ const anchor = size === 4 ? 'mini4-game' : 'variant-game';
+ puzzles.forEach((puzzle, index) => {
+  assert.ok(progressionHtml.includes(`href="/variants/${size}x${size}/?n=${index + 1}#${anchor}"`), puzzle.id);
+ });
+}
+for (const [puzzle, size, blockRows, blockCols, row, column, expected] of [
+ [PROGRESSION_PACK[0].puzzles[0], 4, 2, 2, 4, 1, ['1・3・4', '1', '4', '3']],
+ [PROGRESSION_PACK[1].puzzles[0], 6, 2, 3, 1, 6, ['1・2・3・5', '1・5', '3', '2']],
+ [SUDOKU16_PLAY[0], 16, 4, 4, 2, 1, ['2・4・D', '2', '4', 'D']],
+] as const) {
+ const opening = explainOpening(puzzle, size, blockRows, blockCols, row, column);
+ assert.deepEqual([opening.rowMissing, opening.columnBlocked, opening.blockBlocked, opening.answer], expected);
+ const initial = decodeVariant(puzzle.puzzle);
+ const given = new Set(peersFor(size, blockRows, blockCols)[opening.cell].map(index => initial[index]));
+ const remaining = Array.from({ length: size }, (_, index) => index + 1).filter(digit => !given.has(digit));
+ assert.deepEqual(remaining.map(variantSymbol), [opening.answer]);
+ const html = size === 16 ? readFileSync('dist/variants/16x16/index.html', 'utf8') : progressionHtml;
+ assert.ok(html.includes(opening.rowMissing) && new RegExp(`<strong\\b[^>]*>${opening.answer}</strong>`).test(html));
+}
+const rules = readFileSync('dist/guide/rules/index.html', 'utf8');
+assert.ok(rules.indexOf('3つの基本ルール</h2>') >= 0 && rules.indexOf('3つの基本ルール</h2>') < rules.indexOf('id="worked-example"'));
+assert.ok(readFileSync('dist/guide/number-place/index.html', 'utf8').includes('href="/guide/rules/#worked-example"'));
 const embed=readFileSync('dist/embed/mini4/index.html','utf8');assert.ok(embed.includes('noindex,follow'));assert.ok(embed.includes('data-track="false"'));assert.ok(!embed.includes('googletagmanager'));
 assert.ok(!readFileSync('dist/sitemap-0.xml','utf8').includes('/embed/'));
 const headers=readFileSync('public/_headers','utf8');assert.ok(headers.includes('X-Frame-Options: SAMEORIGIN'));assert.ok(headers.includes('/embed/mini4/*\n  ! X-Frame-Options'));
-console.log('✓ 16x16 game symbols and sources; 16 distinct activities; progression logical paths; safe newspaper transfer; isolated noindex embed verified');
+console.log('✓ 16x16 game symbols and sources; 16 distinct activities; source-matched progression links and three opening examples; safe newspaper transfer; isolated noindex embed verified');
