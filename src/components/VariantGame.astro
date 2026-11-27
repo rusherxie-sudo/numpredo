@@ -1,20 +1,21 @@
 ---
 import type { VariantPuzzle } from '../engine/variant-grid.ts';
-interface Props { puzzles: VariantPuzzle[]; size: number; blockRows: number; blockCols: number; kind: string; tracking?: boolean; }
-const {puzzles,size,blockRows,blockCols,kind,tracking=true}=Astro.props;
+interface Props { puzzles: VariantPuzzle[]; size: number; blockRows: number; blockCols: number; kind: string; tracking?: boolean; lang?: 'ja' | 'en'; }
+const {puzzles,size,blockRows,blockCols,kind,tracking=true,lang='ja'}=Astro.props;
+const en = lang === 'en';
 ---
-<section class="vg" id="variant-game" data-variant-game data-puzzles={JSON.stringify(puzzles)} data-size={size} data-br={blockRows} data-bc={blockCols} data-kind={kind} data-track={tracking}>
-  <h2>{size===9?'不等号ナンプレをオンラインで解く':`${size}×${size}をオンラインで解く`}</h2>
-  <p>{puzzles.length}問・登録不要。途中経過はこのブラウザに保存します。空きマスを選んで数字を入力してください。</p>
-  {size===9&&<p>各行・列・3×3に1〜9。横の「＜」は左が小さく、縦の「∧」は上が小さい意味です。「∨」は上が大きい意味です。</p>}
-  {size===16&&<p>1〜9・A〜Gを行・列・4×4の枠に一つずつ。キーボードでも入力できます。スマホは盤面を横にスクロールしてください。</p>}
-  <div class="vg-toolbar"><button type="button" data-prev>前の問題</button><strong data-label></strong><button type="button" data-next>次の問題</button></div>
-  <div class="vg-layout"><div class="vg-board-wrap"><div data-board class="vg-board" role="grid" aria-label={`${size}×${size}の盤面`}></div></div><div class="vg-controls">
-    <div class="vg-pad">{Array.from({length:size},(_,i)=><button type="button" data-digit={i+1}>{i<9?i+1:String.fromCharCode(65+i-9)}</button>)}<button type="button" data-digit="0">消す</button></div>
-    <div class="vg-actions"><button type="button" data-memo aria-pressed="false">メモ</button><button type="button" data-undo>元に戻す</button><button type="button" data-check>答え合わせ</button><button type="button" data-hint>次の一手</button><button type="button" data-reset>最初から</button></div>
-    <p data-status role="status">盤面を準備しています…</p>
+<section class="vg" id="variant-game" data-variant-game data-puzzles={JSON.stringify(puzzles)} data-size={size} data-br={blockRows} data-bc={blockCols} data-kind={kind} data-track={tracking} lang={lang}>
+  <h2>{en ? `Play ${size}×${size} Sudoku` : size===9?'不等号ナンプレをオンラインで解く':`${size}×${size}をオンラインで解く`}</h2>
+  <p>{en ? `${puzzles.length} puzzles. Pick an empty square and enter a symbol. Your progress is saved in this browser.` : `${puzzles.length}問・登録不要。途中経過はこのブラウザに保存します。空きマスを選んで数字を入力してください。`}</p>
+  {!en&&size===9&&<p>各行・列・3×3に1〜9。横の「＜」は左が小さく、縦の「∧」は上が小さい意味です。「∨」は上が大きい意味です。</p>}
+  {!en&&size===16&&<p>1〜9・A〜Gを行・列・4×4の枠に一つずつ。キーボードでも入力できます。スマホは盤面を横にスクロールしてください。</p>}
+  <div class="vg-toolbar"><button type="button" data-prev>{en ? 'Previous' : '前の問題'}</button><strong data-label></strong><button type="button" data-next>{en ? 'Next' : '次の問題'}</button></div>
+  <div class="vg-layout"><div class="vg-board-wrap"><div data-board class="vg-board" role="grid" aria-label={en ? `${size}×${size} Sudoku board` : `${size}×${size}の盤面`}></div></div><div class="vg-controls">
+    <div class="vg-pad">{Array.from({length:size},(_,i)=><button type="button" data-digit={i+1}>{i<9?i+1:String.fromCharCode(65+i-9)}</button>)}<button type="button" data-digit="0">{en ? 'Erase' : '消す'}</button></div>
+    <div class="vg-actions"><button type="button" data-memo aria-pressed="false">{en ? 'Notes' : 'メモ'}</button><button type="button" data-undo>{en ? 'Undo' : '元に戻す'}</button><button type="button" data-check>{en ? 'Check' : '答え合わせ'}</button><button type="button" data-hint>{en ? 'Hint' : '次の一手'}</button><button type="button" data-reset>{en ? 'Reset' : '最初から'}</button></div>
+    <p data-status role="status">{en ? 'Preparing the board…' : '盤面を準備しています…'}</p>
   </div></div>
-  <noscript>オンライン入力にはJavaScriptが必要です。下の例題や印刷問題はそのまま利用できます。</noscript>
+  <noscript>{en ? 'Enable JavaScript to play online.' : 'オンライン入力にはJavaScriptが必要です。下の例題や印刷問題はそのまま利用できます。'}</noscript>
 </section>
 <script>import '../client/variant-game.ts';</script>
 <style is:global>

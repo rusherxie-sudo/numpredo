@@ -1,0 +1,20 @@
+---
+import Base from '../../layouts/Base.astro';
+import EnglishSolver from '../../components/EnglishSolver.astro';
+import { ENGLISH_PUZZLES } from '../../data/english-puzzles.ts';
+---
+<Base title="Sudoku Solver with Steps – Free 9×9 Solver | numpredo"
+  description="Solve a classic 9×9 Sudoku from a typed or pasted grid. Check whether it has a unique solution and follow logical steps with exact cell positions and candidate eliminations."
+  ogImageAlt="numpredo Sudoku">
+  <h1>Sudoku Solver with Steps</h1>
+  <p>Type or paste a 9×9 Sudoku puzzle to see its solution and the logical deductions the solver finds. Use <strong>Load example</strong> if you want to try it first.</p>
+  <EnglishSolver size={9} sample={ENGLISH_PUZZLES[0].puzzle} />
+
+  <h2>Read the steps in order</h2>
+  <p>Rows count from top to bottom and columns from left to right. A naked single has one candidate left for its square. A hidden single may have several candidates in its square, but one digit can only go there within its row, column, or box. Candidate eliminations list the digits to cross off your notes before going to the next step.</p>
+  <p>The solver lists deductions it can explain, from singles and pairs to patterns such as X-Wing. If its supported techniques run out, it uses search to complete the grid and tells you where the logical explanation ends.</p>
+
+  <h2>What the result means</h2>
+  <p>With a unique solution, every blank has a single determined answer across all valid completions. If several solutions fit, check for a missing given from the original puzzle. If none fit, verify each given against the source and check for duplicates within a row, column, or box.</p>
+  <p>Try the same deductions in <a href="/en/">classic Sudoku online</a>. For a puzzle with A–G as well as digits, use the <a href="/en/16x16-sudoku/#solver">16×16 Sudoku solver</a>.</p>
+</Base>

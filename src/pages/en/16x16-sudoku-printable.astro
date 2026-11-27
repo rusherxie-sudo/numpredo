@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SUDOKU16_PLAY } from '../../data/sudoku16-play.ts';
+---
+<Base title="Printable 16×16 Sudoku – Free PDFs with Answers | numpredo"
+  description="Download four free 16×16 Sudoku puzzles and a separate answer key. A4 PDFs, one puzzle per page, with matching links to play online."
+  ogImageAlt="numpredo 16×16 Sudoku worksheets">
+  <h1>Printable 16×16 Sudoku with Answers</h1>
+  <p>Download four 16×16 Sudoku puzzles with 1–9 and A–G, one grid per A4 page. The answer key is in a separate PDF, with the same puzzle numbers and IDs.</p>
+  <div class="downloads">
+    <a href="/downloads/en/16x16-sudoku-questions.pdf" data-english-pdf="questions">Download puzzles (PDF)</a>
+    <a href="/downloads/en/16x16-sudoku-answers.pdf" data-english-pdf="answers">Download answer key (PDF)</a>
+  </div>
+
+  <h2>Print and use the worksheets</h2>
+  <p>Choose portrait orientation. On A4, use actual size for the largest intended grid. On US Letter paper, choose <strong>Fit</strong> to keep the whole page inside the margins. Print one puzzle at a time by selecting its page number, or print all four and keep the answer key separate.</p>
+  <p>Fill every row, column, and bold 4×4 box with each digit from 1 to 9 and each letter from A to G once. The spaces between the heavy lines are the boxes. Use pencil marks for candidates and check the matching answer page when you finish. The original givens are bold in the answer key, which makes it easier to check you’re looking at the right grid.</p>
+
+  <h2>Play the same puzzle online</h2>
+  <p>Each link opens the corresponding grid in <a href="/en/16x16-sudoku/">16×16 Sudoku Online</a>. Use the online board for a hint if you get stuck, or use the worked opening to start Puzzle 1.</p>
+  <ul>
+    {SUDOKU16_PLAY.map(({ id }, index) => <li><a href={`/en/16x16-sudoku/?n=${index + 1}#variant-game`}>Play Puzzle {index + 1}</a> <span>({id})</span></li>)}
+  </ul>
+  <p>For a shorter game between worksheets, <a href="/en/">play classic 9×9 Sudoku online</a>.</p>
+</Base>
+<script>
+  import { track } from '../../client/track.ts';
+  document.querySelectorAll<HTMLElement>('[data-english-pdf]').forEach(link => {
+    link.addEventListener('click', () => track('english_pdf_download', { file_kind: link.dataset.englishPdf }));
+  });
+</script>
+<style>
+  .downloads { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+  .downloads a { display: inline-flex; align-items: center; min-height: 44px; padding: 7px 14px; border: 1px solid var(--accent); border-radius: var(--radius-sm); font-weight: 700; }
+  .downloads a:first-child { color: var(--accent-on); background: var(--accent); }
+</style>

@@ -4,6 +4,7 @@ import FloatingShare from '../components/FloatingShare.astro';
 import PwaInstall from '../components/PwaInstall.astro';
 import AdSense from '../components/AdSense.astro';
 import ManualAd from '../components/ManualAd.astro';
+import { ENGLISH_ROUTES } from '../data/english-routes.ts';
 import { LEVELS } from '../data/levels.ts';
 
 interface Props {
@@ -66,6 +67,12 @@ const operatorSchema = {
 };
 // 内容长文（/guide/xxx・/variants/xxx）用 article；hub 索引页（/guide/）与其余用 website
 const pathname = Astro.url.pathname;
+const isEnglish = Object.hasOwn(ENGLISH_ROUTES, pathname);
+const alternates = Object.entries(ENGLISH_ROUTES).find(([en, ja]) => pathname === en || pathname === ja);
+const lang = isEnglish ? 'en' : 'ja';
+const home = isEnglish ? '/en/' : '/';
+const play = isEnglish ? '/en/#variant-game' : '/play/';
+const playLabel = isEnglish ? 'Play now' : '今すぐ遊ぶ';
 const adsenseEnabled = !noindex && !['/about/', '/contact/', '/privacy/', '/terms/'].includes(pathname);
 const readingPage = /^\/(guide|print|research)(\/|$)/.test(pathname);
 const ogType =
@@ -74,7 +81,12 @@ const ogType =
     : 'website';
 
 // グローバルナビ（active はパス接頭辞で判定）
-const nav: [string, string, string][] = [
+const nav: [string, string, string][] = isEnglish ? [
+  ['Play Sudoku', '/en/', '/en/'],
+  ['Solver', '/en/sudoku-solver/', '/en/sudoku-solver/'],
+  ['16×16', '/en/16x16-sudoku/', '/en/16x16-sudoku/'],
+  ['Print', '/en/16x16-sudoku-printable/', '/en/16x16-sudoku-printable/'],
+] : [
   ['遊ぶ', '/play/', '/play'],
   ['練習', '/practice/', '/practice'],
   ['解き方', '/guide/', '/guide'],
@@ -82,7 +94,7 @@ const nav: [string, string, string][] = [
   ['デイリー', '/daily/', '/daily'],
   ['ソルバー', '/tools/solver/', '/tools/solver'],
 ];
-const activePre = nav.find(([, , pre]) => pathname.startsWith(pre))?.[2] ?? '';
+const activePre = nav.find(([, , pre]) => isEnglish ? pathname === pre : pathname.startsWith(pre))?.[2] ?? '';
 
 const footerCols = [
   {
@@ -148,7 +160,7 @@ const footerCols = [
 ---
 
 <!doctype html>
-<html lang="ja">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -170,8 +182,12 @@ const footerCols = [
     <meta name="google-adsense-account" content={adsensePublisherId} />
     {adsenseEnabled && <AdSense publisherId={adsensePublisherId} />}
     <link rel="canonical" href={canonicalURL} />
+    {alternates && [
+      <link rel="alternate" hreflang="en" href={new URL(alternates[0], Astro.site).href} />,
+      <link rel="alternate" hreflang="ja" href={new URL(alternates[1], Astro.site).href} />,
+    ]}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    {!isEnglish && <link rel="manifest" href="/manifest.webmanifest" />}
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta name="theme-color" content="#1f7a5c" />
     <meta name="apple-mobile-web-app-title" content="numpredo" />
@@ -185,7 +201,7 @@ const footerCols = [
     <meta property="og:image:height" content={String(ogImageHeight)} />
     <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:site_name" content="numpredo" />
-    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:locale" content={isEnglish ? 'en_US' : 'ja_JP'} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -210,10 +226,11 @@ const footerCols = [
         // 仅放行五档游戏的单个正整数题号及固定盘面锚点；其他参数和片段继续禁用统计。
         function sensitiveAnalyticsPage() {
           const gamePage = /^\/play\/(beginner|intermediate|advanced|hard|extreme)\/$/.test(location.pathname);
-          if (location.hash && !(gamePage && location.hash === '#level-game')) return true;
+          const englishGame = location.pathname === '/en/16x16-sudoku/' || location.pathname === '/en/';
+          if (location.hash && !(gamePage && location.hash === '#level-game') && !(englishGame && location.hash === '#variant-game')) return true;
           if (!location.search) return false;
           const params = [...new URLSearchParams(location.search)];
-          return !(gamePage && params.length === 1 && params[0][0] === 'n' && /^[1-9]\d*$/.test(params[0][1]));
+          return !((gamePage || englishGame) && params.length === 1 && params[0][0] === 'n' && /^[1-9]\d*$/.test(params[0][1]));
         }
         if (sensitiveAnalyticsPage()) return;
         var loaded = false;
@@ -239,19 +256,19 @@ const footerCols = [
   <body>
     <header class="snav">
       <div class="snav-in">
-        <a href="/" class="snav-logo">numpre<b>do</b></a>
+        <a href={home} class="snav-logo">numpre<b>do</b></a>
         <nav class="snav-links" data-desk>
           {nav.map(([label, href, pre]) => <a href={href} class={activePre === pre ? 'on' : ''}>{label}</a>)}
         </nav>
         <div class="snav-tools">
-          <button class="snav-theme" data-theme-toggle aria-label="テーマ切替">☾</button>
-          <a href="/play/" class="snav-cta" data-cta>今すぐ遊ぶ</a>
-          <button class="snav-burger" data-burger aria-label="メニュー" aria-expanded="false">☰</button>
+          <button class="snav-theme" data-theme-toggle aria-label={isEnglish ? 'Toggle theme' : 'テーマ切替'}>☾</button>
+          <a href={play} class="snav-cta" data-cta>{playLabel}</a>
+          <button class="snav-burger" data-burger aria-label={isEnglish ? 'Menu' : 'メニュー'} aria-expanded="false">☰</button>
         </div>
       </div>
       <nav class="snav-mobile" data-mobile hidden>
         {nav.map(([label, href]) => <a href={href}>{label}</a>)}
-        <a href="/play/" class="snav-mcta">今すぐ遊ぶ</a>
+        <a href={play} class="snav-mcta">{playLabel}</a>
       </nav>
     </header>
 
@@ -260,14 +277,22 @@ const footerCols = [
         <slot />
         {adsenseEnabled && <ManualAd placement="content" slotId="8300525674" />}
         {adsenseEnabled && readingPage && <ManualAd placement="related" slotId="2940387782" multiplex />}
-        <PwaInstall />
+        {!isEnglish && <PwaInstall />}
       </main>
-      {adsenseEnabled && <aside class="manual-ad-rail" aria-label="広告">
+      {adsenseEnabled && <aside class="manual-ad-rail" aria-label={isEnglish ? 'Advertisement' : '広告'}>
         <ManualAd placement="rail" slotId={readingPage ? '1627306116' : '5865934023'} multiplex={readingPage} />
       </aside>}
     </div>
 
     <footer class="sfoot">
+      {isEnglish ? <div class="sfoot-bottom">
+        <a href={alternates?.[1] ?? '/'} lang="ja" hreflang="ja">日本語</a>
+        <span class="sfoot-links">
+          <a href="/terms/" hreflang="ja">Terms (Japanese)</a>
+          <a href="/privacy/" hreflang="ja">Privacy (Japanese)</a>
+          <a href="/contact/" hreflang="ja">Contact</a>
+        </span>
+      </div> : <>
       <div class="sfoot-cols">
         {
           footerCols.map((col) => (
@@ -288,14 +313,16 @@ const footerCols = [
         <span class="sfoot-logo">numpre<b>do</b><span class="sfoot-tag">無料・登録不要</span></span>
         <span class="sfoot-links">
           <button type="button" data-pwa-manual hidden>ホーム画面に追加</button>
+          {pathname === '/' && <a href="/en/" lang="en" hreflang="en">English</a>}
           <a href="/terms/">利用規約・免責</a>
           <a href="/privacy/">プライバシー</a>
           <a href="/contact/">お問い合わせ</a>
         </span>
       </div>
+      </>}
     </footer>
 
-    <FloatingShare />
+    {!isEnglish && <FloatingShare />}
 
     <script>
       import '../client/site-nav.ts';
@@ -349,6 +376,7 @@ const footerCols = [
       .sfoot-logo b { color: var(--accent); }
       .sfoot-tag { font-size: 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 1px 7px; margin-left: var(--space-2); font-family: var(--font-sans); }
       .sfoot-links { display: flex; gap: var(--space-4); }
+      html[lang="en"] .sfoot-links { flex-wrap: wrap; }
       .sfoot-links a { color: var(--ink-3); text-decoration: none; }
       .sfoot-links a:hover { color: var(--accent); }
 

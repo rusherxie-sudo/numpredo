@@ -569,7 +569,6 @@
 /zh-CN/printable*    /print/ 301
 
 # Language root redirects
-/en/*                / 301
 /zh-CN/*             / 301
 /zh-TW/*             / 301
 /ja                  / 301

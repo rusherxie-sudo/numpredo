@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import VariantGame from '../../components/VariantGame.astro';
+import EnglishSolver from '../../components/EnglishSolver.astro';
+import { SUDOKU16_PLAY } from '../../data/sudoku16-play.ts';
+import { explainOpening } from '../../data/variant-opening.ts';
+const opening = explainOpening(SUDOKU16_PLAY[0], 16, 4, 4, 2, 1);
+const list = (symbols: string) => symbols.split('・').join(', ');
+---
+<Base title="16×16 Sudoku Online – Play 4 Puzzles + Solver | numpredo"
+  description="Play four free 16×16 Sudoku puzzles with 1–9 and A–G. Follow a worked opening, use notes and hints, or enter your own puzzle in the 16×16 solver."
+  ogImageAlt="numpredo 16×16 Sudoku" wide>
+  <h1>16×16 Sudoku Online</h1>
+  <p>Play four 16×16 Sudoku puzzles with the symbols 1–9 and A–G. Use the keypad or your keyboard. On a phone, scroll sideways inside the board to reach the remaining columns.</p>
+  <VariantGame puzzles={SUDOKU16_PLAY} size={16} blockRows={4} blockCols={4} kind="16x16" lang="en" />
+
+  <h2>How to solve 16×16 Sudoku</h2>
+  <p>Every row, column, and bold 4×4 box must contain all 16 symbols exactly once. A–G are seven distinct symbols. Treat them just like the digits when you cross off candidates. Start by looking for a row, column, or box that already has many givens.</p>
+  <h3>Worked opening for Puzzle 1</h3>
+  <p>Open <a href="/en/16x16-sudoku/?n=1#variant-game">Puzzle 1</a> and look at row {opening.row}, column {opening.column}. The missing symbols in that row are {list(opening.rowMissing)}. The column already contains {list(opening.columnBlocked)}, so cross those off. The 4×4 box contains {list(opening.blockBlocked)}. That leaves <strong>{opening.answer}</strong> for the square.</p>
+  <p>If you’d like to work through the same puzzle on paper, download the <a href="/en/16x16-sudoku-printable/">16×16 Sudoku printable set with answers</a>. For a smaller board, try <a href="/en/">classic 9×9 Sudoku</a>.</p>
+
+  <h2>16×16 Sudoku solver</h2>
+  <p>Use the solver for a puzzle of your own. The example loads the same givens as Puzzle 1 above. Enter at least 32 given symbols and the solver will look for a completion and check whether the solution is unique.</p>
+  <EnglishSolver size={16} sample={SUDOKU16_PLAY[0].puzzle} />
+  <p>To solve a standard grid with digits 1–9 and see individual deductions, use the <a href="/en/sudoku-solver/">9×9 Sudoku solver with steps</a>.</p>
+</Base>

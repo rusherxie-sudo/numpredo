@@ -1,0 +1,64 @@
+---
+interface Props { size: 9 | 16; sample: string }
+const { size, sample } = Astro.props;
+const block = size === 9 ? 3 : 4;
+const symbols = size === 9 ? '1–9' : '1–9 and A–G';
+---
+<section id="solver" class="solver" data-english-solver data-size={size} data-sample={sample} aria-labelledby="solver-title">
+  <h2 id="solver-title">{size}×{size} puzzle input</h2>
+  <p>Enter the given symbols into the grid, then select <strong>Solve</strong>. Leave unknown squares blank. Your puzzle is solved in this browser.</p>
+  <p class="scroll-note">Scroll sideways inside the board if you’re on a small screen.</p>
+  <div class="solver-scroll">
+    <div class="solver-grid" style={`--size:${size}`} role="group" aria-label={`${size} by ${size} Sudoku input grid`}>
+      {Array.from({ length: size * size }, (_, cell) => {
+        const row = Math.floor(cell / size);
+        const col = cell % size;
+        return <input type="text" autocomplete="off" spellcheck="false" maxlength="1" inputmode={size === 9 ? 'numeric' : 'text'}
+          aria-label={`Row ${row + 1}, column ${col + 1}`}
+          class:list={[{ 'box-end': (col + 1) % block === 0 && col + 1 !== size, 'box-bottom': (row + 1) % block === 0 && row + 1 !== size }]} />;
+      })}
+    </div>
+  </div>
+  <details>
+    <summary>Paste a puzzle</summary>
+    <label for="puzzle-text">Enter {size * size} symbols in row order ({symbols}). Use a dot or zero for each blank.</label>
+    <textarea id="puzzle-text" rows={size === 9 ? 4 : 6} spellcheck="false" maxlength="4096"></textarea>
+    <button type="button" data-import>Load pasted puzzle</button>
+  </details>
+  <div class="solver-actions">
+    <button type="button" data-solve>Solve</button>
+    <button type="button" data-example>Load example</button>
+    <button type="button" data-clear>Clear</button>
+  </div>
+  <p role="status" data-status>Use {symbols}. {size === 16 && 'Enter at least 32 givens before solving.'}</p>
+  <div data-result hidden>
+    <h3>Completed grid</h3>
+    <div class="solver-scroll"><pre data-grid tabindex="0" aria-label="Completed grid in row order"></pre></div>
+    {size === 9 && <details data-steps hidden><summary>Show logical steps</summary><p data-steps-note></p><ol></ol></details>}
+  </div>
+  <noscript>Enable JavaScript to solve a puzzle.</noscript>
+</section>
+<script>import '../client/english-solver.ts';</script>
+<style>
+  .solver { margin: 24px 0; padding: clamp(10px, 3vw, 24px); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); scroll-margin-top: 80px; }
+  .solver h2 { margin: 0; }
+  .solver-scroll { overflow-x: auto; max-width: 100%; }
+  .solver-grid { display: grid; grid-template-columns: repeat(var(--size), minmax(0, 1fr)); width: min(100%, 420px); aspect-ratio: 1; border: 2px solid var(--ink); }
+  .solver[data-size="16"] .solver-grid { width: min(100%, 640px); min-width: 544px; }
+  .solver-grid input { width: 100%; min-width: 0; min-height: 0; border: 0; border-radius: 0; border-right: 1px solid var(--cell-line); border-bottom: 1px solid var(--cell-line); padding: 0; background: var(--board-bg); color: var(--ink); text-align: center; font: 600 clamp(16px, 3vw, 22px)/1 var(--font-sans); }
+  .solver-grid input:focus { outline: 2px solid var(--accent); outline-offset: -2px; background: var(--cell-sel-bg); }
+  .solver-grid input[aria-invalid="true"] { background: var(--cell-error-bg); }
+  .solver-grid .box-end { border-right: 2px solid var(--ink); }
+  .solver-grid .box-bottom { border-bottom: 2px solid var(--ink); }
+  .solver details { margin: 14px 0; }
+  .solver details summary { color: var(--accent); font-weight: 600; cursor: pointer; }
+  .solver details label { display: block; margin: 6px 0; }
+  .solver textarea { display: block; width: min(100%, 420px); margin: 0 0 8px; padding: 8px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--bg); color: var(--ink); font: 16px/1.4 var(--font-mono); }
+  .solver-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .solver button { min-height: 44px; padding: 6px 12px; border: 1px solid var(--line-2); border-radius: 6px; font: inherit; color: var(--ink); background: var(--surface); cursor: pointer; }
+  .solver button[data-solve] { color: var(--accent-on); background: var(--accent); }
+  .solver button:disabled { opacity: .55; cursor: wait; }
+  .solver pre { width: max-content; margin: 0; padding: 10px; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-mono); }
+  .scroll-note { display: none; }
+  @media (max-width: 650px) { .solver[data-size="16"] .scroll-note { display: block; } }
+</style>

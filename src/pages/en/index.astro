@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import VariantGame from '../../components/VariantGame.astro';
+import { ENGLISH_PUZZLES } from '../../data/english-puzzles.ts';
+---
+<Base title="Free Sudoku Online – Play Classic 9×9 Puzzles | numpredo"
+  description="Play free 9×9 Sudoku online. Try six puzzles from easy to advanced, use pencil notes and hints, and resume your game in the same browser."
+  ogImageAlt="numpredo Sudoku">
+  <h1>Play Sudoku Online</h1>
+  <p>Play six free 9×9 Sudoku puzzles in your browser. Puzzles 1 and 2 are easy, 3 and 4 are intermediate, and 5 and 6 are advanced. No account needed.</p>
+  <VariantGame puzzles={ENGLISH_PUZZLES} size={9} blockRows={3} blockCols={3} kind="classic-en" lang="en" />
+
+  <h2>How to play classic Sudoku</h2>
+  <p>Put the digits 1 through 9 in every row, every column, and every bold 3×3 box. The digits already on the board are givens. For a blank square, cross off every digit already found in its row, column, or box. If just one digit remains, fill it in. When that fails, pick a digit and look for the only square where it fits inside a box.</p>
+  <p>Use your keyboard or the keypad beside the board. Turn on <strong>Notes</strong> to record possibilities in an empty square. <strong>Check</strong> highlights entries that disagree with the solution and <strong>Hint</strong> looks for a square with one candidate. Entries and notes are saved to this browser so you can come back later.</p>
+
+  <h2>Try another way to play</h2>
+  <ul>
+    <li><a href="/en/sudoku-solver/">Sudoku solver with steps</a> for a 9×9 puzzle you found elsewhere.</li>
+    <li><a href="/en/16x16-sudoku/">16×16 Sudoku online</a> for a larger board with the symbols 1–9 and A–G.</li>
+    <li><a href="/en/16x16-sudoku-printable/">Printable 16×16 Sudoku</a> for a set you can finish on paper.</li>
+  </ul>
+</Base>
