@@ -1,8 +1,9 @@
 ---
 import { teachingCase, levelNames, rc, type CaseSpec } from '../data/teaching-cases.ts';
 import { bit, renderBoardSvg } from '../engine/index.ts';
-interface Props { spec: CaseSpec; anchorId?: string; }
-const { spec, anchorId = 'worked-example' } = Astro.props;
+import PairCounterexample from './PairCounterexample.astro';
+interface Props { spec: CaseSpec; anchorId?: string; showPairCounterexample?: boolean; }
+const { spec, anchorId = 'worked-example', showPairCounterexample = false } = Astro.props;
 const c = teachingCase(spec);
 const given = c.initial.map(Boolean);
 const base = { given, cell: 42, cellHighlights: c.premise.cells.map(cell=>({cell})) };
@@ -27,6 +28,7 @@ const proofSvg = renderBoardSvg(c.before.grid, { ...base, candidates: c.before.c
     </div>
     <p>成立条件を満たしている範囲だけに適用します。候補が図と違うときは、同じ形に見えてもこの一手をそのまま使わず、数字の書き間違いや候補の抜けを先に確認してください。</p>
   </details>
+  {showPairCounterexample && <PairCounterexample lesson={c} />}
   <p><a href={`/play/${spec.level}/?n=${spec.number}`}>この問題を最初から解く →</a> ／ <a href={`/tools/solver/?grid=${c.raw.puzzle}`}>元の問題の全解答を確認する</a></p>
 </section>
 <style>

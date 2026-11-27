@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { teachingCase, techniqueCases, guideCases, explainPremise } from '../src/data/teaching-cases.ts';
-import { bit, countSolutions, UNITS } from '../src/engine/index.ts';
+import { bit, countSolutions, digitsOf, UNITS } from '../src/engine/index.ts';
+import { pairCounterexample } from '../src/data/pair-counterexamples.ts';
 import { lockedDirectionCases } from '../src/data/locked-direction-cases.ts';
 import { MINI6_PUZZLES, traceMini6, countMini6, mini6Peers } from '../src/data/mini6.ts';
 import { SAMPLE_PUZZLES } from '../src/data/sudoku16-samples.ts';
@@ -35,6 +36,40 @@ for (const [group,specs] of [['guide/techniques',techniqueCases],['guide',guideC
   }
 }
 const intermediateHtml = readFileSync('dist/guide/intermediate/index.html','utf8');
+for (const [slug, spec, cells, common, extraCell, extraDigit, target, digit] of [
+  ['tips', guideCases.tips, [1,3], [3,9], 1, 4, 4, 9],
+  ['advanced', techniqueCases['naked-pair'], [20,24], [3,7], 24, 8, 25, 3],
+] as const) {
+  const c = teachingCase(spec), example = pairCounterexample(c);
+  assert.deepEqual(example.cells, cells);
+  assert.deepEqual(example.common, common);
+  assert.equal(example.extraCell, extraCell);
+  assert.equal(example.extraDigit, extraDigit);
+  assert.equal(example.target, target);
+  assert.equal(example.digit, digit);
+  assert.ok(UNITS[example.unitIndex].includes(target));
+  assert.ok(cells.every(cell => UNITS[example.unitIndex].includes(cell)));
+  assert.equal(new Set(cells.flatMap(cell => digitsOf(c.before.candidates[cell]))).size, 3);
+  assert.equal(c.raw.solution[extraCell], String(extraDigit));
+  assert.equal(c.raw.solution[target], String(digit));
+  assert.equal(countSolutions(c.before.grid.slice(), 2), 1);
+  // Every alternate value left after the tempting deletion makes this actual
+  // mid-game grid unsatisfiable. The correct target value still has one solution.
+  for (const candidate of digitsOf(c.before.candidates[target])) {
+    const forced = c.before.grid.slice();
+    forced[target] = candidate;
+    assert.equal(countSolutions(forced, 2), candidate === digit ? 1 : 0);
+  }
+  const html = readFileSync(`dist/guide/${slug}/index.html`, 'utf8');
+  assert.equal(html.split('data-pair-counterexample').length - 1, 1);
+  assert.ok(html.includes('class="counterexample-proof"'));
+  assert.ok(html.includes('/practice/?tech=naked-pair#one-move'));
+  assert.ok(html.includes(`/play/advanced/?n=${spec.number}#level-game`));
+}
+for (const slug of ['rules','beginner','intermediate','hard-sudoku-solving','when-stuck','glossary']) {
+  assert.ok(!readFileSync(`dist/guide/${slug}/index.html`, 'utf8').includes('data-pair-counterexample'));
+}
+assert.throws(() => pairCounterexample(teachingCase(guideCases.rules)));
 for (const [index, spec] of lockedDirectionCases.entries()) {
   const c = teachingCase(spec), solution = [...c.raw.solution].map(Number);
   const eliminations = c.step.eliminations ?? [];

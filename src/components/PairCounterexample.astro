@@ -1,0 +1,47 @@
+---
+import { digitsOf } from '../engine/index.ts';
+import { pairCounterexample } from '../data/pair-counterexamples.ts';
+import { rc, type teachingCase } from '../data/teaching-cases.ts';
+
+interface Props { lesson: ReturnType<typeof teachingCase>; }
+const { lesson } = Astro.props;
+const example = pairCounterexample(lesson);
+const unit = example.unitIndex < 9 ? `${example.unitIndex + 1}行目`
+  : example.unitIndex < 18 ? `${example.unitIndex - 8}列目` : `ブロック${example.unitIndex - 17}`;
+const cells = [...example.cells, example.target];
+const playUrl = `/play/${lesson.spec.level}/?n=${lesson.spec.number}#level-game`;
+---
+
+<aside class="pair-counterexample" data-pair-counterexample data-number={lesson.spec.number}>
+  <h3>似ていてもペアではない形：共通の2候補だけを見ない</h3>
+  <p>上の図と同じ途中盤面から、間違えやすい形を比べます。{unit}の{example.cells.map(rc).join('と')}は、{example.common.join('・')}が共通しています。ただし、<strong>{rc(example.extraCell)}には{example.extraDigit}も残っています</strong>。2マスの候補を合わせると3種類なので、この2マスだけを根拠に{rc(example.target)}の{example.digit}を消すことはできません。</p>
+  <table>
+    <caption>同じ{unit}の候補を比較（元の問題の{lesson.stepNumber}手目直前）</caption>
+    <thead><tr><th scope="col">マス</th><th scope="col">残っている全候補</th><th scope="col">見るところ</th></tr></thead>
+    <tbody>{cells.map(cell => <tr>
+      <th scope="row">{rc(cell)}</th>
+      <td>｛{digitsOf(lesson.before.candidates[cell]).join('・')}｝</td>
+      <td>{cell === example.target ? `${example.digit}を残す` : cell === example.extraCell ? `${example.extraDigit}も候補にある` : '候補は2種類'}</td>
+    </tr>)}</tbody>
+  </table>
+  <details class="counterexample-proof">
+    <summary>誤って消すとどうなる？元の解で確認</summary>
+    <p>元の問題の唯一解では、{example.cells.map(cell => `${rc(cell)}＝${lesson.raw.solution[cell]}`).join('、')}、{rc(example.target)}＝{example.digit}です。{rc(example.extraCell)}が{example.extraDigit}を使うので、{rc(example.target)}に{example.digit}が入っても矛盾しません。この{example.digit}を消すと、正しい解まで除いてしまいます。</p>
+    <p>ペアの条件は、同じ行・列・ブロックで<strong>2マスとも候補が同じ2種類だけ</strong>であることです。図の見た目だけで決めず、消す前に各マスの候補をすべて確かめてください。</p>
+  </details>
+  <p class="counterexample-links"><a href="/guide/techniques/naked-pair/">二国同盟の成立条件を図で確認</a> ／ <a href="/practice/?tech=naked-pair#one-move">ペアを一手ずつ練習する</a> ／ <a href={playUrl}>この上級No.{lesson.spec.number}を最初から解く</a></p>
+</aside>
+
+<style>
+  .pair-counterexample { margin: 20px 0; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+  h3 { margin: 0 0 10px; font-size: 18px; line-height: 1.6; }
+  p, table { font-size: 14px; line-height: 1.8; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+  caption { text-align: left; color: var(--ink-3); margin-bottom: 8px; }
+  th, td { border: 1px solid var(--line); padding: 8px; text-align: left; overflow-wrap: anywhere; }
+  th { background: var(--surface-2); }
+  summary { cursor: pointer; color: var(--accent); padding: 8px 0; min-height: 44px; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  .counterexample-links { margin-bottom: 0; }
+  @media (max-width: 480px) { .pair-counterexample { padding: 12px; } th, td { padding: 6px; font-size: 12px; } }
+</style>

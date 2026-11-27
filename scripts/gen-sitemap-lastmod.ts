@@ -37,7 +37,7 @@ const DYNAMIC_DATA: Record<string, string> = {
 const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
   'play/[level].astro': Object.fromEntries(['beginner','intermediate','advanced','hard','extreme'].map(slug=>[slug,['src/components/FeaturedExamples.astro','src/data/expansion/examples.ts','src/data/teaching-cases.ts','src/components/PuzzleLibrary.astro','src/client/puzzle-library.ts','src/client/puzzle-progress.ts','src/data/puzzle-library.ts','src/data/puzzle-techniques.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts', ...(['beginner','intermediate'].includes(slug)?['src/components/LevelProblemExamples.astro']:[]), ...(slug==='beginner'?['src/components/BeginnerStart.astro','src/data/beginner-start.ts']:[])]])),
   'guide/[slug].astro': {
-    ...Object.fromEntries(['rules','beginner','intermediate','advanced','hard-sudoku-solving','tips','when-stuck','glossary'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts']])),
+    ...Object.fromEntries(['rules','beginner','intermediate','advanced','hard-sudoku-solving','tips','when-stuck','glossary'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts', ...(['tips','advanced'].includes(slug) ? ['src/components/PairCounterexample.astro','src/data/pair-counterexamples.ts'] : [])]])),
     'for-kids': ['src/components/ParentLesson.astro','src/components/SmallNumberBoard.astro'],
     newspaper: ['src/components/SolverInputExample.astro','src/data/solver-sample.ts','src/components/NewspaperInput.astro','src/engine/newspaper-input.ts','src/client/learning-transfer.ts'],
     'sudoku-algorithm': ['src/components/SolverInputExample.astro','src/data/solver-sample.ts'],

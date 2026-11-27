@@ -113,7 +113,7 @@ const techniqueListSchema = g.slug === 'tips' ? {
           <li><a href="/print/practice-x-wing/">X-Wingの一手練習</a>：2行2列の長方形に候補がそろう形を探す練習</li>
         </ul>
       </section>
-      <TeachingCase spec={techniqueCases['naked-pair']} anchorId="worked-example-naked-pair" />
+      <TeachingCase spec={techniqueCases['naked-pair']} anchorId="worked-example-naked-pair" showPairCounterexample />
       <TeachingCase spec={techniqueCases['x-wing']} anchorId="worked-example-x-wing" />
     </>
   )}
@@ -124,7 +124,7 @@ const techniqueListSchema = g.slug === 'tips' ? {
   {g.sections.map((s, i) => (<>
     <h2>{s.h}</h2>
     {s.body.map((p) => (/^\s*<(table|div|ul|ol|figure)/.test(p) ? <Fragment set:html={p} /> : <p set:html={p} />))}
-    {g.slug === 'tips' && i === 0 && <TeachingCase spec={guideCases.tips} />}
+    {g.slug === 'tips' && i === 0 && <TeachingCase spec={guideCases.tips} showPairCounterexample />}
   </>))}
 
   <h2>解き方ガイドに戻る</h2>
