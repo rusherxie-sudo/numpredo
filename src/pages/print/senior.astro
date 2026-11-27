@@ -5,7 +5,7 @@ import ActivityPack from '../../components/ActivityPack.astro';
 import ShareBar from '../../components/ShareBar.astro';
 
 const title = '高齢者向けナンプレ初級 無料プリント｜大きなマス・答え付き - numpredo';
-const description = '高齢者・シニア向けのナンプレを大きなマスで無料印刷。初級2問と解答をA4で作成でき、登録不要。家庭の脳トレやデイサービス・介護施設内のレクリエーションに使えます。';
+const description = '高齢者向けの初級ナンプレをA4に大きく2問ずつ無料印刷。12問・60問の答え付きPDFと、問題・解答を分けた配布セットを用意。登録不要で、家庭や施設のレクリエーションに使えます。';
 const url = 'https://numpredo.com/print/senior/';
 const faq = [
   { q: '高齢者向けナンプレは無料で印刷できますか？', a: 'はい。登録不要で無料です。すぐ使うなら<a href="/print/senior/#senior-pdf-title">12問・60問の固定PDF</a>をダウンロードして印刷できます。問題と答えは同じPDF内の別ページです。題数を選びたい方は<a href="/print/senior/#print-tool">作成ツール</a>を使い、解答ページを付けるかどうかも選べます。問題と答えを別ファイルで配りたい方は<a href="/print/senior/#activity-pack">配布セット</a>をご利用ください。' },
@@ -46,18 +46,18 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
 
   <section class="screen-only pdf-download" aria-labelledby="senior-pdf-title">
     <div>
-      <h2 id="senior-pdf-title">設定なしですぐ印刷・PDF保存</h2>
+      <h2 id="senior-pdf-title">高齢者向けの無料PDFを選ぶ（12問・60問）</h2>
       <p>すべて初級です。12問版は問題1〜6ページ、答え7〜8ページ。60問版は問題1〜30ページ、答え31〜40ページです。参加者に問題だけを配る場合は、印刷画面で問題のページ範囲を指定してください。A4・倍率100％を目安に、プレビューで確認できます。</p>
       <p class="pdf-license">学校・介護施設などでの非営利・無料配布は許可されています。<a href="/terms/#print-license">利用条件を見る</a></p>
     </div>
     <div class="pdf-download-actions">
       <a class="pdf-download-btn" href="/downloads/numpredo-senior-12.pdf" download data-pdf-download="senior" data-pdf-count="12">
         高齢者向け12問PDF
-        <small>大きく2問ずつ・答え付き</small>
+        <small>A4・問題6ページ＋答え2ページ</small>
       </a>
       <a class="pdf-download-btn" href="/downloads/numpredo-senior-60.pdf" download data-pdf-download="senior" data-pdf-count="60">
         高齢者向け60問PDF
-        <small>大きく2問ずつ・答え付き</small>
+        <small>A4・問題30ページ＋答え10ページ</small>
       </a>
     </div>
   </section>

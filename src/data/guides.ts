@@ -318,7 +318,7 @@ export const GUIDES: GuideArticle[] = [
         h: 'テクニックを使う順番と練習',
         body: [
           '手が止まったら、<strong>やさしい手筋から順に</strong>確認します。単数 → 区画の絞り込み → ペア → 三国同盟 → X-Wing の順で確認しましょう。',
-          '手筋を使う条件は、実際の盤面でも確かめられます。<a href="/play/advanced/">上級</a>でペアを、<a href="/play/hard/">難問</a>で三国同盟を、<a href="/play/extreme/">超難問</a>でX-Wingを試してみてください。手順全体は<a href="/guide/how-to-solve/">解き方完全ガイド</a>にまとめています。',
+          '手筋を使う条件は、実際の盤面でも確かめられます。ペアを見つける練習には<a href="/play/advanced/">上級の数独1,000問をオンラインで解く</a>、三国同盟には<a href="/play/hard/">難問の無料ナンプレに挑戦する</a>、X-Wingには<a href="/play/extreme/">超難問を解く</a>から進めます。手順全体は<a href="/guide/how-to-solve/">解き方完全ガイド</a>にまとめています。',
         ],
       },
       {
@@ -739,6 +739,7 @@ export const GUIDES: GuideArticle[] = [
         h: '今の盤面で「次の一手」だけ確認する',
         body: [
           '<div class="gcta"><strong>答え全体を見る前に、候補を確認できます。</strong>現在の盤面を入力すると、選んだマスの候補1〜9、候補から消える理由、重複、今使える最初の論理手順を表示します。<a href="/tools/candidate-checker/">候補数字・次の一手チェッカーを開く →</a></div>',
+          '重複がないことだけでは、正しい盤面とは判断できません。候補が0になる場合と、各マスに候補があっても全体が無解になる場合を、<a href="/tools/candidate-checker/#input-diagnosis-title">誤入力の3つの実例</a>で確認できます。二つの候補が残ったことと、問題に二つの答えがあることの違いは、<a href="/guide/multiple-solutions/">複数解と唯一解の図解</a>を参考にしてください。',
           '候補チェックツールは完成形を先に見せないため、「どこを見落としたか」だけ確認して自力で盤面へ戻れます。問題に解があるか、解が一つだけか、最後までの答えを確認したい場合は<a href="/tools/solver/">数独ソルバー</a>を使ってください。',
         ],
       },

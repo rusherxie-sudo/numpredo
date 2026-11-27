@@ -121,6 +121,7 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
         <h3 id={x.slug}>{x.h}</h3>
         <p>{x.body}</p>
         <p class="plv-go"><a href={`/print/${x.slug}/`}>{x.linkLabel ?? `${x.ja}の印刷専用ページへ（おすすめの刷り方・FAQ）→`}</a></p>
+        {x.slug === 'advanced' && <p><a href="/play/advanced/">上級の数独1,000問を画面で解く（無料・登録不要）</a>。候補メモやヒントを使いたい方は、オンライン版を選べます。</p>}
       </>
     ))}
 
@@ -143,7 +144,6 @@ const breadcrumbSchema = { '@context': 'https://schema.org', '@type': 'Breadcrum
     <li><a href="/tools/generator/">1問だけ数独を作成・印刷する</a></li>
     <li><a href="/guide/how-to-solve/">解き方ガイド</a></li>
     <li><a href="/daily/">毎日の数独</a></li>
-    <li><a href="/play/advanced/">画面でプレイする</a></li>
     <li><a href="/tools/solver/">自動解答ソルバーで答え合わせ</a></li>
   </ul>
 

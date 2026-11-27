@@ -46,14 +46,24 @@ const LEVEL_JA: Record<string, string> = { beginner: '初級', intermediate: '�
 const poolTotal = POOLS5.reduce((s, p) => s + p.puzzles.length, 0);
 const runwayDays = Math.min(...POOLS5.map((p) => p.puzzles.length - SETS_SKIP)); // 最小池基準の連続日数
 
-const title = '日替わりナンプレ｜初級2問を無料で・今日の全7問 - numpredo';
-const description = '今日の初級ナンプレを無料で2問。中級2問・上級・難問・超難問を含む全7問を毎日0時に更新します。登録不要でスマホ・PC対応、すべて唯一解を検証済みです。';
+const title = '日替わりナンプレ無料7問｜初級・中級・上級から超難問まで - numpredo';
+const description = '今日のナンプレ・数独を無料で7問。初級2問・中級2問と、上級・難問・超難問を各1問、毎日0時（日本時間）に更新。登録不要、候補メモ・ヒント・途中保存付きでスマホでも遊べます。';
 const url = 'https://numpredo.com/daily/';
+const advancedDaily = [2, 3, 4].map(tab => {
+  const slot = DAILY_SLOTS[tab];
+  const guidance: Record<string, string> = {
+    advanced: 'ペア（二国同盟）など、候補同士の関係を読む問題に挑戦。',
+    hard: '複数の候補を整理しながら、難しい一手をじっくり考える。',
+    extreme: 'X-Wingなどの高度な手筋を使う、当サイトの最高難度。',
+  };
+  return { tab, level: slot.level, label: slot.dailyLabel, count: slot.pool.puzzles.length, guidance: guidance[slot.level] };
+});
 
 const faq = [
   { q: '毎日の問題はいつ更新されますか？', a: '日付が変わるタイミング（毎日0時・日本時間）で、新しい7問に切り替わります。その日のうちは、何度開いても同じ問題です。' },
   { q: '難易度は選べますか？', a: 'はい。初級2問・中級2問・上級・難問・超難問の7問を、盤面上のタブで自由に切り替えられます。1問だけでも連続記録は伸び、7問すべて解くと一日七問の実績を達成できます。' },
   { q: '難問の日替わりナンプレも無料ですか？', a: 'はい。難問と超難問を含む5段階・全7問を無料・登録不要で遊べます。盤面上の「難問」「超難問」タブを選んでください。毎日0時に新しい問題へ切り替わります。' },
+  { q: '上級者向けの今日の問題をすぐ選べますか？', a: 'はい。<a href="/daily/?tab=2#daily-game">上級</a>・<a href="/daily/?tab=3#daily-game">難問</a>・<a href="/daily/?tab=4#daily-game">超難問</a>をそれぞれ1問ずつ選べます。各リンクでその難易度のタブが開きます。問題の切り替えは毎日0時（日本時間）です。' },
   { q: '連続記録（ストリーク）はどこに保存されますか？', a: 'タイムと連続記録は、お使いの端末のブラウザ内（ローカルストレージ）に保存されます。登録不要で、サーバーには送信されません。ブラウザのデータを消すと記録もリセットされます。' },
   { q: 'なぜ全員に同じ問題なのですか？', a: '毎日、全員が同じ問題に挑戦するので、タイムを比べて腕試しができます。日替わりの問題で、毎日考える練習を続けたい方にも向いています。' },
   { q: '昨日の問題はもう遊べませんか？', a: '遊べます。解き逃した日の問題は<a href="/daily/archive/">ナンプレアーカイブ</a>からいつでも挑戦できます（連続記録の対象は当日の問題のみ）。たくさん解きたい方は<a href="/play/advanced/">難易度別のプレイ</a>や<a href="/print/">無料PDF問題集</a>もどうぞ。' },
@@ -99,9 +109,10 @@ const breadcrumbSchema = {
   <div class="px-text">
     <nav class="crumb"><a href="/">ホーム</a> › 毎日</nav>
     <h1>日替わりナンプレ・今日の数独｜毎日無料7問</h1>
+    <p class="daily-summary">毎日0時（日本時間）更新。初級から超難問まで、全7問を無料・登録不要で遊べます。</p>
   </div>
 
-  <SudokuGame level="advanced" levelJa="毎日" daily multi url={url} set={set} daystart={dayStart} />
+  <div id="daily-game"><SudokuGame level="advanced" levelJa="毎日" daily multi url={url} set={set} daystart={dayStart} /></div>
 
   <div class="px-text">
     <p class="lead">今日の日替わりナンプレを無料でプレイ。毎日0時に、初級2問・中級2問・上級・難問・超難問の<strong>7問</strong>へ更新されます。どれか1問で連続記録が伸び、7問すべて解けば「一日七問」。すべて唯一解で、論理だけで解けることを確認しています。まずは<a href="/play/beginner/">初級の練習問題</a>から始めることも、手元の問題を<a href="/tools/solver/">自動解答</a>することもできます。</p>
@@ -109,6 +120,17 @@ const breadcrumbSchema = {
     <h2>毎日の数独・ナンプレについて</h2>
     <p>毎日0時に、5段階の新しい7問が出題されます。取り組みやすい初級と中級は2問ずつ、上級・難問・超難問は1問ずつです。盤面上のタブで切り替えられ、全員に同じ問題が配られるので、タイムや連続記録（ストリーク）に挑戦できます。今日は1問だけ、週末は7問すべてなど、自分のペースで遊べます。</p>
     <p>出題されるのはすべて「解が一つだけ」「論理だけで解ける」ことを確認した問題です。仮置きせず、候補を絞って進められます。難しいときは候補メモやヒントを使ってください。登録もアプリも不要、開いたその場で遊べます。</p>
+
+    <section aria-labelledby="advanced-daily-title">
+      <h2 id="advanced-daily-title">上級者向けの日替わりナンプレを選ぶ</h2>
+      <p>今日の上級・難問・超難問は各1問です。下の入口から、その難易度の盤面を直接開けます。別の難しさを試すときは、盤面のタブで切り替えてください。</p>
+      <div class="daily-choices">{advancedDaily.map(choice => <article>
+        <h3><a href={`/daily/?tab=${choice.tab}#daily-game`} data-daily-jump={choice.level}>今日の{choice.label}ナンプレを解く</a></h3>
+        <p>{choice.guidance}</p>
+        <p>今日の1問のあとも続けるなら、<a href={`/play/${choice.level}/`}>{choice.label}の無料問題集{choice.count.toLocaleString('ja-JP')}問</a>から選べます。</p>
+      </article>)}</div>
+      <p>初めての方は<a href="/daily/?tab=0#daily-game">今日の初級①</a>、基本に慣れた方は<a href="/daily/?tab=1#daily-game">今日の中級①</a>から始められます。昨日以前の問題は<a href="/daily/archive/">日替わりアーカイブ</a>へ。難しい一手の考え方は<a href="/guide/advanced/">上級テクニックの図解</a>で確認できます。</p>
+    </section>
 
     <h2>今月のカレンダー</h2>
     <p>クリアした日には ✓ が付きます。解き逃した日をタップすると、<a href="/daily/archive/">ナンプレアーカイブ</a>でその日の問題に挑戦できます（連続記録の対象外）。記録は<a href="/stats/">統計・実績ページ</a>にまとまっています。</p>
@@ -138,6 +160,14 @@ const breadcrumbSchema = {
   </script>
 
   <style is:global>
+    #daily-game { scroll-margin-top: 80px; }
+    .daily-summary { color: var(--ink-3); font-size: 14px; line-height: 1.8; margin: 8px 0 14px; }
+    .daily-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 16px 0; }
+    .daily-choices article { border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+    .daily-choices h3 { margin: 0 0 10px; font-size: 18px; }
+    .daily-choices p { line-height: 1.85; font-size: 14px; }
+    .daily-choices a { color: var(--accent); text-underline-offset: 2px; }
+    @media (max-width: 760px) { .daily-choices { grid-template-columns: 1fr; } }
     .dc { max-width: 380px; margin: 0 0 18px; }
     .dc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
     .dc-title { font-family: var(--font-mincho); font-weight: 700; }

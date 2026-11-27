@@ -39,9 +39,9 @@ const techLinks = (LEVEL_TECHS[meta.slug] ?? [])
   .filter((t): t is (typeof TECHNIQUES)[number] => Boolean(t));
 
 const SEO_TITLES: Record<string, string> = {
-  beginner: '数独初級・ナンプレ無料ゲーム｜1,000問と最初の3手練習 - numpredo',
+  beginner: '数独初級・ナンプレ無料ゲーム｜1,000問・ヒント付き - numpredo',
   intermediate: 'ナンプレ中級の無料ゲーム｜1,000問・登録不要 - numpredo',
-  advanced: '数独無料ゲーム 上級｜ナンプレ上級問題 - numpredo',
+  advanced: '数独無料ゲーム 上級｜ナンプレ1,000問・登録不要 - numpredo',
   hard: '数独無料ゲーム 難問｜手強いナンプレ問題 - numpredo',
   extreme: '数独の最高級・超難問を無料で｜ナンプレ1,000問 - numpredo',
 };
@@ -118,6 +118,7 @@ const breadcrumbSchema = {
     {meta.slug === 'beginner' && <p><a href="/guide/how-to-solve/#beginner-walkthrough">初級1問を最初から完成まで、全43手の図解で学ぶ</a> — 同じ問題の練習・解説PDF付き。</p>}
     {meta.slug==='beginner'&&<p><a href="#level-game">初級をすぐに遊ぶ</a> ／ <a href="#problem-examples">問題と答えの例を見る</a> ／ <a href="#beginner-start">最初の3手を練習</a></p>}
     {meta.slug==='intermediate'&&<p><a href="#level-game">中級をすぐに遊ぶ</a> ／ <a href="#problem-examples">問題と答えの例を見る</a> ／ <a href="/print/intermediate/">紙で解く・PDF</a></p>}
+    {meta.slug === 'advanced' && <p><a href="#level-game">上級をすぐに遊ぶ</a> ／ <a href="/guide/examples/naked-pair-breakthrough/">ペアで突破する実戦例</a> ／ <a href="/print/advanced/">上級の答え付きPDFを印刷</a></p>}
 
     <div class="diff-badges">
       {LEVELS.map((l) => <a href={`/play/${l.slug}/`} class={l.slug === meta.slug ? 'diff-bdg on' : 'diff-bdg'}>{l.ja}</a>)}

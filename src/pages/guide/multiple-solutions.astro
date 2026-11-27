@@ -1,0 +1,104 @@
+---
+import Base from '../../layouts/Base.astro';
+import EditorialNote from '../../components/EditorialNote.astro';
+import { GROWTH_GUIDES } from '../../data/growth-guides.ts';
+import { MULTIPLE_PUZZLE, UNIQUE_PUZZLE, ORIGINAL_SOLUTION, ALTERNATE_SOLUTION, CHANGED_CELLS, exampleToolHref } from '../../data/solution-examples.ts';
+import { gridFromString, renderBoardSvg, TOKEN_THEME } from '../../engine/index.ts';
+
+const meta = GROWTH_GUIDES[0];
+const url = new URL(meta.path, Astro.site).href;
+const given = [...MULTIPLE_PUZZLE].map(digit => digit !== '0');
+const diagram = (grid: string, title: string, desc: string) => renderBoardSvg(gridFromString(grid), {
+  given,
+  cellHighlights: CHANGED_CELLS.map(cell => ({ cell })),
+  theme: TOKEN_THEME,
+  cell: 36,
+  title,
+  desc,
+});
+const puzzleSvg = diagram(MULTIPLE_PUZZLE, '答えが二つある数独の問題', '1行3列・1行8列・2行3列・2行8列が空欄です。ほかの77マスは同じ提示数字です。');
+const answers = [
+  { label: '完成形A', values: ['3', '9', '9', '3'], grid: ORIGINAL_SOLUTION },
+  { label: '完成形B', values: ['9', '3', '3', '9'], grid: ALTERNATE_SOLUTION },
+].map(answer => ({ ...answer, svg: diagram(answer.grid, answer.label, `${answer.label}も、同じ提示数字とすべての行・列・ブロックの条件を満たします。色の付いた4マスの3と9だけが入れ替わっています。`) }));
+const faq = [
+  ['数独の答えは必ず一つですか？', '一意の答えを持つように作られた問題は唯一解です。ただし、入力や転記で提示数字が欠けたり、作成時に検査していなかったりすると、ルールを満たす完成形が複数ある盤面もできます。'],
+  ['候補が二つ残ったら複数解ですか？', 'いいえ。候補はその時点で除外できていない数字です。ほかのマスとの関係で一方が消えることがあります。複数解と確認するには、同じ提示数字を満たす異なる完成形が二つ以上必要です。'],
+  ['自分の答えと解答欄が違う場合は？', 'まず元の提示数字と、行・列・ブロックの重複を照合します。両方の完成形が同じ提示数字と全ルールを満たすなら複数解です。途中の数字や、別ルールの見落としがある場合は別の原因です。'],
+  ['ソルバーが一つの答えを出せば唯一解ですか？', '一つ見つけただけでは判定できません。複数解の確認には別の完成形があるかを調べる必要があります。本站ソルバーは解の数を上限2まで数え、複数ある場合にはその旨を表示します。'],
+];
+const schemas = [
+  { '@context': 'https://schema.org', '@type': 'WebPage', name: meta.label, description: meta.description, url, inLanguage: 'ja', author: { '@id': new URL('/#operator', Astro.site).href }, isPartOf: { '@id': new URL('/#website', Astro.site).href } },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'ホーム', item: new URL('/', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: '解き方ガイド', item: new URL('/guide/', Astro.site).href },
+    { '@type': 'ListItem', position: 3, name: '複数解と唯一解', item: url },
+  ] },
+];
+---
+
+<Base title={meta.title} description={meta.description} canonical={url}>
+  <Fragment slot="head">{schemas.map(schema => <script type="application/ld+json" set:html={JSON.stringify(schema)} />)}</Fragment>
+  <nav class="crumb"><a href="/">ホーム</a> › <a href="/guide/">解き方ガイド</a> › 複数解と唯一解</nav>
+  <h1>数独に答えが2つある？複数解と唯一解の違い</h1>
+  <p class="lead"><strong>同じ提示数字から、ルールをすべて満たす異なる完成形が二つ以上できる状態を「複数解」といいます。</strong>一つのマスに候補が二つ残っただけでは、複数解とは限りません。まず同じ問題の二つの完成形を比べてみましょう。</p>
+  <nav class="topic-jump" aria-label="確認したいことを選ぶ"><a href="#two-answers">答えが二つある実例</a> ／ <a href="#one-clue">一つの提示で唯一解に</a> ／ <a href="#check-yours">自分の問題を確認する</a></nav>
+
+  <section aria-labelledby="two-answers">
+    <h2 id="two-answers">4つの空欄に、二通りの入れ方がある実例</h2>
+    <p>以下は本站の自作問題の完成形から、1行3列・1行8列・2行3列・2行8列の4マスを消した確認用の盤面です。二つの行と二つの列で、3と9を入れ替えられます。一般の問題集として配布している問題ではなく、複数解を説明するために作った例です。</p>
+    <figure class="example-board"><Fragment set:html={puzzleSvg} /><figcaption>同じ問題：77マスが提示済み。背景色の付いた4マスだけが空欄です。</figcaption></figure>
+    <div class="answer-grid">{answers.map(answer => <figure><h3>{answer.label}</h3><Fragment set:html={answer.svg} /><figcaption>1行3列＝{answer.values[0]}、1行8列＝{answer.values[1]}、2行3列＝{answer.values[2]}、2行8列＝{answer.values[3]}。</figcaption></figure>)}</div>
+    <p>完成形AでもBでも、各行・各列・各3×3ブロックに1〜9が一つずつ入り、最初からある77マスは変わりません。これで少なくとも二つの答えがあることを確認できます。この例は解を上限3まで数え、完成形が<strong>ちょうど二つ</strong>であることも検証しています。</p>
+    <p><a href={exampleToolHref('/tools/solver/', MULTIPLE_PUZZLE)}>この二つの解を持つ盤面をソルバーに開く →</a>　「解く」を押すと複数解の表示と、そのうち一つの完成形を確認できます。</p>
+    <details><summary>同じ盤面を81文字で確認する</summary><p>0は空欄、左上から行ごとの順番です。文字列全体をコピーしてソルバーに貼り付けられます。</p><code class="puzzle-string">{MULTIPLE_PUZZLE}</code></details>
+  </section>
+
+  <section aria-labelledby="one-clue">
+    <h2 id="one-clue">1行3列の「3」を提示すると、答えは一つに決まる</h2>
+    <p>上の問題に1行3列＝3という提示を戻すと、完成形Bはこの条件を満たさなくなります。残った3マスも1行8列＝9、2行3列＝9、2行8列＝3に決まり、完成形Aだけになります。提示が一つ変わるだけで、解の数も変わる例です。</p>
+    <p><a href={exampleToolHref('/tools/solver/', UNIQUE_PUZZLE)}>3を一つ戻した唯一解の盤面を確認 →</a></p>
+    <p>この例では四角形の入れ替えができますが、同じような四角形が見えたからといって、必ず複数解になるわけではありません。他の提示数字、別のマスへの影響、追加ルールも含めて確認する必要があります。</p>
+  </section>
+
+  <section aria-labelledby="candidates">
+    <h2 id="candidates">候補が二つ残ることと、答えが二つあることは違う</h2>
+    <p>候補の「3・9」は、現在の調べ方では両方を除外できていないという意味です。他の行や列の置き場所を調べると、一方が消える場合があります。一つのマスで行き詰まっただけなら、<a href="/guide/techniques/hidden-single/">隠れた単数</a>や<a href="/guide/techniques/naked-pair/">ペア（二国同盟）</a>など、別の場所から進む手が残っているかもしれません。</p>
+    <p>答えを先に見たくない場合は、<a href="/tools/candidate-checker/">候補数字と次の一手チェッカー</a>で、候補から消える理由や論理的な一手を確認できます。手筋が見つからないことだけでは、複数解とも解なしとも判定できません。</p>
+  </section>
+
+  <section aria-labelledby="check-yours">
+    <h2 id="check-yours">自分の問題が複数解か、入力ミスかを確認する順番</h2>
+    <ol>
+      <li><strong>元の問題の提示数字だけに戻す。</strong>自分が途中で入れた数字を提示として扱うと、元の問題とは別の解の数を調べることになります。</li>
+      <li><strong>数字の欠け・読み違いを照合する。</strong>写真の認識結果も元の紙面と見比べます。提示が一つ欠けるだけで、唯一解から複数解に変わる場合があります。</li>
+      <li><strong>ルールを確認する。</strong>ここで扱うのは通常の9×9数独です。キラーの合計、対角線、不等号などを無視すると、元の問題と違う条件になります。</li>
+      <li><strong>ソルバーで完成形の数を調べる。</strong>「解なし」は条件を満たす完成形が0個、「複数解」は二つ以上です。解が一つでも、人が簡単に解けるとは限りません。</li>
+    </ol>
+    <p><a href="/tools/solver/">自分の問題を入力して、唯一解・複数解・解なしを確認する →</a></p>
+    <p>重複がないのにソルバーで「解なし」となったら、<a href="/tools/candidate-checker/#input-diagnosis-title">誤入力の3つの実例</a>を参考に、提示数字と自分で入れた数字を分けて見直してください。確認できた事実を添えて、問題の提供元へ問い合わせる方法もあります。</p>
+  </section>
+
+  <h2>よくある質問</h2>
+  <dl class="faq">{faq.map(([question, answer]) => <><dt>{question}</dt><dd>{answer}</dd></>)}</dl>
+  <EditorialNote verification="自作題庫の完成形から作成した説明用盤面です。二つの完成形が同じ提示数字と27単位の条件を満たすこと、解数がちょうど2であること、提示を一つ戻すと唯一解になることを構築時に検証しています。第三者の問題は転載していません。" />
+  <p>唯一解で、論理だけで解ける問題を遊ぶなら、<a href="/play/beginner/">初級ナンプレ1,000問</a>や<a href="/play/intermediate/">中級の無料数独</a>へ。解を数える仕組みを知りたい方には<a href="/guide/sudoku-algorithm/">数独ソルバーのアルゴリズム解説</a>もあります。</p>
+
+  <style>
+    .crumb { color: var(--ink-3); font-size: 12px; margin-bottom: 10px; }
+    .crumb a, a { color: var(--accent); text-underline-offset: 2px; }
+    p, li { line-height: 1.95; }
+    .lead { color: var(--ink-2); }
+    .topic-jump { padding: 12px 0; line-height: 2; }
+    .example-board { max-width: 420px; margin: 22px auto; }
+    .answer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    figure { margin: 0; min-width: 0; }
+    figure :global(svg) { display: block; width: 100%; height: auto; }
+    figcaption { margin-top: 10px; font-size: 13px; line-height: 1.8; color: var(--ink-3); }
+    .puzzle-string { display: block; white-space: normal; overflow-wrap: anywhere; padding: 12px; background: var(--surface-2); }
+    summary { cursor: pointer; padding: 10px 0; color: var(--accent); }
+    .faq dt { margin-top: 18px; font-weight: 700; }
+    .faq dd { margin: 6px 0 0; line-height: 1.9; color: var(--ink-3); }
+    @media (max-width: 560px) { .answer-grid { grid-template-columns: 1fr; } }
+  </style>
+</Base>

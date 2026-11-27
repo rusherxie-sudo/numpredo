@@ -3,6 +3,7 @@ import ExpansionLinks from '../../components/ExpansionLinks.astro';
 import Base from '../../layouts/Base.astro';
 import { GUIDES } from '../../data/guides.ts';
 import { TECHNIQUES } from '../../data/techniques.ts';
+import { GROWTH_GUIDES } from '../../data/growth-guides.ts';
 
 const title = '数独・ナンプレの解き方・攻略ガイド一覧｜コツ・テクニック - numpredo';
 const description =
@@ -87,6 +88,12 @@ const breadcrumbSchema = {
         <span class="gc-d">{guideBlurb[g.slug] ?? g.description}</span>
       </a>
     ))}
+  </div>
+
+  <h2>入力・答え合わせで迷ったら</h2>
+  <div class="g-grid">
+    {GROWTH_GUIDES.map(guide => <a href={guide.path} class="g-card"><span class="gc-j">{guide.label}</span><span class="gc-d">{guide.summary}</span></a>)}
+    <a href="/tools/candidate-checker/#input-diagnosis-title" class="g-card"><span class="gc-j">数字が重複しないのに解けない？</span><span class="gc-d">重複・候補0・全体の矛盾を、自作の3例と確認用ツールで区別します。</span></a>
   </div>
 
   <h2>テクニック別の図解解説</h2>

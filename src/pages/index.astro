@@ -8,9 +8,9 @@ import SudokuGame from '../components/SudokuGame.astro';
 import { LEVELS } from '../data/levels.ts';
 
 
-const title = '数独無料ゲーム・ナンプレ無料問題集｜登録不要 - numpredo';
+const title = '数独・ナンプレ無料ゲーム｜登録不要ですぐ遊べる - numpredo';
 const description =
-  '登録不要で遊べる数独無料ゲーム・ナンプレ問題集。初級から超難問まで、すべて唯一解で、論理だけで解けることを確認しています。解き方ガイド、自動解答ソルバー、答え付きPDFも無料で使えます。';
+  '数独・ナンプレをブラウザで無料プレイ。登録不要で、このページの初級問題をすぐに解けます。今日の日替わり7問、5段階の難易度、途中保存に対応。解き方ガイド、自動解答ソルバー、答え付きPDFも無料です。';
 const totalPuzzles = LEVELS.reduce((sum, level) => sum + level.puzzles.length, 0);
 // 全題庫计数口径：只计标准9×9的5档（LEVELS）问题；キラー・対角線・ミニ4×4 属别规则问题集，不含在计数内。
 const standardLabel = totalPuzzles.toLocaleString('ja-JP');

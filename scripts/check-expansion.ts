@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync,existsSync} from 'node:fs';
 import {LESSONS} from '../src/data/expansion/lessons.ts';
+import {GROWTH_GUIDES} from '../src/data/growth-guides.ts';
 import {MODELS,localAssignments,counterModel} from '../src/data/expansion/models.ts';
 import {EXAMPLES} from '../src/data/expansion/examples.ts';
 import {buildPrintSets} from '../src/data/expansion/print-sets.ts';
@@ -53,5 +54,10 @@ for(const record of verifiedPdfs){assert.equal(createHash('sha256').update(readF
 const sitemap=readFileSync('dist/sitemap-0.xml','utf8');
 for(const path of paths){const html=readFileSync(`dist${path}index.html`,'utf8');assert.ok(html.includes(`rel="canonical" href="https://numpredo.com${path}"`),path);assert.ok(sitemap.includes(`https://numpredo.com${path}`),path);}
 const sitemapDownloads=JSON.parse(readFileSync('src/data/sitemap-downloads.json','utf8')) as {path:string;lastmod:string}[];
-assert.equal((sitemap.match(/<loc>/g)??[]).length,98+sitemapDownloads.length);
+for(const guide of GROWTH_GUIDES){
+ const html=readFileSync(`dist${guide.path}index.html`,'utf8');
+ assert.ok(html.includes(`rel="canonical" href="https://numpredo.com${guide.path}"`),guide.path);
+ assert.ok(sitemap.includes(`https://numpredo.com${guide.path}`),guide.path);
+}
+assert.equal((sitemap.match(/<loc>/g)??[]).length,98+GROWTH_GUIDES.length+sitemapDownloads.length);
 console.log('✓ 30 new indexable pages; six local techniques + counterexamples; eight complete solution replays; 76 selected puzzles + 20 PDF assets verified');

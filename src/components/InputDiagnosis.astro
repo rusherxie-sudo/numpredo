@@ -1,0 +1,42 @@
+---
+import { INPUT_DIAGNOSES, exampleToolHref } from '../data/solution-examples.ts';
+import { gridFromString, renderBoardSvg, TOKEN_THEME } from '../engine/index.ts';
+
+const examples = INPUT_DIAGNOSES.map(example => ({
+  ...example,
+  svg: renderBoardSvg(gridFromString(example.grid), {
+    given: [...example.grid].map((digit, cell) => digit !== '0' && cell !== example.placedCell),
+    cellHighlights: example.marked.map(cell => ({ cell })),
+    theme: TOKEN_THEME,
+    cell: 32,
+    title: example.title,
+    desc: example.explanation,
+  }),
+}));
+---
+
+<section class="input-diagnosis" aria-labelledby="input-diagnosis-title">
+  <h2 id="input-diagnosis-title">ナンプレの間違いを見つける3つの実例</h2>
+  <p>「数字が重複していないのに解けない」ときは、局所的な候補と盤面全体の解を分けて確認します。以下は、同じ自作の初級問題に数字を一つだけ追加した例です。薄い色の数字が追加した数字、背景色の付いたマスが確認箇所です。</p>
+  <div class="diagnosis-cases">
+    {examples.map((example, index) => <article>
+      <h3>{index + 1}. {example.title}</h3>
+      <figure><Fragment set:html={example.svg} /><figcaption>{example.explanation}</figcaption></figure>
+      <p>{example.next}</p>
+      <p><a href={exampleToolHref(example.tool, example.grid)}>{example.toolLabel} →</a></p>
+    </article>)}
+  </div>
+  <p>入力した盤面そのものが複数解の場合は、<a href="/guide/multiple-solutions/">同じ問題に二つの答えがある例と、唯一解との違い</a>を確認できます。二択の候補が残るだけなら、まだ複数解とは判断できません。</p>
+</section>
+
+<style>
+  .input-diagnosis { margin: 28px 0; }
+  .input-diagnosis p, figcaption { line-height: 1.9; }
+  .diagnosis-cases { display: grid; gap: 20px; }
+  article { border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+  h3 { margin-top: 0; }
+  figure { margin: 12px 0; }
+  figure :global(svg) { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; }
+  figcaption { margin-top: 12px; color: var(--ink-3); font-size: 14px; }
+  a { color: var(--accent); text-underline-offset: 2px; overflow-wrap: anywhere; }
+</style>
