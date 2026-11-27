@@ -54,6 +54,10 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
+  'en/index.astro': ['src/data/english-puzzles.ts', 'src/components/VariantGame.astro', 'src/client/variant-game.ts'],
+  'en/sudoku-solver.astro': ['src/components/EnglishSolver.astro', 'src/client/english-solver.ts', 'src/client/english-solver-worker.ts'],
+  'en/16x16-sudoku.astro': ['src/data/sudoku16-play.ts', 'src/data/variant-opening.ts', 'public/downloads/variants/manifest.json', 'src/engine/solve16.ts'],
+  'en/16x16-sudoku-printable.astro': ['public/downloads/en/16x16-sudoku-questions.pdf', 'public/downloads/en/16x16-sudoku-answers.pdf'],
   ...Object.fromEntries(LESSONS.map(l=>[`${l.path.slice(1,-1)}.astro`,['src/data/expansion/lessons.ts','src/data/expansion/lesson-depth.ts','src/data/expansion/model-diagrams.ts','src/components/KillerSumDiagram.astro','src/data/expansion/models.ts','src/components/EditorialNote.astro','src/components/LogicModel.astro',...(l.slug==='candidate-update'?['src/components/CandidateCorrection.astro','src/data/puzzles/intermediate.json']:[])]])),
   ...Object.fromEntries(EXAMPLES.map(e=>[`${e.path.slice(1,-1)}.astro`,['src/data/expansion/examples.ts','src/data/expansion/selections.json','src/components/ExpansionExample.astro','src/components/EditorialNote.astro','src/data/teaching-cases.ts',`src/data/puzzles/${e.spec.level}.json`]])),
   ...Object.fromEntries(manifest.packs.map(p=>[`${p.path.slice(1,-1)}.astro`,['src/data/expansion/print-sets.ts','src/data/expansion/selections.json','src/components/ExpansionPrint.astro','scripts/gen-expansion-pdfs.py',`public/downloads/collections/${p.slug}-questions.pdf`,`public/downloads/collections/${p.slug}-answers.pdf`]])),
