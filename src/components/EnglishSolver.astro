@@ -14,7 +14,7 @@ const symbols = size === 9 ? '1–9' : '1–9 and A–G';
         const row = Math.floor(cell / size);
         const col = cell % size;
         return <input type="text" autocomplete="off" spellcheck="false" maxlength="1" inputmode={size === 9 ? 'numeric' : 'text'}
-          aria-label={`Row ${row + 1}, column ${col + 1}`}
+          aria-label={`Row ${row + 1}, column ${col + 1}`} tabindex={cell === 0 ? 0 : -1}
           class:list={[{ 'box-end': (col + 1) % block === 0 && col + 1 !== size, 'box-bottom': (row + 1) % block === 0 && row + 1 !== size }]} />;
       })}
     </div>

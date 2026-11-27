@@ -227,7 +227,9 @@ const footerCols = [
         function sensitiveAnalyticsPage() {
           const gamePage = /^\/play\/(beginner|intermediate|advanced|hard|extreme)\/$/.test(location.pathname);
           const englishGame = location.pathname === '/en/16x16-sudoku/' || location.pathname === '/en/';
-          if (location.hash && !(gamePage && location.hash === '#level-game') && !(englishGame && location.hash === '#variant-game')) return true;
+          const knownGameAnchor = (gamePage && location.hash === '#level-game') || (englishGame && location.hash === '#variant-game');
+          const english16SolverAnchor = location.pathname === '/en/16x16-sudoku/' && location.hash === '#solver';
+          if (location.hash && !knownGameAnchor && !english16SolverAnchor) return true;
           if (!location.search) return false;
           const params = [...new URLSearchParams(location.search)];
           return !((gamePage || englishGame) && params.length === 1 && params[0][0] === 'n' && /^[1-9]\d*$/.test(params[0][1]));

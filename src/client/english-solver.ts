@@ -88,8 +88,14 @@ document.querySelectorAll<HTMLElement>('[data-english-solver]').forEach(root => 
     return 'Unique solution found.';
   }
 
+  let activeField = fields[0];
   fields.forEach((field, cell) => {
-    field.addEventListener('focus', () => field.select());
+    field.addEventListener('focus', () => {
+      activeField.tabIndex = -1;
+      activeField = field;
+      field.tabIndex = 0;
+      field.select();
+    });
     field.addEventListener('input', () => {
       const symbol = field.value.toUpperCase();
       const valid = symbol === '' || symbols.includes(symbol);
