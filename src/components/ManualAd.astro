@@ -1,0 +1,48 @@
+---
+interface Props {
+  slotId: string;
+  placement: 'content' | 'rail' | 'related';
+  multiplex?: boolean;
+}
+const { slotId, placement, multiplex = false } = Astro.props;
+---
+
+<div class={`manual-ad manual-ad--${placement}`} data-manual-ad={placement} hidden>
+  {/* adsbygoogle クラスは表示可能な位置で初期化するときだけ付ける。 */}
+  <ins class="manual-ad-element" style="display:block"
+    data-ad-client="ca-pub-1382715204285550"
+    data-ad-slot={slotId}
+    data-ad-format={multiplex ? 'autorelaxed' : 'auto'}
+    data-full-width-responsive={multiplex ? undefined : 'true'} />
+</div>
+
+<script>
+  import '../client/manual-ads.ts';
+</script>
+
+<style is:global>
+  .manual-ad { width: 100%; min-width: 0; margin: 36px auto; }
+  .manual-ad[hidden] { display: none !important; }
+  .manual-ad--content { max-width: 600px; min-height: 300px; }
+  .manual-ad--content .manual-ad-element { min-height: 280px; }
+  .manual-ad--related { min-height: 300px; margin-top: 48px; }
+  .manual-ad--rail { width: 300px; min-height: 600px; margin: 0; }
+  .manual-ad--rail .manual-ad-element { min-height: 600px; }
+  .manual-ad:has(ins[data-ad-status="unfilled"]) { display: none; }
+  html[data-adsense-unavailable="true"] .manual-ad { display: none !important; }
+  .manual-ad-rail { display: none; }
+  @media (min-width: 1280px) and (min-height: 800px) {
+    html[data-adsense-allowed="true"]:not([data-adsense-unavailable="true"]) .page-shell--ads {
+      display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px;
+      max-width: 1440px; padding-right: 24px; margin: 0 auto;
+    }
+    html[data-adsense-allowed="true"]:not([data-adsense-unavailable="true"]) .page-shell--ads.page-shell--wide { max-width: 1600px; }
+    .page-shell--ads > main { min-width: 0; width: 100%; }
+    .manual-ad-rail { display: block; position: sticky; top: 84px; align-self: start; margin-top: 32px; }
+    .manual-ad--related { display: none; }
+  }
+  @media print {
+    .manual-ad, .manual-ad-rail { display: none !important; }
+    .page-shell { display: block !important; padding: 0 !important; }
+  }
+</style>

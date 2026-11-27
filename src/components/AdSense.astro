@@ -7,16 +7,27 @@ const { publisherId } = Astro.props;
 <script is:inline define:vars={{ publisherId }} data-adsense-loader>
   (function () {
     // 入力盤面・印刷見出し・取り下げ情報を含む URL では第三者広告を読み込まない。
-    var gamePage = /^\/play\/(beginner|intermediate|advanced|hard|extreme)\/$/.test(location.pathname);
-    if (location.hash && !(gamePage && location.hash === '#level-game')) return;
-    if (location.search) {
+    window.numpredoAdsAllowed = function () {
+      var gamePage = /^\/play\/(beginner|intermediate|advanced|hard|extreme)\/$/.test(location.pathname);
+      if (location.hash && !(gamePage && location.hash === '#level-game')) return false;
+      if (!location.search) return true;
       var params = Array.from(new URLSearchParams(location.search));
-      if (!(gamePage && params.length === 1 && params[0][0] === 'n' && /^[1-9]\d*$/.test(params[0][1]))) return;
-    }
+      // 生成器自身が付ける再現用の難易度・乱数種は、入力盤面や私的情報を含まない。
+      if (location.pathname === '/tools/generator/' && params.length === 2) {
+        var level = params.find(function (item) { return item[0] === 'level'; });
+        var seed = params.find(function (item) { return item[0] === 'seed'; });
+        return Boolean(level && seed && /^(beginner|intermediate|advanced|hard|extreme)$/.test(level[1]) &&
+          /^[1-9]\d{0,9}$/.test(seed[1]) && Number(seed[1]) <= 4294967295);
+      }
+      return gamePage && params.length === 1 && params[0][0] === 'n' && /^[1-9]\d*$/.test(params[0][1]);
+    };
+    if (!window.numpredoAdsAllowed()) return;
+    document.documentElement.dataset.adsenseAllowed = 'true';
     var script = document.createElement('script');
     script.async = true;
     script.crossOrigin = 'anonymous';
     script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + publisherId;
+    script.onerror = function () { document.documentElement.dataset.adsenseUnavailable = 'true'; };
     document.head.appendChild(script);
   })();
 </script>

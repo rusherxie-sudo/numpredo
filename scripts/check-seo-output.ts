@@ -192,6 +192,16 @@ for (const [pathname, { html }] of pages) {
   if (pathname!=='/embed/mini4/' && (adsenseAccounts.length !== 1 || adsenseAccounts[0] !== adsensePublisherId)) {
     errors.push(`${pathname} 的 AdSense 所有权标记缺失或错误`);
   }
+  const manualSlots = matches(html, /data-ad-slot="([^"]+)"/g);
+  const adsAllowed = !robots.some((value) => value.includes('noindex')) &&
+    !['/about/', '/contact/', '/privacy/', '/terms/'].includes(pathname);
+  const readingPage = /^\/(guide|print|research)(\/|$)/.test(pathname);
+  const expectedSlots = adsAllowed
+    ? ['8300525674', ...(readingPage ? ['2940387782', '1627306116'] : ['5865934023'])]
+    : [];
+  if (manualSlots.slice().sort().join(',') !== expectedSlots.slice().sort().join(',')) {
+    errors.push(`${pathname} 的手动广告位与页面类型或排除规则不一致`);
+  }
   const h1Count = (mainHtml.match(/<h1\b/gi) ?? []).length;
   if (h1Count !== 1) errors.push(`${pathname} 主内容 H1 数量为 ${h1Count}（应为 1）`);
   const headings = [...mainHtml.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi)]

@@ -3,6 +3,7 @@ import '../styles/tokens.css';
 import FloatingShare from '../components/FloatingShare.astro';
 import PwaInstall from '../components/PwaInstall.astro';
 import AdSense from '../components/AdSense.astro';
+import ManualAd from '../components/ManualAd.astro';
 import { LEVELS } from '../data/levels.ts';
 
 interface Props {
@@ -66,6 +67,7 @@ const operatorSchema = {
 // 内容长文（/guide/xxx・/variants/xxx）用 article；hub 索引页（/guide/）与其余用 website
 const pathname = Astro.url.pathname;
 const adsenseEnabled = !noindex && !['/about/', '/contact/', '/privacy/', '/terms/'].includes(pathname);
+const readingPage = /^\/(guide|print|research)(\/|$)/.test(pathname);
 const ogType =
   (/^\/(guide|variants)\//.test(pathname) && pathname !== '/guide/' && pathname !== '/variants/') || pathname.startsWith('/research/')
     ? 'article'
@@ -253,7 +255,17 @@ const footerCols = [
       </nav>
     </header>
 
-    <main class={wide ? 'wide' : ''}><slot /><PwaInstall /></main>
+    <div class:list={['page-shell', { 'page-shell--ads': adsenseEnabled, 'page-shell--wide': wide }]}>
+      <main class={wide ? 'wide' : ''}>
+        <slot />
+        {adsenseEnabled && <ManualAd placement="content" slotId="8300525674" />}
+        {adsenseEnabled && readingPage && <ManualAd placement="related" slotId="2940387782" multiplex />}
+        <PwaInstall />
+      </main>
+      {adsenseEnabled && <aside class="manual-ad-rail" aria-label="広告">
+        <ManualAd placement="rail" slotId={readingPage ? '1627306116' : '5865934023'} multiplex={readingPage} />
+      </aside>}
+    </div>
 
     <footer class="sfoot">
       <div class="sfoot-cols">
