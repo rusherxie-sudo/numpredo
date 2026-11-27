@@ -30,6 +30,8 @@
 
 ## 运行依赖与上线前核对
 
+运行时密钥的新名称为 `PUZZLE_RATE_SALT`（至少 32 字符）和 `PUZZLE_MODERATION_TOKEN`。新名称存在时优先使用，旧名称继续兼容。已有环境先保留旧绑定，获授权后在预览环境添加新绑定并验证限流和审核，再按正式发布流程迁移生产。两个环境各自维护密钥和数据库绑定。
+
 1. 单独创建 D1 数据库、应用 `migrations/0001_public_puzzles.sql`、将 Pages production/preview 各自绑定为 `PUBLIC_PUZZLES_DB`；不要复用未经核实的旧库。设置长随机 secret `PUBLIC_PUZZLES_RATE_SALT`（至少32字符）和独立长随机 `PUBLIC_PUZZLES_ADMIN_TOKEN`；待验证后才设置 `PUBLIC_PUZZLES_ENABLED=true`。配置与部署需要另行授权。
 2. 写入限流默认使用同一 D1 的原子窗口计数，每分钟每 IP 10 次；仅保存由密盐、分钟、Cloudflare 提供的 IP 构成的哈希，顺带清理前一分钟之前的键。无 IP 时共享 unknown 桶；此机制不能防止分布式滥用或穷尽 D1 配额，需结合平台边缘防护与监控。绑定缺失、密盐过短均关闭写入。可选注入兼容 Workers limiter，但 Pages 原生绑定未确认，不是部署前提。
 3. `public/_routes.json` 仅将本 API 路由送入 Pages Functions；其余静态资源绕过 Functions。后续增加动态详情路由时必须由集成方合并路由配置，不可覆盖此 API。审核运维、预览/生产隔离、备份、配额、故障告警与秘钥轮换须在上线前落地。

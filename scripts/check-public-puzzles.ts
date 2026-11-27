@@ -151,6 +151,13 @@ const d1Limited = {...env,PUBLIC_PUZZLES_RATE_LIMITER:undefined,PUBLIC_PUZZLES_R
 for (let i=0;i<10;i++) assert.notEqual((await req('',{...submission,confirmed:false},false,d1Limited)).status,429);
 assert.equal((await req('',submission,false,d1Limited)).status,429);
 assert.equal((await req('',submission,false,{...d1Limited,PUBLIC_PUZZLES_RATE_SALT:undefined})).status,503);
+const newBindings = { ...d1Limited, PUZZLE_RATE_SALT:'abcdef0123456789abcdef0123456789', PUZZLE_MODERATION_TOKEN:'test-only', PUBLIC_PUZZLES_ADMIN_TOKEN:'old-test-value' };
+assert.equal((await req('',{...submission,confirmed:false},false,newBindings)).status,422);
+const withNewModerationToken = await req('/'+first.data.puzzleId+'/moderate',{},true,newBindings);
+assert.equal(withNewModerationToken.status,422);
+assert.equal(withNewModerationToken.data.error,'invalid_moderation');
+assert.equal((await req('/'+first.data.puzzleId+'/moderate',{},true,{...newBindings,PUZZLE_MODERATION_TOKEN:'new-test-value',PUBLIC_PUZZLES_ADMIN_TOKEN:'test-only'})).status,401);
+assert.equal((await req('',submission,false,{...env,PUBLIC_PUZZLES_ENABLED:'false'})).status,503);
 assert.equal(sqlite.prepare('SELECT count(*) AS n FROM public_puzzle_rate_limits WHERE length(key)!=64').get()?.n,0);
 // 多页同秒稳定倒序；相同时间以id打破平局。
 const insert = sqlite.prepare("INSERT INTO public_puzzles(id,grid,validation,validation_version,status,created_at,updated_at) VALUES(?,?,'unique','test','public',?,?)");

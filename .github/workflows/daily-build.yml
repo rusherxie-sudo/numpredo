@@ -11,11 +11,12 @@ on:
 
 concurrency:
   group: daily-data
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   refresh-data:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     permissions:
       contents: write
     steps:
@@ -26,9 +27,12 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version-file: '.node-version'
+
+      - run: node --version && npm --version
 
       - name: 生成并安全推送日次数据（CF Pages 会自动 build + deploy）
+        id: publish
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -51,6 +55,7 @@ jobs:
             candidate_sha=$(git rev-parse HEAD)
             bash scripts/check-release-candidate.sh "$candidate_sha"
             if git push origin HEAD:main; then
+              echo "candidate_sha=$candidate_sha" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             echo "main 在推送期间更新；重新生成后重试（${attempt}/3）"
@@ -58,11 +63,16 @@ jobs:
           echo "三次安全重试后仍无法推送；保留失败以便排查，未覆盖远端提交。" >&2
           exit 1
 
+      - name: 确认生产版本、当天供题与昨日归档
+        env:
+          CANDIDATE_SHA: ${{ steps.publish.outputs.candidate_sha }}
+        run: node scripts/verify-daily-deployment.mjs "$CANDIDATE_SHA" >> "$GITHUB_STEP_SUMMARY"
+
       - name: 失败诊断摘要（不是通知送达证明）
         if: ${{ failure() }}
         run: |
           {
             echo '日次更新失败；本次流程未确认供题已更新。'
             echo "检查的本地 HEAD：$(git rev-parse HEAD)"
-            echo '请检查余量、精确 SHA 品质门和安全推送日志；外部通知未在此配置。'
+            echo '请检查候选验收、Pages 部署、正式域版本和供题日期。已成功推送时，先读回生产结果再决定是否补跑。'
           } >> "$GITHUB_STEP_SUMMARY"

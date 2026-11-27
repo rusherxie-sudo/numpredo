@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 const gate=resolve('scripts/check-release-candidate.sh'),sha='a'.repeat(40);
-function run(mode,expected=sha){
+function run(mode,expected=sha,pagesSha=''){
  const dir=mkdtempSync(join(tmpdir(),'numpredo-gate-'));
  try{
   writeFileSync(join(dir,'git'),`#!/bin/bash
@@ -18,14 +18,35 @@ esac
 `,{mode:0o755});
   for(const cmd of ['npm','node','python3'])writeFileSync(join(dir,cmd),`#!/bin/bash
 echo "${cmd} $*" >> "$GATE_LOG"
+if [[ "${cmd} $*" == 'npm run build' ]]; then mkdir -p dist; fi
 [[ "$GATE_MODE" != failure || "$*" != 'run demo' ]]
 `,{mode:0o755});
-  const log=join(dir,'commands');const result=spawnSync('/bin/bash',[gate,expected],{encoding:'utf8',env:{...process.env,PATH:dir+':/usr/bin:/bin',GATE_MODE:mode,GATE_SHA:sha,GATE_LOG:log}});
+  const log=join(dir,'commands');const result=spawnSync('/bin/bash',[gate,expected],{cwd:dir,encoding:'utf8',env:{...process.env,PATH:dir+':/usr/bin:/bin',GATE_MODE:mode,GATE_SHA:sha,GATE_LOG:log,CF_PAGES_COMMIT_SHA:pagesSha}});
   let commands='';try{commands=readFileSync(log,'utf8');}catch{}
-  return {status:result.status,output:result.stdout+result.stderr,commands};
+  let marker='';try{marker=readFileSync(join(dir,'dist/deployment-sha.txt'),'utf8');}catch{}
+  return {status:result.status,output:result.stdout+result.stderr,commands,marker};
  }finally{rmSync(dir,{recursive:true,force:true});}
 }
-test('exact clean SHA executes daily/type/engine/contracts/full build',()=>{const r=run('clean');assert.equal(r.status,0,r.output);assert(r.commands.startsWith('npm run check:daily\nnpm run check:public-puzzles\nnpm run check\nnpm run demo\nnode --test scripts/np01/contracts.test.ts '));assert(r.commands.includes('scripts/pwa/cohort.test.mjs\npython3 scripts/pwa/report.test.py\n'));assert(r.commands.endsWith('npm run build\nnode --test scripts/np01/output.test.ts\n'));});
+const versionAndChecks=['node --version','npm --version','npm run check:daily','npm run check:public-puzzles','npm run check','npm run demo'];
+const lastChecks=['python3 scripts/pwa/report.test.py','npm run build','node --test scripts/np01/output.test.ts'];
+function checkAllCommands(commands){
+ const lines=commands.trimEnd().split('\n');
+ assert.deepEqual(lines.slice(0,versionAndChecks.length),versionAndChecks);
+ assert(lines[versionAndChecks.length].startsWith('node --test scripts/np01/contracts.test.ts '));
+ assert(lines[versionAndChecks.length].endsWith('scripts/pwa/cohort.test.mjs scripts/verify-daily-deployment.test.mjs'));
+ assert.deepEqual(lines.slice(versionAndChecks.length+1),lastChecks);
+}
+test('exact clean SHA executes daily/type/engine/contracts/full build',()=>{const r=run('clean');assert.equal(r.status,0,r.output);checkAllCommands(r.commands);assert.equal(r.marker,'');});
+test('Pages stamps only the verified build and rejects a mismatched SHA before checks',()=>{
+ const clean=run('clean',sha,sha);
+ assert.equal(clean.status,0,clean.output);
+ assert.equal(clean.marker,`${sha}\n`);
+ const mismatch=run('clean',sha,'b'.repeat(40));
+ assert.notEqual(mismatch.status,0);
+ assert.equal(mismatch.commands,'');
+ assert.equal(mismatch.marker,'');
+ assert.match(mismatch.output,/Pages commit does not match candidate/);
+});
 for(const mode of ['wrong','dirty'])test(`reject ${mode} before checks`,()=>{const r=run(mode);assert.notEqual(r.status,0);assert.equal(r.commands,'');});
 test('reject abbreviated SHA',()=>{const r=run('clean','abc');assert.notEqual(r.status,0);assert.equal(r.commands,'');});
 test('failed engine blocks build and success',()=>{const r=run('failure');assert.notEqual(r.status,0);assert(!r.commands.includes('npm run build'));assert(!r.output.includes('Quality gate passed'));});
@@ -40,11 +61,7 @@ test('status read error rejects entry before any checks',()=>{
 });
 test('status read error rejects final success after all checks',()=>{
  const r=run('final-status-error');
- const commands=r.commands.trimEnd().split('\n');
- assert.equal(commands.length,8,r.commands);
- assert.deepEqual(commands.slice(0,4),['npm run check:daily','npm run check:public-puzzles','npm run check','npm run demo']);
- assert(commands[4].startsWith('node --test scripts/np01/contracts.test.ts '));assert(r.commands.includes('scripts/pwa/cohort.test.mjs\npython3 scripts/pwa/report.test.py\n'));
- assert.deepEqual(commands.slice(5),['python3 scripts/pwa/report.test.py','npm run build','node --test scripts/np01/output.test.ts']);
+ checkAllCommands(r.commands);
  assert.notEqual(r.status,0,r.output);
  assert(!r.output.includes('Quality gate passed'));
  assert.match(r.output,/simulated git status failure/);

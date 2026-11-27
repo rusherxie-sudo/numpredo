@@ -9,6 +9,8 @@ export interface Database { prepare(sql: string): Statement; batch(statements: S
 export interface Env {
  PUBLIC_PUZZLES_DB?: Database;
  PUBLIC_PUZZLES_ENABLED?: string;
+ PUZZLE_MODERATION_TOKEN?: string;
+ PUZZLE_RATE_SALT?: string;
  PUBLIC_PUZZLES_ADMIN_TOKEN?: string;
  PUBLIC_PUZZLES_RATE_SALT?: string;
  PUBLIC_PUZZLES_RATE_LIMITER?: { limit(options: {key: string}): Promise<{success: boolean}> };
@@ -62,13 +64,15 @@ async function handle(request: Request, env: Env): Promise<Response> {
   }
   if (request.method !== 'POST') return error('method_not_allowed',405);
   if (request.headers.get('origin') !== url.origin) return error('invalid_origin',403);
+  const moderationToken = env.PUZZLE_MODERATION_TOKEN ?? env.PUBLIC_PUZZLES_ADMIN_TOKEN;
   // 可注入Workers限流器；Pages默认复用D1原子计数，不依赖不受支持的绑定。
   if (env.PUBLIC_PUZZLES_RATE_LIMITER) {
     if (!(await env.PUBLIC_PUZZLES_RATE_LIMITER.limit({key:request.headers.get('cf-connecting-ip') || 'unknown'})).success) return error('rate_limited',429);
   } else {
-    if (!env.PUBLIC_PUZZLES_RATE_SALT || env.PUBLIC_PUZZLES_RATE_SALT.length < 32) return error('service_unavailable',503);
+    const rateSalt = env.PUZZLE_RATE_SALT ?? env.PUBLIC_PUZZLES_RATE_SALT;
+    if (!rateSalt || rateSalt.length < 32) return error('service_unavailable',503);
     const window = Math.floor(Date.now()/60000);
-    const key = await sha256(env.PUBLIC_PUZZLES_RATE_SALT + ':' + window + ':' + (request.headers.get('cf-connecting-ip') || 'unknown'));
+    const key = await sha256(rateSalt + ':' + window + ':' + (request.headers.get('cf-connecting-ip') || 'unknown'));
     const allowed = await db.prepare('INSERT INTO public_puzzle_rate_limits(key,window,count) VALUES(?,?,1) ON CONFLICT(key) DO UPDATE SET count=count+1 WHERE count<10 RETURNING count').bind(key,window).first();
     await db.prepare('DELETE FROM public_puzzle_rate_limits WHERE window<?').bind(window-1).run();
     if (!allowed) return error('rate_limited',429);
@@ -108,7 +112,7 @@ async function handle(request: Request, env: Env): Promise<Response> {
     return response({status:'withdrawn'});
   }
   if (action === 'review-source') {
-    if (!env.PUBLIC_PUZZLES_ADMIN_TOKEN || request.headers.get('authorization') !== 'Bearer ' + env.PUBLIC_PUZZLES_ADMIN_TOKEN) return error('unauthorized',401);
+    if (!moderationToken || request.headers.get('authorization') !== 'Bearer ' + moderationToken) return error('unauthorized',401);
     if (typeof data.submissionId !== 'string' || !['unverified','verified','disputed'].includes(String(data.verification)) || typeof data.reason !== 'string' || !data.reason.trim() || data.reason.length > 500) throw new Error('invalid_source_review');
     const submission = await db.prepare('SELECT id FROM public_puzzle_submissions WHERE id=? AND puzzle_id=? AND source_json IS NOT NULL').bind(data.submissionId,id).first();
     if (!submission) return error('not_found',404);
@@ -119,7 +123,7 @@ async function handle(request: Request, env: Env): Promise<Response> {
     return response({verification:data.verification});
   }
   if (action === 'moderate') {
-    if (!env.PUBLIC_PUZZLES_ADMIN_TOKEN || request.headers.get('authorization') !== 'Bearer ' + env.PUBLIC_PUZZLES_ADMIN_TOKEN) return error('unauthorized',401);
+    if (!moderationToken || request.headers.get('authorization') !== 'Bearer ' + moderationToken) return error('unauthorized',401);
     if (!['public','hidden','candidate'].includes(String(data.status)) || typeof data.reason !== 'string' || !data.reason.trim() || data.reason.length > 500) throw new Error('invalid_moderation');
     const row = await db.prepare('SELECT * FROM public_puzzles WHERE id=?').bind(id).first<Row>();
     if (!row) return error('not_found',404);

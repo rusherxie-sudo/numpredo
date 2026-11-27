@@ -1,6 +1,11 @@
 node_modules/
 dist/
 .astro/
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
 
 # local dev / scripts
 engine-demo/
