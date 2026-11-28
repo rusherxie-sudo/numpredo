@@ -1,7 +1,7 @@
 import pack from './puzzles/killer.json' with {type:'json'};
 import {buildKillerContext,logicalSolveKiller,gridFromString} from '../engine/index.ts';
 import {killerCombinations} from '../engine/variant-grid.ts';
-export const EXPERT_PUZZLES=pack.puzzles.slice(20,30).map((p,i)=>{
+export const EXPERT_PUZZLES=pack.puzzles.slice(20, 40).map((p,i)=>{
  const result=logicalSolveKiller(gridFromString(p.puzzle),buildKillerContext(p.cages));
  if(!result.solved||result.grid.join('')!==p.solution)throw Error('Invalid expert puzzle');
  const tactics=Object.keys(result.techniqueCounts).filter(t=>!['nakedSingle','hiddenSingle','cageCombo'].includes(t));

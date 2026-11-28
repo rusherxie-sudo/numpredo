@@ -112,15 +112,25 @@ def draw_footer(pdf: Canvas, page: int, total: int) -> None:
     pdf.drawRightString(width - 18 * mm, 10 * mm, f"{page} / {total}")
 
 
-def build_pdf(slug: str, level_ja: str, subtitle: str, count: int, source_slug: str | None = None) -> Path:
-    puzzles = load_puzzles(source_slug or slug, count)
-    output = OUTPUT_DIR / f"numpredo-{slug}-{count}.pdf"
+def build_pdf(slug: str, level_ja: str, subtitle: str, count: int, source_slug: str | None = None, start: int = 0, label: int = 0) -> Path:
+    source = source_slug or slug
+    if start:
+        data = json.loads((ROOT / "src" / "data" / "puzzles" / f"{source}.json").read_text(encoding="utf-8"))
+        puzzles = data["puzzles"][start:start + count]
+        if len(puzzles) != count:
+            raise ValueError(f"{source}: {start}番から{count}問を取得できません")
+    else:
+        puzzles = load_puzzles(source, count)
+    if len({item["puzzle"] for item in puzzles}) != count:
+        raise ValueError(f"{source}: 選択した{count}問に重複があります")
+    suffix = f"-{label}" if label else ""
+    output = OUTPUT_DIR / f"numpredo-{slug}-{count}{suffix}.pdf"
     problem_pages = count // 2
     answer_pages = (count + 5) // 6
     total_pages = problem_pages + answer_pages
     # 固定 PDF 的创建时间与内部 ID，避免同一题库重复生成时产生无意义的二进制差异。
     pdf = Canvas(str(output), pagesize=A4, pageCompression=1, invariant=1)
-    pdf.setTitle(f"{level_ja}の数独・ナンプレ無料プリント{count}問（答え付き）")
+    pdf.setTitle(f"{level_ja}の数独・ナンプレ無料プリント{count}問（答え付き）" + (f" 第{label}集" if label else ""))
     pdf.setAuthor("numpredo")
     pdf.setSubject("唯一解・論理だけで解ける数独問題集")
 
@@ -135,7 +145,7 @@ def build_pdf(slug: str, level_ja: str, subtitle: str, count: int, source_slug: 
             label_y = problem_y[slot] + problem_size + 3.5 * mm
             pdf.setFillColor(MUTED)
             pdf.setFont(JAPANESE_FONT, 9)
-            pdf.drawString(problem_x, label_y, f"第 {number + 1} 問")
+            pdf.drawString(problem_x, label_y, f"第 {start + number + 1} 問")
             draw_board(pdf, problem_x, problem_y[slot], problem_size, item["puzzle"])
         draw_footer(pdf, page_index + 1, total_pages)
         pdf.showPage()
@@ -154,7 +164,7 @@ def build_pdf(slug: str, level_ja: str, subtitle: str, count: int, source_slug: 
             x, y = answer_x[col], answer_y[row]
             pdf.setFillColor(MUTED)
             pdf.setFont(JAPANESE_FONT, 7.5)
-            pdf.drawString(x, y + answer_size + 2.5 * mm, f"第 {number + 1} 問")
+            pdf.drawString(x, y + answer_size + 2.5 * mm, f"第 {start + number + 1} 問")
             draw_board(pdf, x, y, answer_size, item["solution"], item["puzzle"])
         draw_footer(pdf, problem_pages + answer_page + 1, total_pages)
         pdf.showPage()
@@ -181,6 +191,9 @@ def main() -> None:
             path = build_pdf(slug, level_ja, subtitle, count, source_slug)
             expected.add(path.name)
             print(f"生成: {path.relative_to(ROOT)}")
+        path = build_pdf(slug, level_ja, subtitle, 20, source_slug, start=60, label=2)
+        expected.add(path.name)
+        print(f"生成: {path.relative_to(ROOT)}")
 
     for stale in OUTPUT_DIR.glob("numpredo-*.pdf"):
         if stale.name not in expected:

@@ -51,8 +51,8 @@ for(const [i,s] of starter.entries()){
  assert.deepEqual(s.before,i?starter[i-1].after:gridFromString(START_PUZZLE.puzzle));
  assert.equal(s.after.filter((v,c)=>v!==s.before[c]).length,1);
 }
-assert.equal(EXPERT_PUZZLES.length,10);
+assert.equal(EXPERT_PUZZLES.length,20);
 for(const p of EXPERT_PUZZLES){const raw=killerSource.puzzles[p.number-1];assert.equal(p.clues,[...raw.puzzle].filter(c=>/[1-9]/.test(c)).length);assert.equal(p.cages,raw.cages.length);}
 assert.deepEqual(EXPERT_COMBOS,[[7,8,9]]);
 assert.deepEqual(EXPERT_EXAMPLE.cells.map(c=>Number(killerSource.puzzles[20].solution[c])).sort(),[7,8,9]);
-console.log('✓ Beginner three-step continuity and answers; ten expert source rows and real cage example verified');
+console.log('✓ Beginner three-step continuity and answers; twenty expert source rows and real cage example verified');

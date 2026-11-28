@@ -20,7 +20,7 @@ for item in json.loads((ROOT/'src/data/print-resources.json').read_text()):
     draw.rectangle((0,0,18,630),fill='#1d7f65')
     drawtext(draw,(60,48),'numpredo  |  無料プリント',25,'#1d7f65')
     # Explicit line breaks keep every title inside the left column.
-    titles={'6x6':['6×6ナンプレ','入門6問'], 'activity':['ナンプレ配布セット','4回分・8問'], 'inequality':['不等号ナンプレ','入門6問'], '16x16':['16×16ナンプレ','大型4問'], 'activity02':['ナンプレ続編セット02','4回分・8問'], 'progression':['4×4から6×6へ','入門8問']}
+    titles={'6x6':['6×6ナンプレ','入門6問'], 'activity':['ナンプレ配布セット','4回分・8問'], 'inequality':['不等号ナンプレ','入門6問'], '16x16':['16×16ナンプレ','大型8問'], 'activity02':['ナンプレ続編セット02','4回分・8問'], 'progression':['4×4から6×6へ','入門8問']}
     for i,line in enumerate(titles[item['slug']]):drawtext(draw,(60,140+i*74),line,48)
     drawtext(draw,(60,334),'問題と答えを別々にダウンロード',27)
     drawtext(draw,(60,390),item['detail'],22)

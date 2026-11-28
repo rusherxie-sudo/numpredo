@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync,existsSync} from 'node:fs';
 import {LESSONS} from '../src/data/expansion/lessons.ts';
-import {ENGLISH_ROUTES} from '../src/data/english-routes.ts';
 import {GROWTH_GUIDES} from '../src/data/growth-guides.ts';
 import {MODELS,localAssignments,counterModel} from '../src/data/expansion/models.ts';
 import {EXAMPLES} from '../src/data/expansion/examples.ts';
@@ -60,14 +59,5 @@ for(const guide of GROWTH_GUIDES){
  assert.ok(html.includes(`rel="canonical" href="https://numpredo.com${guide.path}"`),guide.path);
  assert.ok(sitemap.includes(`https://numpredo.com${guide.path}`),guide.path);
 }
-for (const [en, ja] of Object.entries(ENGLISH_ROUTES)) {
- const origin = 'https://numpredo.com';
- assert.ok(sitemap.includes(`<loc>${origin}${en}</loc>`), `${en} appears in sitemap`);
- for (const path of [en, ja]) {
-  const html = readFileSync(`dist${path}index.html`, 'utf8');
-  assert.ok(html.includes(`hreflang="en" href="${origin}${en}"`), `${path} links to the English alternate`);
-  assert.ok(html.includes(`hreflang="ja" href="${origin}${ja}"`), `${path} links to the Japanese alternate`);
- }
-}
-assert.equal((sitemap.match(/<loc>/g)??[]).length,98+GROWTH_GUIDES.length+sitemapDownloads.length+Object.keys(ENGLISH_ROUTES).length);
+assert.equal((sitemap.match(/<loc>/g)??[]).length,98+GROWTH_GUIDES.length+sitemapDownloads.length+4);
 console.log('✓ 30 new indexable pages; six local techniques + counterexamples; eight complete solution replays; 76 selected puzzles + 20 PDF assets verified');

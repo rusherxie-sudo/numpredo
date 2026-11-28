@@ -10,11 +10,11 @@ function shuffle<T>(items:T[]):T[]{const out=items.slice();for(let i=out.length-
 const order=()=>shuffle([0,1,2,3]).flatMap(b=>shuffle([0,1,2,3]).map(r=>b*4+r));
 const peers=peersFor(16,4,4);
 function singles(grid:number[]):boolean {while(grid.includes(0)){const ds=variantCandidates(grid,16,peers);const i=grid.findIndex((v,i)=>!v&&ds[i].length===1);if(i<0)return false;grid[i]=ds[i][0];}return true;}
-const large=Array.from({length:4},(_,k)=>{
+const large=Array.from({length:8},(_,k)=>{
   const rows=order(),cols=order(),digits=shuffle([...symbols]);
   const solution=rows.flatMap(r=>cols.map(c=>digits[(r*4+Math.floor(r/4)+c)%16])).join('');
   const grid=[...solution].map(c=>symbols.indexOf(c)+1);let removed=0;
-  for(const i of shuffle(Array.from({length:256},(_,i)=>i))){const old=grid[i];grid[i]=0;if(!singles(grid.slice()))grid[i]=old;else removed++;if(removed===80+k*8)break;}
+  for(const i of shuffle(Array.from({length:256},(_,i)=>i))){const old=grid[i];grid[i]=0;if(!singles(grid.slice()))grid[i]=old;else removed++;if(removed===80+(k%4)*8)break;}
   const result=solve16(Uint8Array.from(grid),2);
   if(result.aborted||result.count!==1||!singles(grid.slice()))throw Error('Invalid 16×16 pack');
   return {id:`large16-${k+1}`,puzzle:grid.map(v=>v?symbols[v-1]:'.').join(''),solution};
@@ -26,4 +26,4 @@ const packs=[
 ];
 mkdirSync('public/downloads/variants',{recursive:true});
 writeFileSync('public/downloads/variants/manifest.json',JSON.stringify({version:'01',packs},null,2)+'\n');
-console.log('Variant manifest: 6 mini + 6 inequality + 4 large puzzles');
+console.log('Variant manifest: 6 mini + 6 inequality + 8 large puzzles');

@@ -7,8 +7,8 @@ if (EXPERT_EXAMPLE.cells.join(',') !== '4,5,14' || original.puzzle[6] !== '8' ||
 const coord=(c:number)=>`${Math.floor(c/9)+1}行${c%9+1}列`;
 ---
 <section id="killer-expert" class="expert">
-<h2>キラーナンプレ エキスパート：No.21〜30から選ぶ</h2>
-<p>初期数字の少ない10問です。表の「確認された手筋」は当サイトの論理ソルバーが実際に使ったもの。唯一の解き順や、他サイトの同名難易度との比較を意味しません。数字が少なくても、ケージの合計が追加の手掛かりになります。</p>
+<h2>キラーナンプレ エキスパート：No.21〜40から選ぶ</h2>
+<p>初期数字の少ない20問です。表の「確認された手筋」は当サイトの論理ソルバーが実際に使ったもの。唯一の解き順や、他サイトの同名難易度との比較を意味しません。数字が少なくても、ケージの合計が追加の手掛かりになります。</p>
 <div class="expert-table"><table><thead><tr><th>問題</th><th>初期数字</th><th>ケージ数</th><th>単数・合計以外で確認された手筋</th></tr></thead><tbody>{EXPERT_PUZZLES.map(p=><tr><td><a href={`/variants/killer/?n=${p.number}#killer-game`}>No.{p.number}を解く</a></td><td>{p.clues}個</td><td>{p.cages}</td><td>{p.tactics.length?p.tactics.map(t=>TECH_INFO[t]?.ja??t).join('・'):'この解法では不要'}</td></tr>)}</tbody></table></div>
 <h3>No.21の実例：3マスの合計24から分かること</h3>
 <p>No.21では、{EXPERT_EXAMPLE.cells.map(coord).join('・')}が合計{EXPERT_EXAMPLE.sum}のケージです。1〜9を重複なく三つ選んで24にする組み合わせは、{EXPERT_COMBOS[0].join('＋')}だけです。この三つのマスに他の数字は入りませんが、どこにどの数字を置くかは行・列・ブロックと重ねて決めます。</p>

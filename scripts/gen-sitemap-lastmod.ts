@@ -37,7 +37,7 @@ const DYNAMIC_DATA: Record<string, string> = {
 const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
   'play/[level].astro': Object.fromEntries(['beginner','intermediate','advanced','hard','extreme'].map(slug=>[slug,['src/components/FeaturedExamples.astro','src/data/expansion/examples.ts','src/data/teaching-cases.ts','src/components/PuzzleLibrary.astro','src/client/puzzle-library.ts','src/client/puzzle-progress.ts','src/data/puzzle-library.ts','src/data/puzzle-techniques.ts','src/components/SudokuGame.astro','src/client/sudoku-game.ts', ...(['beginner','intermediate'].includes(slug)?['src/components/LevelProblemExamples.astro']:[]), ...(slug==='beginner'?['src/components/BeginnerStart.astro','src/data/beginner-start.ts']:[])]])),
   'guide/[slug].astro': {
-    ...Object.fromEntries(['rules','beginner','intermediate','advanced','hard-sudoku-solving','tips','when-stuck','glossary'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts', ...(['tips','advanced'].includes(slug) ? ['src/components/PairCounterexample.astro','src/data/pair-counterexamples.ts'] : [])]])),
+    ...Object.fromEntries(['rules','beginner','intermediate','advanced','hard-sudoku-solving','tips','when-stuck','glossary'].map(slug=>[slug,['src/components/TeachingCase.astro','src/data/teaching-cases.ts']])),
     'for-kids': ['src/components/ParentLesson.astro','src/components/SmallNumberBoard.astro'],
     newspaper: ['src/components/SolverInputExample.astro','src/data/solver-sample.ts','src/components/NewspaperInput.astro','src/engine/newspaper-input.ts','src/client/learning-transfer.ts'],
     'sudoku-algorithm': ['src/components/SolverInputExample.astro','src/data/solver-sample.ts'],
@@ -54,15 +54,11 @@ const DYNAMIC_SLUG_EXTRA: Record<string, Record<string, string[]>> = {
 // 三者任一有提交都算该页更新。注意 variants.ts 的 slug 正则仍会让 [slug] 组产出同 URL，
 // 靠「先动态后静态」的处理顺序让本表的归因覆盖它。
 const STATIC_EXTRA_DATA: Record<string, string[]> = {
-  'en/index.astro': ['src/data/english-puzzles.ts', 'src/components/VariantGame.astro', 'src/client/variant-game.ts'],
-  'en/sudoku-solver.astro': ['src/components/EnglishSolver.astro', 'src/client/english-solver.ts', 'src/client/english-solver-worker.ts'],
-  'en/16x16-sudoku.astro': ['src/data/sudoku16-play.ts', 'src/data/variant-opening.ts', 'public/downloads/variants/manifest.json', 'src/engine/solve16.ts'],
-  'en/16x16-sudoku-printable.astro': ['public/downloads/en/16x16-sudoku-questions.pdf', 'public/downloads/en/16x16-sudoku-answers.pdf'],
   ...Object.fromEntries(LESSONS.map(l=>[`${l.path.slice(1,-1)}.astro`,['src/data/expansion/lessons.ts','src/data/expansion/lesson-depth.ts','src/data/expansion/model-diagrams.ts','src/components/KillerSumDiagram.astro','src/data/expansion/models.ts','src/components/EditorialNote.astro','src/components/LogicModel.astro',...(l.slug==='candidate-update'?['src/components/CandidateCorrection.astro','src/data/puzzles/intermediate.json']:[])]])),
   ...Object.fromEntries(EXAMPLES.map(e=>[`${e.path.slice(1,-1)}.astro`,['src/data/expansion/examples.ts','src/data/expansion/selections.json','src/components/ExpansionExample.astro','src/components/EditorialNote.astro','src/data/teaching-cases.ts',`src/data/puzzles/${e.spec.level}.json`]])),
   ...Object.fromEntries(manifest.packs.map(p=>[`${p.path.slice(1,-1)}.astro`,['src/data/expansion/print-sets.ts','src/data/expansion/selections.json','src/components/ExpansionPrint.astro','scripts/gen-expansion-pdfs.py',`public/downloads/collections/${p.slug}-questions.pdf`,`public/downloads/collections/${p.slug}-answers.pdf`]])),
   'practice.astro': ['src/components/OneMovePractice.astro','src/client/one-move.ts','src/client/one-move-state.ts','src/client/practice-history.ts','src/data/one-move.ts','src/data/technique-drills.ts','src/data/teaching-cases.ts','scripts/gen-one-move.ts'],
-  'print/progression.astro':['src/data/progression-pack.ts','src/data/variant-opening.ts','src/data/mini4.ts','src/data/mini6.ts','src/components/SmallNumberBoard.astro','scripts/gen-progression-pdfs.py','public/downloads/progression/manifest.json','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json'],
+  'print/progression.astro':['src/data/progression-pack.ts','scripts/gen-progression-pdfs.py','public/downloads/progression/manifest.json','src/components/PrintResourceShare.astro','src/data/print-resources.json','public/images/print/manifest.json'],
   'widgets.astro':['src/pages/embed/mini4.astro','src/data/mini4.ts','src/components/VariantGame.astro','src/client/variant-game.ts'],
   'guide/index.astro': ['src/components/ExpansionLinks.astro','src/data/expansion/examples.ts','src/data/expansion/lessons.ts','src/data/growth-guides.ts'],
   'guide/multiple-solutions.astro': ['src/data/growth-guides.ts','src/data/solution-examples.ts'],
@@ -78,7 +74,7 @@ const STATIC_EXTRA_DATA: Record<string, string[]> = {
   'guide/how-to-solve.astro': ['src/components/BeginnerWalkthrough.astro','src/data/beginner-walkthrough.ts','src/data/teaching-cases.ts','src/data/puzzles/beginner.json','scripts/gen-beginner-tutorial.py','public/downloads/beginner-tutorial/manifest.json'],
   'tools/candidate-checker.astro': ['src/client/candidate-checker.ts','src/client/candidate-progress.ts','src/client/learning-transfer.ts','src/components/InputDiagnosis.astro','src/data/solution-examples.ts'],
   'variants/4x4.astro': ['src/data/mini4.ts', 'src/components/MiniSudoku4.astro', 'src/client/mini-sudoku4.ts'],
-  'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts','src/data/sudoku16-samples.ts','src/components/VariantGame.astro','src/client/variant-game.ts','src/data/sudoku16-play.ts','src/data/variant-opening.ts','src/engine/variant-symbols.ts','public/downloads/variants/manifest.json'],
+  'variants/16x16.astro': ['src/components/Sudoku16Solver.astro', 'src/client/sudoku16-solver.ts','src/data/sudoku16-samples.ts','src/components/VariantGame.astro','src/client/variant-game.ts','src/data/sudoku16-play.ts','src/engine/variant-symbols.ts','public/downloads/variants/manifest.json'],
   'variants/diagonal.astro': ['src/data/puzzles/diagonal.json'],
   'variants/killer.astro': ['src/data/puzzles/killer.json','src/components/KillerExpert.astro','src/data/killer-expert.ts'],
 };
@@ -191,11 +187,6 @@ const lessonTemplateDates = Object.fromEntries(LESSONS.map(l=>[
 const commonPlayDate = templateLastmod('src/pages/play/[level].astro', [
   /^\s*\{\(meta\.slug === 'beginner' \|\| meta\.slug === 'intermediate'\) && <p><a href="\/guide\/how-to-solve\/#beginner-walkthrough">.*<\/p>\}$/,
 ]);
-// This condition only moves the rules guide's worked example.
-const commonGuideDate = templateLastmod('src/pages/guide/[slug].astro', [
-  /^\s*\{guideCases\[g\.slug\] && g\.slug !== 'tips' && (?:g\.slug !== 'rules' && )?<TeachingCase spec=\{guideCases\[g\.slug\]\} \/>\}\s*$/,
-  /^\s*\{g\.slug === 'rules' && i === 2 && <TeachingCase spec=\{guideCases\.rules\} \/>\}\s*$/,
-]);
 const map: Record<string, string> = {};
 
 // 先动态路由、后静态页：同 URL 时静态页的归因优先
@@ -242,9 +233,8 @@ for (const rel of [...allPages.filter((p) => p.includes('[')), ...allPages.filte
     const dir = rel.replace(/\/?\[[^/]+\]\.astro$/, ''); // play / guide / guide/techniques / variants / print
     const templateDate = gitLastmod([`${PAGES}/${rel}`]);
     for (const slug of slugsFromData(dataFile)) {
-      const pageTemplateDate = rel === 'guide/[slug].astro' && slug !== 'rules' ? commonGuideDate : templateDate;
       const date = latestIso(
-        rel === 'play/[level].astro' && !['beginner','intermediate'].includes(slug) ? commonPlayDate : pageTemplateDate,
+        rel === 'play/[level].astro' && !['beginner','intermediate'].includes(slug) ? commonPlayDate : templateDate,
         gitSlugLastmod(dataFile, slug),
         gitLastmod(DYNAMIC_SLUG_EXTRA[rel]?.[slug] ?? []),
       );

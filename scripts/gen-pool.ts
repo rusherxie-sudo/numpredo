@@ -172,7 +172,7 @@ console.log(`  ✓ 対角線 ${diagPool.length}題（新${diagFresh.length}・${
 const KILLER_TIERS: Array<{ tier: string; minClues: number; count: number }> = [
   { tier: 'easy', minClues: 26, count: 10 },
   { tier: 'normal', minClues: 12, count: 10 },
-  { tier: 'hard', minClues: 0, count: 10 },
+  { tier: 'hard', minClues: 0, count: 20 },
 ];
 interface KillerRecord extends PuzzleRecord {
   tier: string;
