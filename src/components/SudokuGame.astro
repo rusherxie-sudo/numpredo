@@ -40,6 +40,8 @@ const setJson = JSON.stringify(set);
 </script>
 
 <style is:global>
+  .sk-extreme-review[hidden]{display:none!important}
+  .sk-hint .sk-extreme-review{font:inherit;min-height:44px;border:0;background:none;color:var(--accent);text-decoration:underline;cursor:pointer}
   /* min-height：岛 hydration 前为盘面+侧栏预留高度，防止 JS 注入时撑开布局(CLS)。桌面盘面≈600px 主导高度。 */
   [data-sudoku] { margin: 6px 0 26px; min-height: 600px; }
   .sk-layout { display: grid; grid-template-columns: 1fr 220px; gap: 28px; align-items: start; max-width: 880px; margin: 0 auto; }

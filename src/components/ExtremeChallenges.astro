@@ -1,0 +1,49 @@
+---
+import { EXTREME_CHALLENGES } from '../data/extreme-challenges.ts';
+---
+<section id="extreme-challenge" class="extreme-challenge" aria-labelledby="extreme-challenge-title">
+  <h2 id="extreme-challenge-title">超難問チャレンジ：無料の数独・ナンプレ9選</h2>
+  <p>1,000問の超難問から、選びやすいように3組を用意しました。問題を開くとすぐ対局できます。</p>
+  <div class="xc-groups">
+  {EXTREME_CHALLENGES.map(group => <section class="xc-group">
+    <h3>{group.title}</h3>
+    <p>{group.intro}</p>
+    <ul>
+    {group.items.map(item => <li>
+      <a href={`/play/extreme/?n=${item.number}#level-game`} data-extreme-open={item.number} data-extreme-group={group.id}>超難問 No.{item.number}を解く</a>
+      <span>{item.techniqueName} · 解説 {item.steps} 手</span>
+    </li>)}
+    </ul>
+  </section>)}
+  </div>
+  <p class="xc-note">手筋と手数は当サイトの解き順に基づきます。所要時間や唯一の解き順を示すものではありません。</p>
+  <p><a href="/print/extreme/">紙で解く：超難問の問題・答え付きPDF</a></p>
+</section>
+<template id="extreme-rounds" data-rounds={JSON.stringify(EXTREME_CHALLENGES.flatMap(g=>g.items.map(item=>({n:item.number,g:g.id,k:item.keyStep})) ))}></template>
+<aside id="extreme-review" class="xc-review" tabindex="-1" hidden aria-label="この超難問の解き方">
+  <h2 data-xc-title>選んだ超難問の解き方</h2>
+  <p>初期盤面からの解き順の一例です。現在の盤面の次のヒントではなく、途中保存も変更しません。</p>
+  <details data-xc-key><summary>着目する一手を確認</summary><p data-xc-key-text></p></details>
+  <details data-xc-all><summary>最初から最後までの全手順を見る</summary><ol data-xc-steps></ol></details>
+  <p><a href="#level-game">盤面に戻る</a></p>
+</aside>
+<style>
+  .extreme-challenge,.xc-review{margin:30px 0;padding:18px 0;border-block:1px solid var(--line);scroll-margin-top:90px}
+  .xc-review[hidden]{display:none}
+  .xc-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .xc-group{border:1px solid var(--line);padding:14px;border-radius:8px;background:var(--surface);min-width:0}
+  .xc-group h3{margin:0}.xc-group p,.xc-note{font-size:.875rem;color:var(--ink-3)}
+  .xc-group ul{list-style:none;margin:0;padding:0}
+  .xc-group li{padding:6px 0;border-bottom:1px solid var(--line)}.xc-group li:last-child{border-bottom:0}
+  .xc-group a{min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--accent)}
+  .xc-group span{display:block;font-size:.8rem}.xc-review summary{cursor:pointer;min-height:44px;display:list-item;padding:9px 0}
+  @media(max-width:850px){.xc-groups{grid-template-columns:1fr}}
+  @media print{.extreme-challenge,.xc-review{display:none!important}}
+</style>
+<script>
+  import { track } from '../client/track.ts';
+  document.querySelector('#extreme-challenge')?.addEventListener('click', event => {
+    const link = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-extreme-open]');
+    if (link) track('extreme_challenge_select',{puzzle_number:Number(link.dataset.extremeOpen),group:link.dataset.extremeGroup});
+  });
+</script>

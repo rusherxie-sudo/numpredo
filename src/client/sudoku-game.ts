@@ -4,7 +4,7 @@
 // daily 模式：按 JST 日序号顺序选题（data-daystart 窗口偏移，全员同日同題），显示日期 + 连续记录(streak)。
 // 进度自动保存(localStorage，刷新不丢)、撤销、数字剩余计数、メモ自动清除、方向键、提示、胜利演出。
 import {
-  DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, buildKillerContext, makeCageComboTechnique, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf, boxOf,
+  DIAGONAL_UNITS, STANDARD_CONTEXT, buildContext, buildKillerContext, makeCageComboTechnique, MASK_ALL, bit, popcount, digitsOf, colOf, rowOf, boxOf, TECH_INFO,
   gridFromString, solveOne, traceFirstElimination, logicalSolve, computeCandidates, type Grid, type TechniqueFn,
 } from '../engine/index.ts';
 import { readLibraryProgress } from './puzzle-progress.ts';
@@ -144,6 +144,40 @@ function setup(root: HTMLElement): void {
   const archive = root.dataset.archive === '1';
   // multi：毎日7問モード（daily/archive 共通）。set は1日7エントリの平坦配列
   const multi = root.dataset.multi === '1';
+  const challengePanel = collection && level === 'extreme' ? document.querySelector<HTMLElement>('#extreme-review') : null;
+  const challengeRounds: Array<{n:number;g:string;k:number}> = challengePanel ? JSON.parse(document.querySelector<HTMLElement>('#extreme-rounds')?.dataset.rounds ?? '[]') : [];
+  const challengeInput = new Set<number>();
+  const challengeRound = () => challengeRounds.find(round => round.n === poolIdx+1);
+  function showChallengeReview(stepOnly: boolean): void {
+    const round = challengeRound();
+    if (!challengePanel || !round) return;
+    const solved = logicalSolve(puzzleGrid.slice());
+    if (!solved.solved || !solved.steps[round.k-1]) return;
+    const q = <T extends HTMLElement>(s:string) => challengePanel.querySelector<T>(s)!;
+    const describe = (s: (typeof solved.steps)[number]) => {
+      const tech = TECH_INFO[s.technique];
+      return tech ? `${tech.ja}：${tech.desc(s)}` : s.technique;
+    };
+    q('[data-xc-title]').textContent = `超難問 No.${round.n}の解き方`;
+    q('[data-xc-key-text]').textContent = `${round.k}手目：${describe(solved.steps[round.k-1])}`;
+    const full = q<HTMLDetailsElement>('[data-xc-all]');
+    const list = q('[data-xc-steps]');
+    list.replaceChildren();
+    const renderSteps = () => {
+      if (!full.open || list.childElementCount) return;
+      for (const step of solved.steps) {
+        const item = document.createElement('li'); item.textContent = describe(step); list.append(item);
+      }
+    };
+    full.ontoggle = renderSteps;
+    full.open = !stepOnly;
+    if (!stepOnly) renderSteps();
+    q<HTMLDetailsElement>('[data-xc-key]').open = stepOnly;
+    challengePanel.hidden=false;
+    challengePanel.focus({preventScroll:true});
+    challengePanel.scrollIntoView({block:'start'});
+    track('extreme_challenge_review',{puzzle_number:round.n,group:round.g,detail:stepOnly?'key':'full'});
+  }
   const shareUrl = root.dataset.url ?? 'https://numpredo.com/';
   // 変体上下文：data-variant="diagonal" で units/peers を対角線入りに差し替え——
   // 衝突チェック・メモ自動消去・ヒント・エリア完成が全部対角線制約込みで動く。
@@ -347,6 +381,8 @@ function setup(root: HTMLElement): void {
   // 三级行：自動メモ（全空きマスに候補を一括メモ）+ ソルバー動線（この盤面の解き方手順へ）。
   // ソルバーは標準ルール専用——変体（対角線等）の盤面を持ち込むと「解が複数」と誤報して
   // 「唯一解」の信頼標語を裏切るため、変体ページではボタン自体を出さない。
+  const reviewBtn = challengePanel ? cbtn('search', 'この問題の全手順', () => showChallengeReview(false)) : null;
+  if (reviewBtn) { reviewBtn.classList.add('sk-extreme-review'); ctrl3.append(reviewBtn); }
   ctrl3.append(cbtn('wand', '自動メモ', () => autoNotes()));
   if (!variant) {
     ctrl3.append(cbtn('search', '候補・次の一手', () => {
@@ -457,6 +493,13 @@ function setup(root: HTMLElement): void {
         for (const p of ctx.peers[selected]) notes[p] &= ~bit(d);
       }
       highlightDigit = wasToggleOff ? 0 : d; // 填入后顺带高亮该数字全盘，帮你看分布
+    }
+    if (!pencil && cur[selected]===d) {
+      const round = challengeRound();
+      if (round && !challengeInput.has(round.n)) {
+        challengeInput.add(round.n);
+        track('extreme_challenge_input',{puzzle_number:round.n,group:round.g});
+      }
     }
     np?.input(measurement,!pencil && cur[selected]===d && !ctx.peers[selected].some(p=>cur[p]===d),save,measureParams,()=>learning?.input());
     checkDone();
@@ -632,6 +675,14 @@ function setup(root: HTMLElement): void {
   function setHint(html: string, more = false): void {
     hintMsg.innerHTML = html + (more ? '<span class="sk-hint-more">（もう一度ヒントで詳しく）</span>' : '');
     hintMsg.classList.add('on');
+    if (challengeRound()) {
+      const link = document.createElement('button');
+      link.type = 'button';
+      link.className = 'sk-extreme-review';
+      link.textContent = 'この問題の着目する一手';
+      link.addEventListener('click', () => showChallengeReview(true));
+      hintMsg.append(document.createElement('br'), link);
+    }
   }
   function resumeHref():string {
     const u=new URL(location.pathname,location.origin);
@@ -739,6 +790,7 @@ function setup(root: HTMLElement): void {
 
   // —— 题面切换 ——
   function apply(pz: Grid, sol: Grid, restore?: Saved): void {
+    if (challengePanel) challengePanel.hidden = true;
     puzzleGrid = pz;
     solution = sol;
     given = pz.map((v) => v !== 0);
@@ -1067,6 +1119,7 @@ function setup(root: HTMLElement): void {
     timerEl.textContent = fmt(elapsed());
   }
   function render(): void {
+    if (reviewBtn) reviewBtn.hidden = !challengeRound();
     const selVal = selected >= 0 ? cur[selected] : 0;
     const hlVal = highlightDigit > 0 ? highlightDigit : selVal; // 高亮：数字键扫描优先，否则随选中格值
     const peerSet = selected >= 0 ? new Set(ctx.peers[selected]) : new Set<number>();

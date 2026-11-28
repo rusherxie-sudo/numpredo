@@ -1,4 +1,5 @@
 ---
+import ExtremeChallenges from '../../components/ExtremeChallenges.astro';
 import FeaturedExamples from '../../components/FeaturedExamples.astro';
 import PuzzleLibrary from '../../components/PuzzleLibrary.astro';
 import BeginnerStart from '../../components/BeginnerStart.astro';
@@ -125,7 +126,7 @@ const breadcrumbSchema = {
     </div>
   </div>
 
-  {meta.slug !== 'intermediate' && <div class="px-text"><p><a href="#puzzle-library">全{meta.puzzles.length.toLocaleString('ja-JP')}問から番号・手筋で選ぶ</a> · 問題ごとの途中保存に対応</p></div>}
+  {meta.slug !== 'intermediate' && <div class="px-text"><p><a href="#puzzle-library">全{meta.puzzles.length.toLocaleString('ja-JP')}問から番号・手筋で選ぶ</a> · 問題ごとの途中保存に対応{meta.slug === 'extreme' && <> · <a href="#extreme-challenge">超難問チャレンジ9選</a></>}</p></div>}
   <div id="level-game"><SudokuGame collection level={meta.slug} levelJa={meta.ja} url={url} set={meta.puzzles.map((p) => ({ puzzle: p.puzzle }))} /></div>
 
   <div class="px-text">
@@ -134,6 +135,7 @@ const breadcrumbSchema = {
       <p><a href="#puzzle-library">全{meta.puzzles.length.toLocaleString('ja-JP')}問から番号・手筋で選ぶ</a> · 問題ごとの途中保存に対応</p>
       <p><a href="/guide/how-to-solve/#beginner-walkthrough">初級1問を最初から完成まで、全43手の図解で学ぶ</a> — 同じ問題の練習・解説PDF付き。</p>
     </div>}
+    {meta.slug === 'extreme' && <ExtremeChallenges />}
     <FeaturedExamples level={meta.slug} />
     <PuzzleLibrary level={meta.slug} name={meta.ja} />
     {(meta.slug === 'beginner' || meta.slug === 'intermediate') && <LevelProblemExamples level={meta.slug} />}
